@@ -1,0 +1,368 @@
+{
+  "common": {
+    "appName": "Greensheet",
+    "tagline": "咖啡生豆，安心采购。",
+    "nav": {
+      "dashboard": "数据总览",
+      "catalog": "生豆目录",
+      "campaigns": "营销活动",
+      "orders": "订单",
+      "accounts": "客户",
+      "analytics": "数据分析",
+      "settings": "设置",
+      "help": "帮助"
+    },
+    "buttons": {
+      "save": "保存",
+      "cancel": "取消",
+      "delete": "删除",
+      "edit": "编辑",
+      "close": "关闭",
+      "confirm": "确认",
+      "retry": "重试",
+      "back": "返回",
+      "next": "下一步",
+      "submit": "提交",
+      "search": "搜索",
+      "apply": "应用",
+      "download": "下载",
+      "share": "分享",
+      "clearAll": "全部清除",
+      "saveView": "保存视图",
+      "resetFilters": "重置筛选",
+      "loadMore": "加载更多"
+    },
+    "states": {
+      "loading": "加载中…",
+      "loadingLots": "正在加载批次…",
+      "empty": "暂无数据",
+      "offline": "当前处于离线状态"
+    },
+    "labels": {
+      "active": "启用中",
+      "inactive": "未启用",
+      "new": "新",
+      "optional": "可选",
+      "required": "必填",
+      "all": "全部",
+      "none": "无",
+      "yes": "是",
+      "no": "否",
+      "viewDetails": "查看详情",
+      "lastUpdated": "最近更新",
+      "comingSoon": "即将推出"
+    },
+    "languageSwitcher": {
+      "label": "语言",
+      "en-US": "English (US)",
+      "zh-CN": "简体中文",
+      "es-MX": "Español (México)",
+      "pt-BR": "Português (Brasil)"
+    },
+    "a11y": {
+      "skipToContent": "跳转到主要内容",
+      "openMenu": "打开菜单",
+      "closeMenu": "关闭菜单",
+      "budgetCeilingSlider": "预算上限滑块",
+      "minCupScoreSlider": "最低杯测分数滑块"
+    },
+    "units": {
+      "perLb": "/磅",
+      "lbs": "磅",
+      "kg": "公斤"
+    },
+    "meta": {
+      "title": "Greensheet — 精品咖啡生豆采购平台",
+      "description": "按产地、处理方式和 SCA 杯测分数采购可追溯的精品咖啡生豆，样品 48 小时内发货。"
+    }
+  },
+  "dashboard": {
+    "title": "数据总览",
+    "subtitle": "采购与营收，一目了然",
+    "metrics": {
+      "totalSent": "发送总量",
+      "openRate": "打开率",
+      "clickRate": "点击率",
+      "conversionRate": "转化率",
+      "ltv": "客户终身价值 (LTV)",
+      "cac": "获客成本 (CAC)",
+      "paybackPeriod": "回本周期",
+      "churnRisk": "流失风险",
+      "avgOrderValue": "平均订单金额",
+      "revenue": "营收",
+      "orders": "订单"
+    },
+    "charts": {
+      "engagementOverTime": "互动趋势",
+      "openRatePct": "打开率 %",
+      "clickRatePct": "点击率 %",
+      "conversionRatePct": "转化率 %"
+    },
+    "benchmark": {
+      "title": "同行基准",
+      "topQuartile": "前 25%",
+      "median": "中位数",
+      "yourPercentile": "您的百分位"
+    },
+    "time": {
+      "last7Days": "最近 7 天",
+      "last30Days": "最近 30 天",
+      "last90Days": "最近 90 天",
+      "customRange": "自定义范围"
+    },
+    "empty": {
+      "title": "暂无足够数据",
+      "description": "订单和营销活动数据接入后，指标将显示在这里。",
+      "cta": "连接数据"
+    }
+  },
+  "catalog": {
+    "title": "产地导航",
+    "sourcingObjective": "采购目标",
+    "goals": {
+      "baseline": {
+        "label": "均衡采购",
+        "description": "在品质、成本与可持续性之间取得平衡的标准方案"
+      },
+      "costOptimized": {
+        "label": "成本优化",
+        "description": "以更具竞争力的价格实现利润最大化"
+      },
+      "qualityFirst": {
+        "label": "品质优先",
+        "description": "为高端产品线优先选择最高杯测分数的批次"
+      },
+      "sustainability": {
+        "label": "ESG 先锋",
+        "description": "最大化可持续性与道德采购指标"
+      },
+      "supplyChain": {
+        "label": "供应链优化",
+        "description": "聚焦物流效率与可预期的交付"
+      }
+    },
+    "filters": {
+      "budgetCeiling": "预算上限",
+      "includeOverBudget": "包含超出预算的批次",
+      "sortBy": "排序方式",
+      "sort": {
+        "weighted": "综合评分",
+        "price": "价格",
+        "cup": "杯测分数",
+        "esg": "ESG"
+      },
+      "searchLabel": "搜索批次",
+      "searchPlaceholder": "按产地、品种或风味描述搜索…",
+      "showAdvanced": "显示高级筛选",
+      "hideAdvanced": "隐藏高级筛选",
+      "origins": "产地",
+      "processing": "处理方式",
+      "minCupScore": "最低杯测分数"
+    },
+    "lot": {
+      "overBudget": "超出预算",
+      "compositeScore": "综合评分",
+      "sourceThisLot": "采购此批次",
+      "scoreLabel": "SCA 杯测分",
+      "rankLabel": "排名",
+      "flavorNotesLabel": "风味描述",
+      "metricBars": {
+        "cost": "成本",
+        "quality": "品质",
+        "esg": "ESG",
+        "logistics": "物流"
+      },
+      "lbsAvailable_other": "{{count}} 磅现货",
+      "moreFlavorNotes_other": "另有 {{count}} 项风味"
+    },
+    "attributes": {
+      "origin": "产地",
+      "varietal": "品种",
+      "processMethod": "处理方式",
+      "elevation": "海拔",
+      "cupScore": "杯测分数",
+      "scaCupScore": "SCA 杯测分数",
+      "pricePerLb": "每磅价格",
+      "harvestWindow": "采收窗口",
+      "estimatedArrival": "预计到港",
+      "availableQuantity": "现货数量",
+      "certifications": "认证"
+    },
+    "processMethods": {
+      "washed": "水洗",
+      "natural": "日晒",
+      "honey": "蜜处理",
+      "anaerobic": "厌氧发酵"
+    },
+    "certifications": {
+      "fairTrade": "公平贸易认证",
+      "organic": "有机认证",
+      "rainforestAlliance": "雨林联盟认证"
+    },
+    "origins": {
+      "ethiopia": "埃塞俄比亚",
+      "colombia": "哥伦比亚",
+      "brazil": "巴西",
+      "guatemala": "危地马拉",
+      "kenya": "肯尼亚",
+      "sumatra": "苏门答腊",
+      "yirgacheffe": "耶加雪菲",
+      "huila": "乌伊拉",
+      "costaRica": "哥斯达黎加",
+      "peru": "秘鲁"
+    },
+    "empty": {
+      "title": "没有符合筛选条件的批次",
+      "cta": "清除全部筛选"
+    },
+    "resultsSummary_other": "来自 {{originCount}} 个产地的 {{lotCount}} 个批次"
+  },
+  "campaigns": {
+    "title": "营销活动",
+    "subtitle": "自动化培育流程与 A/B 测试",
+    "sequence": {
+      "nurtureTimeline": "培育时间线",
+      "step": "第 {{number}} 步",
+      "conversion": "{{rate}}% 转化",
+      "activeRollout": "投放中",
+      "summaryView": "摘要视图",
+      "detailedView": "详细视图",
+      "noObjective": "未定义目标",
+      "campaignDetails": "活动详情",
+      "emailsSent_other": "已发送 {{count}} 封"
+    },
+    "steps": {
+      "cof001": {
+        "label": "新产季介绍",
+        "objective": "向新潜在客户介绍当季到港生豆，促成首次互动",
+        "timing": "第 0 天"
+      },
+      "cof002": {
+        "label": "样品套装邀请",
+        "objective": "邀请烘焙商先杯测再决策，降低采购门槛",
+        "timing": "第 3 天"
+      },
+      "cof003": {
+        "label": "烘焙商案例",
+        "objective": "以同行烘焙商案例和杯测数据建立信任",
+        "timing": "第 7 天"
+      },
+      "cof004": {
+        "label": "库存动态提醒",
+        "objective": "通报剩余库存与到港时间，营造合理的紧迫感",
+        "timing": "第 12 天"
+      },
+      "cof005": {
+        "label": "再互动与反馈",
+        "objective": "重新激活未响应的潜在客户，了解其采购计划",
+        "timing": "第 21 天"
+      }
+    },
+    "metrics": {
+      "totalSent": "发送总量",
+      "openRate": "打开率",
+      "clickRate": "点击率",
+      "conversionRate": "转化率"
+    },
+    "abTest": {
+      "title": "多变量效果分析",
+      "variant": "变体",
+      "sampleSize": "样本量",
+      "conversions": "转化数",
+      "conversionRate": "转化率",
+      "confidenceInterval": "95% 可信区间",
+      "probBest": "最优概率",
+      "status": "状态",
+      "winner": "胜出",
+      "testing": "测试中",
+      "switchVariant": "切换变体：",
+      "control": "对照组"
+    },
+    "status": {
+      "planned": "已计划",
+      "active": "进行中",
+      "completed": "已完成",
+      "paused": "已暂停"
+    },
+    "engagement": {
+      "title": "互动趋势",
+      "opens": "打开数",
+      "clicks": "点击数",
+      "conversions": "转化数"
+    },
+    "emails": {
+      "cof001": {
+        "subject": "新到港：{origin} {varietal} · SCA {sca_cup_score} 分",
+        "preheader": "来自 {origin} 的{process_method}批次——{flavor_notes}。现已到港 Greensheet。",
+        "body": "{contact_first_name}，您好：\n\n最新一批 {origin} 生豆已到港：{varietal}，{process_method}处理，SCA 杯测 {sca_cup_score} 分，带有{flavor_notes}风味。价格 {price_per_lb}/磅，现货 {available_lbs} 磅。\n\n您可以先杯测、再决定——样品 48 小时内发货。\n\n—— {sender_name}，Greensheet",
+        "cta": "查看该批次"
+      },
+      "cof002": {
+        "subject": "在下一季菜单前，先杯测 {origin}",
+        "preheader": "样品套装 48 小时内发货——内含 {origin} {varietal}。",
+        "body": "{contact_first_name}，您好：\n\n先品尝，再决定。{origin} 样品套装内含本周由 Q Grader 评分的 {varietal}（{process_method}，SCA {sca_cup_score} 分）。申请后 48 小时内发货，符合条件的烘焙商可免费获取。\n\n—— {sender_name}，Greensheet",
+        "cta": "申请样品套装"
+      },
+      "cof003": {
+        "subject": "{peer_roaster_name} 如何围绕 {origin} 打造菜单",
+        "preheader": "烘焙商实战案例：SCA {sca_cup_score}+ 分的{process_method}批次。",
+        "body": "{contact_first_name}，您好：\n\n上一产季，{peer_roaster_name} 将我们的 {origin} {varietal}（{process_method}）加入其单一产地菜单，首批 {order_volume_lbs} 磅在 {sell_through_weeks} 周内售罄。我们整理了背后的成功要素与杯测数据，供您参考。\n\n—— {sender_name}，Greensheet",
+        "cta": "阅读完整案例"
+      },
+      "cof004": {
+        "subject": "{origin} {varietal} 仅剩 {available_lbs} 磅",
+        "preheader": "{arrival_date} 到港——售完即止，请提前预订。",
+        "body": "{contact_first_name}，您好：\n\n库存动态提醒：{origin} {varietal}（{process_method}，SCA {sca_cup_score} 分）目前仅剩 {available_lbs} 磅。下一柜将于 {arrival_date} 到港，已预订批次优先发货。现在预订即可锁定 {price_per_lb}/磅 的价格。\n\n—— {sender_name}，Greensheet",
+        "cta": "立即预订"
+      },
+      "cof005": {
+        "subject": "{contact_first_name}，{harvest_window}的采购计划定了吗？",
+        "preheader": "告诉我们您的需求，我们为您匹配最合适的批次。",
+        "body": "{contact_first_name}，您好：\n\n我们注意到这次的 {origin} {varietal} 没有进入您的菜单。如果 {harvest_window}的采购计划尚未确定，欢迎回复告诉我们您的需求——处理方式、分数区间、预算——我们将为您匹配最合适的批次。也欢迎预约 15 分钟与采购顾问聊聊。\n\n—— {sender_name}，Greensheet",
+        "cta": "预约采购咨询"
+      }
+    },
+    "emailFooter": {
+      "unsubscribe": "退订邮件",
+      "managePreferences": "管理订阅偏好",
+      "viewInBrowser": "在浏览器中查看",
+      "sentBecause": "您收到此邮件，是因为 {roaster_name} 已注册 Greensheet。",
+      "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
+    },
+    "sms": {
+      "cof002": {
+        "body": "【Greensheet】{origin}{varietal}（SCA {sca_cup_score} 分）样品 48 小时内发货。领取样品套装：{sample_kit_url} 退订回T"
+      },
+      "cof004": {
+        "body": "【Greensheet】{origin}{varietal} 仅剩 {available_lbs} 磅。立即预订：{lot_url} 退订回T"
+      }
+    }
+  },
+  "errors": {
+    "title": "出错了",
+    "generic": "抱歉，出了点问题，请重试。",
+    "unknown": "发生未知错误，请稍后重试。",
+    "codes": {
+      "AUTH_SESSION_EXPIRED": "登录已过期，请重新登录。",
+      "AUTH_INVALID_CREDENTIALS": "邮箱或密码不正确。",
+      "AUTH_FORBIDDEN": "您没有权限执行此操作。",
+      "NET_OFFLINE": "网络连接已断开，请检查网络后重试。",
+      "NET_TIMEOUT": "请求超时，请重试。",
+      "RATE_LIMITED": "操作过于频繁，请稍后再试。",
+      "VAL_REQUIRED_FIELD": "请填写所有必填字段。",
+      "VAL_INVALID_EMAIL": "请输入有效的邮箱地址。",
+      "VAL_BUDGET_RANGE": "预算上限需在 {{min}} 至 {{max}} 之间。",
+      "LOT_NOT_FOUND": "未找到该批次，可能已下架。",
+      "LOT_OUT_OF_STOCK": "该批次已售罄。",
+      "ORDER_FAILED": "订单提交失败，未产生扣款，请重试。",
+      "PAYMENT_DECLINED": "支付被拒绝，请更换支付方式。",
+      "IDEMPOTENCY_CONFLICT": "检测到重复提交，您的原订单未受影响。",
+      "SERVER_ERROR": "服务器繁忙，请稍后重试。"
+    },
+    "cta": {
+      "retry": "重试",
+      "contactSupport": "联系客服",
+      "signInAgain": "重新登录"
+    }
+  }
+}
