@@ -1,0 +1,5 @@
+CHECKS COMPLETE — 3 failure(s)
+FAIL: zh-CN: missing 4 keys e.g. ['campaigns.sequence.emailsSent_one', 'catalog.lot.lbsAvailable_one', 'catalog.lot.moreFlavorNotes_one', 'catalog.resultsSummary_one']
+FAIL: es-MX: 4 extra keys e.g. ['campaigns.sequence.emailsSent_many', 'catalog.lot.lbsAvailable_many', 'catalog.lot.moreFlavorNotes_many', 'catalog.resultsSummary_many']
+FAIL: pt-BR: 4 extra keys e.g. ['campaigns.sequence.emailsSent_many', 'catalog.lot.lbsAvailable_many', 'catalog.lot.moreFlavorNotes_many', 'catalog.resultsSummary_many']
+run1 saved, exit=1 (3 plural-parity failures — verifier plural-unaware, superseded by v2)

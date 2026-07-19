@@ -1,0 +1,5 @@
+cmd: python3 verifier/v2/verify.py | 2026-07-19T02:29:38Z
+  File "/mnt/agents/output/verifier/v2/verify.py", line 50
+    keysets[loc] = flat(data)
+                             ^
+IndentationError: unindent does not match any outer indentation level
