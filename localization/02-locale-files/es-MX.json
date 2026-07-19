@@ -20,7 +20,7 @@
       "close": "Cerrar",
       "confirm": "Confirmar",
       "retry": "Reintentar",
-      "back": "Atrás",
+      "back": "Volver",
       "next": "Siguiente",
       "submit": "Enviar",
       "search": "Buscar",
@@ -36,7 +36,7 @@
       "loading": "Cargando…",
       "loadingLots": "Cargando lotes…",
       "empty": "Aún no hay nada aquí",
-      "offline": "Estás sin conexión"
+      "offline": "Sin conexión"
     },
     "labels": {
       "active": "Activo",
@@ -48,7 +48,7 @@
       "none": "Ninguno",
       "yes": "Sí",
       "no": "No",
-      "viewDetails": "Ver detalles",
+      "viewDetails": "Ver detalhes",
       "lastUpdated": "Última actualización",
       "comingSoon": "Próximamente"
     },
@@ -64,7 +64,7 @@
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
       "budgetCeilingSlider": "Control deslizante de techo de presupuesto",
-      "minCupScoreSlider": "Control deslizante de puntaje mínimo de taza"
+      "minCupScoreSlider": "Control deslizante de puntaje de taza mínimo"
     },
     "units": {
       "perLb": "/lb",
@@ -73,12 +73,12 @@
     },
     "meta": {
       "title": "Greensheet — Café verde de especialidad para tostadores",
-      "description": "Compra café verde de especialidad trazable por origen, proceso y puntaje de taza SCA. Muestras en 48 horas."
+      "description": "Compre café verde de especialidad trazable por origen, proceso y puntaje de taza SCA. Muestras en 48 horas."
     }
   },
   "dashboard": {
-    "title": "Panel",
-    "subtitle": "Tu abastecimiento e ingresos de un vistazo",
+    "title": "Panel general",
+    "subtitle": "Su abastecimiento e ingresos de un vistazo",
     "metrics": {
       "totalSent": "Total enviados",
       "openRate": "Tasa de apertura",
@@ -93,16 +93,16 @@
       "orders": "Pedidos"
     },
     "charts": {
-      "engagementOverTime": "Interacción a lo largo del tiempo",
+      "engagementOverTime": "Interacción en el tiempo",
       "openRatePct": "Tasa de apertura %",
       "clickRatePct": "Tasa de clics %",
       "conversionRatePct": "Tasa de conversión %"
     },
     "benchmark": {
-      "title": "Comparativo con pares",
+      "title": "Comparación con pares",
       "topQuartile": "Cuartil superior",
       "median": "Mediana",
-      "yourPercentile": "Tu percentil"
+      "yourPercentile": "Su percentil"
     },
     "time": {
       "last7Days": "Últimos 7 días",
@@ -112,29 +112,29 @@
     },
     "empty": {
       "title": "Aún no hay datos suficientes",
-      "description": "Cuando tus pedidos y campañas empiecen a fluir, tus métricas aparecerán aquí.",
+      "description": "Cuando sus pedidos y campañas comiencen a fluir, sus métricas aparecerán aquí.",
       "cta": "Conectar datos"
     }
   },
   "catalog": {
     "title": "Navegador de orígenes",
-    "sourcingObjective": "Objetivo de compra",
+    "sourcingObjective": "Objetivo de abastecimiento",
     "goals": {
       "baseline": {
         "label": "Compra equilibrada",
-        "description": "Enfoque estándar que equilibra calidad, costo y sustentabilidad"
+        "description": "Enfoque estándar que equilibra calidad, costo y sostenibilidad"
       },
       "costOptimized": {
         "label": "Optimización de costos",
-        "description": "Máxima expansión de margen con precios más agresivos"
+        "description": "Máxima expansión de margen mediante precios más agresivos"
       },
       "qualityFirst": {
-        "label": "Calidad primero",
+        "label": "Calidad ante todo",
         "description": "Priorizar los puntajes de taza más altos para líneas premium"
       },
       "sustainability": {
         "label": "Campeón de ESG",
-        "description": "Maximizar las métricas de sustentabilidad y compra ética"
+        "description": "Maximizar las métricas de sostenibilidad y abastecimiento ético"
       },
       "supplyChain": {
         "label": "Cadena de suministro optimizada",
@@ -143,7 +143,7 @@
     },
     "filters": {
       "budgetCeiling": "Techo de presupuesto",
-      "includeOverBudget": "Incluir lotes fuera de presupuesto",
+      "includeOverBudget": "Incluir lotes fuera del presupuesto",
       "sortBy": "Ordenar por",
       "sort": {
         "weighted": "Ponderado",
@@ -152,16 +152,16 @@
         "esg": "ESG"
       },
       "searchLabel": "Buscar lotes",
-      "searchPlaceholder": "Buscar por origen, variedad, notas de sabor…",
+      "searchPlaceholder": "Buscar por origen, varietal, notas de sabor…",
       "showAdvanced": "Mostrar filtros avanzados",
       "hideAdvanced": "Ocultar filtros avanzados",
       "origins": "Orígenes",
       "processing": "Procesamiento",
-      "minCupScore": "Puntaje mínimo de taza"
+      "minCupScore": "Puntaje de taza mínimo"
     },
     "lot": {
       "overBudget": "Fuera de presupuesto",
-      "compositeScore": "Puntaje compuesto",
+      "compositeScore": "Puntuación compuesta",
       "sourceThisLot": "Comprar este lote",
       "scoreLabel": "Puntaje SCA",
       "rankLabel": "Posición",
@@ -173,20 +173,22 @@
         "logistics": "Logística"
       },
       "lbsAvailable_one": "{{count}} lb disponible",
-      "lbsAvailable_other": "{{count}} lb disponibles",
+      "lbsAvailable_many": "{{count}} lbs disponibles",
+      "lbsAvailable_other": "{{count}} lbs disponibles",
       "moreFlavorNotes_one": "+{{count}} nota más",
+      "moreFlavorNotes_many": "+{{count}} notas más",
       "moreFlavorNotes_other": "+{{count}} notas más"
     },
     "attributes": {
       "origin": "Origen",
-      "varietal": "Variedad",
+      "varietal": "Varietal",
       "processMethod": "Método de procesamiento",
       "elevation": "Altitud",
       "cupScore": "Puntaje de taza",
       "scaCupScore": "Puntaje de taza SCA",
       "pricePerLb": "Precio por libra",
       "harvestWindow": "Ventana de cosecha",
-      "estimatedArrival": "Llegada estimada",
+      "estimatedArrival": "Arribo estimado",
       "availableQuantity": "Cantidad disponible",
       "certifications": "Certificaciones"
     },
@@ -214,36 +216,38 @@
       "peru": "Perú"
     },
     "empty": {
-      "title": "Ningún lote coincide con tus criterios",
+      "title": "Ningún lote coincide con sus criterios",
       "cta": "Borrar todos los filtros"
     },
     "resultsSummary_one": "{{lotCount}} lote de {{originCount}} orígenes",
+    "resultsSummary_many": "{{lotCount}} lotes de {{originCount}} orígenes",
     "resultsSummary_other": "{{lotCount}} lotes de {{originCount}} orígenes"
   },
   "campaigns": {
     "title": "Campañas",
-    "subtitle": "Automatización y pruebas A/B para tus flujos de nutrición",
+    "subtitle": "Automatización y pruebas A/B para sus secuencias de nurturing",
     "sequence": {
-      "nurtureTimeline": "Línea de tiempo de nutrición",
+      "nurtureTimeline": "Línea de tiempo de nurturing",
       "step": "Paso {{number}}",
-      "conversion": "{{rate}}% de conversión",
-      "activeRollout": "Distribución activa",
+      "conversion": "{{rate}} % de conversión",
+      "activeRollout": "Despliegue activo",
       "summaryView": "Vista resumida",
       "detailedView": "Vista detallada",
       "noObjective": "Sin objetivo definido",
       "campaignDetails": "Detalles de la campaña",
       "emailsSent_one": "{{count}} correo enviado",
+      "emailsSent_many": "{{count}} correos enviados",
       "emailsSent_other": "{{count}} correos enviados"
     },
     "steps": {
       "cof001": {
         "label": "Presentación de la nueva cosecha",
-        "objective": "Presentar los lotes recién llegados a nuevos prospectos y lograr la primera interacción",
+        "objective": "Presentar los lotes recién llegados a prospectos nuevos y lograr la primera interacción",
         "timing": "Día 0"
       },
       "cof002": {
         "label": "Invitación al kit de muestras",
-        "objective": "Invitar a los tostadores a probar antes de comprar y reducir la barrera de decisión",
+        "objective": "Invitar a los tostadores a catar antes de comprar y reducir la fricción de decisión",
         "timing": "Día 3"
       },
       "cof003": {
@@ -253,11 +257,11 @@
       },
       "cof004": {
         "label": "Aviso de disponibilidad",
-        "objective": "Compartir el inventario restante y las fechas de llegada para crear urgencia legítima",
+        "objective": "Compartir el inventario restante y las fechas de arribo para crear urgencia legítima",
         "timing": "Día 12"
       },
       "cof005": {
-        "label": "Reactivación y retroalimentación",
+        "label": "Reenganche y retroalimentación",
         "objective": "Reactivar prospectos sin respuesta y conocer sus planes de compra",
         "timing": "Día 21"
       }
@@ -269,12 +273,12 @@
       "conversionRate": "Tasa de conversión"
     },
     "abTest": {
-      "title": "Análisis de desempeño multivariado",
+      "title": "Análisis de rendimiento multivariante",
       "variant": "Variante",
       "sampleSize": "Tamaño de la muestra",
       "conversions": "Conversiones",
       "conversionRate": "Tasa de conversión",
-      "confidenceInterval": "Intervalo de credibilidad del 95%",
+      "confidenceInterval": "Intervalo de credibilidad del 95 %",
       "probBest": "Prob. de ser la mejor",
       "status": "Estado",
       "winner": "Ganadora",
@@ -283,13 +287,13 @@
       "control": "Control"
     },
     "status": {
-      "planned": "Planeada",
+      "planned": "Planificada",
       "active": "Activa",
       "completed": "Completada",
-      "paused": "Pausada"
+      "paused": "En pausa"
     },
     "engagement": {
-      "title": "Interacción a lo largo del tiempo",
+      "title": "Interacción en el tiempo",
       "opens": "Aperturas",
       "clicks": "Clics",
       "conversions": "Conversiones"
@@ -298,70 +302,70 @@
       "cof001": {
         "subject": "Recién llegado: {origin} {varietal} · SCA {sca_cup_score}",
         "preheader": "Lote {process_method} de {origin} — {flavor_notes}. Acaba de llegar a Greensheet.",
-        "body": "Hola, {contact_first_name}:\n\nNuestro lote más reciente de {origin} acaba de llegar: {varietal}, proceso {process_method}, con {sca_cup_score} puntos en la escala SCA y notas de {flavor_notes}. Precio de {price_per_lb}/lb, con {available_lbs} lb disponibles.\n\nPuedes probarlo antes de decidir — las muestras se envían en 48 horas.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nNuestro lote más reciente de {origin} acaba de llegar: {varietal}, proceso {process_method}, con {sca_cup_score} puntos en la escala SCA y notas a {flavor_notes}. Precio de {price_per_lb}/lb, con {available_lbs} lb disponibles.\n\nPuede catarlo antes de decidir: las muestras se envían en 48 horas.\n\n— {sender_name}, Greensheet",
         "cta": "Ver este lote"
       },
       "cof002": {
-        "subject": "Prueba {origin} antes de tu próximo menú",
-        "preheader": "Tu kit de muestras se envía en 48 horas — incluye {origin} {varietal}.",
-        "body": "Hola, {contact_first_name}:\n\nPrueba antes de decidir. El kit de muestras de {origin} incluye el {varietal} ({process_method}, SCA {sca_cup_score}) que nuestros Q graders puntuaron esta semana. Pide tu kit y lo enviaremos en 48 horas — gratis para tostadores calificados.\n\n— {sender_name}, Greensheet",
+        "subject": "Cate {origin} antes de su próximo menú",
+        "preheader": "Su kit de muestras se envía en 48 horas: incluye {origin} {varietal}.",
+        "body": "Hola, {contact_first_name}:\n\nPruebe antes de decidir. El kit de muestras de {origin} incluye el {varietal} ({process_method}, SCA {sca_cup_score}) que nuestros Q graders puntuaron esta semana. Solicite su kit y lo enviaremos en 48 horas; es gratis para tostadores calificados.\n\n— {sender_name}, Greensheet",
         "cta": "Solicitar kit de muestras"
       },
       "cof003": {
-        "subject": "Cómo {peer_roaster_name} armó un menú alrededor de {origin}",
+        "subject": "Cómo {peer_roaster_name} construyó su menú alrededor de {origin}",
         "preheader": "Caso de éxito: lotes {process_method} con puntaje SCA {sca_cup_score}+.",
-        "body": "Hola, {contact_first_name}:\n\nLa cosecha pasada, {peer_roaster_name} agregó nuestro {origin} {varietal} ({process_method}) a su menú de origen único y agotó las primeras {order_volume_lbs} lb en {sell_through_weeks} semanas. Te contamos qué lo hizo funcionar, con los datos de cata como respaldo.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nLa temporada pasada, {peer_roaster_name} incorporó nuestro {origin} {varietal} ({process_method}) a su menú de origen único y agotó sus primeras {order_volume_lbs} lb en {sell_through_weeks} semanas. Le contamos qué lo hizo posible, con los datos de cata como respaldo.\n\n— {sender_name}, Greensheet",
         "cta": "Leer el caso de éxito"
       },
       "cof004": {
         "subject": "Quedan {available_lbs} lb de {origin} {varietal}",
-        "preheader": "Llega el {arrival_date} — reserva antes de que se agote.",
-        "body": "Hola, {contact_first_name}:\n\nUn aviso rápido de disponibilidad: quedan solo {available_lbs} lb del {origin} {varietal} ({process_method}, SCA {sca_cup_score}). El próximo contenedor llega el {arrival_date} y los lotes reservados se envían primero. Reserva ahora para fijar el precio de {price_per_lb}/lb.\n\n— {sender_name}, Greensheet",
+        "preheader": "Arriba el {arrival_date}: resérvelo antes de que se agote.",
+        "body": "Hola, {contact_first_name}:\n\nUn aviso rápido de disponibilidad: solo quedan {available_lbs} lb del {origin} {varietal} ({process_method}, SCA {sca_cup_score}). El próximo contenedor arriba el {arrival_date} y los lotes reservados se envían primero. Reserve ahora para fijar el precio de {price_per_lb}/lb.\n\n— {sender_name}, Greensheet",
         "cta": "Reservar mi lote"
       },
       "cof005": {
-        "subject": "¿Sigues comprando para {harvest_window}, {contact_first_name}?",
-        "preheader": "Cuéntanos qué buscas — encontramos los lotes correctos para ti.",
-        "body": "Hola, {contact_first_name}:\n\nNotamos que el {origin} {varietal} no entró en tu menú esta vez. Si tus planes para {harvest_window} aún están abiertos, responde contándonos qué buscas — proceso, rango de puntaje, presupuesto — y encontramos los lotes correctos. O agenda 15 minutos con nuestro equipo de sourcing.\n\n— {sender_name}, Greensheet",
+        "subject": "¿Aún busca café para {harvest_window}, {contact_first_name}?",
+        "preheader": "Cuéntenos qué busca y le encontraremos los lotes indicados.",
+        "body": "Hola, {contact_first_name}:\n\nNotamos que el {origin} {varietal} no llegó a su menú esta vez. Si sus planes para {harvest_window} aún están abiertos, respóndanos con lo que busca —proceso, rango de puntaje, presupuesto— y le encontraremos los lotes indicados. O agende 15 minutos con nuestro equipo de abastecimiento.\n\n— {sender_name}, Greensheet",
         "cta": "Agendar una llamada"
       }
     },
     "emailFooter": {
       "unsubscribe": "Cancelar suscripción",
-      "managePreferences": "Gestionar preferencias de correo",
+      "managePreferences": "Administrar preferencias de correo",
       "viewInBrowser": "Ver en el navegador",
-      "sentBecause": "Recibiste este correo porque {roaster_name} está registrado en Greensheet.",
+      "sentBecause": "Recibió este correo porque {roaster_name} está registrado en Greensheet.",
       "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
     },
     "sms": {
       "cof002": {
-        "body": "Greensheet: muestras de {origin} {varietal} (SCA {sca_cup_score}) en 48 h. Pide tu kit: {sample_kit_url} Responde STOP para cancelar."
+        "body": "Greensheet: muestras de {origin} {varietal} (SCA {sca_cup_score}) en 48 h. Pida su kit: {sample_kit_url} Responda ALTO para cancelar."
       },
       "cof004": {
-        "body": "Greensheet: quedan solo {available_lbs} lb de {origin} {varietal}. Reserva: {lot_url} Responde STOP para cancelar."
+        "body": "Greensheet: solo quedan {available_lbs} lb de {origin} {varietal}. Reserve: {lot_url} Responda ALTO para cancelar."
       }
     }
   },
   "errors": {
     "title": "Algo salió mal",
-    "generic": "Lo sentimos, algo salió mal. Inténtalo de nuevo.",
-    "unknown": "Ocurrió un error inesperado. Inténtalo más tarde.",
+    "generic": "Lo sentimos, algo salió mal. Inténtelo de nuevo.",
+    "unknown": "Ocurrió un error inesperado. Inténtelo de nuevo más tarde.",
     "codes": {
-      "AUTH_SESSION_EXPIRED": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "AUTH_SESSION_EXPIRED": "Su sesión ha expirado. Inicie sesión de nuevo.",
       "AUTH_INVALID_CREDENTIALS": "Correo o contraseña incorrectos.",
-      "AUTH_FORBIDDEN": "No tienes permiso para realizar esta acción.",
-      "NET_OFFLINE": "Sin conexión. Revisa tu red e inténtalo de nuevo.",
-      "NET_TIMEOUT": "La solicitud expiró. Inténtalo de nuevo.",
-      "RATE_LIMITED": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
-      "VAL_REQUIRED_FIELD": "Completa todos los campos obligatorios.",
-      "VAL_INVALID_EMAIL": "Ingresa un correo electrónico válido.",
+      "AUTH_FORBIDDEN": "No tiene permiso para realizar esta acción.",
+      "NET_OFFLINE": "Sin conexión. Verifique su red e inténtelo de nuevo.",
+      "NET_TIMEOUT": "La solicitud agotó el tiempo de espera. Inténtelo de nuevo.",
+      "RATE_LIMITED": "Demasiadas solicitudes. Espere un momento e inténtelo de nuevo.",
+      "VAL_REQUIRED_FIELD": "Complete todos los campos obligatorios.",
+      "VAL_INVALID_EMAIL": "Ingrese una dirección de correo válida.",
       "VAL_BUDGET_RANGE": "El techo de presupuesto debe estar entre {{min}} y {{max}}.",
       "LOT_NOT_FOUND": "No se encontró el lote; es posible que ya no esté disponible.",
       "LOT_OUT_OF_STOCK": "Este lote está agotado.",
-      "ORDER_FAILED": "No se pudo procesar el pedido. No se realizó ningún cargo; inténtalo de nuevo.",
-      "PAYMENT_DECLINED": "El pago fue rechazado. Prueba con otro método de pago.",
-      "IDEMPOTENCY_CONFLICT": "Detectamos un envío duplicado; tu pedido original no se modificó.",
-      "SERVER_ERROR": "El servidor no está disponible en este momento. Inténtalo más tarde."
+      "ORDER_FAILED": "No se pudo procesar el pedido. No se realizó ningún cargo; inténtelo de nuevo.",
+      "PAYMENT_DECLINED": "El pago fue rechazado. Pruebe con otro método de pago.",
+      "IDEMPOTENCY_CONFLICT": "Detectamos un envío duplicado; su pedido original no cambió.",
+      "SERVER_ERROR": "El servidor no está disponible en este momento. Inténtelo más tarde."
     },
     "cta": {
       "retry": "Reintentar",
