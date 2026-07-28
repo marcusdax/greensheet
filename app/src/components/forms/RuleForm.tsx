@@ -37,9 +37,32 @@ const ControlledJsonField: React.FC<{ name: string; label: string }> = ({ name, 
   const { field, fieldState } = useController({ name });
   const [text, setText] = React.useState(() => JSON.stringify(field.value ?? {}, null, 2));
 
+  // Only sync the textarea from form state when the field holds a valid parsed
+  // object. If it currently holds a raw string (invalid JSON while typing), keep
+  // the user's text as-is to avoid JSON.stringify corrupting the input.
   React.useEffect(() => {
-    setText(JSON.stringify(field.value ?? {}, null, 2));
+    if (field.value && typeof field.value === 'object') {
+      setText(JSON.stringify(field.value, null, 2));
+    }
   }, [field.value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const next = e.target.value;
+    setText(next);
+    try {
+      field.onChange(JSON.parse(next));
+    } catch {
+      field.onChange(next);
+    }
+  };
+
+  const handleBlur = () => {
+    try {
+      field.onChange(JSON.parse(text));
+    } catch {
+      field.onChange(text);
+    }
+  };
 
   return (
     <div className="space-y-1">
@@ -49,14 +72,8 @@ const ControlledJsonField: React.FC<{ name: string; label: string }> = ({ name, 
       <textarea
         id={name}
         value={text}
-        onChange={(e) => {
-          setText(e.target.value);
-          try {
-            field.onChange(JSON.parse(e.target.value));
-          } catch {
-            field.onChange(e.target.value);
-          }
-        }}
+        onChange={handleChange}
+        onBlur={handleBlur}
         className="w-full px-3 py-2 border border-border-interactive rounded-md bg-surface text-ink text-sm focus:border-teal font-sans font-mono min-h-[120px] resize-y"
       />
       {fieldState.error?.message && (
@@ -74,7 +91,7 @@ export const RuleForm: React.FC<{
   const methods = useForm<RuleFormValues>({
     resolver: zodResolver(ruleCreateSchema),
     defaultValues: defaultValues
-      ? ({ ...emptyDefaults, ...defaultValues, campaignId } as RuleFormValues)
+      ? { ...emptyDefaults, ...defaultValues, campaignId }
       : { ...emptyDefaults, campaignId },
   });
   const { fields, append, remove } = useFieldArray({ control: methods.control, name: 'actions' });

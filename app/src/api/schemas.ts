@@ -34,7 +34,7 @@ export const ruleCreateSchema = z.object({
   conditionsJson: z.record(z.string(), z.any()).default({}),
   actions: z.array(z.object({
     actionType: z.enum(['SEND_TEMPLATE', 'EXECUTE_CAMPAIGN_HALT', 'UPDATE_CRM_LIFECYCLE', 'CREATE_CRM_TASK', 'ADD_SUPPRESSION']),
-    templateId: z.string().uuid().optional().nullable(),
+    templateId: z.string().uuid().or(z.string().length(0)).optional().nullable().transform((v) => v === '' ? null : v),
     channel: z.enum(['email', 'sms']).optional(),
     payload: z.record(z.string(), z.any()).optional(),
     delayMinutes: z.number().int().min(0).default(0),

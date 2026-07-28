@@ -241,6 +241,7 @@ export interface CampaignCreate {
 
 export interface CampaignPatch {
   name?: string;
+  description?: string;
   status?: CampaignStatus;
   targetAudience?: {
     segments: Segment[];
@@ -296,6 +297,7 @@ export interface CampaignPerformance {
   openRate?: number;
   clickRate?: number;
   conversionRate?: number;
+  attributedRevenueCents?: number;
   funnel?: CampaignFunnel;
   variants?: CampaignVariant[];
   computedAt?: string;

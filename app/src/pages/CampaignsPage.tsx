@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { fmtCurrency } from '../i18n/format';
 import {
-  Plus, Pencil, Play, Pause, Trash2,
+  Plus, Pencil, Play, Pause, Archive,
   Mail, MessageSquare, Sparkles,
   ArrowUpRight, ArrowDownRight, RefreshCw
 } from 'lucide-react';
@@ -14,7 +15,7 @@ import { CampaignForm, type CampaignFormValues } from '../components/forms/Campa
 import { RuleForm, type RuleFormValues } from '../components/forms/RuleForm';
 import { Modal } from '../components/ui/Modal';
 import { Drawer } from '../components/ui/Drawer';
-import type { Campaign, CampaignCreate, CampaignPatch, CampaignStatus } from '../types/api';
+import type { Campaign, CampaignCreate, CampaignPatch, CampaignStatus, AutomationRuleCreate } from '../types/api';
 
 const STATUS_FILTERS: { value: CampaignStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -228,7 +229,14 @@ export const CampaignsPage: React.FC = () => {
 
   const handleCreateCampaign = async (data: CampaignFormValues) => {
     clearCampaignError();
-    const created = await createCampaign(data as CampaignCreate);
+    const { status: _status, ...rest } = data;
+    const createPayload: CampaignCreate = {
+      ...rest,
+      targetAudience: data.targetAudience
+        ? { ...data.targetAudience, segments: data.targetAudience.segments ?? [] }
+        : { segments: [] },
+    };
+    const created = await createCampaign(createPayload);
     if (created) {
       pushToast({ kind: 'success', message: 'Campaign created' });
       setSelectedCampaignId(created.id);
@@ -242,8 +250,17 @@ export const CampaignsPage: React.FC = () => {
   const handleUpdateCampaign = async (data: CampaignFormValues) => {
     if (!editingCampaign) return;
     clearCampaignError();
-    const { status, ...rest } = data;
-    const patch = { ...rest, status } as CampaignPatch;
+    const patch: CampaignPatch = {
+      name: data.name,
+      description: data.description,
+      status: data.status,
+    };
+    if (data.targetAudience) {
+      patch.targetAudience = {
+        ...data.targetAudience,
+        segments: data.targetAudience.segments ?? [],
+      };
+    }
     const updated = await updateCampaign(editingCampaign.id, patch);
     if (updated) {
       pushToast({ kind: 'success', message: 'Campaign updated' });
@@ -282,7 +299,18 @@ export const CampaignsPage: React.FC = () => {
 
   const handleCreateRule = async (data: RuleFormValues) => {
     clearRuleError();
-    const created = await createRule(data);
+    const createPayload: AutomationRuleCreate = {
+      ...data,
+      conditionsJson: data.conditionsJson ?? {},
+      actions: data.actions.map((action) => ({
+        actionType: action.actionType,
+        templateId: action.templateId,
+        channel: action.channel,
+        payload: action.payload,
+        delayMinutes: action.delayMinutes ?? 0,
+      })),
+    };
+    const created = await createRule(createPayload);
     if (created) {
       pushToast({ kind: 'success', message: 'Rule created' });
       setRuleDrawerOpen(false);
@@ -332,7 +360,7 @@ export const CampaignsPage: React.FC = () => {
           aria-label={`Retire ${campaign.name}`}
           title="Retire"
         >
-          <Trash2 size={16} />
+          <Archive size={16} />
         </button>
       );
     }
@@ -534,7 +562,11 @@ export const CampaignsPage: React.FC = () => {
                   </div>
                   <div className="col-span-2 lg:col-span-1 bg-surface p-4 rounded-lg border border-border shadow-e1">
                     <span className="overline text-[10px] text-muted block mb-1">ATTRIBUTED REVENUE</span>
-                    <div className="figure-strong text-2xl text-ink font-bold">$125,400</div>
+                    <div className="figure-strong text-2xl text-ink font-bold">
+                      {performance?.attributedRevenueCents != null
+                        ? fmtCurrency('en-US').format(performance.attributedRevenueCents / 100)
+                        : '—'}
+                    </div>
                     <span className="text-[10px] text-success font-semibold flex items-center gap-0.5 mt-1 font-mono">
                       <ArrowUpRight size={10} /> +18.4%
                     </span>

@@ -256,6 +256,7 @@ export const api = {
           openRate: 0.34,
           clickRate: 0.08,
           conversionRate: 0.04,
+          attributedRevenueCents: 12_540_000,
           funnel: { kitSent: 1200, opened: 408, clicked: 96, ordered: 48 },
           variants: [
             {

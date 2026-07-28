@@ -22,13 +22,13 @@ const segmentOptions = [
   { value: 'commercial', label: 'Commercial' },
 ];
 
-export type CampaignFormValues = z.input<typeof campaignCreateSchema> & {
-  status: CampaignStatus;
-};
-
 const campaignFormSchema = campaignCreateSchema.extend({
   status: z.enum(['draft', 'active', 'paused', 'retired']),
 });
+
+export type CampaignFormValues = z.input<typeof campaignCreateSchema> & {
+  status: CampaignStatus;
+};
 
 const emptyDefaults: CampaignFormValues = {
   slug: '',
@@ -44,7 +44,7 @@ export const CampaignForm: React.FC<{
 }> = ({ onSubmit, defaultValues }) => {
   const methods = useForm<CampaignFormValues>({
     resolver: zodResolver(campaignFormSchema),
-    defaultValues: defaultValues ? { ...emptyDefaults, ...defaultValues } as CampaignFormValues : emptyDefaults,
+    defaultValues: defaultValues ? { ...emptyDefaults, ...defaultValues } : emptyDefaults,
   });
 
   return (

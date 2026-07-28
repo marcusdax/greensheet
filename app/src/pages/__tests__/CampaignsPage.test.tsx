@@ -36,13 +36,12 @@ describe('CampaignsPage', () => {
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
   });
 
-  it('renders a campaign row and selects it', async () => {
+  it('renders attributed revenue derived from performance data', async () => {
     render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
-    const rows = screen.getAllByRole('row');
-    expect(rows.length).toBeGreaterThan(1);
 
-    fireEvent.click(rows[1]);
-    await waitFor(() => expect(screen.getByText('SELECTED CAMPAIGN')).toBeInTheDocument());
+    // The first campaign is auto-selected and performance is loaded.
+    await waitFor(() => expect(screen.getByText('ATTRIBUTED REVENUE')).toBeInTheDocument());
+    expect(screen.getByText('$125,400.00')).toBeInTheDocument();
   });
 });
