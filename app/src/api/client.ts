@@ -378,16 +378,11 @@ export const api = {
     reserve: async (
       lotId: string,
       input: { quantityLbs: number; orderId: string },
-      key?: string,
+      key: string,
     ): Promise<ApiResult<Reservation>> => {
-      if (key) {
-        const existing = db.idempotency.get(key);
-        if (existing) {
-          return JSON.stringify(input) === existing.bodyHash
-            ? { data: existing.response as Reservation }
-            : { problem: GS.GEN_1003() };
-        }
-      }
+      const body = { lotId, ...input };
+      const conflict = checkIdempotency<Reservation>(key, body);
+      if (conflict) return conflict;
 
       const lot = db.lots.find((l) => l.id === lotId);
       if (!lot) return { problem: GS.GEN_1005() };
@@ -410,7 +405,7 @@ export const api = {
         createdAt: nowIso(),
       };
       db.reservations.push(reservation);
-      if (key) storeIdempotency(key, input, reservation);
+      storeIdempotency(key, body, reservation);
       return { data: reservation };
     },
   },
@@ -481,6 +476,8 @@ export const api = {
       const kit = db.sampleKits.find((k) => k.feedbackToken === input.feedbackToken);
       if (!kit) return { problem: GS.GEN_1005() };
       kit.status = 'feedback_received';
+      kit.feedback = input;
+      kit.feedbackSubmittedAt = nowIso();
       return { data: kit };
     },
   },
@@ -517,9 +514,27 @@ export const api = {
       if (conflict) return conflict;
 
       const lineItems = input.lineItems;
+      const seenLotIds = new Set<string>();
       for (const item of lineItems) {
+        if (!Number.isInteger(item.quantityLbs) || item.quantityLbs <= 0) {
+          return {
+            problem: GS.GEN_1000([
+              { field: 'quantityLbs', code: 'invalid', message: 'quantityLbs must be a positive integer' },
+            ]),
+          };
+        }
+        if (seenLotIds.has(item.lotId)) {
+          return {
+            problem: GS.GEN_1000([
+              { field: 'lineItems', code: 'duplicate_lot', message: `Duplicate lotId ${item.lotId} in order` },
+            ]),
+          };
+        }
+        seenLotIds.add(item.lotId);
+
         const lot = db.lots.find((l) => l.id === item.lotId);
         if (!lot) return { problem: GS.GEN_1005() };
+        if (lot.status === 'retired') return { problem: GS.CAT_1002() };
         if (lot.availableQuantityLbs < item.quantityLbs) {
           return {
             problem: GS.CAT_1001(

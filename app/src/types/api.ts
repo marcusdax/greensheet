@@ -301,6 +301,8 @@ export interface SampleKit {
   shippedAt: string | null;
   deliveredAt: string | null;
   feedbackToken?: string;
+  feedback?: SampleFeedback;
+  feedbackSubmittedAt?: string | null;
   temporalWorkflowId?: string | null;
 }
 
