@@ -403,8 +403,8 @@ export interface CloudEvent<T = unknown> {
   id: string;
   source: string;
   type: string;
-  subject?: string;
-  time?: string;
+  subject: string;
+  time: string;
   data: T;
 }
 
