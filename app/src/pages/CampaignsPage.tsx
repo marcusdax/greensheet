@@ -301,6 +301,7 @@ export const CampaignsPage: React.FC = () => {
     clearRuleError();
     const createPayload: AutomationRuleCreate = {
       ...data,
+      campaignId: data.campaignId ?? null,
       conditionsJson: data.conditionsJson ?? {},
       actions: data.actions.map((action) => ({
         actionType: action.actionType,

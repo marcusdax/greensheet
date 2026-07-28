@@ -256,7 +256,7 @@ export function seedDatabase() {
       conditionsJson: { days_since_delivery: 4 },
       version: 1,
       status: 'armed',
-      actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_001', channel: 'email', delayMinutes: 0 }],
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '11111111-1111-4111-8111-111111111111', channel: 'email', delayMinutes: 0 }],
     },
     {
       id: 'rule_002',
@@ -267,7 +267,7 @@ export function seedDatabase() {
       conditionsJson: { days_since_delivery: 7 },
       version: 1,
       status: 'armed',
-      actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_002', channel: 'email', delayMinutes: 0 }],
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '22222222-2222-4222-8222-222222222222', channel: 'email', delayMinutes: 0 }],
     },
     {
       id: 'rule_003',
@@ -278,7 +278,7 @@ export function seedDatabase() {
       conditionsJson: { days_since_delivery: 14 },
       version: 1,
       status: 'armed',
-      actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_003', channel: 'email', delayMinutes: 0 }],
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '33333333-3333-4333-8333-333333333333', channel: 'email', delayMinutes: 0 }],
     },
     {
       id: 'rule_004',
@@ -289,7 +289,7 @@ export function seedDatabase() {
       conditionsJson: { days_since_last_order: 21 },
       version: 1,
       status: 'armed',
-      actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_004', channel: 'email', delayMinutes: 0 }],
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '44444444-4444-4444-8444-444444444444', channel: 'email', delayMinutes: 0 }],
     },
     {
       id: 'rule_005',
@@ -300,7 +300,7 @@ export function seedDatabase() {
       conditionsJson: { days_since_last_order: 30 },
       version: 1,
       status: 'armed',
-      actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_005', channel: 'email', delayMinutes: 0 }],
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '55555555-5555-4555-8555-555555555555', channel: 'email', delayMinutes: 0 }],
     },
   ];
 

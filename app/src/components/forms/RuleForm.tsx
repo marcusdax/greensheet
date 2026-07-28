@@ -26,7 +26,7 @@ export type RuleFormValues = z.input<typeof ruleCreateSchema>;
 
 const emptyDefaults: RuleFormValues = {
   ruleCode: '',
-  campaignId: '',
+  campaignId: null,
   ruleName: '',
   triggerEvent: '',
   conditionsJson: {},
@@ -84,14 +84,14 @@ const ControlledJsonField: React.FC<{ name: string; label: string }> = ({ name, 
 };
 
 export const RuleForm: React.FC<{
-  campaignId: string;
+  campaignId?: string | null;
   onSubmit: (data: RuleFormValues) => void | Promise<void>;
   defaultValues?: DefaultValues<RuleFormValues>;
-}> = ({ campaignId, onSubmit, defaultValues }) => {
+}> = ({ campaignId = null, onSubmit, defaultValues }) => {
   const methods = useForm<RuleFormValues>({
     resolver: zodResolver(ruleCreateSchema),
     defaultValues: defaultValues
-      ? { ...emptyDefaults, ...defaultValues, campaignId }
+      ? { ...emptyDefaults, ...defaultValues, campaignId: campaignId ?? defaultValues.campaignId ?? null }
       : { ...emptyDefaults, campaignId },
   });
   const { fields, append, remove } = useFieldArray({ control: methods.control, name: 'actions' });

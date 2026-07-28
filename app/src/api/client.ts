@@ -316,8 +316,10 @@ export const api = {
       const conflict = checkIdempotency<AutomationRule>(key, body);
       if (conflict) return conflict;
 
-      const campaign = db.campaigns.find((c) => c.id === body.campaignId);
-      if (!campaign) return { problem: GS.GEN_1005() };
+      if (body.campaignId) {
+        const campaign = db.campaigns.find((c) => c.id === body.campaignId);
+        if (!campaign) return { problem: GS.GEN_1005() };
+      }
       if (db.rules.some((r) => r.ruleCode === body.ruleCode)) {
         return { problem: GS.CMP_1003() };
       }
@@ -325,12 +327,16 @@ export const api = {
       const rule: AutomationRule = {
         ...body,
         conditionsJson: body.conditionsJson ?? {},
+        campaignId: body.campaignId ?? null,
         id: idempotencyKey(),
         version: 1,
         status: 'armed',
       };
       db.rules.push(rule);
-      campaign.ruleCodes = [...campaign.ruleCodes, rule.ruleCode];
+      if (body.campaignId) {
+        const campaign = db.campaigns.find((c) => c.id === body.campaignId)!;
+        campaign.ruleCodes = [...campaign.ruleCodes, rule.ruleCode];
+      }
       storeIdempotency(key!, body, rule);
       return { data: rule };
     },
@@ -339,7 +345,7 @@ export const api = {
       const idx = db.rules.findIndex((r) => r.id === id);
       if (idx === -1) return { problem: GS.GEN_1005() };
       const next = { ...db.rules[idx], ...patch };
-      if (patch.conditionsJson || patch.actions || patch.status) {
+      if (patch.conditionsJson || patch.actions || patch.status || patch.ruleCode || patch.ruleName || patch.triggerEvent || patch.campaignId) {
         next.version = db.rules[idx].version + 1;
       }
       db.rules[idx] = next;
@@ -350,9 +356,11 @@ export const api = {
       const idx = db.rules.findIndex((r) => r.id === id);
       if (idx === -1) return { problem: GS.GEN_1005() };
       const rule = db.rules[idx];
-      const campaign = db.campaigns.find((c) => c.id === rule.campaignId);
-      if (campaign) {
-        campaign.ruleCodes = campaign.ruleCodes.filter((code) => code !== rule.ruleCode);
+      if (rule.campaignId) {
+        const campaign = db.campaigns.find((c) => c.id === rule.campaignId);
+        if (campaign) {
+          campaign.ruleCodes = campaign.ruleCodes.filter((code) => code !== rule.ruleCode);
+        }
       }
       db.rules.splice(idx, 1);
       return { data: undefined };

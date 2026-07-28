@@ -4,6 +4,7 @@ import { AppLayout } from './components/AppLayout';
 import { NavigatorPage } from './pages/NavigatorPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { CampaignsPage } from './pages/CampaignsPage';
+import { AutomationRulesPage } from './pages/AutomationRulesPage';
 import { RoastersPage } from './pages/RoastersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 
@@ -89,6 +90,7 @@ function App() {
             <Route path="navigator" element={<NavigatorPage />} />
             <Route path="catalog" element={<CatalogPage />} />
             <Route path="campaigns" element={<CampaignsPage />} />
+            <Route path="rules" element={<AutomationRulesPage />} />
             <Route path="roasters" element={<RoastersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             {/* Fallback under locale */}

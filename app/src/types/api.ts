@@ -252,7 +252,7 @@ export interface CampaignPatch {
 export interface AutomationRule {
   id: string;
   ruleCode: string;
-  campaignId: string;
+  campaignId: string | null;
   ruleName: string;
   triggerEvent: string;
   conditionsJson: Record<string, unknown>;
@@ -263,7 +263,7 @@ export interface AutomationRule {
 
 export interface AutomationRuleCreate {
   ruleCode: string;
-  campaignId: string;
+  campaignId: string | null;
   ruleName: string;
   triggerEvent: string;
   conditionsJson?: Record<string, unknown>;
@@ -271,6 +271,10 @@ export interface AutomationRuleCreate {
 }
 
 export interface AutomationRulePatch {
+  ruleCode?: string;
+  ruleName?: string;
+  triggerEvent?: string;
+  campaignId?: string | null;
   conditionsJson?: Record<string, unknown>;
   status?: RuleStatus;
   actions?: RuleAction[];
