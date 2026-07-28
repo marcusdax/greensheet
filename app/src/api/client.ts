@@ -344,9 +344,37 @@ export const api = {
     patch: async (id: string, patch: AutomationRulePatch): Promise<ApiResult<AutomationRule>> => {
       const idx = db.rules.findIndex((r) => r.id === id);
       if (idx === -1) return { problem: GS.GEN_1005() };
-      const next = { ...db.rules[idx], ...patch };
-      if (patch.conditionsJson || patch.actions || patch.status || patch.ruleCode || patch.ruleName || patch.triggerEvent || patch.campaignId) {
-        next.version = db.rules[idx].version + 1;
+      const existing = db.rules[idx];
+
+      const hasPatchField =
+        'ruleCode' in patch ||
+        'ruleName' in patch ||
+        'triggerEvent' in patch ||
+        'campaignId' in patch ||
+        'conditionsJson' in patch ||
+        'status' in patch ||
+        'actions' in patch;
+
+      if ('campaignId' in patch && patch.campaignId !== existing.campaignId) {
+        const codeToRemove = existing.ruleCode;
+        const codeToAdd = patch.ruleCode ?? existing.ruleCode;
+
+        if (existing.campaignId) {
+          const oldCampaign = db.campaigns.find((c) => c.id === existing.campaignId);
+          if (!oldCampaign) return { problem: GS.GEN_1005() };
+          oldCampaign.ruleCodes = oldCampaign.ruleCodes.filter((code) => code !== codeToRemove);
+        }
+
+        if (patch.campaignId) {
+          const newCampaign = db.campaigns.find((c) => c.id === patch.campaignId);
+          if (!newCampaign) return { problem: GS.GEN_1005() };
+          newCampaign.ruleCodes = [...newCampaign.ruleCodes, codeToAdd];
+        }
+      }
+
+      const next = { ...existing, ...patch };
+      if (hasPatchField) {
+        next.version = existing.version + 1;
       }
       db.rules[idx] = next;
       return { data: db.rules[idx] };

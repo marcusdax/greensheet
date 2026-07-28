@@ -372,4 +372,62 @@ describe('api client', () => {
     expect(fetched.data!.lineItems[0].unitPriceCents).toBe(610);
     expect(fetched.data!.finalTotalCents).toBe(3050);
   });
+
+  it('moves a rule between campaigns and updates ruleCodes arrays', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    const otherCampaign = await api.campaigns.create({
+      slug: 'cof-other-2025',
+      name: 'COF Other 2025',
+    }, idempotencyKey());
+    expect('data' in otherCampaign).toBe(true);
+    const otherCampaignId = otherCampaign.data!.id;
+
+    const oldCampaign = (await api.campaigns.get('c_001')).data!;
+    expect(oldCampaign.ruleCodes).toContain(rule.ruleCode);
+
+    const patchRes = await api.rules.patch(rule.id, { campaignId: otherCampaignId });
+    expect('data' in patchRes).toBe(true);
+    expect(patchRes.data!.campaignId).toBe(otherCampaignId);
+    expect(patchRes.data!.version).toBe(rule.version + 1);
+
+    const updatedOld = (await api.campaigns.get('c_001')).data!;
+    const updatedNew = (await api.campaigns.get(otherCampaignId)).data!;
+    expect(updatedOld.ruleCodes).not.toContain(rule.ruleCode);
+    expect(updatedNew.ruleCodes).toContain(rule.ruleCode);
+  });
+
+  it('makes a rule standalone and removes it from the old campaign ruleCodes', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    expect(rule.campaignId).toBe('c_001');
+
+    const patchRes = await api.rules.patch(rule.id, { campaignId: null });
+    expect('data' in patchRes).toBe(true);
+    expect(patchRes.data!.campaignId).toBeNull();
+    expect(patchRes.data!.version).toBe(rule.version + 1);
+
+    const updatedCampaign = (await api.campaigns.get('c_001')).data!;
+    expect(updatedCampaign.ruleCodes).not.toContain(rule.ruleCode);
+  });
+
+  it('bumps version when campaignId changes to and from null', async () => {
+    const ruleRes = await api.rules.create({
+      ruleCode: 'COF-006',
+      campaignId: 'c_001',
+      ruleName: 'Toggle campaign rule',
+      triggerEvent: 'order.created',
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '66666666-6666-4666-8666-666666666666', channel: 'email', delayMinutes: 0 }],
+    }, idempotencyKey());
+    expect('data' in ruleRes).toBe(true);
+    const rule = ruleRes.data!;
+
+    const standalone = await api.rules.patch(rule.id, { campaignId: null });
+    expect('data' in standalone).toBe(true);
+    expect(standalone.data!.campaignId).toBeNull();
+    expect(standalone.data!.version).toBe(rule.version + 1);
+
+    const rejoined = await api.rules.patch(standalone.data!.id, { campaignId: 'c_001' });
+    expect('data' in rejoined).toBe(true);
+    expect(rejoined.data!.campaignId).toBe('c_001');
+    expect(rejoined.data!.version).toBe(rule.version + 2);
+  });
 });

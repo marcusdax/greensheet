@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import { useRules, useUi, useRootStore } from '../stores/root-store';
 import { RuleForm, type RuleFormValues } from '../components/forms/RuleForm';
+import { toRuleActions, fromRuleActions } from '../lib/rule-action-helpers';
 import { Modal } from '../components/ui/Modal';
 import { DataTable } from '../components/ui/DataTable';
 import type { AutomationRule, AutomationRuleCreate, AutomationRulePatch, RuleStatus } from '../types/api';
@@ -29,13 +30,7 @@ const ruleToFormValues = (rule: AutomationRule): RuleFormValues => ({
   ruleName: rule.ruleName,
   triggerEvent: rule.triggerEvent,
   conditionsJson: rule.conditionsJson,
-  actions: rule.actions.map((action) => ({
-    actionType: action.actionType,
-    templateId: action.templateId,
-    channel: action.channel,
-    payload: action.payload,
-    delayMinutes: action.delayMinutes ?? 0,
-  })),
+  actions: fromRuleActions(rule.actions),
 });
 
 export const AutomationRulesPage: React.FC = () => {
@@ -102,13 +97,7 @@ export const AutomationRulesPage: React.FC = () => {
       ...data,
       campaignId: data.campaignId ?? null,
       conditionsJson: data.conditionsJson ?? {},
-      actions: data.actions.map((action) => ({
-        actionType: action.actionType,
-        templateId: action.templateId,
-        channel: action.channel,
-        payload: action.payload,
-        delayMinutes: action.delayMinutes ?? 0,
-      })),
+      actions: toRuleActions(data.actions),
     };
     const created = await createRule(createPayload);
     if (created) {
@@ -129,13 +118,7 @@ export const AutomationRulesPage: React.FC = () => {
       triggerEvent: data.triggerEvent,
       campaignId: data.campaignId ?? null,
       conditionsJson: data.conditionsJson,
-      actions: data.actions.map((action) => ({
-        actionType: action.actionType,
-        templateId: action.templateId,
-        channel: action.channel,
-        payload: action.payload,
-        delayMinutes: action.delayMinutes ?? 0,
-      })),
+      actions: toRuleActions(data.actions),
       status: editingRule.status,
     };
     const updated = await updateRule(editingRule.id, patch);

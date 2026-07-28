@@ -13,6 +13,7 @@ import {
 import { useCampaigns, useRules, useUi, useRootStore } from '../stores/root-store';
 import { CampaignForm, type CampaignFormValues } from '../components/forms/CampaignForm';
 import { RuleForm, type RuleFormValues } from '../components/forms/RuleForm';
+import { toRuleActions } from '../lib/rule-action-helpers';
 import { Modal } from '../components/ui/Modal';
 import { Drawer } from '../components/ui/Drawer';
 import type { Campaign, CampaignCreate, CampaignPatch, CampaignStatus, AutomationRuleCreate } from '../types/api';
@@ -303,13 +304,7 @@ export const CampaignsPage: React.FC = () => {
       ...data,
       campaignId: data.campaignId ?? null,
       conditionsJson: data.conditionsJson ?? {},
-      actions: data.actions.map((action) => ({
-        actionType: action.actionType,
-        templateId: action.templateId,
-        channel: action.channel,
-        payload: action.payload,
-        delayMinutes: action.delayMinutes ?? 0,
-      })),
+      actions: toRuleActions(data.actions),
     };
     const created = await createRule(createPayload);
     if (created) {
