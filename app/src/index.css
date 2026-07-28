@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400..700;1,400..700&family=Fraunces:ital,opsz,wght@0,9..144,480..600;1,9..144,480..600&family=IBM+Plex+Mono:ital,wght@0,500..700;1,500..700&display=swap');
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink font-sans antialiased selection:bg-teal/20 transition-colors duration-base;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-ink font-medium tracking-tight;
+  }
+
+  /* Ledger figures rule */
+  .figure {
+    @apply font-mono font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .figure-strong {
+    @apply font-mono font-bold;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* Focus styling */
+  :focus-visible {
+    @apply outline-none ring-2 ring-teal ring-offset-2 ring-offset-canvas;
+  }
+  
+  /* Scrollbar customization */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-recessed;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-subtle/30 rounded-full hover:bg-subtle/50;
+  }
+}

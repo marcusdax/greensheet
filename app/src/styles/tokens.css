@@ -1,0 +1,50 @@
+:root {
+  /* surfaces */
+  --gs-bg-canvas: 246 241 231;   /* parchment #F6F1E7 */
+  --gs-bg-surface: 253 251 245;  /* #FDFBF5 */
+  --gs-bg-recessed: 239 232 218; /* #EFE8DA */
+  --gs-bg-hover: 228 220 201;    /* #E4DCC9 */
+  /* text */
+  --gs-text-primary: 34 29 22;   /* ink #221D16 */
+  --gs-text-muted: 92 85 70;     /* #5C5546 */
+  --gs-text-subtle: 138 130 114; /* #8A8272 */
+  /* brand statics (reference; also in tailwind config) */
+  --gs-navy: #16323E; --gs-navy-hover: #12252F;
+  --gs-teal: #2A6E73; --gs-teal-hover: #1F4F54;
+  --gs-gold: #C9A34A; --gs-gold-text: #7A5F22;
+  --gs-cherry: #8C3B34; --gs-roast: #4A3527; --gs-leaf: #3E6B50;
+  --gs-border: #D8CFBB; --gs-border-strong: #B9AE97; --gs-border-interactive: #8A8272;
+  --gs-success: #33684A; --gs-success-bg: #E5EFE7;
+  --gs-warning: #8A5F14; --gs-warning-bg: #FBF0DA;
+  --gs-danger: #9E3D31;  --gs-danger-bg: #F9E6E2;
+  --gs-info: #2C6E8C;    --gs-info-bg: #E4EEF3;
+  /* elevation (navy-tinted) */
+  --gs-e1: 0 1px 2px 0 rgb(22 50 62 / 0.07);
+  --gs-e2: 0 2px 4px -1px rgb(22 50 62 / 0.08), 0 4px 8px -2px rgb(22 50 62 / 0.06);
+  --gs-e3: 0 4px 8px -2px rgb(22 50 62 / 0.09), 0 10px 20px -4px rgb(22 50 62 / 0.08);
+  --gs-e4: 0 8px 16px -4px rgb(22 50 62 / 0.10), 0 20px 32px -8px rgb(22 50 62 / 0.10);
+  --gs-e5: 0 16px 48px -8px rgb(22 50 62 / 0.18);
+}
+[data-theme="dark"] {
+  --gs-bg-canvas: 16 27 35;      /* #101B23 */
+  --gs-bg-surface: 27 41 51;     /* #1B2933 */
+  --gs-bg-recessed: 34 51 63;    /* #22333F */
+  --gs-bg-hover: 42 61 73;       /* #2A3D49 */
+  --gs-text-primary: 239 233 219;/* #EFE9DB */
+  --gs-text-muted: 169 160 140;  /* #A9A08C */
+  --gs-text-subtle: 138 130 114;
+  --gs-navy: #16323E; --gs-navy-hover: #12252F;
+  --gs-teal: #7FB6BA; --gs-teal-hover: #93C4C7;   /* dark-mode primary action */
+  --gs-gold: #D4B96A; --gs-gold-text: #D4B96A;
+  --gs-cherry: #E8B4A6; --gs-roast: #4A3527; --gs-leaf: #9FD3B4;
+  --gs-border: #3A4B57; --gs-border-strong: #4A5B68; --gs-border-interactive: #5F7180;
+  --gs-success: #9FD3B4; --gs-success-bg: #1E3328;
+  --gs-warning: #E3B76B; --gs-warning-bg: #3A2E17;
+  --gs-danger: #E89A8F;  --gs-danger-bg: #3A1F1B;
+  --gs-info: #8FC3D9;    --gs-info-bg: #1B2C38;
+  --gs-e1: 0 1px 2px 0 rgb(0 0 0 / 0.40);
+  --gs-e2: 0 2px 4px -1px rgb(0 0 0 / 0.45), 0 4px 8px -2px rgb(0 0 0 / 0.40);
+  --gs-e3: 0 4px 8px -2px rgb(0 0 0 / 0.50), 0 10px 20px -4px rgb(0 0 0 / 0.45);
+  --gs-e4: 0 8px 16px -4px rgb(0 0 0 / 0.55), 0 20px 32px -8px rgb(0 0 0 / 0.50);
+  --gs-e5: 0 16px 48px -8px rgb(0 0 0 / 0.60);
+}

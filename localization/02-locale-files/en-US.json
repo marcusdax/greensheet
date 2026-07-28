@@ -1,0 +1,372 @@
+{
+  "common": {
+    "appName": "Greensheet",
+    "tagline": "Green coffee, sourced with confidence.",
+    "nav": {
+      "dashboard": "Dashboard",
+      "catalog": "Catalog",
+      "campaigns": "Campaigns",
+      "orders": "Orders",
+      "accounts": "Accounts",
+      "analytics": "Analytics",
+      "settings": "Settings",
+      "help": "Help"
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "confirm": "Confirm",
+      "retry": "Retry",
+      "back": "Back",
+      "next": "Next",
+      "submit": "Submit",
+      "search": "Search",
+      "apply": "Apply",
+      "download": "Download",
+      "share": "Share",
+      "clearAll": "Clear all",
+      "saveView": "Save view",
+      "resetFilters": "Reset filters",
+      "loadMore": "Load more"
+    },
+    "states": {
+      "loading": "Loading…",
+      "loadingLots": "Loading lots…",
+      "empty": "Nothing here yet",
+      "offline": "You are offline"
+    },
+    "labels": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "new": "New",
+      "optional": "Optional",
+      "required": "Required",
+      "all": "All",
+      "none": "None",
+      "yes": "Yes",
+      "no": "No",
+      "viewDetails": "View details",
+      "lastUpdated": "Last updated",
+      "comingSoon": "Coming soon"
+    },
+    "languageSwitcher": {
+      "label": "Language",
+      "en-US": "English (US)",
+      "zh-CN": "简体中文",
+      "es-MX": "Español (México)",
+      "pt-BR": "Português (Brasil)"
+    },
+    "a11y": {
+      "skipToContent": "Skip to main content",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "budgetCeilingSlider": "Budget ceiling slider",
+      "minCupScoreSlider": "Minimum cup score slider"
+    },
+    "units": {
+      "perLb": "/lb",
+      "lbs": "lbs",
+      "kg": "kg"
+    },
+    "meta": {
+      "title": "Greensheet — Specialty Green Coffee Sourcing",
+      "description": "Source traceable specialty green coffee by origin, process, and SCA cup score. Samples ship in 48 hours."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Your sourcing pipeline and revenue at a glance",
+    "metrics": {
+      "totalSent": "Total sent",
+      "openRate": "Open rate",
+      "clickRate": "Click rate",
+      "conversionRate": "Conversion rate",
+      "ltv": "Customer lifetime value (LTV)",
+      "cac": "Customer acquisition cost (CAC)",
+      "paybackPeriod": "Payback period",
+      "churnRisk": "Churn risk",
+      "avgOrderValue": "Average order value",
+      "revenue": "Revenue",
+      "orders": "Orders"
+    },
+    "charts": {
+      "engagementOverTime": "Engagement over time",
+      "openRatePct": "Open rate %",
+      "clickRatePct": "Click rate %",
+      "conversionRatePct": "Conversion rate %"
+    },
+    "benchmark": {
+      "title": "Peer benchmark",
+      "topQuartile": "Top quartile",
+      "median": "Median",
+      "yourPercentile": "Your percentile"
+    },
+    "time": {
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "last90Days": "Last 90 days",
+      "customRange": "Custom range"
+    },
+    "empty": {
+      "title": "Not enough data yet",
+      "description": "Once your orders and campaigns start flowing, your metrics will appear here.",
+      "cta": "Connect your data"
+    }
+  },
+  "catalog": {
+    "title": "Origin Navigator",
+    "sourcingObjective": "Sourcing objective",
+    "goals": {
+      "baseline": {
+        "label": "Balanced sourcing",
+        "description": "Standard approach balancing quality, cost, and sustainability"
+      },
+      "costOptimized": {
+        "label": "Cost optimization",
+        "description": "Maximum margin expansion through aggressive pricing"
+      },
+      "qualityFirst": {
+        "label": "Quality focus",
+        "description": "Prioritize highest cup scores for premium product lines"
+      },
+      "sustainability": {
+        "label": "ESG champion",
+        "description": "Maximize sustainability and ethical sourcing metrics"
+      },
+      "supplyChain": {
+        "label": "Supply chain optimized",
+        "description": "Focus on logistics efficiency and predictable delivery"
+      }
+    },
+    "filters": {
+      "budgetCeiling": "Budget ceiling",
+      "includeOverBudget": "Include out-of-budget lots",
+      "sortBy": "Sort by",
+      "sort": {
+        "weighted": "Weighted",
+        "price": "Price",
+        "cup": "Cup score",
+        "esg": "ESG"
+      },
+      "searchLabel": "Search lots",
+      "searchPlaceholder": "Search by origin, varietal, flavor notes…",
+      "showAdvanced": "Show advanced filters",
+      "hideAdvanced": "Hide advanced filters",
+      "origins": "Origins",
+      "processing": "Processing",
+      "minCupScore": "Minimum cup score"
+    },
+    "lot": {
+      "overBudget": "Over budget",
+      "compositeScore": "Composite score",
+      "sourceThisLot": "Source this lot",
+      "scoreLabel": "SCA score",
+      "rankLabel": "Rank",
+      "flavorNotesLabel": "Flavor notes",
+      "metricBars": {
+        "cost": "Cost",
+        "quality": "Quality",
+        "esg": "ESG",
+        "logistics": "Logistics"
+      },
+      "lbsAvailable_one": "{{count}} lb available",
+      "lbsAvailable_other": "{{count}} lbs available",
+      "moreFlavorNotes_one": "+{{count}} more note",
+      "moreFlavorNotes_other": "+{{count}} more notes"
+    },
+    "attributes": {
+      "origin": "Origin",
+      "varietal": "Varietal",
+      "processMethod": "Process method",
+      "elevation": "Elevation",
+      "cupScore": "Cup score",
+      "scaCupScore": "SCA cup score",
+      "pricePerLb": "Price per lb",
+      "harvestWindow": "Harvest window",
+      "estimatedArrival": "Estimated arrival",
+      "availableQuantity": "Available quantity",
+      "certifications": "Certifications"
+    },
+    "processMethods": {
+      "washed": "Washed",
+      "natural": "Natural",
+      "honey": "Honey",
+      "anaerobic": "Anaerobic"
+    },
+    "certifications": {
+      "fairTrade": "Fair Trade certified",
+      "organic": "Organic certified",
+      "rainforestAlliance": "Rainforest Alliance"
+    },
+    "origins": {
+      "ethiopia": "Ethiopia",
+      "colombia": "Colombia",
+      "brazil": "Brazil",
+      "guatemala": "Guatemala",
+      "kenya": "Kenya",
+      "sumatra": "Sumatra",
+      "yirgacheffe": "Yirgacheffe",
+      "huila": "Huila",
+      "costaRica": "Costa Rica",
+      "peru": "Peru"
+    },
+    "empty": {
+      "title": "No lots match your criteria",
+      "cta": "Clear all filters"
+    },
+    "resultsSummary_one": "{{lotCount}} lot from {{originCount}} origins",
+    "resultsSummary_other": "{{lotCount}} lots from {{originCount}} origins"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "subtitle": "Automation and A/B testing for your nurture sequences",
+    "sequence": {
+      "nurtureTimeline": "Nurture timeline",
+      "step": "Step {{number}}",
+      "conversion": "{{rate}}% conversion",
+      "activeRollout": "Active rollout",
+      "summaryView": "Summary view",
+      "detailedView": "Detailed view",
+      "noObjective": "No objective defined",
+      "campaignDetails": "Campaign details",
+      "emailsSent_one": "{{count}} email sent",
+      "emailsSent_other": "{{count}} emails sent"
+    },
+    "steps": {
+      "cof001": {
+        "label": "New harvest introduction",
+        "objective": "Introduce newly landed lots to fresh prospects and earn the first interaction",
+        "timing": "Day 0"
+      },
+      "cof002": {
+        "label": "Sample kit invitation",
+        "objective": "Invite roasters to cup before they commit and lower the decision barrier",
+        "timing": "Day 3"
+      },
+      "cof003": {
+        "label": "Roaster case study",
+        "objective": "Build trust with a peer roaster story backed by cupping data",
+        "timing": "Day 7"
+      },
+      "cof004": {
+        "label": "Availability update",
+        "objective": "Share remaining inventory and arrival dates to create legitimate urgency",
+        "timing": "Day 12"
+      },
+      "cof005": {
+        "label": "Re-engagement and feedback",
+        "objective": "Re-activate silent prospects and learn their sourcing plans",
+        "timing": "Day 21"
+      }
+    },
+    "metrics": {
+      "totalSent": "Total sent",
+      "openRate": "Open rate",
+      "clickRate": "Click rate",
+      "conversionRate": "Conversion rate"
+    },
+    "abTest": {
+      "title": "Multivariate performance analysis",
+      "variant": "Variant",
+      "sampleSize": "Sample size",
+      "conversions": "Conversions",
+      "conversionRate": "Conversion rate",
+      "confidenceInterval": "95% credible interval",
+      "probBest": "Prob. best",
+      "status": "Status",
+      "winner": "Winner",
+      "testing": "Testing",
+      "switchVariant": "Switch variant:",
+      "control": "Control"
+    },
+    "status": {
+      "planned": "Planned",
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "engagement": {
+      "title": "Engagement over time",
+      "opens": "Opens",
+      "clicks": "Clicks",
+      "conversions": "Conversions"
+    },
+    "emails": {
+      "cof001": {
+        "subject": "New arrival: {origin} {varietal} · SCA {sca_cup_score}",
+        "preheader": "{process_method} lot from {origin} — {flavor_notes}. Just landed at Greensheet.",
+        "body": "Hi {contact_first_name},\n\nOur newest {origin} lot just landed: {varietal}, {process_method} process, scoring {sca_cup_score} on the SCA scale, with notes of {flavor_notes}. It is priced at {price_per_lb}/lb with {available_lbs} lbs available.\n\nYou can cup it before you commit — samples ship within 48 hours.\n\n— {sender_name}, Greensheet",
+        "cta": "View this lot"
+      },
+      "cof002": {
+        "subject": "Cup {origin} before your next menu cycle",
+        "preheader": "Your sample kit ships in 48 hours — {origin} {varietal} inside.",
+        "body": "Hi {contact_first_name},\n\nTaste before you commit. The {origin} sample kit includes the {varietal} ({process_method}, SCA {sca_cup_score}) our Q graders scored this week. Request your kit and we will ship within 48 hours — free for qualified roasters.\n\n— {sender_name}, Greensheet",
+        "cta": "Request your sample kit"
+      },
+      "cof003": {
+        "subject": "How {peer_roaster_name} built a menu around {origin}",
+        "preheader": "A roaster case study: {process_method} lots scoring SCA {sca_cup_score}+.",
+        "body": "Hi {contact_first_name},\n\n{peer_roaster_name} added our {origin} {varietal} ({process_method}) to their single-origin menu last season — and sold through their first {order_volume_lbs} lbs in {sell_through_weeks} weeks. Here is what made it work, with the cupping data behind it.\n\n— {sender_name}, Greensheet",
+        "cta": "Read the case study"
+      },
+      "cof004": {
+        "subject": "{available_lbs} lbs left of {origin} {varietal}",
+        "preheader": "Landing {arrival_date} — reserve before it is gone.",
+        "body": "Hi {contact_first_name},\n\nA quick availability update: only {available_lbs} lbs remain of the {origin} {varietal} ({process_method}, SCA {sca_cup_score}). The next container lands {arrival_date}, and reserved lots ship first. Reserve now to lock in {price_per_lb}/lb.\n\n— {sender_name}, Greensheet",
+        "cta": "Reserve your lot"
+      },
+      "cof005": {
+        "subject": "Still sourcing for {harvest_window}, {contact_first_name}?",
+        "preheader": "Tell us what you are looking for — we will match the right lots.",
+        "body": "Hi {contact_first_name},\n\nWe noticed the {origin} {varietal} did not make it onto your menu this time. If your plans for {harvest_window} are still open, reply with what you are looking for — process, score range, budget — and we will match lots to your list. Or book 15 minutes with our sourcing team.\n\n— {sender_name}, Greensheet",
+        "cta": "Book a sourcing call"
+      }
+    },
+    "emailFooter": {
+      "unsubscribe": "Unsubscribe",
+      "managePreferences": "Manage email preferences",
+      "viewInBrowser": "View in browser",
+      "sentBecause": "You received this email because {roaster_name} is registered with Greensheet.",
+      "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
+    },
+    "sms": {
+      "cof002": {
+        "body": "Greensheet: {origin} {varietal} (SCA {sca_cup_score}) samples ship in 48 hrs. Grab your kit: {sample_kit_url} Reply STOP to opt out."
+      },
+      "cof004": {
+        "body": "Greensheet: only {available_lbs} lbs left of {origin} {varietal}. Reserve: {lot_url} Reply STOP to opt out."
+      }
+    }
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "generic": "Sorry, something went wrong. Please try again.",
+    "unknown": "An unexpected error occurred. Please try again later.",
+    "codes": {
+      "AUTH_SESSION_EXPIRED": "Your session has expired. Please sign in again.",
+      "AUTH_INVALID_CREDENTIALS": "Incorrect email or password.",
+      "AUTH_FORBIDDEN": "You do not have permission to perform this action.",
+      "NET_OFFLINE": "You appear to be offline. Check your connection and try again.",
+      "NET_TIMEOUT": "The request timed out. Please try again.",
+      "RATE_LIMITED": "Too many requests. Please wait a moment and try again.",
+      "VAL_REQUIRED_FIELD": "Please fill in all required fields.",
+      "VAL_INVALID_EMAIL": "Please enter a valid email address.",
+      "VAL_BUDGET_RANGE": "Budget ceiling must be between {{min}} and {{max}}.",
+      "LOT_NOT_FOUND": "This lot could not be found. It may no longer be available.",
+      "LOT_OUT_OF_STOCK": "This lot is sold out.",
+      "ORDER_FAILED": "Your order could not be processed. No charge was made — please try again.",
+      "PAYMENT_DECLINED": "Your payment was declined. Please try a different payment method.",
+      "IDEMPOTENCY_CONFLICT": "Duplicate submission detected. Your original order is unchanged.",
+      "SERVER_ERROR": "Our servers are busy right now. Please try again shortly."
+    },
+    "cta": {
+      "retry": "Try again",
+      "contactSupport": "Contact support",
+      "signInAgain": "Sign in again"
+    }
+  }
+}
