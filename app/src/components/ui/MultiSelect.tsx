@@ -1,5 +1,5 @@
 import React from 'react';
-import { useController } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 
 interface MultiSelectOption {
   value: string;
@@ -14,6 +14,8 @@ interface MultiSelectProps {
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({ name, label, options }) => {
   const { field } = useController({ name });
+  const { formState: { errors } } = useFormContext();
+  const error = errors[name];
   const values = (field.value || []) as string[];
 
   const toggle = (value: string) => {
@@ -40,6 +42,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ name, label, options }
           </label>
         ))}
       </div>
+      {error && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
     </div>
   );
 };

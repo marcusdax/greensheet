@@ -2,6 +2,8 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useForm, FormProvider } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { InputField } from '../InputField';
 import { SelectField } from '../SelectField';
 import { CheckboxField } from '../CheckboxField';
@@ -107,6 +109,31 @@ describe('MultiSelect', () => {
     expect(a).toBeChecked();
     fireEvent.click(a);
     expect(a).not.toBeChecked();
+  });
+
+  it('displays a validation error when no option is selected', async () => {
+    const schema = z.object({ tags: z.array(z.string()).min(1, 'Select at least one tag') });
+    function ValidatedForm() {
+      const methods = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: { tags: [] },
+      });
+      return (
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(() => {})}>
+            <MultiSelect
+              name="tags"
+              label="Tags"
+              options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    }
+    render(<ValidatedForm />);
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    expect(await screen.findByText('Select at least one tag')).toBeInTheDocument();
   });
 });
 
