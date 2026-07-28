@@ -2,25 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useRootStore } from '../../../stores/root-store';
 import { ToastContainer } from '../ToastContainer';
-
-const resetUiState = () => {
-  const current = useRootStore.getState();
-  useRootStore.setState({
-    ui: {
-      toasts: [],
-      featureFlags: {},
-      theme: 'light',
-      drawer: { open: false, title: '', content: null },
-      pushToast: current.ui.pushToast,
-      dismissToast: current.ui.dismissToast,
-      setFeatureFlags: current.ui.setFeatureFlags,
-      toggleTheme: current.ui.toggleTheme,
-      setTheme: current.ui.setTheme,
-      openDrawer: current.ui.openDrawer,
-      closeDrawer: current.ui.closeDrawer,
-    },
-  });
-};
+import { resetUiState } from '../../../stores/slices/__tests__/helpers/reset-ui';
 
 describe('ToastContainer', () => {
   beforeEach(() => {
@@ -64,7 +46,8 @@ describe('ToastContainer', () => {
       useRootStore.getState().ui.pushToast({ kind: 'error', message: 'ERR' });
       useRootStore.getState().ui.pushToast({ kind: 'info', message: 'INFO' });
     });
-    const toasts = screen.getAllByText(/OK|ERR|INFO/);
-    expect(toasts).toHaveLength(3);
+    expect(screen.getByText('OK').closest('.rounded-md')).toHaveClass('bg-leaf');
+    expect(screen.getByText('ERR').closest('.rounded-md')).toHaveClass('bg-danger');
+    expect(screen.getByText('INFO').closest('.rounded-md')).toHaveClass('bg-navy');
   });
 });
