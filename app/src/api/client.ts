@@ -557,8 +557,10 @@ export const api = {
 
     feedback: async (input: SampleFeedback, key?: string): Promise<ApiResult<SampleKit>> => {
       const body = deepClone(input);
-      const conflict = checkIdempotency<SampleKit>(key, body);
-      if (conflict) return conflict;
+      if (key) {
+        const conflict = checkIdempotency<SampleKit>(key, body);
+        if (conflict) return conflict;
+      }
 
       const kit = db.sampleKits.find((k) => k.feedbackToken === input.feedbackToken);
       if (!kit) return { problem: GS.GEN_1005() };
