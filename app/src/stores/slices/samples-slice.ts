@@ -11,8 +11,8 @@ export interface SamplesState {
 
 export interface SamplesActions {
   loadKits: (params?: { cursor?: string; roasterId?: string; status?: SampleKit['status'][] }) => Promise<void>;
-  createKit: (input: SampleKitCreate) => Promise<SampleKit | null>;
-  submitFeedback: (input: SampleFeedback) => Promise<SampleKit | null>;
+  createKit: (input: SampleKitCreate, idempotencyKey?: string) => Promise<SampleKit | null>;
+  submitFeedback: (input: SampleFeedback, idempotencyKey?: string) => Promise<SampleKit | null>;
 }
 
 export type SamplesSlice = SamplesState & SamplesActions;
@@ -41,8 +41,8 @@ export const createSamplesSlice = (set: any) => ({
       }, false, 'samples/loadKits/done');
     }
   },
-  createKit: async (input: SampleKitCreate) => {
-    const res = await api.sampleKits.create(input, crypto.randomUUID());
+  createKit: async (input: SampleKitCreate, idempotencyKey?: string) => {
+    const res = await api.sampleKits.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.samples.error = res.problem; }, false, 'samples/createKit/error');
       return null;
@@ -50,8 +50,8 @@ export const createSamplesSlice = (set: any) => ({
     set((s: any) => { s.samples.kits.unshift({ ...res.data }); }, false, 'samples/createKit/done');
     return res.data;
   },
-  submitFeedback: async (input: SampleFeedback) => {
-    const res = await api.sampleKits.feedback(input);
+  submitFeedback: async (input: SampleFeedback, idempotencyKey?: string) => {
+    const res = await api.sampleKits.feedback(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.samples.error = res.problem; }, false, 'samples/submitFeedback/error');
       return null;

@@ -24,6 +24,7 @@ describe('webhooks slice', () => {
     expect(created).not.toBeNull();
     expect(created!.signingSecret).toMatch(/^whsec_/);
     expect(useRootStore.getState().webhooks.webhooks[0].url).toBe('https://example.com/webhook');
+    expect(useRootStore.getState().webhooks.webhooks[0]).not.toHaveProperty('signingSecret');
     expect(useRootStore.getState().webhooks.lastCreatedSecret).toBe(created!.signingSecret);
   });
 

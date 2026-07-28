@@ -13,7 +13,7 @@ export interface WebhooksState {
 
 export interface WebhooksActions {
   loadWebhooks: (params?: { cursor?: string; status?: WebhookSubscription['status'][] }) => Promise<void>;
-  createWebhook: (input: WebhookSubscriptionCreate) => Promise<WebhookSubscriptionWithSecret | null>;
+  createWebhook: (input: WebhookSubscriptionCreate, idempotencyKey?: string) => Promise<WebhookSubscriptionWithSecret | null>;
   updateWebhook: (id: string, patch: WebhookSubscriptionPatch) => Promise<WebhookSubscription | null>;
   deleteWebhook: (id: string) => Promise<boolean>;
   loadDeliveries: (id: string) => Promise<WebhookDelivery[] | null>;
@@ -48,15 +48,16 @@ export const createWebhooksSlice = (set: any) => ({
       }, false, 'webhooks/loadWebhooks/done');
     }
   },
-  createWebhook: async (input: WebhookSubscriptionCreate) => {
-    const res = await api.webhooks.create(input, crypto.randomUUID());
+  createWebhook: async (input: WebhookSubscriptionCreate, idempotencyKey?: string) => {
+    const res = await api.webhooks.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.webhooks.error = res.problem; }, false, 'webhooks/createWebhook/error');
       return null;
     }
+    const { signingSecret, ...webhook } = res.data;
     set((s: any) => {
-      s.webhooks.webhooks.unshift({ ...res.data });
-      s.webhooks.lastCreatedSecret = res.data.signingSecret;
+      s.webhooks.webhooks.unshift(webhook);
+      s.webhooks.lastCreatedSecret = signingSecret;
     }, false, 'webhooks/createWebhook/done');
     return res.data;
   },

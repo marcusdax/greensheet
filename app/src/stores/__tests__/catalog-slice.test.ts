@@ -65,4 +65,25 @@ describe('catalog slice', () => {
     expect(reservation).toBeNull();
     expect(useRootStore.getState().catalog.error?.code).toBe('GS-CAT-1001');
   });
+
+  it('replays idempotent createLot calls and conflicts on mismatched payload', async () => {
+    const catalog = useRootStore.getState().catalog;
+    const key = crypto.randomUUID();
+    const payload = {
+      origin: 'Idempotent Origin',
+      cupScore: 86,
+      pricePerLbCents: 500,
+      costPerLbCents: 350,
+      availableQuantityLbs: 1000,
+      totalProductionLbs: 2000,
+    };
+    const first = await catalog.createLot(payload, key);
+    expect(first).not.toBeNull();
+    const second = await catalog.createLot(payload, key);
+    expect(second!.id).toBe(first!.id);
+
+    const conflict = await catalog.createLot({ ...payload, origin: 'Different Origin' }, key);
+    expect(conflict).toBeNull();
+    expect(useRootStore.getState().catalog.error?.code).toBe('GS-GEN-1003');
+  });
 });

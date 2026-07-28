@@ -12,7 +12,7 @@ export interface CampaignsState {
 
 export interface CampaignsActions {
   loadCampaigns: (params?: { cursor?: string; status?: Campaign['status'][] }) => Promise<void>;
-  createCampaign: (input: CampaignCreate) => Promise<Campaign | null>;
+  createCampaign: (input: CampaignCreate, idempotencyKey?: string) => Promise<Campaign | null>;
   updateCampaign: (id: string, patch: CampaignPatch) => Promise<Campaign | null>;
   activateCampaign: (id: string) => Promise<Campaign | null>;
   pauseCampaign: (id: string) => Promise<Campaign | null>;
@@ -47,8 +47,8 @@ export const createCampaignsSlice = (set: any) => ({
       }, false, 'campaigns/loadCampaigns/done');
     }
   },
-  createCampaign: async (input: CampaignCreate) => {
-    const res = await api.campaigns.create(input, crypto.randomUUID());
+  createCampaign: async (input: CampaignCreate, idempotencyKey?: string) => {
+    const res = await api.campaigns.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.campaigns.error = res.problem; }, false, 'campaigns/createCampaign/error');
       return null;

@@ -11,7 +11,7 @@ export interface RulesState {
 
 export interface RulesActions {
   loadRules: (params?: { cursor?: string; campaignId?: string; status?: AutomationRule['status'][] }) => Promise<void>;
-  createRule: (input: AutomationRuleCreate) => Promise<AutomationRule | null>;
+  createRule: (input: AutomationRuleCreate, idempotencyKey?: string) => Promise<AutomationRule | null>;
   updateRule: (id: string, patch: AutomationRulePatch) => Promise<AutomationRule | null>;
   deleteRule: (id: string) => Promise<boolean>;
 }
@@ -42,8 +42,8 @@ export const createRulesSlice = (set: any) => ({
       }, false, 'rules/loadRules/done');
     }
   },
-  createRule: async (input: AutomationRuleCreate) => {
-    const res = await api.rules.create(input, crypto.randomUUID());
+  createRule: async (input: AutomationRuleCreate, idempotencyKey?: string) => {
+    const res = await api.rules.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.rules.error = res.problem; }, false, 'rules/createRule/error');
       return null;

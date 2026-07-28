@@ -123,6 +123,37 @@ export interface ChurnRisk {
   scoredAt?: string;
 }
 
+export interface Cohort {
+  cohort: string;
+  roasters?: number;
+  revenueCents?: number;
+  orders?: number;
+  churnRate?: number;
+  period?: string;
+}
+
+export interface FunnelStage {
+  stage: string;
+  count?: number;
+  conversionRate?: number;
+  revenueCents?: number;
+}
+
+export interface ViralReferral {
+  referrerId?: string;
+  referrals?: number;
+  conversions?: number;
+  revenueCents?: number;
+  period?: string;
+}
+
+export interface Forecast {
+  period: string;
+  revenueCents?: number;
+  orders?: number;
+  modelVersion?: string;
+}
+
 export interface CoffeeLot {
   id: string;
   origin: string;

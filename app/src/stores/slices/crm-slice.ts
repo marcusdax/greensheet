@@ -11,7 +11,7 @@ export interface CrmState {
 
 export interface CrmActions {
   loadRoasters: (params?: { cursor?: string; status?: Roaster['status'][]; segment?: Roaster['segment'][]; minChurnRisk?: number }) => Promise<void>;
-  createRoaster: (input: RoasterCreate & { status?: Roaster['status']; segment?: Roaster['segment'] }) => Promise<Roaster | null>;
+  createRoaster: (input: RoasterCreate & { status?: Roaster['status']; segment?: Roaster['segment'] }, idempotencyKey?: string) => Promise<Roaster | null>;
   updateRoaster: (id: string, patch: Partial<Roaster>) => Promise<Roaster | null>;
   logIntervention: (roasterId: string, intervention: Omit<Roaster['interventions'][number], 'id'>) => Promise<void>;
   anonymizeRoaster: (id: string) => Promise<void>;
@@ -43,8 +43,8 @@ export const createCrmSlice = (set: any) => ({
       }, false, 'crm/loadRoasters/done');
     }
   },
-  createRoaster: async (input: RoasterCreate & { status?: Roaster['status']; segment?: Roaster['segment'] }) => {
-    const res = await api.roasters.create(input, crypto.randomUUID());
+  createRoaster: async (input: RoasterCreate & { status?: Roaster['status']; segment?: Roaster['segment'] }, idempotencyKey?: string) => {
+    const res = await api.roasters.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.crm.error = res.problem; }, false, 'crm/createRoaster/error');
       return null;
@@ -83,13 +83,17 @@ export const createCrmSlice = (set: any) => ({
     }
   },
   anonymizeRoaster: async (id: string) => {
-    await api.roasters.patch(id, {
+    const res = await api.roasters.patch(id, {
       roasterName: '[redacted]',
       primaryContact: { fullName: '[redacted]', email: 'redacted@example.com', marketingOptIn: false },
     });
+    if ('problem' in res) {
+      set((s: any) => { s.crm.error = res.problem; }, false, 'crm/anonymize/error');
+      return;
+    }
     set((s: any) => {
       const idx = s.crm.roasters.findIndex((r: Roaster) => r.id === id);
-      if (idx >= 0) s.crm.roasters[idx].primaryContact = { fullName: '[redacted]', email: 'redacted@example.com', marketingOptIn: false };
+      if (idx >= 0) s.crm.roasters[idx] = res.data;
     }, false, 'crm/anonymize/done');
   },
 });

@@ -1,13 +1,13 @@
 import { api } from '../../api/client';
-import type { Problem } from '../../types/api';
+import type { Cohort, ChurnRisk, Forecast, FunnelStage, LtvSnapshot, Problem, ViralReferral } from '../../types/api';
 
 export interface AnalyticsState {
-  cohorts: unknown[];
-  ltvSnapshots: unknown[];
-  churnRisks: unknown[];
-  funnelStages: unknown[];
-  viralReferrals: unknown[];
-  forecast: unknown[];
+  cohorts: Cohort[];
+  ltvSnapshots: LtvSnapshot[];
+  churnRisks: ChurnRisk[];
+  funnelStages: FunnelStage[];
+  viralReferrals: ViralReferral[];
+  forecast: Forecast[];
   loading: boolean;
   error: Problem | null;
 }

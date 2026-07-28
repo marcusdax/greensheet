@@ -6,9 +6,14 @@ import type {
   CampaignCreate,
   CampaignPatch,
   CampaignPerformance,
+  ChurnRisk,
+  Cohort,
   CoffeeLot,
   CoffeeLotCreate,
   CoffeeLotPatch,
+  Forecast,
+  FunnelStage,
+  LtvSnapshot,
   Order,
   OrderLineItem,
   PagedResponse,
@@ -20,6 +25,7 @@ import type {
   SampleKit,
   SampleKitCreate,
   SampleKitLot,
+  ViralReferral,
   WebhookDelivery,
   WebhookSubscription,
   WebhookSubscriptionCreate,
@@ -526,13 +532,17 @@ export const api = {
       return { data: kit };
     },
 
-    feedback: async (input: SampleFeedback): Promise<ApiResult<SampleKit>> => {
+    feedback: async (input: SampleFeedback, key?: string): Promise<ApiResult<SampleKit>> => {
+      const body = deepClone(input);
+      const conflict = checkIdempotency<SampleKit>(key, body);
+      if (conflict) return conflict;
+
       const kit = db.sampleKits.find((k) => k.feedbackToken === input.feedbackToken);
       if (!kit) return { problem: GS.GEN_1005() };
-      const body = deepClone(input);
       kit.status = 'feedback_received';
       kit.feedback = body;
       kit.feedbackSubmittedAt = nowIso();
+      if (key) storeIdempotency(key, body, kit);
       return { data: kit };
     },
   },
@@ -746,23 +756,63 @@ export const api = {
   },
 
   analytics: {
-    cohorts: async (): Promise<ApiResult<{ cohorts: unknown[] }>> => {
-      return { data: { cohorts: [] } };
+    cohorts: async (): Promise<ApiResult<{ cohorts: Cohort[] }>> => {
+      return {
+        data: {
+          cohorts: [
+            { cohort: '2025-01', roasters: 120, revenueCents: 1_200_000, orders: 450, churnRate: 0.05, period: '2025-01' },
+            { cohort: '2025-02', roasters: 140, revenueCents: 1_450_000, orders: 520, churnRate: 0.04, period: '2025-02' },
+          ],
+        },
+      };
     },
-    ltv: async (): Promise<ApiResult<{ snapshots: unknown[] }>> => {
-      return { data: { snapshots: [] } };
+    ltv: async (): Promise<ApiResult<{ snapshots: LtvSnapshot[] }>> => {
+      return {
+        data: {
+          snapshots: [
+            { roasterId: 'r_001', ltvCents: 12_450_000, cacCents: 85_000, paybackMonths: 4, computedAt: nowIso(), modelVersion: 'ltv-v1' },
+          ],
+        },
+      };
     },
-    churn: async (): Promise<ApiResult<{ risks: unknown[] }>> => {
-      return { data: { risks: [] } };
+    churn: async (): Promise<ApiResult<{ risks: ChurnRisk[] }>> => {
+      return {
+        data: {
+          risks: [
+            { roasterId: 'r_001', riskScore: 0.12, threshold: 0.3, modelVersion: 'churn-v1', topFeatures: [], scoredAt: nowIso() },
+          ],
+        },
+      };
     },
-    funnel: async (): Promise<ApiResult<{ stages: unknown[] }>> => {
-      return { data: { stages: [] } };
+    funnel: async (): Promise<ApiResult<{ stages: FunnelStage[] }>> => {
+      return {
+        data: {
+          stages: [
+            { stage: 'awareness', count: 5000, conversionRate: 0.25 },
+            { stage: 'consideration', count: 1250, conversionRate: 0.12 },
+            { stage: 'purchase', count: 150, conversionRate: 1.0, revenueCents: 2_000_000 },
+          ],
+        },
+      };
     },
-    viral: async (): Promise<ApiResult<{ referrals: unknown[] }>> => {
-      return { data: { referrals: [] } };
+    viral: async (): Promise<ApiResult<{ referrals: ViralReferral[] }>> => {
+      return {
+        data: {
+          referrals: [
+            { referrerId: 'r_001', referrals: 12, conversions: 4, revenueCents: 800_000, period: '2025-06' },
+          ],
+        },
+      };
     },
-    forecast: async (): Promise<ApiResult<{ forecast: unknown[] }>> => {
-      return { data: { forecast: [] } };
+    forecast: async (): Promise<ApiResult<{ forecast: Forecast[] }>> => {
+      return {
+        data: {
+          forecast: [
+            { period: '2025-08', revenueCents: 5_000_000, orders: 1200, modelVersion: 'forecast-v1' },
+            { period: '2025-09', revenueCents: 5_400_000, orders: 1300, modelVersion: 'forecast-v1' },
+          ],
+        },
+      };
     },
   },
 };

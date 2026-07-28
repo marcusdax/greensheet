@@ -12,10 +12,10 @@ export interface CatalogState {
 
 export interface CatalogActions {
   loadLots: (params?: { cursor?: string; origins?: string[]; minCupScore?: number; maxPricePerLbCents?: number }) => Promise<void>;
-  createLot: (input: CoffeeLotCreate) => Promise<CoffeeLot | null>;
+  createLot: (input: CoffeeLotCreate, idempotencyKey?: string) => Promise<CoffeeLot | null>;
   updateLot: (id: string, patch: CoffeeLotPatch) => Promise<CoffeeLot | null>;
   retireLot: (id: string) => Promise<CoffeeLot | null>;
-  reserveLot: (lotId: string, input: { quantityLbs: number; orderId: string }) => Promise<Reservation | null>;
+  reserveLot: (lotId: string, input: { quantityLbs: number; orderId: string }, idempotencyKey?: string) => Promise<Reservation | null>;
 }
 
 export type CatalogSlice = CatalogState & CatalogActions;
@@ -45,8 +45,8 @@ export const createCatalogSlice = (set: any) => ({
       }, false, 'catalog/loadLots/done');
     }
   },
-  createLot: async (input: CoffeeLotCreate) => {
-    const res = await api.catalog.create(input, crypto.randomUUID());
+  createLot: async (input: CoffeeLotCreate, idempotencyKey?: string) => {
+    const res = await api.catalog.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.catalog.error = res.problem; }, false, 'catalog/createLot/error');
       return null;
@@ -78,8 +78,8 @@ export const createCatalogSlice = (set: any) => ({
     }, false, 'catalog/retireLot/done');
     return res.data;
   },
-  reserveLot: async (lotId: string, input: { quantityLbs: number; orderId: string }) => {
-    const res = await api.catalog.reserve(lotId, input, crypto.randomUUID());
+  reserveLot: async (lotId: string, input: { quantityLbs: number; orderId: string }, idempotencyKey?: string) => {
+    const res = await api.catalog.reserve(lotId, input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.catalog.error = res.problem; }, false, 'catalog/reserveLot/error');
       return null;

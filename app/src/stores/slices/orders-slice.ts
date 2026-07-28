@@ -11,7 +11,7 @@ export interface OrdersState {
 
 export interface OrdersActions {
   loadOrders: (params?: { cursor?: string; accountId?: string; status?: Order['status'][] }) => Promise<void>;
-  createOrder: (input: { accountId: string; lineItems: OrderLineItem[] }) => Promise<Order | null>;
+  createOrder: (input: { accountId: string; lineItems: OrderLineItem[] }, idempotencyKey?: string) => Promise<Order | null>;
   processOrder: (id: string) => Promise<Order | null>;
   shipOrder: (id: string) => Promise<Order | null>;
   deliverOrder: (id: string) => Promise<Order | null>;
@@ -45,8 +45,8 @@ export const createOrdersSlice = (set: any) => ({
       }, false, 'orders/loadOrders/done');
     }
   },
-  createOrder: async (input: { accountId: string; lineItems: OrderLineItem[] }) => {
-    const res = await api.orders.create(input, crypto.randomUUID());
+  createOrder: async (input: { accountId: string; lineItems: OrderLineItem[] }, idempotencyKey?: string) => {
+    const res = await api.orders.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.orders.error = res.problem; }, false, 'orders/createOrder/error');
       return null;
