@@ -313,5 +313,3 @@ export function seedDatabase() {
 export function resetDatabase() {
   seedDatabase();
 }
-
-seedDatabase();
