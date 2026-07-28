@@ -51,7 +51,11 @@ export const createCatalogSlice = (set: any) => ({
       set((s: any) => { s.catalog.error = res.problem; }, false, 'catalog/createLot/error');
       return null;
     }
-    set((s: any) => { s.catalog.lots.unshift({ ...res.data }); }, false, 'catalog/createLot/done');
+    set((s: any) => {
+      const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === res.data.id);
+      if (idx >= 0) s.catalog.lots[idx] = { ...res.data };
+      else s.catalog.lots.unshift({ ...res.data });
+    }, false, 'catalog/createLot/done');
     return res.data;
   },
   updateLot: async (id: string, patch: CoffeeLotPatch) => {
@@ -85,9 +89,14 @@ export const createCatalogSlice = (set: any) => ({
       return null;
     }
     set((s: any) => {
-      const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === lotId);
-      if (idx >= 0) s.catalog.lots[idx].availableQuantityLbs -= input.quantityLbs;
-      s.catalog.reservations.unshift({ ...res.data });
+      const existing = s.catalog.reservations.find((r: Reservation) => r.id === res.data.id);
+      if (!existing) {
+        const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === lotId);
+        if (idx >= 0) s.catalog.lots[idx].availableQuantityLbs -= input.quantityLbs;
+      }
+      const idx = s.catalog.reservations.findIndex((r: Reservation) => r.id === res.data.id);
+      if (idx >= 0) s.catalog.reservations[idx] = { ...res.data };
+      else s.catalog.reservations.unshift({ ...res.data });
     }, false, 'catalog/reserveLot/done');
     return res.data;
   },

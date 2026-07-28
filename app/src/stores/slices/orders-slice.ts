@@ -51,7 +51,11 @@ export const createOrdersSlice = (set: any) => ({
       set((s: any) => { s.orders.error = res.problem; }, false, 'orders/createOrder/error');
       return null;
     }
-    set((s: any) => { s.orders.orders.unshift({ ...res.data }); }, false, 'orders/createOrder/done');
+    set((s: any) => {
+      const idx = s.orders.orders.findIndex((o: Order) => o.id === res.data.id);
+      if (idx >= 0) s.orders.orders[idx] = { ...res.data };
+      else s.orders.orders.unshift({ ...res.data });
+    }, false, 'orders/createOrder/done');
     return res.data;
   },
   processOrder: async (id: string) => {

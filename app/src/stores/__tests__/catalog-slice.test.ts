@@ -57,6 +57,20 @@ describe('catalog slice', () => {
     expect(useRootStore.getState().catalog.reservations[0].quantityLbs).toBe(10);
   });
 
+  it('does not double-decrement inventory on idempotent reserveLot replay', async () => {
+    const catalog = useRootStore.getState().catalog;
+    await catalog.loadLots();
+    const lot = useRootStore.getState().catalog.lots[0];
+    const beforeQty = lot.availableQuantityLbs;
+    const key = crypto.randomUUID();
+    const reservation1 = await catalog.reserveLot(lot.id, { quantityLbs: 10, orderId: 'order_123' }, key);
+    const reservation2 = await catalog.reserveLot(lot.id, { quantityLbs: 10, orderId: 'order_123' }, key);
+    expect(reservation1).not.toBeNull();
+    expect(reservation2!.id).toBe(reservation1!.id);
+    expect(useRootStore.getState().catalog.lots[0].availableQuantityLbs).toBe(beforeQty - 10);
+    expect(useRootStore.getState().catalog.reservations.length).toBe(1);
+  });
+
   it('returns null and records error on insufficient inventory', async () => {
     const catalog = useRootStore.getState().catalog;
     await catalog.loadLots();
@@ -81,6 +95,7 @@ describe('catalog slice', () => {
     expect(first).not.toBeNull();
     const second = await catalog.createLot(payload, key);
     expect(second!.id).toBe(first!.id);
+    expect(useRootStore.getState().catalog.lots.length).toBe(1);
 
     const conflict = await catalog.createLot({ ...payload, origin: 'Different Origin' }, key);
     expect(conflict).toBeNull();

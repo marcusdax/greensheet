@@ -48,7 +48,11 @@ export const createRulesSlice = (set: any) => ({
       set((s: any) => { s.rules.error = res.problem; }, false, 'rules/createRule/error');
       return null;
     }
-    set((s: any) => { s.rules.rules.unshift({ ...res.data }); }, false, 'rules/createRule/done');
+    set((s: any) => {
+      const idx = s.rules.rules.findIndex((r: AutomationRule) => r.id === res.data.id);
+      if (idx >= 0) s.rules.rules[idx] = { ...res.data };
+      else s.rules.rules.unshift({ ...res.data });
+    }, false, 'rules/createRule/done');
     return res.data;
   },
   updateRule: async (id: string, patch: AutomationRulePatch) => {

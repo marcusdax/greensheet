@@ -13,6 +13,7 @@ import type {
   CoffeeLotPatch,
   Forecast,
   FunnelStage,
+  Intervention,
   LtvSnapshot,
   Order,
   OrderLineItem,
@@ -167,6 +168,28 @@ export const api = {
       if (idx === -1) return { problem: GS.GEN_1005() };
       db.roasters[idx] = { ...db.roasters[idx], ...patch, updatedAt: nowIso() };
       return { data: db.roasters[idx] };
+    },
+
+    logIntervention: async (
+      roasterId: string,
+      input: { idempotencyKey: string; intervention: Omit<Intervention, 'id'> },
+    ): Promise<ApiResult<Roaster>> => {
+      const body = deepClone(input);
+      const conflict = checkIdempotency<Roaster>(input.idempotencyKey, body);
+      if (conflict) return conflict;
+
+      const roasterIdx = db.roasters.findIndex((r) => r.id === roasterId);
+      if (roasterIdx === -1) return { problem: GS.GEN_1005() };
+
+      const intervention: Intervention = { ...body.intervention, id: idempotencyKey() };
+      db.roasters[roasterIdx] = {
+        ...db.roasters[roasterIdx],
+        interventions: [...db.roasters[roasterIdx].interventions, intervention],
+        updatedAt: nowIso(),
+      };
+      const updatedRoaster = deepClone(db.roasters[roasterIdx]);
+      storeIdempotency(input.idempotencyKey, body, updatedRoaster);
+      return { data: updatedRoaster };
     },
   },
 

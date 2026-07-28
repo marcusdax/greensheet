@@ -46,13 +46,58 @@ describe('crm slice', () => {
     const crm = useRootStore.getState().crm;
     await crm.loadRoasters();
     const id = useRootStore.getState().crm.roasters[0].id;
-    await crm.logIntervention(id, {
+    const roaster = await crm.logIntervention(id, {
       type: 'sales_call',
       date: '2025-07-01',
       outcome: 'pending',
       notes: 'Follow-up call',
     });
+    expect(roaster).not.toBeNull();
     expect(useRootStore.getState().crm.roasters[0].interventions.length).toBeGreaterThan(1);
+  });
+
+  it('replays idempotent logIntervention calls without duplicating interventions', async () => {
+    const crm = useRootStore.getState().crm;
+    await crm.loadRoasters();
+    const id = useRootStore.getState().crm.roasters[0].id;
+    const initialLength = useRootStore.getState().crm.roasters[0].interventions.length;
+    const key = crypto.randomUUID();
+    const intervention = {
+      type: 'sales_call' as const,
+      date: '2025-07-01',
+      outcome: 'pending' as const,
+      notes: 'Follow-up call',
+    };
+    const roaster1 = await crm.logIntervention(id, intervention, key);
+    expect(roaster1).not.toBeNull();
+    const roaster2 = await crm.logIntervention(id, intervention, key);
+    expect(roaster2!.id).toBe(roaster1!.id);
+    const added1 = roaster1!.interventions.find((i) => i.notes === 'Follow-up call');
+    const added2 = roaster2!.interventions.find((i) => i.notes === 'Follow-up call');
+    expect(added2!.id).toBe(added1!.id);
+    expect(useRootStore.getState().crm.roasters[0].interventions.length).toBe(initialLength + 1);
+  });
+
+  it('conflicts on logIntervention with a reused idempotency key but different payload', async () => {
+    const crm = useRootStore.getState().crm;
+    await crm.loadRoasters();
+    const id = useRootStore.getState().crm.roasters[0].id;
+    const key = crypto.randomUUID();
+    const first = await crm.logIntervention(id, {
+      type: 'sales_call' as const,
+      date: '2025-07-01',
+      outcome: 'pending' as const,
+      notes: 'First call',
+    }, key);
+    expect(first).not.toBeNull();
+    const conflict = await crm.logIntervention(id, {
+      type: 'email_campaign' as const,
+      date: '2025-07-01',
+      outcome: 'pending' as const,
+      notes: 'Different intervention',
+    }, key);
+    expect(conflict).toBeNull();
+    expect(useRootStore.getState().crm.error?.code).toBe('GS-GEN-1003');
   });
 
   it('anonymizes a roaster name and contact', async () => {
@@ -94,6 +139,7 @@ describe('crm slice', () => {
       key,
     );
     expect(second!.id).toBe(first!.id);
+    expect(useRootStore.getState().crm.roasters.length).toBe(1);
 
     const conflict = await crm.createRoaster(
       {

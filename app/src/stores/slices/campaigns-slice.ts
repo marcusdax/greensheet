@@ -53,7 +53,11 @@ export const createCampaignsSlice = (set: any) => ({
       set((s: any) => { s.campaigns.error = res.problem; }, false, 'campaigns/createCampaign/error');
       return null;
     }
-    set((s: any) => { s.campaigns.campaigns.unshift({ ...res.data }); }, false, 'campaigns/createCampaign/done');
+    set((s: any) => {
+      const idx = s.campaigns.campaigns.findIndex((c: Campaign) => c.id === res.data.id);
+      if (idx >= 0) s.campaigns.campaigns[idx] = { ...res.data };
+      else s.campaigns.campaigns.unshift({ ...res.data });
+    }, false, 'campaigns/createCampaign/done');
     return res.data;
   },
   updateCampaign: async (id: string, patch: CampaignPatch) => {

@@ -47,7 +47,11 @@ export const createSamplesSlice = (set: any) => ({
       set((s: any) => { s.samples.error = res.problem; }, false, 'samples/createKit/error');
       return null;
     }
-    set((s: any) => { s.samples.kits.unshift({ ...res.data }); }, false, 'samples/createKit/done');
+    set((s: any) => {
+      const idx = s.samples.kits.findIndex((k: SampleKit) => k.id === res.data.id);
+      if (idx >= 0) s.samples.kits[idx] = { ...res.data };
+      else s.samples.kits.unshift({ ...res.data });
+    }, false, 'samples/createKit/done');
     return res.data;
   },
   submitFeedback: async (input: SampleFeedback, idempotencyKey?: string) => {

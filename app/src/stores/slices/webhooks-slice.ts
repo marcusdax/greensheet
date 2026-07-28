@@ -56,7 +56,9 @@ export const createWebhooksSlice = (set: any) => ({
     }
     const { signingSecret, ...webhook } = res.data;
     set((s: any) => {
-      s.webhooks.webhooks.unshift(webhook);
+      const idx = s.webhooks.webhooks.findIndex((w: WebhookSubscription) => w.id === webhook.id);
+      if (idx >= 0) s.webhooks.webhooks[idx] = webhook;
+      else s.webhooks.webhooks.unshift(webhook);
       s.webhooks.lastCreatedSecret = signingSecret;
     }, false, 'webhooks/createWebhook/done');
     return res.data;
