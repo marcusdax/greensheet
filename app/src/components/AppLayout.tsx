@@ -6,6 +6,7 @@ import { SUPPORTED_LOCALES } from '../i18n';
 import type { Locale } from '../i18n';
 import { LotDetailDrawer } from './LotDetailDrawer';
 import { ComparisonTray } from './ComparisonTray';
+import { ToastContainer } from './ui/ToastContainer';
 import { 
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon, 
   Bell, Globe, Menu, X, ChevronDown
@@ -280,6 +281,9 @@ export const AppLayout: React.FC = () => {
 
       {/* Lot Comparison Tray */}
       <ComparisonTray />
+
+      {/* Global Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
