@@ -167,6 +167,46 @@ describe('api client', () => {
     expect(fetched.data!.feedback).toEqual(feedbackInput);
   });
 
+  it('does not alias caller feedback input on sampleKits.feedback', async () => {
+    const key = idempotencyKey();
+    const createRes = await api.sampleKits.create({
+      roasterId: 'r_001',
+      lotIds: ['lot_001'],
+      shippingAddress: {
+        line1: '1 Main St',
+        city: 'Town',
+        region: 'OR',
+        postalCode: '97201',
+        country: 'US',
+      },
+    }, key);
+    const kit = createRes.data!;
+    const lotRatings = [{ lotId: 'lot_001', rating: 5, wouldOrder: true }];
+    const feedbackInput = {
+      feedbackToken: kit.feedbackToken!,
+      rating: 4,
+      notes: 'Bright acidity, nice body',
+      lotRatings,
+      submittedFromIp: '127.0.0.1',
+    };
+    await api.sampleKits.feedback(feedbackInput);
+
+    feedbackInput.notes = 'Mutated note';
+    feedbackInput.rating = 1;
+    lotRatings[0].rating = 1;
+    lotRatings.push({ lotId: 'lot_002', rating: 2, wouldOrder: false });
+
+    const fetched = await api.sampleKits.get(kit.id);
+    expect('data' in fetched).toBe(true);
+    expect(fetched.data!.feedback).toEqual({
+      feedbackToken: kit.feedbackToken,
+      rating: 4,
+      notes: 'Bright acidity, nice body',
+      lotRatings: [{ lotId: 'lot_001', rating: 5, wouldOrder: true }],
+      submittedFromIp: '127.0.0.1',
+    });
+  });
+
   it('rejects non-integer unitPriceCents in orders.create', async () => {
     const key = idempotencyKey();
     const lotBefore = (await api.catalog.get('lot_001')).data!;

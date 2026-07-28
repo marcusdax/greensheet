@@ -529,8 +529,9 @@ export const api = {
     feedback: async (input: SampleFeedback): Promise<ApiResult<SampleKit>> => {
       const kit = db.sampleKits.find((k) => k.feedbackToken === input.feedbackToken);
       if (!kit) return { problem: GS.GEN_1005() };
+      const body = deepClone(input);
       kit.status = 'feedback_received';
-      kit.feedback = input;
+      kit.feedback = body;
       kit.feedbackSubmittedAt = nowIso();
       return { data: kit };
     },
