@@ -202,6 +202,85 @@ describe('api client', () => {
     expect(res.problem!.code).toBe('GS-GEN-1000');
   });
 
+  it('replays catalog.create without leaking later inventory mutations', async () => {
+    const key = idempotencyKey();
+    const input = {
+      origin: 'Ethiopia',
+      cupScore: 86,
+      pricePerLbCents: 600,
+      costPerLbCents: 400,
+      availableQuantityLbs: 100,
+      totalProductionLbs: 100,
+    } as const;
+    const createRes = await api.catalog.create(input, key);
+    expect('data' in createRes).toBe(true);
+    const originalQty = createRes.data!.availableQuantityLbs;
+
+    await api.catalog.reserve(createRes.data!.id, { quantityLbs: 25, orderId: idempotencyKey() }, idempotencyKey());
+
+    const replayRes = await api.catalog.create(input, key);
+    expect('data' in replayRes).toBe(true);
+    expect(replayRes.data!.id).toBe(createRes.data!.id);
+    expect(replayRes.data!.availableQuantityLbs).toBe(originalQty);
+  });
+
+  it('replays sampleKits.create without leaking later feedback mutations', async () => {
+    const key = idempotencyKey();
+    const createRes = await api.sampleKits.create({
+      roasterId: 'r_001',
+      lotIds: ['lot_001'],
+      shippingAddress: {
+        line1: '1 Main St',
+        city: 'Town',
+        region: 'OR',
+        postalCode: '97201',
+        country: 'US',
+      },
+    }, key);
+    expect('data' in createRes).toBe(true);
+    const originalStatus = createRes.data!.status;
+
+    await api.sampleKits.feedback({
+      feedbackToken: createRes.data!.feedbackToken!,
+      rating: 4,
+      notes: 'Good',
+      lotRatings: [{ lotId: 'lot_001', rating: 5, wouldOrder: true }],
+      submittedFromIp: '127.0.0.1',
+    });
+
+    const replayRes = await api.sampleKits.create({
+      roasterId: 'r_001',
+      lotIds: ['lot_001'],
+      shippingAddress: {
+        line1: '1 Main St',
+        city: 'Town',
+        region: 'OR',
+        postalCode: '97201',
+        country: 'US',
+      },
+    }, key);
+    expect('data' in replayRes).toBe(true);
+    expect(replayRes.data!.id).toBe(createRes.data!.id);
+    expect(replayRes.data!.status).toBe(originalStatus);
+    expect(replayRes.data!.feedback).toBeUndefined();
+  });
+
+  it('rejects non-integer quantityLbs in catalog.reserve', async () => {
+    const res = await api.catalog.reserve('lot_001', {
+      quantityLbs: 1.5,
+      orderId: idempotencyKey(),
+    }, idempotencyKey());
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1000');
+  });
+
+  it('rejects empty lineItems in orders.create', async () => {
+    const key = idempotencyKey();
+    const res = await api.orders.create({ accountId: 'r_001', lineItems: [] }, key);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1000');
+  });
+
   it('omits signingSecret from webhooks list, get, and patch but create returns it', async () => {
     const key = idempotencyKey();
     const createRes = await api.webhooks.create({

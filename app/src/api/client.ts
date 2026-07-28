@@ -61,6 +61,13 @@ function withoutSigningSecret(sub: WebhookSubscriptionWithSecret): WebhookSubscr
   return rest;
 }
 
+function deepClone<T>(value: T): T {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(value) as T;
+  }
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 function checkIdempotency<T>(
   key: string | undefined,
   input: unknown,
@@ -71,14 +78,14 @@ function checkIdempotency<T>(
   const existing = db.idempotency.get(key);
   if (existing) {
     return JSON.stringify(input) === existing.bodyHash
-      ? ({ data: existing.response as T } as ApiResult<T>)
+      ? ({ data: deepClone(existing.response) as T } as ApiResult<T>)
       : { problem: GS.GEN_1003() };
   }
   return undefined;
 }
 
 function storeIdempotency<T>(key: string, input: unknown, response: T): void {
-  db.idempotency.set(key, { bodyHash: JSON.stringify(input), response });
+  db.idempotency.set(key, { bodyHash: JSON.stringify(input), response: deepClone(response) });
 }
 
 export const api = {
@@ -418,6 +425,14 @@ export const api = {
       const conflict = checkIdempotency<Reservation>(key, body);
       if (conflict) return conflict;
 
+      if (!Number.isInteger(input.quantityLbs) || input.quantityLbs <= 0) {
+        return {
+          problem: GS.GEN_1000([
+            { field: 'quantityLbs', code: 'invalid', message: 'quantityLbs must be a positive integer' },
+          ]),
+        };
+      }
+
       const lot = db.lots.find((l) => l.id === lotId);
       if (!lot) return { problem: GS.GEN_1005() };
       if (lot.status === 'retired') return { problem: GS.CAT_1002() };
@@ -548,6 +563,13 @@ export const api = {
       if (conflict) return conflict;
 
       const lineItems = input.lineItems;
+      if (!lineItems.length) {
+        return {
+          problem: GS.GEN_1000([
+            { field: 'lineItems', code: 'required', message: 'At least one line item is required' },
+          ]),
+        };
+      }
       const seenLotIds = new Set<string>();
       for (const item of lineItems) {
         if (!Number.isInteger(item.quantityLbs) || item.quantityLbs <= 0) {
