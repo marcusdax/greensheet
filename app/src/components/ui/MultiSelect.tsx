@@ -42,7 +42,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ name, label, options }
           </label>
         ))}
       </div>
-      {error && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
+      {error?.message && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
     </div>
   );
 };

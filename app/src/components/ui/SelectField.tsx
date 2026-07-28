@@ -16,7 +16,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, 
       <select id={name} {...register(name)} {...rest} className="w-full px-3 py-2 border border-border-interactive rounded-md bg-surface text-ink text-sm focus:border-teal font-sans">
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
+      {error?.message && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
     </div>
   );
 };

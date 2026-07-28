@@ -15,7 +15,7 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, ...re
         <input type="checkbox" {...register(name)} {...rest} className="w-4 h-4 rounded border-border-interactive bg-surface text-teal focus:ring-teal" />
         <span className="text-xs font-sans font-semibold text-muted uppercase tracking-wider">{label}</span>
       </label>
-      {error && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
+      {error?.message && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
     </div>
   );
 };

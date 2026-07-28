@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +13,7 @@ import { MultiSelect } from '../MultiSelect';
 import { DataTable } from '../DataTable';
 import type { ColumnDef } from '../DataTable';
 import { Pagination } from '../Pagination';
+import { TextAreaField } from '../TextAreaField';
 import { Modal } from '../Modal';
 import { Drawer } from '../Drawer';
 
@@ -66,6 +67,28 @@ describe('CheckboxField', () => {
   });
 });
 
+describe('TextAreaField', () => {
+  it('renders, accepts text, and submits the captured value', async () => {
+    const onSubmit = vi.fn();
+    function SubmitForm() {
+      const methods = useForm({ defaultValues: { notes: '' } });
+      return (
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <TextAreaField name="notes" label="Notes" data-testid="notes" />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    }
+    render(<SubmitForm />);
+    const textarea = screen.getByTestId('notes');
+    fireEvent.change(textarea, { target: { value: 'Hello world' } });
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ notes: 'Hello world' }, expect.anything()));
+  });
+});
+
 describe('NumberField', () => {
   it('renders a number input', () => {
     render(
@@ -74,6 +97,15 @@ describe('NumberField', () => {
       </FormWrapper>
     );
     expect(screen.getByText('Quantity')).toBeInTheDocument();
+    expect(screen.getByTestId('qty')).toHaveAttribute('type', 'number');
+  });
+
+  it('ignores a caller-supplied type override and keeps type="number"', () => {
+    render(
+      <FormWrapper>
+        <NumberField name="quantity" label="Quantity" type="text" data-testid="qty" />
+      </FormWrapper>
+    );
     expect(screen.getByTestId('qty')).toHaveAttribute('type', 'number');
   });
 });

@@ -12,8 +12,8 @@ export const NumberField: React.FC<NumberFieldProps> = ({ name, label, ...rest }
   return (
     <div className="space-y-1">
       <label htmlFor={name} className="block text-xs font-sans font-semibold text-muted uppercase tracking-wider">{label}</label>
-      <input id={name} type="number" {...register(name, { valueAsNumber: true })} {...rest} className="w-full px-3 py-2 border border-border-interactive rounded-md bg-surface text-ink text-sm focus:border-teal font-sans" />
-      {error && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
+      <input id={name} {...register(name, { valueAsNumber: true })} {...rest} type="number" className="w-full px-3 py-2 border border-border-interactive rounded-md bg-surface text-ink text-sm focus:border-teal font-sans" />
+      {error?.message && <span className="text-xs text-danger font-sans">{String(error.message)}</span>}
     </div>
   );
 };
