@@ -1,4 +1,4 @@
-import type { Roaster, Campaign, AutomationRule, CoffeeLot, SampleKit, Order, WebhookSubscription, Reservation } from '../types/api';
+import type { Roaster, Campaign, AutomationRule, CoffeeLot, SampleKit, Order, WebhookSubscriptionWithSecret, Reservation } from '../types/api';
 
 export const db = {
   roasters: [] as Roaster[],
@@ -8,7 +8,7 @@ export const db = {
   sampleKits: [] as SampleKit[],
   orders: [] as Order[],
   reservations: [] as Reservation[],
-  webhooks: [] as WebhookSubscription[],
+  webhooks: [] as WebhookSubscriptionWithSecret[],
   idempotency: new Map<string, { bodyHash: string; response: unknown; problem?: unknown }>(),
 };
 

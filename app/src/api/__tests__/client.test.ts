@@ -166,4 +166,62 @@ describe('api client', () => {
     const fetched = await api.sampleKits.get(kit.id);
     expect(fetched.data!.feedback).toEqual(feedbackInput);
   });
+
+  it('rejects non-integer unitPriceCents in orders.create', async () => {
+    const key = idempotencyKey();
+    const lotBefore = (await api.catalog.get('lot_001')).data!;
+    const beforeQty = lotBefore.availableQuantityLbs;
+    const res = await api.orders.create({
+      accountId: 'r_001',
+      lineItems: [{ lotId: 'lot_001', quantityLbs: 1, unitPriceCents: 610.5 }],
+    }, key);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1000');
+
+    const lotAfter = (await api.catalog.get('lot_001')).data!;
+    expect(lotAfter.availableQuantityLbs).toBe(beforeQty);
+  });
+
+  it('rejects non-integer pricePerLbCents and costPerLbCents in catalog.create', async () => {
+    const key = idempotencyKey();
+    const res = await api.catalog.create({
+      origin: 'Test Origin',
+      cupScore: 85,
+      pricePerLbCents: 100.5,
+      costPerLbCents: 80.25,
+      availableQuantityLbs: 100,
+      totalProductionLbs: 100,
+    }, key);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1000');
+  });
+
+  it('rejects non-integer pricePerLbCents in catalog.patch', async () => {
+    const res = await api.catalog.patch('lot_001', { pricePerLbCents: 610.5 });
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1000');
+  });
+
+  it('omits signingSecret from webhooks list, get, and patch but create returns it', async () => {
+    const key = idempotencyKey();
+    const createRes = await api.webhooks.create({
+      url: 'https://example.com/webhook',
+      events: ['order.created'],
+    }, key);
+    expect('data' in createRes).toBe(true);
+    expect(createRes.data!.signingSecret).toMatch(/^whsec_/);
+
+    const listRes = await api.webhooks.list();
+    expect('data' in listRes).toBe(true);
+    expect(listRes.data!.data).toHaveLength(1);
+    expect(listRes.data!.data[0]).not.toHaveProperty('signingSecret');
+
+    const getRes = await api.webhooks.get(createRes.data!.id);
+    expect('data' in getRes).toBe(true);
+    expect(getRes.data!).not.toHaveProperty('signingSecret');
+
+    const patchRes = await api.webhooks.patch(createRes.data!.id, { status: 'paused' });
+    expect('data' in patchRes).toBe(true);
+    expect(patchRes.data!).not.toHaveProperty('signingSecret');
+  });
 });

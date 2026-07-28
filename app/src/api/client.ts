@@ -56,6 +56,11 @@ function makePage<T>(items: T[], limit: number, cursor?: string): PagedResponse<
   };
 }
 
+function withoutSigningSecret(sub: WebhookSubscriptionWithSecret): WebhookSubscription {
+  const { signingSecret: _, ...rest } = sub;
+  return rest;
+}
+
 function checkIdempotency<T>(
   key: string | undefined,
   input: unknown,
@@ -346,6 +351,25 @@ export const api = {
       const conflict = checkIdempotency<CoffeeLot>(key, input);
       if (conflict) return conflict;
 
+      const errors: { field: string; code: string; message: string }[] = [];
+      if (!Number.isInteger(input.pricePerLbCents) || input.pricePerLbCents <= 0) {
+        errors.push({
+          field: 'pricePerLbCents',
+          code: 'invalid',
+          message: 'pricePerLbCents must be a positive integer',
+        });
+      }
+      if (!Number.isInteger(input.costPerLbCents) || input.costPerLbCents <= 0) {
+        errors.push({
+          field: 'costPerLbCents',
+          code: 'invalid',
+          message: 'costPerLbCents must be a positive integer',
+        });
+      }
+      if (errors.length) {
+        return { problem: GS.GEN_1000(errors) };
+      }
+
       const lot: CoffeeLot = {
         ...input,
         varietal: input.varietal ?? null,
@@ -371,6 +395,16 @@ export const api = {
     patch: async (id: string, patch: CoffeeLotPatch): Promise<ApiResult<CoffeeLot>> => {
       const idx = db.lots.findIndex((l) => l.id === id);
       if (idx === -1) return { problem: GS.GEN_1005() };
+      if (
+        patch.pricePerLbCents !== undefined &&
+        (!Number.isInteger(patch.pricePerLbCents) || patch.pricePerLbCents <= 0)
+      ) {
+        return {
+          problem: GS.GEN_1000([
+            { field: 'pricePerLbCents', code: 'invalid', message: 'pricePerLbCents must be a positive integer' },
+          ]),
+        };
+      }
       db.lots[idx] = { ...db.lots[idx], ...patch, lastUpdatedAt: nowIso() };
       return { data: db.lots[idx] };
     },
@@ -523,6 +557,13 @@ export const api = {
             ]),
           };
         }
+        if (!Number.isInteger(item.unitPriceCents) || item.unitPriceCents <= 0) {
+          return {
+            problem: GS.GEN_1000([
+              { field: 'unitPriceCents', code: 'invalid', message: 'unitPriceCents must be a positive integer' },
+            ]),
+          };
+        }
         if (seenLotIds.has(item.lotId)) {
           return {
             problem: GS.GEN_1000([
@@ -613,12 +654,12 @@ export const api = {
       if (params.status?.length) {
         items = items.filter((w) => params.status!.includes(w.status));
       }
-      return { data: makePage(items, params.limit ?? 25, params.cursor) };
+      return { data: makePage(items.map(withoutSigningSecret), params.limit ?? 25, params.cursor) };
     },
 
     get: async (id: string): Promise<ApiResult<WebhookSubscription>> => {
       const item = db.webhooks.find((w) => w.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: withoutSigningSecret(item) } : { problem: GS.GEN_1005() };
     },
 
     create: async (
@@ -644,7 +685,7 @@ export const api = {
       const idx = db.webhooks.findIndex((w) => w.id === id);
       if (idx === -1) return { problem: GS.GEN_1005() };
       db.webhooks[idx] = { ...db.webhooks[idx], ...patch };
-      return { data: db.webhooks[idx] };
+      return { data: withoutSigningSecret(db.webhooks[idx]) };
     },
 
     delete: async (id: string): Promise<ApiResult<void>> => {
