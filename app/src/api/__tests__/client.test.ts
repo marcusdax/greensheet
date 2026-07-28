@@ -303,4 +303,33 @@ describe('api client', () => {
     expect('data' in patchRes).toBe(true);
     expect(patchRes.data!).not.toHaveProperty('signingSecret');
   });
+
+  it('filters catalog.list by integer cents via maxPricePerLbCents', async () => {
+    const res = await api.catalog.list({ maxPricePerLbCents: 575 });
+    expect('data' in res).toBe(true);
+    expect(res.data!.data.map((l) => l.id).sort()).toEqual([
+      'lot_002',
+      'lot_003',
+      'lot_005',
+    ]);
+  });
+
+  it('does not alias caller input arrays/objects on create', async () => {
+    const key = idempotencyKey();
+    const lineItems = [{ lotId: 'lot_001', quantityLbs: 5, unitPriceCents: 610 }];
+    const input = { accountId: 'r_001', lineItems };
+    const createRes = await api.orders.create(input, key);
+    expect('data' in createRes).toBe(true);
+    const orderId = createRes.data!.id;
+
+    lineItems[0].quantityLbs = 9999;
+    lineItems.push({ lotId: 'lot_002', quantityLbs: 1, unitPriceCents: 575 });
+
+    const fetched = await api.orders.get(orderId);
+    expect('data' in fetched).toBe(true);
+    expect(fetched.data!.lineItems).toHaveLength(1);
+    expect(fetched.data!.lineItems[0].quantityLbs).toBe(5);
+    expect(fetched.data!.lineItems[0].unitPriceCents).toBe(610);
+    expect(fetched.data!.finalTotalCents).toBe(3050);
+  });
 });

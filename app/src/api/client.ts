@@ -121,22 +121,23 @@ export const api = {
       input: RoasterCreate & { status?: Roaster['status']; segment?: Roaster['segment'] },
       key?: string,
     ): Promise<ApiResult<Roaster>> => {
-      const conflict = checkIdempotency<Roaster>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<Roaster>(key, body);
       if (conflict) return conflict;
 
       if (
-        input.businessRegistration &&
+        body.businessRegistration &&
         db.roasters.some(
-          (r) => r.businessRegistration && r.businessRegistration === input.businessRegistration,
+          (r) => r.businessRegistration && r.businessRegistration === body.businessRegistration,
         )
       ) {
         return { problem: GS.CRM_1001() };
       }
 
       const roaster: Roaster = {
-        ...input,
-        segment: input.segment ?? 'micro',
-        status: input.status ?? 'trial',
+        ...body,
+        segment: body.segment ?? 'micro',
+        status: body.status ?? 'trial',
         churnRiskScore: null,
         ltvCents: null,
         cacCents: null,
@@ -151,7 +152,7 @@ export const api = {
         interventions: [],
       };
       db.roasters.push(roaster);
-      storeIdempotency(key!, input, roaster);
+      storeIdempotency(key!, body, roaster);
       return { data: roaster };
     },
 
@@ -180,11 +181,12 @@ export const api = {
     },
 
     create: async (input: CampaignCreate, key?: string): Promise<ApiResult<Campaign>> => {
-      const conflict = checkIdempotency<Campaign>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<Campaign>(key, body);
       if (conflict) return conflict;
 
       const campaign: Campaign = {
-        ...input,
+        ...body,
         id: idempotencyKey(),
         status: 'draft',
         version: 1,
@@ -193,7 +195,7 @@ export const api = {
         updatedAt: nowIso(),
       };
       db.campaigns.push(campaign);
-      storeIdempotency(key!, input, campaign);
+      storeIdempotency(key!, body, campaign);
       return { data: campaign };
     },
 
@@ -280,25 +282,26 @@ export const api = {
       input: AutomationRuleCreate,
       key?: string,
     ): Promise<ApiResult<AutomationRule>> => {
-      const conflict = checkIdempotency<AutomationRule>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<AutomationRule>(key, body);
       if (conflict) return conflict;
 
-      const campaign = db.campaigns.find((c) => c.id === input.campaignId);
+      const campaign = db.campaigns.find((c) => c.id === body.campaignId);
       if (!campaign) return { problem: GS.GEN_1005() };
-      if (db.rules.some((r) => r.ruleCode === input.ruleCode)) {
+      if (db.rules.some((r) => r.ruleCode === body.ruleCode)) {
         return { problem: GS.CMP_1003() };
       }
 
       const rule: AutomationRule = {
-        ...input,
-        conditionsJson: input.conditionsJson ?? {},
+        ...body,
+        conditionsJson: body.conditionsJson ?? {},
         id: idempotencyKey(),
         version: 1,
         status: 'armed',
       };
       db.rules.push(rule);
       campaign.ruleCodes = [...campaign.ruleCodes, rule.ruleCode];
-      storeIdempotency(key!, input, rule);
+      storeIdempotency(key!, body, rule);
       return { data: rule };
     },
 
@@ -333,7 +336,7 @@ export const api = {
         cursor?: string;
         origins?: string[];
         minCupScore?: number;
-        maxPricePerLb?: number;
+        maxPricePerLbCents?: number;
       } = {},
     ): Promise<ApiResult<PagedResponse<CoffeeLot>>> => {
       let items = db.lots;
@@ -343,8 +346,8 @@ export const api = {
       if (params.minCupScore != null) {
         items = items.filter((l) => l.cupScore >= params.minCupScore!);
       }
-      if (params.maxPricePerLb != null) {
-        items = items.filter((l) => l.pricePerLbCents / 100 <= params.maxPricePerLb!);
+      if (params.maxPricePerLbCents != null) {
+        items = items.filter((l) => l.pricePerLbCents <= params.maxPricePerLbCents!);
       }
       return { data: makePage(items, params.limit ?? 25, params.cursor) };
     },
@@ -355,18 +358,19 @@ export const api = {
     },
 
     create: async (input: CoffeeLotCreate, key?: string): Promise<ApiResult<CoffeeLot>> => {
-      const conflict = checkIdempotency<CoffeeLot>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<CoffeeLot>(key, body);
       if (conflict) return conflict;
 
       const errors: { field: string; code: string; message: string }[] = [];
-      if (!Number.isInteger(input.pricePerLbCents) || input.pricePerLbCents <= 0) {
+      if (!Number.isInteger(body.pricePerLbCents) || body.pricePerLbCents <= 0) {
         errors.push({
           field: 'pricePerLbCents',
           code: 'invalid',
           message: 'pricePerLbCents must be a positive integer',
         });
       }
-      if (!Number.isInteger(input.costPerLbCents) || input.costPerLbCents <= 0) {
+      if (!Number.isInteger(body.costPerLbCents) || body.costPerLbCents <= 0) {
         errors.push({
           field: 'costPerLbCents',
           code: 'invalid',
@@ -378,14 +382,14 @@ export const api = {
       }
 
       const lot: CoffeeLot = {
-        ...input,
-        varietal: input.varietal ?? null,
-        processingMethod: input.processingMethod ?? null,
-        elevation: input.elevation ?? null,
-        esgScore: input.esgScore ?? null,
+        ...body,
+        varietal: body.varietal ?? null,
+        processingMethod: body.processingMethod ?? null,
+        elevation: body.elevation ?? null,
+        esgScore: body.esgScore ?? null,
         logisticsScore: null,
         certifications: { fairTrade: false, organic: false, rainforestAlliance: false },
-        flavorNotes: input.flavorNotes ?? [],
+        flavorNotes: body.flavorNotes ?? [],
         sensoryProfile: null,
         portOfOrigin: null,
         estimatedArrival: null,
@@ -395,7 +399,7 @@ export const api = {
         lastUpdatedAt: nowIso(),
       };
       db.lots.push(lot);
-      storeIdempotency(key!, input, lot);
+      storeIdempotency(key!, body, lot);
       return { data: lot };
     },
 
@@ -484,14 +488,15 @@ export const api = {
     },
 
     create: async (input: SampleKitCreate, key?: string): Promise<ApiResult<SampleKit>> => {
-      const conflict = checkIdempotency<SampleKit>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<SampleKit>(key, body);
       if (conflict) return conflict;
 
-      const roaster = db.roasters.find((r) => r.id === input.roasterId);
+      const roaster = db.roasters.find((r) => r.id === body.roasterId);
       if (!roaster) return { problem: GS.GEN_1005() };
 
       const lots: SampleKitLot[] = [];
-      for (const lotId of input.lotIds) {
+      for (const lotId of body.lotIds) {
         const lot = db.lots.find((l) => l.id === lotId);
         if (!lot) return { problem: GS.GEN_1005() };
         lots.push({
@@ -505,7 +510,7 @@ export const api = {
 
       const kit: SampleKit = {
         id: idempotencyKey(),
-        roasterId: input.roasterId,
+        roasterId: body.roasterId,
         status: 'requested',
         lots,
         trackingNumber: null,
@@ -517,7 +522,7 @@ export const api = {
         temporalWorkflowId: null,
       };
       db.sampleKits.push(kit);
-      storeIdempotency(key!, input, kit);
+      storeIdempotency(key!, body, kit);
       return { data: kit };
     },
 
@@ -559,10 +564,11 @@ export const api = {
       input: { accountId: string; lineItems: OrderLineItem[] },
       key?: string,
     ): Promise<ApiResult<Order>> => {
-      const conflict = checkIdempotency<Order>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<Order>(key, body);
       if (conflict) return conflict;
 
-      const lineItems = input.lineItems;
+      const lineItems = body.lineItems;
       if (!lineItems.length) {
         return {
           problem: GS.GEN_1000([
@@ -619,7 +625,7 @@ export const api = {
 
       const order: Order = {
         id: idempotencyKey(),
-        accountId: input.accountId,
+        accountId: body.accountId,
         status: 'pending',
         lineItems,
         finalTotalCents,
@@ -628,7 +634,7 @@ export const api = {
         updatedAt: nowIso(),
       };
       db.orders.push(order);
-      storeIdempotency(key!, input, order);
+      storeIdempotency(key!, body, order);
       return { data: order };
     },
 
@@ -688,18 +694,19 @@ export const api = {
       input: WebhookSubscriptionCreate,
       key?: string,
     ): Promise<ApiResult<WebhookSubscriptionWithSecret>> => {
-      const conflict = checkIdempotency<WebhookSubscriptionWithSecret>(key, input);
+      const body = deepClone(input);
+      const conflict = checkIdempotency<WebhookSubscriptionWithSecret>(key, body);
       if (conflict) return conflict;
 
       const subscription: WebhookSubscriptionWithSecret = {
-        ...input,
+        ...body,
         id: idempotencyKey(),
         status: 'active',
         createdAt: nowIso(),
         signingSecret: `whsec_${idempotencyKey()}`,
       };
       db.webhooks.push(subscription);
-      storeIdempotency(key!, input, subscription);
+      storeIdempotency(key!, body, subscription);
       return { data: subscription };
     },
 
