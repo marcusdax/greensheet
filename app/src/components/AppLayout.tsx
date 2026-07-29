@@ -9,7 +9,8 @@ import { ComparisonTray } from './ComparisonTray';
 import { ToastContainer } from './ui/ToastContainer';
 import { 
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
-  Bell, Globe, Menu, X, ChevronDown, ClipboardList, Package, ShoppingCart
+  Bell, Globe, Menu, X, ChevronDown, ClipboardList, Package, ShoppingCart,
+  Webhook
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -90,6 +91,12 @@ export const AppLayout: React.FC = () => {
       title: 'INTELLIGENCE',
       items: [
         { path: 'analytics', label: t('nav.analytics', 'Analytics'), icon: Star }
+      ]
+    },
+    {
+      title: 'INTEGRATIONS',
+      items: [
+        { path: 'webhooks', label: t('nav.webhooks', 'Webhooks'), icon: Webhook }
       ]
     }
   ];
