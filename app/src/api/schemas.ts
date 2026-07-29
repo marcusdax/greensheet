@@ -28,7 +28,7 @@ export const campaignCreateSchema = z.object({
 
 export const ruleCreateSchema = z.object({
   ruleCode: z.string().regex(/^COF-00[1-9]$/),
-  campaignId: z.string().nullable().optional(),
+  campaignId: z.string().nullable().optional().transform((v) => v === '' ? null : v),
   ruleName: z.string().min(1),
   triggerEvent: z.string().min(1),
   conditionsJson: z.record(z.string(), z.any()).default({}),

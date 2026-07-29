@@ -316,8 +316,10 @@ export const api = {
       const conflict = checkIdempotency<AutomationRule>(key, body);
       if (conflict) return conflict;
 
-      if (body.campaignId) {
-        const campaign = db.campaigns.find((c) => c.id === body.campaignId);
+      const campaignId = body.campaignId === '' ? null : body.campaignId ?? null;
+
+      if (campaignId) {
+        const campaign = db.campaigns.find((c) => c.id === campaignId);
         if (!campaign) return { problem: GS.GEN_1005() };
       }
       if (db.rules.some((r) => r.ruleCode === body.ruleCode)) {
@@ -327,14 +329,14 @@ export const api = {
       const rule: AutomationRule = {
         ...body,
         conditionsJson: body.conditionsJson ?? {},
-        campaignId: body.campaignId ?? null,
+        campaignId,
         id: idempotencyKey(),
         version: 1,
         status: 'armed',
       };
       db.rules.push(rule);
-      if (body.campaignId) {
-        const campaign = db.campaigns.find((c) => c.id === body.campaignId)!;
+      if (campaignId) {
+        const campaign = db.campaigns.find((c) => c.id === campaignId)!;
         campaign.ruleCodes = [...campaign.ruleCodes, rule.ruleCode];
       }
       storeIdempotency(key!, body, rule);
@@ -355,7 +357,9 @@ export const api = {
         'status' in patch ||
         'actions' in patch;
 
-      if ('campaignId' in patch && patch.campaignId !== existing.campaignId) {
+      const patchCampaignId = patch.campaignId === '' ? null : patch.campaignId;
+
+      if ('campaignId' in patch && patchCampaignId !== existing.campaignId) {
         const codeToRemove = existing.ruleCode;
         const codeToAdd = patch.ruleCode ?? existing.ruleCode;
 
@@ -365,14 +369,17 @@ export const api = {
           oldCampaign.ruleCodes = oldCampaign.ruleCodes.filter((code) => code !== codeToRemove);
         }
 
-        if (patch.campaignId) {
-          const newCampaign = db.campaigns.find((c) => c.id === patch.campaignId);
+        if (patchCampaignId) {
+          const newCampaign = db.campaigns.find((c) => c.id === patchCampaignId);
           if (!newCampaign) return { problem: GS.GEN_1005() };
           newCampaign.ruleCodes = [...newCampaign.ruleCodes, codeToAdd];
         }
       }
 
       const next = { ...existing, ...patch };
+      if ('campaignId' in patch && patchCampaignId !== undefined) {
+        next.campaignId = patchCampaignId;
+      }
       if (hasPatchField) {
         next.version = existing.version + 1;
       }

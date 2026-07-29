@@ -430,4 +430,21 @@ describe('api client', () => {
     expect(rejoined.data!.campaignId).toBe('c_001');
     expect(rejoined.data!.version).toBe(rule.version + 2);
   });
+
+  it('coerces empty-string campaignId to null and does not link a campaign', async () => {
+    const res = await api.rules.create({
+      ruleCode: 'COF-007',
+      campaignId: '',
+      ruleName: 'Standalone from empty string',
+      triggerEvent: 'order.created',
+      actions: [{ actionType: 'SEND_TEMPLATE', templateId: '77777777-7777-4777-8777-777777777777', channel: 'email', delayMinutes: 0 }],
+    }, idempotencyKey());
+    expect('data' in res).toBe(true);
+    expect(res.data!.campaignId).toBeNull();
+
+    const campaigns = (await api.campaigns.list()).data!.data;
+    for (const campaign of campaigns) {
+      expect(campaign.ruleCodes).not.toContain(res.data!.ruleCode);
+    }
+  });
 });
