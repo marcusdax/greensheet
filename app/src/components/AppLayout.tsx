@@ -8,8 +8,8 @@ import { LotDetailDrawer } from './LotDetailDrawer';
 import { ComparisonTray } from './ComparisonTray';
 import { ToastContainer } from './ui/ToastContainer';
 import { 
-  Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon, 
-  Bell, Globe, Menu, X, ChevronDown, ClipboardList, Package
+  Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
+  Bell, Globe, Menu, X, ChevronDown, ClipboardList, Package, ShoppingCart
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -71,6 +71,7 @@ export const AppLayout: React.FC = () => {
         { path: 'catalog', label: t('nav.catalog', 'Catalog'), icon: Ship },
         { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: ClipboardList },
         { path: 'sample-kits', label: t('nav.sample-kits', 'Sample Kits'), icon: Package },
+        { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
       ]
     },
     {

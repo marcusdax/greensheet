@@ -9,6 +9,7 @@ import { RoastersPage } from './pages/RoastersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ReservationsPage } from './pages/ReservationsPage';
 import { SampleKitsPage } from './pages/SampleKitsPage';
+import { OrdersPage } from './pages/OrdersPage';
 
 // Import i18n to initialize it
 import './i18n';
@@ -97,6 +98,7 @@ function App() {
             <Route path="roasters" element={<RoastersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="sample-kits" element={<SampleKitsPage />} />
+            <Route path="orders" element={<OrdersPage />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />
           </Route>
