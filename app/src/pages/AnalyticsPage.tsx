@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  ResponsiveContainer, ComposedChart, LineChart, Line, Area, 
-  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ReferenceLine
+import {
+  ResponsiveContainer, ComposedChart, LineChart, Line, Area,
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip,
+  ReferenceLine, BarChart, Bar, Cell,
 } from 'recharts';
-import { TrendingUp, Layers, ShieldAlert, Award } from 'lucide-react';
+import { TrendingUp, Layers, ShieldAlert, Award, RefreshCw } from 'lucide-react';
+import { useAnalytics, useCampaigns, useCatalog, useCrm, useOrders } from '../stores/root-store';
+import { useAnalyticsCharts } from '../stores/selectors/analytics-selectors';
 
 // Benchmark Data: Acme's cup quality rating vs peer quantiles
 const BENCHMARK_DATA = [
@@ -14,56 +16,52 @@ const BENCHMARK_DATA = [
   { month: 'Mar', quantileLow: 83, quantileHigh: 89, median: 85, you: 87.5 },
   { month: 'Apr', quantileLow: 83, quantileHigh: 89, median: 85, you: 87.2 },
   { month: 'May', quantileLow: 84, quantileHigh: 90, median: 86, you: 88.5 },
-  { month: 'Jun', quantileLow: 84, quantileHigh: 91, median: 86.5, you: 90.5 }
+  { month: 'Jun', quantileLow: 84, quantileHigh: 91, median: 86.5, you: 90.5 },
 ];
 
-// LTV:CAC Scatter Data
-const SCATTER_DATA = [
-  { cac: 100, ltv: 3000, name: 'Micro A' },
-  { cac: 150, ltv: 5000, name: 'Micro B' },
-  { cac: 250, ltv: 12000, name: 'Boutique A' },
-  { cac: 300, ltv: 18000, name: 'Boutique B' },
-  { cac: 400, ltv: 24500, name: 'Coava' },
-  { cac: 600, ltv: 55000, name: 'Commercial A' },
-  { cac: 850, ltv: 124500, name: 'Blue Bottle' }
-];
-
-// Inventory Forecast Data
-const INVENTORY_DATA = [
-  { date: '06-01', actual: 4500 },
-  { date: '06-08', actual: 3800 },
-  { date: '06-15', actual: 3200 },
-  { date: '06-22', actual: 2600 },
-  { date: '06-29', actual: 2100 },
-  { date: '07-06', forecast: 1600, confidenceLow: 1200, confidenceHigh: 2000 },
-  { date: '07-13', forecast: 1100, confidenceLow: 700, confidenceHigh: 1500 },
-  { date: '07-20', forecast: 800, confidenceLow: 400, confidenceHigh: 1200 },
-  { date: '07-27', forecast: 600, confidenceLow: 200, confidenceHigh: 1000 }
-];
-
-// Churn Survival Data
-const SURVIVAL_DATA = [
-  { week: 0, survival: 100, ciLow: 100, ciHigh: 100 },
-  { week: 4, survival: 95, ciLow: 92, ciHigh: 98 },
-  { week: 8, survival: 91, ciLow: 87, ciHigh: 95 },
-  { week: 12, survival: 88, ciLow: 83, ciHigh: 92 },
-  { week: 16, survival: 82, ciLow: 76, ciHigh: 88 },
-  { week: 20, survival: 79, ciLow: 72, ciHigh: 85 },
-  { week: 24, survival: 75, ciLow: 67, ciHigh: 82 }
-];
-
-// Cohorts Heatmap Matrix Data (6 Cohorts x 6 Weeks)
-const COHORT_ROWS = [
-  { name: 'Jan 2025', size: 42, values: [100, 92, 88, 85, 82, 80] },
-  { name: 'Feb 2025', size: 38, values: [100, 90, 85, 82, 79, null] },
-  { name: 'Mar 2025', size: 45, values: [100, 95, 91, 88, null, null] },
-  { name: 'Apr 2025', size: 31, values: [100, 88, 82, null, null, null] },
-  { name: 'May 2025', size: 52, values: [100, 96, null, null, null, null] },
-  { name: 'Jun 2025', size: 40, values: [100, null, null, null, null, null] }
-];
+const FUNNEL_COLORS = ['#16323E', '#2A6E73', '#C9A34A', '#8C3B34'];
+const VIRAL_COLORS = ['#2A6E73', '#C9A34A', '#8C3B34'];
 
 export const AnalyticsPage: React.FC = () => {
   const { t } = useTranslation(['catalog', 'common']);
+
+  const { loadAll } = useAnalytics();
+  const { loadRoasters } = useCrm();
+  const { loadOrders } = useOrders();
+  const { loadLots } = useCatalog();
+  const { campaigns, loadCampaigns, loadPerformance, performance } = useCampaigns();
+
+  const {
+    cohortRows,
+    scatterData,
+    inventoryData,
+    survivalData,
+    viralData,
+    funnelData,
+    loading,
+  } = useAnalyticsCharts();
+
+  useEffect(() => {
+    void loadAll();
+    void loadRoasters();
+    void loadOrders();
+    void loadLots();
+    void loadCampaigns();
+  }, [loadAll, loadRoasters, loadOrders, loadLots, loadCampaigns]);
+
+  useEffect(() => {
+    if (campaigns.length > 0 && !performance) {
+      void loadPerformance(campaigns[0].id);
+    }
+  }, [campaigns, loadPerformance, performance]);
+
+  const handleRefresh = () => {
+    void loadAll();
+    void loadRoasters();
+    void loadOrders();
+    void loadLots();
+    void loadCampaigns();
+  };
 
   // Heatmap background color allocator (leaf -> gold scale)
   const getHeatmapColor = (val: number | null) => {
@@ -78,21 +76,32 @@ export const AnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* View Header */}
-      <div className="flex flex-col gap-1">
-        <span className="overline text-xs text-muted tracking-wider">
-          {t('analytics.overline', 'PORTFOLIO INTELLIGENCE')}
-        </span>
-        <h1 className="text-3xl font-display font-medium text-ink">
-          {t('analytics.title', 'Intelligence & Analytics')}
-        </h1>
-        <p className="text-sm text-muted font-sans max-w-2xl">
-          {t('analytics.subtitle', 'Strategic analytics detailing coffee lot performance benchmarks, customer retention cohorts, and supply forecasts.')}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="overline text-xs text-muted tracking-wider">
+            {t('analytics.overline', 'PORTFOLIO INTELLIGENCE')}
+          </span>
+          <h1 className="text-3xl font-display font-medium text-ink">
+            {t('analytics.title', 'Intelligence & Analytics')}
+          </h1>
+          <p className="text-sm text-muted font-sans max-w-2xl">
+            {t('analytics.subtitle', 'Strategic analytics detailing coffee lot performance benchmarks, customer retention cohorts, and supply forecasts.')}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 disabled:opacity-50 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+        >
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          {t('common:actions.refresh', 'Refresh')}
+        </button>
       </div>
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* 1. Benchmark Chart */}
         <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
           <div className="flex justify-between items-center border-b border-border pb-3">
@@ -102,7 +111,7 @@ export const AnalyticsPage: React.FC = () => {
             </div>
             <Award className="text-gold" size={16} />
           </div>
-          
+
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
@@ -113,50 +122,50 @@ export const AnalyticsPage: React.FC = () => {
                 <XAxis dataKey="month" stroke="#8A8272" fontSize={10} tickLine={false} />
                 <YAxis domain={[80, 95]} stroke="#8A8272" fontSize={10} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ 
-                    backgroundColor: '#16323E', 
+                  contentStyle={{
+                    backgroundColor: '#16323E',
                     borderColor: '#16323E',
                     borderRadius: '6px',
                     color: '#FDFBF5',
                     fontFamily: 'IBM Plex Mono',
-                    fontSize: '11px'
+                    fontSize: '11px',
                   }}
                   itemStyle={{ color: '#FDFBF5' }}
                 />
-                
+
                 {/* Quantile Area Band */}
-                <Area 
-                  type="monotone" 
-                  dataKey="quantileHigh" 
-                  stroke="none" 
-                  fill="#DCEAEA" 
+                <Area
+                  type="monotone"
+                  dataKey="quantileHigh"
+                  stroke="none"
+                  fill="#DCEAEA"
                   fillOpacity={0.6}
                   name="Top 90% Quantile"
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="quantileLow" 
-                  stroke="none" 
-                  fill="#F6F1E7" 
+                <Area
+                  type="monotone"
+                  dataKey="quantileLow"
+                  stroke="none"
+                  fill="#F6F1E7"
                   fillOpacity={0.8}
                   name="Bottom 10% Quantile"
                 />
-                
+
                 {/* Median Line */}
-                <Line 
-                  type="monotone" 
-                  dataKey="median" 
-                  stroke="#2A6E73" 
-                  strokeWidth={1.5} 
+                <Line
+                  type="monotone"
+                  dataKey="median"
+                  stroke="#2A6E73"
+                  strokeWidth={1.5}
                   dot={false}
                   name="Market Median"
                 />
-                
+
                 {/* Your Position (Gold Diamond) */}
-                <Line 
-                  type="monotone" 
-                  dataKey="you" 
-                  stroke="#C9A34A" 
+                <Line
+                  type="monotone"
+                  dataKey="you"
+                  stroke="#C9A34A"
                   strokeWidth={0}
                   dot={{ fill: '#C9A34A', stroke: '#16323E', strokeWidth: 1.5, r: 5 }}
                   name="Your Lot Average"
@@ -180,7 +189,7 @@ export const AnalyticsPage: React.FC = () => {
             </div>
             <Layers className="text-leaf" size={16} />
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full text-center border-collapse border border-border font-sans text-xs">
               <thead>
@@ -196,13 +205,13 @@ export const AnalyticsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border font-mono">
-                {COHORT_ROWS.map((row) => (
+                {cohortRows.map((row) => (
                   <tr key={row.name}>
                     <td className="px-3 py-2.5 text-left font-sans text-ink font-semibold">{row.name}</td>
                     <td className="px-2 py-2.5 text-muted figure">{row.size}</td>
                     {row.values.map((val, idx) => (
-                      <td 
-                        key={idx} 
+                      <td
+                        key={idx}
                         className={`px-2 py-2.5 border-l border-border figure font-bold ${getHeatmapColor(val)}`}
                       >
                         {val !== null ? `${val}%` : '—'}
@@ -236,53 +245,53 @@ export const AnalyticsPage: React.FC = () => {
                 margin={{ top: 10, right: 20, bottom: 20, left: -10 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
-                <XAxis 
-                  type="number" 
-                  dataKey="cac" 
-                  name="CAC" 
-                  unit="$" 
-                  stroke="#8A8272" 
-                  fontSize={10} 
-                  tickLine={false} 
+                <XAxis
+                  type="number"
+                  dataKey="cac"
+                  name="CAC"
+                  unit="$"
+                  stroke="#8A8272"
+                  fontSize={10}
+                  tickLine={false}
                 />
-                <YAxis 
-                  type="number" 
-                  dataKey="ltv" 
-                  name="LTV" 
-                  unit="$" 
-                  stroke="#8A8272" 
-                  fontSize={10} 
-                  tickLine={false} 
+                <YAxis
+                  type="number"
+                  dataKey="ltv"
+                  name="LTV"
+                  unit="$"
+                  stroke="#8A8272"
+                  fontSize={10}
+                  tickLine={false}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{ strokeDasharray: '3 3' }}
-                  contentStyle={{ 
-                    backgroundColor: '#16323E', 
+                  contentStyle={{
+                    backgroundColor: '#16323E',
                     borderColor: '#16323E',
                     borderRadius: '6px',
                     color: '#FDFBF5',
                     fontFamily: 'IBM Plex Mono',
-                    fontSize: '11px'
-                  }}
-                />
-                
-                {/* 3:1 LTV:CAC Reference Line threshold */}
-                <ReferenceLine 
-                  stroke="#8C3B34" 
-                  strokeDasharray="3 3"
-                  strokeWidth={1.5}
-                  label={{ 
-                    value: '3x LTV:CAC floor', 
-                    fill: '#8C3B34', 
-                    fontSize: 9, 
-                    position: 'top' 
+                    fontSize: '11px',
                   }}
                 />
 
-                <Scatter 
-                  name="Roaster Accounts" 
-                  data={SCATTER_DATA} 
-                  fill="#16323E" 
+                {/* 3:1 LTV:CAC Reference Line threshold */}
+                <ReferenceLine
+                  stroke="#8C3B34"
+                  strokeDasharray="3 3"
+                  strokeWidth={1.5}
+                  label={{
+                    value: '3x LTV:CAC floor',
+                    fill: '#8C3B34',
+                    fontSize: 9,
+                    position: 'top',
+                  }}
+                />
+
+                <Scatter
+                  name="Roaster Accounts"
+                  data={scatterData}
+                  fill="#16323E"
                   shape="circle"
                 />
               </ScatterChart>
@@ -303,56 +312,56 @@ export const AnalyticsPage: React.FC = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={INVENTORY_DATA}
+                data={inventoryData}
                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
                 <XAxis dataKey="date" stroke="#8A8272" fontSize={10} tickLine={false} />
                 <YAxis stroke="#8A8272" fontSize={10} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ 
-                    backgroundColor: '#16323E', 
+                  contentStyle={{
+                    backgroundColor: '#16323E',
                     borderColor: '#16323E',
                     borderRadius: '6px',
                     color: '#FDFBF5',
                     fontFamily: 'IBM Plex Mono',
-                    fontSize: '11px'
+                    fontSize: '11px',
                   }}
                 />
 
                 {/* Confidence cone Area */}
-                <Area 
-                  type="monotone" 
-                  dataKey="confidenceHigh" 
-                  stroke="none" 
-                  fill="#DCEAEA" 
-                  fillOpacity={0.5} 
+                <Area
+                  type="monotone"
+                  dataKey="confidenceHigh"
+                  stroke="none"
+                  fill="#DCEAEA"
+                  fillOpacity={0.5}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="confidenceLow" 
-                  stroke="none" 
-                  fill="#FDFBF5" 
-                  fillOpacity={0.8} 
+                <Area
+                  type="monotone"
+                  dataKey="confidenceLow"
+                  stroke="none"
+                  fill="#FDFBF5"
+                  fillOpacity={0.8}
                 />
 
                 {/* Actual Line (solid navy) */}
-                <Line 
-                  type="monotone" 
-                  dataKey="actual" 
-                  stroke="#16323E" 
-                  strokeWidth={2.5} 
+                <Line
+                  type="monotone"
+                  dataKey="actual"
+                  stroke="#16323E"
+                  strokeWidth={2.5}
                   dot={{ fill: '#16323E', r: 3 }}
                   name="Actual Inventory"
                 />
 
                 {/* Forecast Line (dashed teal) */}
-                <Line 
-                  type="monotone" 
-                  dataKey="forecast" 
-                  stroke="#2A6E73" 
-                  strokeDasharray="4 4" 
-                  strokeWidth={2} 
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  stroke="#2A6E73"
+                  strokeDasharray="4 4"
+                  strokeWidth={2}
                   dot={{ fill: '#2A6E73', r: 3 }}
                   name="Forecasted Depletion"
                 />
@@ -379,47 +388,47 @@ export const AnalyticsPage: React.FC = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={SURVIVAL_DATA}
+                data={survivalData}
                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
                 <XAxis dataKey="week" stroke="#8A8272" fontSize={10} tickLine={false} />
                 <YAxis stroke="#8A8272" fontSize={10} tickLine={false} unit="%" />
                 <Tooltip
-                  contentStyle={{ 
-                    backgroundColor: '#16323E', 
+                  contentStyle={{
+                    backgroundColor: '#16323E',
                     borderColor: '#16323E',
                     borderRadius: '6px',
                     color: '#FDFBF5',
                     fontFamily: 'IBM Plex Mono',
-                    fontSize: '11px'
+                    fontSize: '11px',
                   }}
                 />
-                
+
                 {/* Confidence Interval band */}
-                <Area 
-                  type="monotone" 
-                  dataKey="ciHigh" 
-                  stroke="none" 
-                  fill="#F9E6E2" 
-                  fillOpacity={0.4} 
+                <Area
+                  type="monotone"
+                  dataKey="ciHigh"
+                  stroke="none"
+                  fill="#F9E6E2"
+                  fillOpacity={0.4}
                   name="CI Upper"
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="ciLow" 
-                  stroke="none" 
-                  fill="#FDFBF5" 
-                  fillOpacity={0.8} 
+                <Area
+                  type="monotone"
+                  dataKey="ciLow"
+                  stroke="none"
+                  fill="#FDFBF5"
+                  fillOpacity={0.8}
                   name="CI Lower"
                 />
 
                 {/* Survival Curve line */}
-                <Line 
-                  type="monotone" 
-                  dataKey="survival" 
-                  stroke="#8C3B34" 
-                  strokeWidth={2.5} 
+                <Line
+                  type="monotone"
+                  dataKey="survival"
+                  stroke="#8C3B34"
+                  strokeWidth={2.5}
                   dot={{ fill: '#8C3B34', r: 3 }}
                   name="Survival Rate"
                 />
@@ -429,6 +438,82 @@ export const AnalyticsPage: React.FC = () => {
           <div className="flex justify-center gap-6 text-[10px] font-sans text-muted">
             <span className="flex items-center gap-1 font-mono"><span className="w-3 h-0.5 bg-cherry inline-block" /> Solid Cherry = Survival Rate</span>
             <span className="flex items-center gap-1 font-mono"><span className="w-3 h-3 bg-danger-bg inline-block" /> Cherry Shading = 95% Confidence Band</span>
+          </div>
+        </div>
+
+        {/* 6. Viral Coefficient */}
+        <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
+          <div className="flex justify-between items-center border-b border-border pb-3">
+            <div>
+              <h3 className="overline text-xs text-muted font-bold">VIRAL COEFFICIENT</h3>
+              <p className="text-xs text-subtle font-sans mt-0.5">Referral conversion efficiency by period</p>
+            </div>
+            <TrendingUp className="text-leaf" size={16} />
+          </div>
+
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={viralData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
+                <XAxis dataKey="period" stroke="#8A8272" fontSize={10} tickLine={false} />
+                <YAxis stroke="#8A8272" fontSize={10} tickLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#16323E',
+                    borderColor: '#16323E',
+                    borderRadius: '6px',
+                    color: '#FDFBF5',
+                    fontFamily: 'IBM Plex Mono',
+                    fontSize: '11px',
+                  }}
+                />
+                <Bar dataKey="k" name="Viral Coefficient (k)">
+                  {viralData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={VIRAL_COLORS[index % VIRAL_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 7. Campaign Funnel */}
+        <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
+          <div className="flex justify-between items-center border-b border-border pb-3">
+            <div>
+              <h3 className="overline text-xs text-muted font-bold">CAMPAIGN FUNNEL</h3>
+              <p className="text-xs text-subtle font-sans mt-0.5">Execution-stage conversion from campaign logs</p>
+            </div>
+            <Layers className="text-navy" size={16} />
+          </div>
+
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={funnelData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
+                <XAxis dataKey="stage" stroke="#8A8272" fontSize={10} tickLine={false} />
+                <YAxis stroke="#8A8272" fontSize={10} tickLine={false} />
+                <Tooltip
+                  formatter={(value, name) => {
+                    if (name === 'conversionRate') return [`${value}%`, 'Conversion'];
+                    return [value, 'Count'];
+                  }}
+                  contentStyle={{
+                    backgroundColor: '#16323E',
+                    borderColor: '#16323E',
+                    borderRadius: '6px',
+                    color: '#FDFBF5',
+                    fontFamily: 'IBM Plex Mono',
+                    fontSize: '11px',
+                  }}
+                />
+                <Bar dataKey="count" name="Count">
+                  {funnelData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={FUNNEL_COLORS[index % FUNNEL_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
