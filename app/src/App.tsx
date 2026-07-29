@@ -8,6 +8,7 @@ import { AutomationRulesPage } from './pages/AutomationRulesPage';
 import { RoastersPage } from './pages/RoastersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ReservationsPage } from './pages/ReservationsPage';
+import { SampleKitsPage } from './pages/SampleKitsPage';
 
 // Import i18n to initialize it
 import './i18n';
@@ -95,6 +96,7 @@ function App() {
             <Route path="rules" element={<AutomationRulesPage />} />
             <Route path="roasters" element={<RoastersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="sample-kits" element={<SampleKitsPage />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />
           </Route>
