@@ -496,4 +496,20 @@ describe('api client', () => {
     const campaignAfter = (await api.campaigns.get('c_001')).data!;
     expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
   });
+
+  it('leaves source campaign intact when patching to a non-existent campaign', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
+
+    const patchRes = await api.rules.patch(rule.id, { campaignId: 'c_does_not_exist' });
+    expect('problem' in patchRes).toBe(true);
+    expect(patchRes.problem!.code).toBe('GS-GEN-1005');
+
+    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    expect(campaignAfter.ruleCodes).toContain(rule.ruleCode);
+
+    const refetched = (await api.rules.get(rule.id)).data!;
+    expect(refetched.campaignId).toBe(rule.campaignId);
+  });
 });

@@ -368,15 +368,22 @@ export const api = {
       const newRuleCode = patch.ruleCode ?? existing.ruleCode;
 
       if (patchCampaignId !== undefined && patchCampaignId !== existing.campaignId) {
+        let oldCampaign: Campaign | undefined;
         if (existing.campaignId) {
-          const oldCampaign = db.campaigns.find((c) => c.id === existing.campaignId);
+          oldCampaign = db.campaigns.find((c) => c.id === existing.campaignId);
           if (!oldCampaign) return { problem: GS.GEN_1005() };
-          oldCampaign.ruleCodes = oldCampaign.ruleCodes.filter((code) => code !== existing.ruleCode);
         }
 
+        let newCampaign: Campaign | undefined;
         if (patchCampaignId) {
-          const newCampaign = db.campaigns.find((c) => c.id === patchCampaignId);
+          newCampaign = db.campaigns.find((c) => c.id === patchCampaignId);
           if (!newCampaign) return { problem: GS.GEN_1005() };
+        }
+
+        if (oldCampaign) {
+          oldCampaign.ruleCodes = oldCampaign.ruleCodes.filter((code) => code !== existing.ruleCode);
+        }
+        if (newCampaign) {
           newCampaign.ruleCodes = [...newCampaign.ruleCodes, newRuleCode];
         }
       } else if ('ruleCode' in patch && patch.ruleCode !== existing.ruleCode && existing.campaignId) {
