@@ -447,4 +447,53 @@ describe('api client', () => {
       expect(campaign.ruleCodes).not.toContain(res.data!.ruleCode);
     }
   });
+
+  it('updates campaign ruleCodes when ruleCode changes while campaign stays the same', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    expect(rule.campaignId).toBe('c_001');
+    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
+
+    const patchRes = await api.rules.patch(rule.id, { ruleCode: 'COF-RENAMED' });
+    expect('data' in patchRes).toBe(true);
+    expect(patchRes.data!.ruleCode).toBe('COF-RENAMED');
+    expect(patchRes.data!.campaignId).toBe('c_001');
+    expect(patchRes.data!.version).toBe(rule.version + 1);
+
+    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    expect(campaignAfter.ruleCodes).not.toContain(rule.ruleCode);
+    expect(campaignAfter.ruleCodes).toContain('COF-RENAMED');
+  });
+
+  it('rejects ruleCode patch that would duplicate an existing rule code', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    const existingRuleCode = (await api.rules.get('rule_002')).data!.ruleCode;
+    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
+    expect(campaignBefore.ruleCodes).toContain(existingRuleCode);
+
+    const patchRes = await api.rules.patch(rule.id, { ruleCode: existingRuleCode });
+    expect('problem' in patchRes).toBe(true);
+    expect(patchRes.problem!.code).toBe('GS-CMP-1003');
+
+    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
+
+    const refetched = (await api.rules.get(rule.id)).data!;
+    expect(refetched.ruleCode).toBe(rule.ruleCode);
+  });
+
+  it('does not bump version or mutate campaign ruleCodes when campaignId is omitted', async () => {
+    const rule = (await api.rules.get('rule_001')).data!;
+    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+
+    const patchRes = await api.rules.patch(rule.id, { ruleName: 'Renamed only' });
+    expect('data' in patchRes).toBe(true);
+    expect(patchRes.data!.ruleName).toBe('Renamed only');
+    expect(patchRes.data!.campaignId).toBe(rule.campaignId);
+    expect(patchRes.data!.version).toBe(rule.version + 1);
+
+    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
+  });
 });
