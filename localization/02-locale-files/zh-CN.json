@@ -10,7 +10,11 @@
       "accounts": "客户",
       "analytics": "数据分析",
       "settings": "设置",
-      "help": "帮助"
+      "help": "帮助",
+      "reservations": "预订",
+      "sampleKits": "样品套装",
+      "automationRules": "自动化规则",
+      "webhooks": "Webhooks"
     },
     "buttons": {
       "save": "保存",
@@ -336,7 +340,10 @@
       "cof004": {
         "body": "【Greensheet】{origin}{varietal} 仅剩 {available_lbs} 磅。立即预订：{lot_url} 退订回T"
       }
-    }
+    },
+    "create": "创建活动",
+    "activate": "启用",
+    "retire": "停用"
   },
   "errors": {
     "title": "出错了",
@@ -363,6 +370,25 @@
       "retry": "重试",
       "contactSupport": "联系客服",
       "signInAgain": "重新登录"
-    }
+    },
+    "insufficientInventory": "库存不足，无法完成此订单。",
+    "idempotencyConflict": "检测到重复提交，您的原始订单未更改。"
+  },
+  "roasters": {
+    "create": "添加烘焙商",
+    "edit": "编辑烘焙商",
+    "anonymize": "匿名化烘焙商"
+  },
+  "orders": {
+    "create": "创建订单"
+  },
+  "sampleKits": {
+    "create": "申请样品套装"
+  },
+  "rules": {
+    "create": "创建规则"
+  },
+  "webhooks": {
+    "create": "创建 Webhook"
   }
 }

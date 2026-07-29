@@ -33,7 +33,7 @@ const getDeliveryStatusBadgeClass = (status: WebhookDelivery['status']) => {
 };
 
 export const WebhooksPage: React.FC = () => {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['webhooks', 'common']);
   const {
     webhooks,
     deliveries,
@@ -188,10 +188,10 @@ export const WebhooksPage: React.FC = () => {
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Create Webhook
+          {t('create')}
         </button>
       </div>
 
@@ -208,7 +208,7 @@ export const WebhooksPage: React.FC = () => {
             <button
               type="button"
               onClick={() => { clearSecret(); setShowSecret(false); }}
-              className="p-1 text-muted hover:text-ink rounded-md"
+              className="p-1 text-muted hover:text-ink rounded-md focus-visible:ring-2 focus-visible:ring-teal"
               aria-label="Dismiss secret"
             >
               <X size={16} />
@@ -221,7 +221,7 @@ export const WebhooksPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowSecret((s) => !s)}
-              className="p-2 text-muted hover:text-ink hover:bg-recessed rounded-md"
+              className="p-2 text-muted hover:text-ink hover:bg-recessed rounded-md focus-visible:ring-2 focus-visible:ring-teal"
               aria-label={showSecret ? 'Hide secret' : 'Reveal secret'}
               title={showSecret ? 'Hide secret' : 'Reveal secret'}
             >
@@ -230,7 +230,7 @@ export const WebhooksPage: React.FC = () => {
             <button
               type="button"
               onClick={copySecret}
-              className="inline-flex items-center gap-1 px-3 py-2 bg-navy text-white rounded-md text-xs font-semibold hover:bg-navy-800"
+              className="inline-flex items-center gap-1 px-3 py-2 bg-navy text-white rounded-md text-xs font-semibold hover:bg-navy-800 focus-visible:ring-2 focus-visible:ring-teal"
             >
               <Copy size={14} />
               Copy
@@ -248,7 +248,7 @@ export const WebhooksPage: React.FC = () => {
               key={filter.value}
               type="button"
               onClick={() => setStatusFilter(filter.value)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-teal ${
                 active
                   ? 'bg-navy text-white'
                   : 'bg-surface border border-border text-muted hover:text-ink hover:border-border-strong'
@@ -298,7 +298,7 @@ export const WebhooksPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); void handleToggleStatus(webhook); }}
-                            className={`px-2 py-0.5 border text-2xs rounded-full font-sans uppercase font-bold tracking-wider transition-colors ${getStatusBadgeClass(webhook.status)}`}
+                            className={`px-2 py-0.5 border text-2xs rounded-full font-sans uppercase font-bold tracking-wider transition-colors focus-visible:ring-2 focus-visible:ring-teal ${getStatusBadgeClass(webhook.status)}`}
                           >
                             {webhook.status}
                           </button>
@@ -308,7 +308,7 @@ export const WebhooksPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); handleOpenEdit(webhook); }}
-                              className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                              className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                               aria-label={`Edit webhook ${webhook.url}`}
                               title="Edit"
                             >
@@ -317,7 +317,7 @@ export const WebhooksPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); void handleDelete(webhook.id); }}
-                              className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors"
+                              className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                               aria-label={`Delete webhook ${webhook.url}`}
                               title="Delete"
                             >
@@ -356,7 +356,7 @@ export const WebhooksPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(selectedWebhook)}
-                        className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                        className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                         aria-label={`Edit ${selectedWebhook.url}`}
                         title="Edit"
                       >
@@ -431,7 +431,7 @@ export const WebhooksPage: React.FC = () => {
       <Modal
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        title={editingWebhook ? 'Edit Webhook' : 'Create Webhook'}
+        title={editingWebhook ? 'Edit Webhook' : t('create')}
         size="md"
       >
         <WebhookForm

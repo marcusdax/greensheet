@@ -129,7 +129,7 @@ export const AppLayout: React.FC = () => {
             </div>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="p-1 md:hidden text-parchment-50/70 hover:text-white rounded-md hover:bg-white/10"
+              className="p-1 md:hidden text-parchment-50/70 hover:text-white rounded-md hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal"
               aria-label="Close sidebar"
             >
               <X size={20} />
@@ -190,7 +190,7 @@ export const AppLayout: React.FC = () => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setSidebarOpen(true)}
-                className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md md:hidden"
+                className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md md:hidden focus-visible:ring-2 focus-visible:ring-teal"
                 aria-label="Open sidebar"
               >
                 <Menu size={20} />
@@ -216,7 +216,7 @@ export const AppLayout: React.FC = () => {
               {/* Theme Toggle */}
               <button
                 onClick={() => ui.toggleTheme()}
-                className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                 aria-label="Toggle theme"
               >
                 {ui.theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
@@ -226,7 +226,7 @@ export const AppLayout: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                  className="flex items-center gap-1.5 px-2 py-1 text-xs border border-border-interactive rounded-md hover:bg-recessed font-sans text-ink font-semibold"
+                  className="flex items-center gap-1.5 px-2 py-1 text-xs border border-border-interactive rounded-md hover:bg-recessed font-sans text-ink font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                   aria-haspopup="listbox"
                   aria-expanded={langDropdownOpen}
                 >
@@ -244,7 +244,7 @@ export const AppLayout: React.FC = () => {
                         <li key={lng}>
                           <button
                             onClick={() => changeLanguage(lng)}
-                            className={`w-full text-left px-3 py-2 hover:bg-recessed ${
+                            className={`w-full text-left px-3 py-2 hover:bg-recessed focus-visible:ring-2 focus-visible:ring-teal ${
                               locale === lng ? 'text-teal font-bold' : 'text-ink font-medium'
                             }`}
                           >
@@ -261,7 +261,7 @@ export const AppLayout: React.FC = () => {
               </div>
 
               {/* Notifications */}
-              <button className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md relative transition-colors">
+              <button className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md relative transition-colors focus-visible:ring-2 focus-visible:ring-teal">
                 <Bell size={18} />
                 <span className="absolute top-1 right-1 w-4 h-4 bg-cherry text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center">
                   3

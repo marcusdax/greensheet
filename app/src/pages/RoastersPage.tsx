@@ -183,10 +183,10 @@ export const RoastersPage: React.FC = () => {
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Add Roaster
+          {t('roasters:create')}
         </button>
       </div>
 
@@ -264,7 +264,7 @@ export const RoastersPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); handleOpenEdit(roaster); }}
-                            className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                            className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                             aria-label={`Edit ${roaster.roasterName}`}
                             title="Edit"
                           >
@@ -273,7 +273,7 @@ export const RoastersPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); void handleAnonymize(roaster.id); }}
-                            className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors"
+                            className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                             aria-label={`Anonymize ${roaster.roasterName}`}
                             title="Anonymize"
                           >
@@ -311,7 +311,7 @@ export const RoastersPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(selectedRoaster)}
-                    className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                    className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                     aria-label={`Edit ${selectedRoaster.roasterName}`}
                     title="Edit"
                   >
@@ -320,7 +320,7 @@ export const RoastersPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => void handleAnonymize(selectedRoaster.id)}
-                    className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors"
+                    className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                     aria-label={`Anonymize ${selectedRoaster.roasterName}`}
                     title="Anonymize"
                   >
@@ -345,7 +345,7 @@ export const RoastersPage: React.FC = () => {
                         const el = document.getElementById('intervention-form');
                         el?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="px-2.5 py-1 bg-danger hover:bg-danger/90 text-white rounded-md font-sans font-semibold mt-1 shadow-sm active:scale-95 transition-all"
+                      className="px-2.5 py-1 bg-danger hover:bg-danger/90 text-white rounded-md font-sans font-semibold mt-1 shadow-sm active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-teal"
                     >
                       Trigger Intervention Offer
                     </button>
@@ -430,7 +430,7 @@ export const RoastersPage: React.FC = () => {
       <Modal
         isOpen={roasterModalOpen}
         onClose={handleCloseRoasterModal}
-        title={editingRoaster ? 'Edit Roaster' : 'Add Roaster'}
+        title={editingRoaster ? t('roasters:edit') : t('roasters:create')}
         size="md"
       >
         <RoasterForm

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { useOrders, useCatalog, useCrm, useUi, useRootStore } from '../stores/root-store';
 import { OrderForm } from '../components/forms/OrderForm';
@@ -35,6 +36,7 @@ const statusBadgeClass = (status: OrderStatus) => {
 };
 
 export const OrdersPage: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
   const { orders, loading, loadOrders, processOrder, shipOrder, deliverOrder, cancelOrder, returnOrder } = useOrders();
   const { lots, loadLots } = useCatalog();
   const { roasters, loadRoasters } = useCrm();
@@ -144,31 +146,32 @@ export const OrdersPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Create Order
+          {t('create')}
         </button>
       </div>
 
       <div className="bg-surface rounded-lg border border-border-strong shadow-e1 overflow-hidden">
-        <DataTable
-          data={orders}
-          columns={columns}
-          keyExtractor={(row) => row.id}
-          onRowClick={(row) => setSelectedOrderId(row.id)}
-          emptyMessage={
-            <div className="text-center">
-              <p className="text-muted font-sans">No orders yet.</p>
-            </div>
-          }
-        />
-        {orders.length === 0 && !loading && (
-          <div className="p-8 text-center text-muted font-sans">No orders yet.</div>
+        {loading && orders.length === 0 ? (
+          <div className="p-8 text-center text-muted font-sans">{t('common:states.loading')}</div>
+        ) : (
+          <DataTable
+            data={orders}
+            columns={columns}
+            keyExtractor={(row) => row.id}
+            onRowClick={(row) => setSelectedOrderId(row.id)}
+            emptyMessage={
+              <div className="text-center">
+                <p className="text-muted font-sans">No orders yet.</p>
+              </div>
+            }
+          />
         )}
       </div>
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create Order" size="xl">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={t('create')} size="xl">
         <OrderForm onSubmit={handleCreate} accountOptions={accountOptions} lotOptions={lotOptions} />
       </Modal>
 
@@ -245,7 +248,7 @@ export const OrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => lifecycleAction('Process', () => processOrder(selectedOrder.id))}
-                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold"
+                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Process
                 </button>
@@ -254,7 +257,7 @@ export const OrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => lifecycleAction('Ship', () => shipOrder(selectedOrder.id))}
-                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold"
+                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Ship
                 </button>
@@ -263,7 +266,7 @@ export const OrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => lifecycleAction('Deliver', () => deliverOrder(selectedOrder.id))}
-                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold"
+                  className="px-3 py-1.5 bg-navy text-white rounded-md text-xs font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Deliver
                 </button>
@@ -272,7 +275,7 @@ export const OrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => lifecycleAction('Cancel', () => cancelOrder(selectedOrder.id))}
-                  className="px-3 py-1.5 border border-danger text-danger hover:bg-danger-bg rounded-md text-xs font-semibold"
+                  className="px-3 py-1.5 border border-danger text-danger hover:bg-danger-bg rounded-md text-xs font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Cancel
                 </button>
@@ -281,7 +284,7 @@ export const OrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => lifecycleAction('Return', () => returnOrder(selectedOrder.id))}
-                  className="px-3 py-1.5 border border-danger text-danger hover:bg-danger-bg rounded-md text-xs font-semibold"
+                  className="px-3 py-1.5 border border-danger text-danger hover:bg-danger-bg rounded-md text-xs font-semibold focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Return
                 </button>

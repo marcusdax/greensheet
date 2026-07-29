@@ -10,7 +10,11 @@
       "accounts": "Cuentas",
       "analytics": "Analítica",
       "settings": "Configuración",
-      "help": "Ayuda"
+      "help": "Ayuda",
+      "reservations": "Reservas",
+      "sampleKits": "Kits de muestra",
+      "automationRules": "Reglas de automatización",
+      "webhooks": "Webhooks"
     },
     "buttons": {
       "save": "Guardar",
@@ -344,7 +348,10 @@
       "cof004": {
         "body": "Greensheet: solo quedan {available_lbs} lb de {origin} {varietal}. Reserve: {lot_url} Responda ALTO para cancelar."
       }
-    }
+    },
+    "create": "Crear campaña",
+    "activate": "Activar",
+    "retire": "Retirar"
   },
   "errors": {
     "title": "Algo salió mal",
@@ -371,6 +378,25 @@
       "retry": "Reintentar",
       "contactSupport": "Contactar soporte",
       "signInAgain": "Iniciar sesión de nuevo"
-    }
+    },
+    "insufficientInventory": "Inventario insuficiente para cumplir este pedido.",
+    "idempotencyConflict": "Envío duplicado detectado. Su pedido original no cambió."
+  },
+  "roasters": {
+    "create": "Agregar tostador",
+    "edit": "Editar tostador",
+    "anonymize": "Anonimizar tostador"
+  },
+  "orders": {
+    "create": "Crear pedido"
+  },
+  "sampleKits": {
+    "create": "Solicitar kit de muestras"
+  },
+  "rules": {
+    "create": "Crear regla"
+  },
+  "webhooks": {
+    "create": "Crear webhook"
   }
 }

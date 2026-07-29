@@ -10,7 +10,11 @@
       "accounts": "Contas",
       "analytics": "Análises",
       "settings": "Configurações",
-      "help": "Ajuda"
+      "help": "Ajuda",
+      "reservations": "Reservas",
+      "sampleKits": "Kits de amostra",
+      "automationRules": "Regras de automação",
+      "webhooks": "Webhooks"
     },
     "buttons": {
       "save": "Salvar",
@@ -344,7 +348,10 @@
       "cof004": {
         "body": "Greensheet: restam apenas {available_lbs} lb de {origin} {varietal}. Reserve: {lot_url} Responda SAIR para cancelar."
       }
-    }
+    },
+    "create": "Criar campanha",
+    "activate": "Ativar",
+    "retire": "Desativar"
   },
   "errors": {
     "title": "Algo deu errado",
@@ -371,6 +378,25 @@
       "retry": "Tentar novamente",
       "contactSupport": "Falar com o suporte",
       "signInAgain": "Entrar novamente"
-    }
+    },
+    "insufficientInventory": "Estoque insuficiente para atender este pedido.",
+    "idempotencyConflict": "Envio duplicado detectado. Seu pedido original não foi alterado."
+  },
+  "roasters": {
+    "create": "Adicionar torrador",
+    "edit": "Editar torrador",
+    "anonymize": "Anonimizar torrador"
+  },
+  "orders": {
+    "create": "Criar pedido"
+  },
+  "sampleKits": {
+    "create": "Solicitar kit de amostras"
+  },
+  "rules": {
+    "create": "Criar regra"
+  },
+  "webhooks": {
+    "create": "Criar webhook"
   }
 }

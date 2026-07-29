@@ -324,9 +324,9 @@ export const CampaignsPage: React.FC = () => {
           key="activate"
           type="button"
           onClick={(e) => { e.stopPropagation(); void handleLifecycle('activate', campaign.id); }}
-          className="p-1.5 text-muted hover:text-success hover:bg-success-bg rounded-md transition-colors"
-          aria-label={`Activate ${campaign.name}`}
-          title="Activate"
+          className="p-1.5 text-muted hover:text-success hover:bg-success-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
+          aria-label={`${t('activate')} ${campaign.name}`}
+          title={t('activate')}
         >
           <Play size={16} />
         </button>
@@ -338,7 +338,7 @@ export const CampaignsPage: React.FC = () => {
           key="pause"
           type="button"
           onClick={(e) => { e.stopPropagation(); void handleLifecycle('pause', campaign.id); }}
-          className="p-1.5 text-muted hover:text-warning hover:bg-warning-bg rounded-md transition-colors"
+          className="p-1.5 text-muted hover:text-warning hover:bg-warning-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
           aria-label={`Pause ${campaign.name}`}
           title="Pause"
         >
@@ -352,9 +352,9 @@ export const CampaignsPage: React.FC = () => {
           key="retire"
           type="button"
           onClick={(e) => { e.stopPropagation(); void handleLifecycle('retire', campaign.id); }}
-          className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors"
-          aria-label={`Retire ${campaign.name}`}
-          title="Retire"
+          className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
+          aria-label={`${t('retire')} ${campaign.name}`}
+          title={t('retire')}
         >
           <Archive size={16} />
         </button>
@@ -381,10 +381,10 @@ export const CampaignsPage: React.FC = () => {
         <button
           type="button"
           onClick={handleOpenAddCampaign}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Create Campaign
+          {t('create')}
         </button>
       </div>
 
@@ -397,7 +397,7 @@ export const CampaignsPage: React.FC = () => {
               key={filter.value}
               type="button"
               onClick={() => setStatusFilter(filter.value)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-teal ${
                 active
                   ? 'bg-navy text-white'
                   : 'bg-surface border border-border text-muted hover:text-ink hover:border-border-strong'
@@ -497,7 +497,7 @@ export const CampaignsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenEditCampaign(selectedCampaign)}
-                        className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+                        className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                         aria-label={`Edit ${selectedCampaign.name}`}
                         title="Edit"
                       >
@@ -507,7 +507,7 @@ export const CampaignsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setRuleDrawerOpen(true)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-navy text-white rounded-md hover:bg-navy-800 transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-navy text-white rounded-md hover:bg-navy-800 transition-colors focus-visible:ring-2 focus-visible:ring-teal"
                       >
                         <Plus size={14} />
                         Rule
@@ -844,7 +844,7 @@ export const CampaignsPage: React.FC = () => {
       <Modal
         isOpen={campaignModalOpen}
         onClose={handleCloseCampaignModal}
-        title={editingCampaign ? 'Edit Campaign' : 'Create Campaign'}
+        title={editingCampaign ? 'Edit Campaign' : t('create')}
         size="md"
       >
         <CampaignForm

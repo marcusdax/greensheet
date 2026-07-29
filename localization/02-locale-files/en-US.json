@@ -10,7 +10,11 @@
       "accounts": "Accounts",
       "analytics": "Analytics",
       "settings": "Settings",
-      "help": "Help"
+      "help": "Help",
+      "reservations": "Reservations",
+      "sampleKits": "Sample Kits",
+      "automationRules": "Automation Rules",
+      "webhooks": "Webhooks"
     },
     "buttons": {
       "save": "Save",
@@ -340,7 +344,10 @@
       "cof004": {
         "body": "Greensheet: only {available_lbs} lbs left of {origin} {varietal}. Reserve: {lot_url} Reply STOP to opt out."
       }
-    }
+    },
+    "create": "Create Campaign",
+    "activate": "Activate",
+    "retire": "Retire"
   },
   "errors": {
     "title": "Something went wrong",
@@ -367,6 +374,25 @@
       "retry": "Try again",
       "contactSupport": "Contact support",
       "signInAgain": "Sign in again"
-    }
+    },
+    "insufficientInventory": "Insufficient inventory to fulfill this order.",
+    "idempotencyConflict": "Duplicate submission detected. Your original order is unchanged."
+  },
+  "roasters": {
+    "create": "Add Roaster",
+    "edit": "Edit Roaster",
+    "anonymize": "Anonymize Roaster"
+  },
+  "orders": {
+    "create": "Create Order"
+  },
+  "sampleKits": {
+    "create": "Request Sample Kit"
+  },
+  "rules": {
+    "create": "Create Rule"
+  },
+  "webhooks": {
+    "create": "Create Webhook"
   }
 }

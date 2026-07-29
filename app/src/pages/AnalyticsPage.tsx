@@ -92,7 +92,7 @@ export const AnalyticsPage: React.FC = () => {
           type="button"
           onClick={handleRefresh}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 disabled:opacity-50 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 disabled:opacity-50 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           {t('common:actions.refresh', 'Refresh')}

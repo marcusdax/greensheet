@@ -8,9 +8,9 @@ import type { ColumnDef } from '../components/ui/DataTable';
 import type { Reservation } from '../types/api';
 
 export const ReservationsPage: React.FC = () => {
-  const { i18n } = useTranslation(['common']);
+  const { t, i18n } = useTranslation(['common']);
   const { locale } = useParams<{ locale: string }>();
-  const { reservations, lots, loadLots } = useCatalog();
+  const { reservations, lots, loading, loadLots } = useCatalog();
   const currentLocale = i18n.language;
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const ReservationsPage: React.FC = () => {
           return (
             <Link
               to={`/${locale ?? currentLocale}/catalog`}
-              className="text-teal hover:text-navy font-sans text-sm font-semibold"
+              className="text-teal hover:text-navy font-sans text-sm font-semibold focus-visible:ring-2 focus-visible:ring-teal rounded-sm"
             >
               {lot ? lot.origin : row.lotId}
             </Link>
@@ -45,7 +45,7 @@ export const ReservationsPage: React.FC = () => {
         accessor: (row) => (
           <Link
             to={`/${locale ?? currentLocale}/orders`}
-            className="text-teal hover:text-navy font-mono text-xs"
+            className="text-teal hover:text-navy font-mono text-xs focus-visible:ring-2 focus-visible:ring-teal rounded-sm"
           >
             {row.orderId}
           </Link>
@@ -89,16 +89,28 @@ export const ReservationsPage: React.FC = () => {
       </div>
 
       <div className="bg-surface rounded-lg border border-border-strong shadow-e1 overflow-hidden">
-        <DataTable
-          data={activeReservations}
-          columns={columns}
-          keyExtractor={(row) => row.id}
-          emptyMessage={
-            <div className="text-center">
-              <p className="text-muted font-sans">No active reservations.</p>
-            </div>
-          }
-        />
+        {loading && activeReservations.length === 0 ? (
+          <div className="p-8 text-center text-muted font-sans">
+            {t('common:states.loading')}
+          </div>
+        ) : (
+          <DataTable
+            data={activeReservations}
+            columns={columns}
+            keyExtractor={(row) => row.id}
+            emptyMessage={
+              <div className="text-center space-y-3">
+                <p className="text-muted font-sans">No active reservations.</p>
+                <Link
+                  to={`/${locale ?? currentLocale}/orders`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
+                >
+                  {t('common:nav.orders')}
+                </Link>
+              </div>
+            }
+          />
+        )}
       </div>
     </div>
   );

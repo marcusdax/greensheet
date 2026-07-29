@@ -34,7 +34,7 @@ const ruleToFormValues = (rule: AutomationRule): RuleFormValues => ({
 });
 
 export const AutomationRulesPage: React.FC = () => {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['rules', 'common']);
   const { rules, loading, loadRules, createRule, updateRule, deleteRule } = useRules();
   const { pushToast } = useUi();
 
@@ -189,7 +189,7 @@ export const AutomationRulesPage: React.FC = () => {
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleOpenEdit(row); }}
-            className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
+            className="p-1.5 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
             aria-label={`Edit ${row.ruleName}`}
             title="Edit"
           >
@@ -198,7 +198,7 @@ export const AutomationRulesPage: React.FC = () => {
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleOpenDelete(row); }}
-            className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors"
+            className="p-1.5 text-muted hover:text-danger hover:bg-danger-bg rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
             aria-label={`Delete ${row.ruleName}`}
             title="Delete"
           >
@@ -223,10 +223,10 @@ export const AutomationRulesPage: React.FC = () => {
         <button
           type="button"
           onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Create Rule
+          {t('create')}
         </button>
       </div>
 
@@ -240,7 +240,7 @@ export const AutomationRulesPage: React.FC = () => {
                 key={filter.value}
                 type="button"
                 onClick={() => setStatusFilter(filter.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-teal ${
                   active
                     ? 'bg-navy text-white'
                     : 'bg-surface border border-border text-muted hover:text-ink hover:border-border-strong'
@@ -257,7 +257,7 @@ export const AutomationRulesPage: React.FC = () => {
             id="trigger-filter"
             value={triggerFilter}
             onChange={(e) => setTriggerFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-md text-xs font-semibold border border-border bg-surface text-ink focus:border-teal"
+            className="px-3 py-1.5 rounded-md text-xs font-semibold border border-border bg-surface text-ink focus:border-teal focus-visible:ring-2 focus-visible:ring-teal"
           >
             <option value="all">All triggers</option>
             {triggerEvents.map((event) => (
@@ -270,7 +270,7 @@ export const AutomationRulesPage: React.FC = () => {
       {/* Rules Table */}
       <div className="bg-surface rounded-lg border border-border-strong shadow-e1 overflow-hidden">
         {loading && rules.length === 0 ? (
-          <div className="p-6 text-muted font-sans">{t('common:states.loading', 'Loading…')}</div>
+          <div className="p-6 text-muted font-sans">{t('common:states.loading')}</div>
         ) : (
           <DataTable
             data={filteredRules}
@@ -282,7 +282,7 @@ export const AutomationRulesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setStatusFilter('all'); setTriggerFilter('all'); }}
-                  className="mt-2 text-xs font-semibold text-teal hover:text-navy"
+                  className="mt-2 text-xs font-semibold text-teal hover:text-navy focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Clear filters
                 </button>
@@ -296,7 +296,7 @@ export const AutomationRulesPage: React.FC = () => {
       <Modal
         isOpen={formModalOpen}
         onClose={handleCloseFormModal}
-        title={editingRule ? 'Edit Rule' : 'Create Rule'}
+        title={editingRule ? 'Edit Rule' : t('create')}
         size="lg"
       >
         <RuleForm
@@ -329,14 +329,14 @@ export const AutomationRulesPage: React.FC = () => {
             <button
               type="button"
               onClick={handleCloseDelete}
-              className="px-4 py-2 text-sm font-semibold text-muted hover:text-ink bg-surface border border-border rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-muted hover:text-ink bg-surface border border-border rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={() => void handleConfirmDelete()}
-              className="px-4 py-2 text-sm font-semibold text-white bg-danger hover:bg-danger-600 rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-white bg-danger hover:bg-danger-600 rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-teal"
             >
               Delete
             </button>

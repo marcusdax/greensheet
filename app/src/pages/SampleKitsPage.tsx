@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, MessageSquareText, Package } from 'lucide-react';
 import { useSamples, useCatalog, useCrm, useUi, useRootStore } from '../stores/root-store';
 import { SampleKitForm } from '../components/forms/SampleKitForm';
@@ -29,6 +30,7 @@ const statusLabel = (status: SampleKit['status']) => {
 };
 
 export const SampleKitsPage: React.FC = () => {
+  const { t } = useTranslation(['sampleKits', 'common']);
   const { kits, loading, loadKits, createKit, submitFeedback } = useSamples();
   const { lots, loadLots } = useCatalog();
   const { roasters, loadRoasters } = useCrm();
@@ -112,73 +114,77 @@ export const SampleKitsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setRequestOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Plus size={16} />
-          Request Sample Kit
+          {t('create')}
         </button>
       </div>
 
       <div className="bg-surface rounded-lg border border-border-strong shadow-e1 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm font-sans border-collapse">
-            <thead>
-              <tr className="border-b border-border text-xs overline text-muted bg-recessed/15">
-                <th className="px-4 py-3">ROASTER</th>
-                <th className="px-4 py-3">STATUS</th>
-                <th className="px-4 py-3">REQUESTED</th>
-                <th className="px-4 py-3">TRACKING</th>
-                <th className="px-4 py-3 text-center">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border font-sans">
-              {kits.map((kit) => {
-                const roaster = roasters.find((r) => r.id === kit.roasterId);
-                return (
-                  <tr key={kit.id} className="hover:bg-hover/10 transition-colors">
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-teal text-white flex items-center justify-center font-bold text-xs">
-                          <Package size={16} />
+        {loading && kits.length === 0 ? (
+          <div className="p-8 text-center text-muted font-sans">{t('common:states.loading')}</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm font-sans border-collapse">
+              <thead>
+                <tr className="border-b border-border text-xs overline text-muted bg-recessed/15">
+                  <th className="px-4 py-3">ROASTER</th>
+                  <th className="px-4 py-3">STATUS</th>
+                  <th className="px-4 py-3">REQUESTED</th>
+                  <th className="px-4 py-3">TRACKING</th>
+                  <th className="px-4 py-3 text-center">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border font-sans">
+                {kits.map((kit) => {
+                  const roaster = roasters.find((r) => r.id === kit.roasterId);
+                  return (
+                    <tr key={kit.id} className="hover:bg-hover/10 transition-colors">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-teal text-white flex items-center justify-center font-bold text-xs">
+                            <Package size={16} />
+                          </div>
+                          <div>
+                            <span className="font-semibold text-ink block">{roaster?.roasterName ?? kit.roasterId}</span>
+                            <span className="text-[10px] overline text-subtle tracking-wider font-sans">{kit.lots.length} lots</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-semibold text-ink block">{roaster?.roasterName ?? kit.roasterId}</span>
-                          <span className="text-[10px] overline text-subtle tracking-wider font-sans">{kit.lots.length} lots</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="px-2 py-0.5 border text-2xs rounded-full font-sans uppercase font-bold tracking-wider bg-info-bg text-info border-info/15">
-                        {statusLabel(kit.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-muted font-mono text-xs">
-                      {new Date(kit.requestedAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3.5 text-muted font-mono text-xs">
-                      {kit.trackingNumber ?? '—'}
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <button
-                        type="button"
-                        onClick={() => openFeedback(kit)}
-                        disabled={!kit.feedbackToken || kit.status === 'feedback_received'}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md border border-border hover:bg-recessed disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        aria-label={`Leave feedback for ${roaster?.roasterName ?? 'kit'}`}
-                      >
-                        <MessageSquareText size={14} />
-                        Feedback
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {kits.length === 0 && !loading && (
-            <div className="p-8 text-center text-muted font-sans">No sample kits yet.</div>
-          )}
-        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="px-2 py-0.5 border text-2xs rounded-full font-sans uppercase font-bold tracking-wider bg-info-bg text-info border-info/15">
+                          {statusLabel(kit.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-muted font-mono text-xs">
+                        {new Date(kit.requestedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3.5 text-muted font-mono text-xs">
+                        {kit.trackingNumber ?? '—'}
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <button
+                          type="button"
+                          onClick={() => openFeedback(kit)}
+                          disabled={!kit.feedbackToken || kit.status === 'feedback_received'}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md border border-border hover:bg-recessed disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus-visible:ring-teal"
+                          aria-label={`Leave feedback for ${roaster?.roasterName ?? 'kit'}`}
+                        >
+                          <MessageSquareText size={14} />
+                          Feedback
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {kits.length === 0 && !loading && (
+              <div className="p-8 text-center text-muted font-sans">No sample kits yet.</div>
+            )}
+          </div>
+        )}
       </div>
 
       {selectedKit && (
@@ -209,7 +215,7 @@ export const SampleKitsPage: React.FC = () => {
       <Modal
         isOpen={requestOpen}
         onClose={() => setRequestOpen(false)}
-        title="Request Sample Kit"
+        title={t('create')}
         size="lg"
       >
         <SampleKitForm
