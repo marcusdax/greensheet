@@ -9,7 +9,7 @@ import { ComparisonTray } from './ComparisonTray';
 import { ToastContainer } from './ui/ToastContainer';
 import { 
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon, 
-  Bell, Globe, Menu, X, ChevronDown
+  Bell, Globe, Menu, X, ChevronDown, ClipboardList
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -69,6 +69,7 @@ export const AppLayout: React.FC = () => {
       items: [
         { path: 'navigator', label: t('nav.navigator', 'Navigator'), icon: Scale },
         { path: 'catalog', label: t('nav.catalog', 'Catalog'), icon: Ship },
+        { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: ClipboardList },
       ]
     },
     {

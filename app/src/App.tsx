@@ -7,6 +7,7 @@ import { CampaignsPage } from './pages/CampaignsPage';
 import { AutomationRulesPage } from './pages/AutomationRulesPage';
 import { RoastersPage } from './pages/RoastersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { ReservationsPage } from './pages/ReservationsPage';
 
 // Import i18n to initialize it
 import './i18n';
@@ -89,6 +90,7 @@ function App() {
             <Route index element={<LocaleRedirect />} />
             <Route path="navigator" element={<NavigatorPage />} />
             <Route path="catalog" element={<CatalogPage />} />
+            <Route path="reservations" element={<ReservationsPage />} />
             <Route path="campaigns" element={<CampaignsPage />} />
             <Route path="rules" element={<AutomationRulesPage />} />
             <Route path="roasters" element={<RoastersPage />} />
