@@ -7,10 +7,10 @@ import type { Locale } from '../i18n';
 import { LotDetailDrawer } from './LotDetailDrawer';
 import { ComparisonTray } from './ComparisonTray';
 import { ToastContainer } from './ui/ToastContainer';
-import { 
+import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
-  Bell, Globe, Menu, X, ChevronDown, ClipboardList, Package, ShoppingCart,
-  Webhook
+  Bell, Globe, Menu, X, ChevronDown,
+  Layers, Sparkles, Package, ShoppingCart, Webhook
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -70,33 +70,29 @@ export const AppLayout: React.FC = () => {
       items: [
         { path: 'navigator', label: t('nav.navigator', 'Navigator'), icon: Scale },
         { path: 'catalog', label: t('nav.catalog', 'Catalog'), icon: Ship },
-        { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: ClipboardList },
-        { path: 'sample-kits', label: t('nav.sample-kits', 'Sample Kits'), icon: Package },
-        { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
+        { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: Layers },
       ]
     },
     {
       title: 'ENGAGE',
       items: [
-        { path: 'campaigns', label: t('nav.campaigns', 'Campaigns'), icon: Coins }
+        { path: 'campaigns', label: t('nav.campaigns', 'Campaigns'), icon: Coins },
+        { path: 'automation-rules', label: t('nav.automationRules', 'Automation Rules'), icon: Sparkles },
       ]
     },
     {
       title: 'RELATIONSHIPS',
       items: [
-        { path: 'roasters', label: t('nav.roasters', 'Roasters'), icon: Sprout }
+        { path: 'roasters', label: t('nav.roasters', 'Roasters'), icon: Sprout },
+        { path: 'sample-kits', label: t('nav.sampleKits', 'Sample Kits'), icon: Package },
+        { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
       ]
     },
     {
       title: 'INTELLIGENCE',
       items: [
-        { path: 'analytics', label: t('nav.analytics', 'Analytics'), icon: Star }
-      ]
-    },
-    {
-      title: 'INTEGRATIONS',
-      items: [
-        { path: 'webhooks', label: t('nav.webhooks', 'Webhooks'), icon: Webhook }
+        { path: 'analytics', label: t('nav.analytics', 'Analytics'), icon: Star },
+        { path: 'webhooks', label: t('nav.webhooks', 'Webhooks'), icon: Webhook },
       ]
     }
   ];

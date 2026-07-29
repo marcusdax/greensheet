@@ -95,7 +95,7 @@ function App() {
             <Route path="catalog" element={<CatalogPage />} />
             <Route path="reservations" element={<ReservationsPage />} />
             <Route path="campaigns" element={<CampaignsPage />} />
-            <Route path="rules" element={<AutomationRulesPage />} />
+            <Route path="automation-rules" element={<AutomationRulesPage />} />
             <Route path="roasters" element={<RoastersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="sample-kits" element={<SampleKitsPage />} />
