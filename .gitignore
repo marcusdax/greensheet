@@ -1,2 +1,5 @@
 # Superpowers brainstorming artifacts
 .superpowers/
+
+# Isolated worktrees
+.worktrees/
