@@ -88,8 +88,9 @@ CMD ["npm", "run", "dev:server"]
 
 FROM base AS prod
 COPY . .
-RUN npx tsc -p server/tsconfig.json
-CMD ["node", "server/dist/index.js"]
+# Note: server/tsconfig.json uses allowImportingTsExtensions + noEmit,
+# so we run the server with tsx instead of pre-compiling.
+CMD ["npx", "tsx", "server/index.ts"]
 ```
 
 ## 4. Docker Compose
