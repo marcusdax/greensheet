@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { chatRouter } from './routes/chat';
+import { chatRouter } from './routes/chat.js';
 
 function getValidatedPort(): number {
   const rawPort = process.env.AI_PROXY_PORT;
@@ -14,7 +14,7 @@ function getValidatedPort(): number {
 export function createApp(): express.Express {
   const app = express();
 
-  app.use(express.json());
+  app.use(express.json({ limit: '256kb' }));
 
   const allowedOrigins = (process.env.AI_ALLOWED_ORIGINS ?? 'http://localhost:5173')
     .split(',')

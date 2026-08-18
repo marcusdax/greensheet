@@ -20,6 +20,7 @@ export const ChatInput: React.FC = () => {
     const config = ai.providers[providerKey];
 
     if (!config.apiKey) {
+      ai.sendMessage('');
       ai.appendAssistantChunk(t('agent:missingKey'));
       return;
     }
@@ -72,7 +73,7 @@ export const ChatInput: React.FC = () => {
         onClick={() => void handleSend()}
         disabled={ai.isStreaming || !text.trim()}
         className="p-2 bg-teal text-white rounded-md disabled:opacity-50"
-        aria-label="Send message"
+        aria-label={t('agent:send')}
       >
         {ai.isStreaming ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
       </button>

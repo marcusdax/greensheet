@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
-import { DeepSeekAdapter } from '../providers/deepseek';
+import { DeepSeekAdapter } from '../providers/deepseek.js';
 
 const mockStream = async function* () {
   yield { choices: [{ delta: { content: 'Hello' } }] };

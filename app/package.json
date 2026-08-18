@@ -21,7 +21,6 @@
   "dependencies": {
     "@hookform/resolvers": "^5.5.7",
     "autoprefixer": "^10.5.4",
-    "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "framer-motion": "^12.42.2",
@@ -50,6 +49,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/supertest": "^7.2.1",
     "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^9.1.2",
     "jsdom": "^30.0.0",
     "oxlint": "^1.71.0",
     "supertest": "^7.0.0",

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { getAdapter } from '../providers';
-import { buildSystemPrompt } from '../system-prompt';
-import type { ChatMessage } from '../providers/adapter';
+import { getAdapter } from '../providers/index.js';
+import { buildSystemPrompt } from '../system-prompt/index.js';
+import type { ChatMessage } from '../providers/adapter.js';
 
 const chatBodySchema = z.object({
   provider: z.enum(['deepseek', 'claude', 'kimi', 'gemini']),

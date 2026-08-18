@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { buildSystemPrompt } from '../system-prompt';
+import { buildSystemPrompt } from '../system-prompt/index.js';
 
 describe('buildSystemPrompt', () => {
   it('includes Vietnam coffee keywords', () => {

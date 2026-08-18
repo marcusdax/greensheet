@@ -412,6 +412,7 @@
     "emptyState": "Ask the agent about Vietnam coffee, sourcing, roasting, trade, or compliance.",
     "comingSoon": "{{provider}} support is coming soon. Enable DeepSeek to use the agent now.",
     "missingKey": "Please add an API key in the agent settings.",
+    "send": "Enviar mensaje",
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
