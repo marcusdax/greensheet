@@ -1,0 +1,21 @@
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+      target: prod
+    ports:
+      - "3001:3001"
+    environment:
+      - AI_PROXY_PORT=3001
+      - AI_ALLOWED_ORIGINS=http://localhost,http://localhost:80
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: prod
+    ports:
+      - "80:80"
+    depends_on:
+      - proxy
