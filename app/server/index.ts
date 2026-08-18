@@ -1,27 +1,51 @@
 import express from 'express';
 import cors from 'cors';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { chatRouter } from './routes/chat';
 
-const app = express();
-const port = process.env.AI_PROXY_PORT ? parseInt(process.env.AI_PROXY_PORT, 10) : 3001;
-const allowedOrigins = (process.env.AI_ALLOWED_ORIGINS ?? 'http://localhost:5173').split(',');
+function getValidatedPort(): number {
+  const rawPort = process.env.AI_PROXY_PORT;
+  if (!rawPort) return 3001;
+  const parsed = parseInt(rawPort, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 3001;
+}
 
-app.use(express.json());
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: ['POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'x-provider-api-key'],
-  }),
-);
+export function createApp(): express.Express {
+  const app = express();
 
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
+  app.use(express.json());
 
-app.use('/api/v1/chat', chatRouter);
+  const allowedOrigins = (process.env.AI_ALLOWED_ORIGINS ?? 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`AI proxy listening on http://localhost:${port}`);
-});
+  app.use(
+    cors({
+      origin: allowedOrigins,
+      methods: ['POST', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'x-provider-api-key'],
+    }),
+  );
+
+  app.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
+
+  app.use('/api/v1/chat', chatRouter);
+
+  return app;
+}
+
+const thisFile = fileURLToPath(import.meta.url);
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(thisFile)) {
+  const app = createApp();
+  const port = getValidatedPort();
+
+  app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`AI proxy listening on http://localhost:${port}`);
+  });
+}

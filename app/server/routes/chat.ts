@@ -16,6 +16,16 @@ const chatBodySchema = z.object({
   stream: z.boolean().default(true),
 });
 
+/**
+ * Mask occurrences of `apiKey` in `text` so that leaked provider errors
+ * cannot be logged with sensitive material.
+ */
+function redactApiKey(text: string, apiKey: string): string {
+  if (!apiKey) return text;
+  const escaped = apiKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(escaped, 'g'), '***REDACTED***');
+}
+
 export const chatRouter = Router();
 
 chatRouter.post('/completions', async (req, res) => {
@@ -52,16 +62,39 @@ chatRouter.post('/completions', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
+  const generator = adapter.streamChat(fullMessages, model, apiKey);
+  let clientClosed = false;
+
+  req.on('close', () => {
+    clientClosed = true;
+    generator.return?.().catch(() => {
+      // ignore cleanup errors
+    });
+    if (!res.writableEnded) {
+      res.end();
+    }
+  });
+
   try {
-    const generator = adapter.streamChat(fullMessages, model, apiKey);
     for await (const event of generator) {
+      if (clientClosed || res.writableEnded) {
+        break;
+      }
       res.write(`data: ${JSON.stringify(event)}\n\n`);
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unexpected proxy error';
-    res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
+    const rawMessage = err instanceof Error ? err.stack ?? err.message : String(err);
+    const safeMessage = redactApiKey(rawMessage, apiKey);
+    // eslint-disable-next-line no-console
+    console.error('Proxy streaming error:', safeMessage);
+
+    if (!clientClosed && !res.writableEnded) {
+      res.write(`data: ${JSON.stringify({ error: 'Proxy error while streaming completions' })}\n\n`);
+    }
   } finally {
-    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-    res.end();
+    if (!clientClosed && !res.writableEnded) {
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    }
   }
 });
