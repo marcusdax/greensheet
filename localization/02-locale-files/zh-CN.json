@@ -390,5 +390,23 @@
   },
   "webhooks": {
     "create": "创建 Webhook"
+  },
+  "agent": {
+    "widgetTitle": "ODASI Coffee Agent",
+    "placeholder": "Ask the agent...",
+    "openChat": "Open coffee agent chat",
+    "closeChat": "Close coffee agent chat",
+    "settings": "Agent Settings",
+    "apiKey": "API Key",
+    "model": "Model",
+    "enabled": "Enabled",
+    "clearChat": "Clear conversation",
+    "emptyState": "Ask the agent about Vietnam coffee, sourcing, roasting, trade, or compliance.",
+    "comingSoon": "{{provider}} support is coming soon. Enable DeepSeek to use the agent now.",
+    "missingKey": "Please add an API key in the agent settings.",
+    "error": "Error: {{message}}",
+    "status": {
+      "streaming": "Thinking..."
+    }
   }
 }

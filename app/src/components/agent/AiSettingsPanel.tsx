@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAi } from '../../stores/ai-store';
 import type { ProviderKey } from '../../stores/slices/ai-slice';
 
@@ -10,6 +11,7 @@ const PROVIDERS: { key: ProviderKey; label: string; models: string[]; wired: boo
 ];
 
 export const AiSettingsPanel: React.FC = () => {
+  const { t } = useTranslation('agent');
   const ai = useAi();
   const [active, setActive] = React.useState<ProviderKey>('deepseek');
   const provider = PROVIDERS.find((p) => p.key === active)!;
@@ -17,7 +19,7 @@ export const AiSettingsPanel: React.FC = () => {
 
   return (
     <div className="absolute inset-0 bg-surface z-10 flex flex-col">
-      <div className="px-3 py-2 border-b border-border font-semibold text-sm">Agent Settings</div>
+      <div className="px-3 py-2 border-b border-border font-semibold text-sm">{t('agent:settings')}</div>
       <div className="flex gap-1 p-2 border-b border-border overflow-x-auto">
         {PROVIDERS.map((p) => (
           <button
@@ -33,7 +35,7 @@ export const AiSettingsPanel: React.FC = () => {
       </div>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         <div>
-          <label htmlFor={`${active}-api-key`} className="label block mb-1">API Key</label>
+          <label htmlFor={`${active}-api-key`} className="label block mb-1">{t('agent:apiKey')}</label>
           <input
             id={`${active}-api-key`}
             type="password"
@@ -44,7 +46,7 @@ export const AiSettingsPanel: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor={`${active}-model`} className="label block mb-1">Model</label>
+          <label htmlFor={`${active}-model`} className="label block mb-1">{t('agent:model')}</label>
           <select
             id={`${active}-model`}
             value={config.model}
@@ -65,11 +67,11 @@ export const AiSettingsPanel: React.FC = () => {
             checked={config.enabled}
             onChange={(e) => ai.setProviderConfig(active, { enabled: e.target.checked })}
           />
-          Enabled
+          {t('agent:enabled')}
         </label>
         {!provider.wired && (
           <div className="p-3 bg-warning-bg text-warning text-xs rounded-md">
-            {provider.label} support is coming soon. Enable DeepSeek to use the agent now.
+            {t('agent:comingSoon', { provider: provider.label })}
           </div>
         )}
       </div>

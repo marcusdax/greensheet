@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Send, Loader2 } from 'lucide-react';
 import { useAi } from '../../stores/ai-store';
 import { streamCompletion } from '../../api/ai-client';
 import type { ProviderConfig, ProviderKey } from '../../stores/slices/ai-slice';
 
 export const ChatInput: React.FC = () => {
+  const { t } = useTranslation('agent');
   const ai = useAi();
   const [text, setText] = useState('');
 
@@ -18,7 +20,7 @@ export const ChatInput: React.FC = () => {
     const config = ai.providers[providerKey];
 
     if (!config.apiKey) {
-      ai.appendAssistantChunk('Please add an API key in the agent settings.');
+      ai.appendAssistantChunk(t('agent:missingKey'));
       return;
     }
 
@@ -40,7 +42,7 @@ export const ChatInput: React.FC = () => {
           ai.appendAssistantChunk(event.chunk);
         }
         if (event.error) {
-          ai.appendAssistantChunk(`\n\nError: ${event.error}`);
+          ai.appendAssistantChunk(`\n\n${t('agent:error', { message: event.error })}`);
           break;
         }
         if (event.done) break;
@@ -62,7 +64,7 @@ export const ChatInput: React.FC = () => {
             void handleSend();
           }
         }}
-        placeholder="Ask the agent..."
+        placeholder={t('agent:placeholder')}
         rows={1}
         className="flex-1 resize-none bg-recessed/20 border border-border rounded-md px-3 py-2 text-xs focus:border-teal focus:outline-none"
       />

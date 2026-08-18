@@ -7,6 +7,7 @@ import type { Locale } from '../i18n';
 import { LotDetailDrawer } from './LotDetailDrawer';
 import { ComparisonTray } from './ComparisonTray';
 import { ToastContainer } from './ui/ToastContainer';
+import { AgentChatWidget } from './agent/AgentChatWidget';
 import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
   Bell, Globe, Menu, X, ChevronDown,
@@ -290,6 +291,9 @@ export const AppLayout: React.FC = () => {
 
       {/* Global Toast Container */}
       <ToastContainer />
+
+      {/* AI Agent Widget */}
+      <AgentChatWidget />
     </div>
   );
 };

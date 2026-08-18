@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAi } from '../../stores/ai-store';
 
 export const ChatMessageList: React.FC = () => {
+  const { t } = useTranslation('agent');
   const ai = useAi();
   const session = ai.sessions.find((s) => s.id === ai.activeSessionId);
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -13,7 +15,7 @@ export const ChatMessageList: React.FC = () => {
   if (!session || session.messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-4 text-center text-xs text-muted">
-        Ask the agent about Vietnam coffee, sourcing, roasting, trade, or compliance.
+        {t('agent:emptyState')}
       </div>
     );
   }
@@ -34,7 +36,10 @@ export const ChatMessageList: React.FC = () => {
           >
             {m.content}
             {m.role === 'assistant' && ai.isStreaming && idx === session.messages.length - 1 && (
-              <span className="inline-block w-1.5 h-1.5 ml-1 bg-muted rounded-full animate-pulse" />
+              <span
+                className="inline-block w-1.5 h-1.5 ml-1 bg-muted rounded-full animate-pulse"
+                aria-label={t('agent:status.streaming')}
+              />
             )}
           </div>
         </div>
