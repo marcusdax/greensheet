@@ -13,6 +13,11 @@
     "test": "vitest",
     "test:run": "vitest run"
   },
+  "overrides": {
+    "openai": {
+      "zod": "$zod"
+    }
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.5.7",
     "autoprefixer": "^10.5.4",
