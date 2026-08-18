@@ -7,10 +7,12 @@ export const ChatMessageList: React.FC = () => {
   const ai = useAi();
   const session = ai.sessions.find((s) => s.id === ai.activeSessionId);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const messageCount = session?.messages.length ?? 0;
+  const lastMessageContent = session?.messages.at(-1)?.content;
 
   React.useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [session?.messages.length, session?.messages.at(-1)?.content]);
+  }, [messageCount, lastMessageContent]);
 
   if (!session || session.messages.length === 0) {
     return (
