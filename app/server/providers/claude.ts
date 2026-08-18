@@ -1,4 +1,4 @@
-import type { ProviderAdapter, ChatMessage } from './adapter';
+import type { ProviderAdapter, ChatMessage } from './adapter.js';
 
 export class ClaudeAdapter implements ProviderAdapter {
   readonly provider = 'claude';

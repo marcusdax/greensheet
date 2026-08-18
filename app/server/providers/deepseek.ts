@@ -1,22 +1,23 @@
 import OpenAI from 'openai';
-import type { ProviderAdapter, ChatMessage } from './adapter';
+import type { ProviderAdapter, ChatMessage } from './adapter.js';
 
 export class DeepSeekAdapter implements ProviderAdapter {
   readonly provider = 'deepseek';
 
   async *streamChat(messages: ChatMessage[], model: string, apiKey: string) {
     const client = new OpenAI({ apiKey, baseURL: 'https://api.deepseek.com/v1' });
-    const stream = await client.chat.completions.create({
-      model,
-      messages,
-      stream: true,
-      stream_options: { include_usage: false },
-    });
 
     try {
+      const stream = await client.chat.completions.create({
+        model,
+        messages,
+        stream: true,
+        stream_options: { include_usage: false },
+      });
+
       for await (const part of stream) {
         const delta = part.choices[0]?.delta?.content;
-        if (delta) {
+        if (delta != null) {
           yield { chunk: delta };
         }
       }

@@ -1,4 +1,4 @@
-import type { ProviderAdapter, ChatMessage } from './adapter';
+import type { ProviderAdapter, ChatMessage } from './adapter.js';
 
 export class GeminiAdapter implements ProviderAdapter {
   readonly provider = 'gemini';

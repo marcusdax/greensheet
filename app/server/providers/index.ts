@@ -1,8 +1,8 @@
-import { DeepSeekAdapter } from './deepseek';
-import { ClaudeAdapter } from './claude';
-import { KimiAdapter } from './kimi';
-import { GeminiAdapter } from './gemini';
-import type { ProviderAdapter } from './adapter';
+import { DeepSeekAdapter } from './deepseek.js';
+import { ClaudeAdapter } from './claude.js';
+import { KimiAdapter } from './kimi.js';
+import { GeminiAdapter } from './gemini.js';
+import type { ProviderAdapter } from './adapter.js';
 
 export type { ProviderAdapter };
 export { DeepSeekAdapter, ClaudeAdapter, KimiAdapter, GeminiAdapter };
