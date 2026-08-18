@@ -12,8 +12,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.docker up --build",
-    "docker:prod": "docker compose --env-file .env.docker up --build",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.docker up --build -d",
+    "docker:prod": "docker compose --env-file .env.docker up --build -d",
     "docker:down": "docker compose --env-file .env.docker down",
     "docker:dev:down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.docker down"
   },

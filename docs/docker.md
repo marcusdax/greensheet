@@ -25,6 +25,12 @@ npm run docker:dev
 
 Source files are bind-mounted, so edits to `src/` or `server/` are reflected immediately.
 
+Containers start in detached mode. To follow dev logs:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.docker logs -f
+```
+
 ### Production-like mode (multi-stage build)
 
 ```bash
@@ -35,6 +41,12 @@ npm run docker:prod
 - AI proxy health: http://localhost:3001/health
 
 Static assets are built and served by Nginx; the proxy runs with `tsx`.
+
+Containers start in detached mode. To follow production-like logs:
+
+```bash
+docker compose --env-file .env.docker logs -f
+```
 
 ## Stop the stack
 
