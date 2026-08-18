@@ -1,0 +1,23 @@
+services:
+  proxy:
+    build:
+      target: dev
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - AI_PROXY_PORT=3001
+      - AI_ALLOWED_ORIGINS=http://localhost:5173
+    ports:
+      - "3001:3001"
+
+  app:
+    build:
+      target: dev
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - VITE_AI_PROXY_URL=http://localhost:3001
+    ports:
+      - "5173:5173"
