@@ -28,4 +28,13 @@ describe('AgentChatWidget', () => {
     fireEvent.click(screen.getByLabelText(/Agent Settings/i));
     expect(screen.getByText(/Agent Settings/i)).toBeInTheDocument();
   });
+
+  it('shows missing-key message when sending without an API key', async () => {
+    render(<AgentChatWidget />);
+    fireEvent.click(screen.getByLabelText(/Open coffee agent chat/i));
+    const textarea = screen.getByPlaceholderText(/Ask the agent/i);
+    fireEvent.change(textarea, { target: { value: 'Hello agent' } });
+    fireEvent.click(screen.getByLabelText(/Send message/i));
+    expect(await screen.findByText(/Please add an API key in the agent settings/i)).toBeInTheDocument();
+  });
 });

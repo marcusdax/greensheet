@@ -42,4 +42,13 @@ describe('POST /api/v1/chat/completions', () => {
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('text/event-stream');
   });
+
+  it('rejects oversized request bodies', async () => {
+    const huge = 'x'.repeat(300 * 1024);
+    const res = await request(server)
+      .post('/api/v1/chat/completions')
+      .set('x-provider-api-key', 'test')
+      .send({ provider: 'deepseek', model: 'deepseek-chat', messages: [{ role: 'user', content: huge }] });
+    expect(res.status).toBe(413);
+  });
 });
