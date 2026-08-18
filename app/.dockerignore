@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+*/node_modules
+
+# Build outputs
+dist
+dist-ssr
+*.tsbuildinfo
+
+# Local env files
+.env
+.env.local
+.env.*.local
+.env.docker
+
+# Vite / editor
+*.local
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Git and logs
+.git
+.gitignore
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
