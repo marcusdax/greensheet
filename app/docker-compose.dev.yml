@@ -20,6 +20,7 @@ services:
       - ../localization/02-locale-files:/localization/02-locale-files
     environment:
       - VITE_AI_PROXY_URL=http://localhost:3001
+      # Polling is required for reliable file-watching on Windows/Docker Desktop bind mounts.
       - CHOKIDAR_USEPOLLING=true
-    ports:
+    ports: !override
       - "5173:5173"

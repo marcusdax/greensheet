@@ -57,7 +57,7 @@ npm run docker:down       # stop production-like mode
 
 ## Environment variables
 
-Default values are in `app/.env.docker`. You can override any value in a local `.env.docker` file; it is ignored by Git.
+Default values are in `app/.env.docker`. It is committed to the repo so the stack works out of the box. To override values locally without committing them, export them in your shell or create an untracked `.env` file and load it manually.
 
 | Variable | Purpose |
 |----------|---------|
@@ -65,7 +65,17 @@ Default values are in `app/.env.docker`. You can override any value in a local `
 | `AI_PROXY_PORT` | Port the Express proxy listens on inside its container. |
 | `AI_ALLOWED_ORIGINS` | Comma-separated CORS origins allowed by the proxy. |
 
+## Building images manually
+
+The frontend image relies on the `localization/02-locale-files/` directory, which lives outside `app/`. Use Docker Compose (as shown above) so the build context and named context are correct. If you build manually, pass the localization context:
+
+```bash
+cd app
+docker build -f Dockerfile.app --target prod -t greensheet-app:prod . \
+  --build-context localization=../localization/02-locale-files
+```
+
 ## Troubleshooting
 
 - If `localhost:80` is already in use, edit `docker-compose.yml` to map a different host port, e.g. `"8080:80"`.
-- If Vite does not reload on Windows, ensure Docker Desktop is sharing the `app` drive.
+- If Vite does not reload on Windows, `CHOKIDAR_USEPOLLING=true` is already enabled in `docker-compose.dev.yml`. Ensure Docker Desktop is sharing the `app` drive if polling still fails.
