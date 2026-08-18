@@ -12,6 +12,8 @@ CMD ["npm", "run", "dev"]
 FROM base AS builder
 COPY . .
 COPY --from=localization . /localization/02-locale-files/
+ARG VITE_AI_PROXY_URL=http://localhost:3001
+ENV VITE_AI_PROXY_URL=${VITE_AI_PROXY_URL}
 RUN npm run build
 
 FROM nginx:alpine AS prod

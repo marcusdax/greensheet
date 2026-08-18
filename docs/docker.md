@@ -5,7 +5,7 @@ This setup runs the full Greensheet platform — Vite React frontend + Express A
 ## Requirements
 
 - Docker Engine 24+
-- Docker Compose v2+
+- Docker Compose v2.24+ (uses `!override` for dev port mapping)
 - Port `80`, `5173`, and `3001` free on localhost
 
 ## Quick start
@@ -23,7 +23,7 @@ npm run docker:dev
 - Frontend: http://localhost:5173
 - AI proxy health: http://localhost:3001/health
 
-Source files are bind-mounted, so edits to `src/` or `server/` are reflected immediately.
+Frontend files (`src/`) are bind-mounted and hot-reloaded by Vite. The AI proxy (`server/`) restarts automatically in dev mode (`tsx watch`).
 
 Containers start in detached mode. To follow dev logs:
 
@@ -57,7 +57,7 @@ npm run docker:down       # stop production-like mode
 
 ## Environment variables
 
-Default values are in `app/.env.docker`. It is committed to the repo so the stack works out of the box. To override values locally without committing them, export them in your shell or create an untracked `.env` file and load it manually.
+Default values are in `app/.env.docker`. It is committed to the repo so the stack works out of the box. To override values locally without committing them, export them in your shell before running the npm scripts, or invoke `docker compose` directly with your own `--env-file <file>`.
 
 | Variable | Purpose |
 |----------|---------|

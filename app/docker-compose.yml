@@ -17,6 +17,8 @@ services:
       target: prod
       additional_contexts:
         localization: ../localization/02-locale-files
+      args:
+        - VITE_AI_PROXY_URL=${VITE_AI_PROXY_URL}
     ports:
       - "80:80"
     depends_on:

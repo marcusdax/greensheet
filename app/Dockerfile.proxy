@@ -11,5 +11,6 @@ CMD ["npm", "run", "dev:server"]
 
 FROM base AS prod
 COPY . .
+EXPOSE 3001
 # server/tsconfig.json uses noEmit + allowImportingTsExtensions, so run with tsx
 CMD ["npx", "tsx", "server/index.ts"]
