@@ -4,8 +4,12 @@ import type { ProviderAdapter, ChatMessage } from './adapter.js';
 export class DeepSeekAdapter implements ProviderAdapter {
   readonly provider = 'deepseek';
 
+  protected createClient(apiKey: string): OpenAI {
+    return new OpenAI({ apiKey, baseURL: 'https://api.deepseek.com/v1' });
+  }
+
   async *streamChat(messages: ChatMessage[], model: string, apiKey: string) {
-    const client = new OpenAI({ apiKey, baseURL: 'https://api.deepseek.com/v1' });
+    const client = this.createClient(apiKey);
 
     try {
       const stream = await client.chat.completions.create({
