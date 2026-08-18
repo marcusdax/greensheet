@@ -1,5 +1,5 @@
-import { useRootStore } from '../../../root-store';
+import { useAiStore } from '../../../ai-store';
 
 export function resetAiState() {
-  useRootStore.getState().ai.resetAi();
+  useAiStore.getState().resetAi();
 }

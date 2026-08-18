@@ -55,23 +55,23 @@ export function createAiSlice(set: any): AiSlice {
 
     setProviderConfig: (provider, config) =>
       set(
-        (s: { ai: AiSlice }) => {
-          s.ai.providers[provider] = { ...s.ai.providers[provider], ...config };
+        (s: AiSlice) => {
+          s.providers[provider] = { ...s.providers[provider], ...config };
         },
         false,
         'ai/setProviderConfig',
       ),
 
     setActiveSession: (id) =>
-      set((s: { ai: AiSlice }) => {
-        s.ai.activeSessionId = id;
+      set((s: AiSlice) => {
+        s.activeSessionId = id;
       }, false, 'ai/setActiveSession'),
 
     clearSession: () =>
-      set((s: { ai: AiSlice }) => {
-        const activeId = s.ai.activeSessionId;
+      set((s: AiSlice) => {
+        const activeId = s.activeSessionId;
         if (activeId) {
-          const session = s.ai.sessions.find((x) => x.id === activeId);
+          const session = s.sessions.find((x) => x.id === activeId);
           if (session) {
             session.messages = [];
             session.updatedAt = new Date().toISOString();
@@ -80,17 +80,17 @@ export function createAiSlice(set: any): AiSlice {
       }, false, 'ai/clearSession'),
 
     deleteSession: (id) =>
-      set((s: { ai: AiSlice }) => {
-        s.ai.sessions = s.ai.sessions.filter((x) => x.id !== id);
-        if (s.ai.activeSessionId === id) {
-          s.ai.activeSessionId = s.ai.sessions.length > 0 ? s.ai.sessions[0].id : null;
+      set((s: AiSlice) => {
+        s.sessions = s.sessions.filter((x) => x.id !== id);
+        if (s.activeSessionId === id) {
+          s.activeSessionId = s.sessions.length > 0 ? s.sessions[0].id : null;
         }
       }, false, 'ai/deleteSession'),
 
     sendMessage: (content) =>
-      set((s: { ai: AiSlice }) => {
+      set((s: AiSlice) => {
         const now = new Date().toISOString();
-        let session = s.ai.sessions.find((x) => x.id === s.ai.activeSessionId);
+        let session = s.sessions.find((x) => x.id === s.activeSessionId);
         if (!session) {
           session = {
             id: crypto.randomUUID(),
@@ -99,16 +99,16 @@ export function createAiSlice(set: any): AiSlice {
             createdAt: now,
             updatedAt: now,
           };
-          s.ai.sessions.unshift(session);
-          s.ai.activeSessionId = session.id;
+          s.sessions.unshift(session);
+          s.activeSessionId = session.id;
         }
         session.messages.push({ role: 'user', content });
         session.updatedAt = now;
       }, false, 'ai/sendMessage'),
 
     appendAssistantChunk: (chunk) =>
-      set((s: { ai: AiSlice }) => {
-        const session = s.ai.sessions.find((x) => x.id === s.ai.activeSessionId);
+      set((s: AiSlice) => {
+        const session = s.sessions.find((x) => x.id === s.activeSessionId);
         if (!session) return;
         const last = session.messages[session.messages.length - 1];
         if (last && last.role === 'assistant') {
@@ -120,24 +120,24 @@ export function createAiSlice(set: any): AiSlice {
       }, false, 'ai/appendAssistantChunk'),
 
     finalizeAssistantMessage: () =>
-      set((s: { ai: AiSlice }) => {
-        const session = s.ai.sessions.find((x) => x.id === s.ai.activeSessionId);
+      set((s: AiSlice) => {
+        const session = s.sessions.find((x) => x.id === s.activeSessionId);
         if (session) {
           session.updatedAt = new Date().toISOString();
         }
       }, false, 'ai/finalizeAssistantMessage'),
 
     setStreaming: (value) =>
-      set((s: { ai: AiSlice }) => {
-        s.ai.isStreaming = value;
+      set((s: AiSlice) => {
+        s.isStreaming = value;
       }, false, 'ai/setStreaming'),
 
     resetAi: () =>
-      set((s: { ai: AiSlice }) => {
-        s.ai.providers = defaultProviders;
-        s.ai.sessions = [];
-        s.ai.activeSessionId = null;
-        s.ai.isStreaming = false;
+      set((s: AiSlice) => {
+        s.providers = defaultProviders;
+        s.sessions = [];
+        s.activeSessionId = null;
+        s.isStreaming = false;
       }, false, 'ai/resetAi'),
   };
 }
