@@ -13,6 +13,7 @@ import { createOrdersSlice, type OrdersSlice, initialOrdersState } from './slice
 import { createRulesSlice, type RulesSlice, initialRulesState } from './slices/rules-slice';
 import { createWebhooksSlice, type WebhooksSlice, initialWebhooksState } from './slices/webhooks-slice';
 import { createAnalyticsSlice, type AnalyticsSlice, initialAnalyticsState } from './slices/analytics-slice';
+import { createAiSlice, type AiSlice, initialAiState } from './slices/ai-slice';
 
 export type RootStore = {
   sourcing: SourcingSlice;
@@ -27,6 +28,7 @@ export type RootStore = {
   rules: RulesSlice;
   webhooks: WebhooksSlice;
   analytics: AnalyticsSlice;
+  ai: AiSlice;
 };
 
 export const useRootStore = create<RootStore>()(
@@ -46,6 +48,7 @@ export const useRootStore = create<RootStore>()(
           rules: createRulesSlice(set),
           webhooks: createWebhooksSlice(set),
           analytics: createAnalyticsSlice(set),
+          ai: createAiSlice(set),
         })),
       ),
       {
@@ -63,6 +66,11 @@ export const useRootStore = create<RootStore>()(
           ui: {
             theme: s.ui.theme,
           },
+          ai: {
+            providers: s.ai.providers,
+            sessions: s.ai.sessions,
+            activeSessionId: s.ai.activeSessionId,
+          },
         }),
         merge: (persistedState: any, currentState: RootStore) => ({
           ...currentState,
@@ -73,6 +81,10 @@ export const useRootStore = create<RootStore>()(
           ui: {
             ...currentState.ui,
             ...(persistedState?.ui || {}),
+          },
+          ai: {
+            ...currentState.ai,
+            ...(persistedState?.ai || {}),
           },
         }),
       },
@@ -94,9 +106,11 @@ export const useOrders = () => useRootStore((s) => s.orders);
 export const useRules = () => useRootStore((s) => s.rules);
 export const useWebhooks = () => useRootStore((s) => s.webhooks);
 export const useAnalytics = () => useRootStore((s) => s.analytics);
+export const useAi = () => useRootStore((s) => s.ai);
 
 export function resetStore() {
   useRootStore.setState((state) => ({
+    ai: { ...state.ai, ...initialAiState },
     crm: { ...state.crm, ...initialCrmState },
     campaigns: { ...state.campaigns, ...initialCampaignsState },
     catalog: { ...state.catalog, ...initialCatalogState },
