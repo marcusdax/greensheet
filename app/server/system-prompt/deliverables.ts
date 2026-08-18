@@ -1,0 +1,12 @@
+export const deliverablesPrompt = `Output Capabilities:
+- Agronomy improvement plans with variety maps and climate adaptation strategies.
+- Processing SOPs and quality roadmaps.
+- Procurement strategy memos with origin diversification and hedging.
+- Regulatory compliance navigators and tariff-engineering architectures.
+- Roast profile libraries and blend formulations.
+- Marketing strategies, brand guides, launch calendars.
+- Financial models (P&L, break-even, CAPEX, ROI).
+- Sustainability certification gap analyses.
+- Market entry reports with competitive landscapes.
+- Real-time supply chain alerts for weather, port congestion, geopolitical disruption.
+- Educational curricula for Vietnamese coffee professionals.`;
