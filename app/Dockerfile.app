@@ -11,6 +11,7 @@ CMD ["npm", "run", "dev"]
 
 FROM base AS builder
 COPY . .
+COPY --from=localization . /localization/02-locale-files/
 RUN npm run build
 
 FROM nginx:alpine AS prod

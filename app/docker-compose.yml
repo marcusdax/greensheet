@@ -15,6 +15,8 @@ services:
       context: .
       dockerfile: Dockerfile.app
       target: prod
+      additional_contexts:
+        localization: ../localization/02-locale-files
     ports:
       - "80:80"
     depends_on:
