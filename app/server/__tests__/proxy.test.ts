@@ -12,9 +12,12 @@ describe('POST /api/v1/chat/completions', () => {
     server = app.listen(0);
   });
 
-  afterAll(() => {
-    server.close();
-  });
+  afterAll(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      }),
+  );
 
   it('rejects missing api key', async () => {
     const res = await request(server)
