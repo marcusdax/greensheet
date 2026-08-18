@@ -1,0 +1,59 @@
+# Running Greensheet locally with Docker
+
+This setup runs the full Greensheet platform — Vite React frontend + Express AI proxy — in Docker.
+
+## Requirements
+
+- Docker Engine 24+
+- Docker Compose v2+
+- Port `80`, `5173`, and `3001` free on localhost
+
+## Quick start
+
+```bash
+cd app
+```
+
+### Development mode (hot reload)
+
+```bash
+npm run docker:dev
+```
+
+- Frontend: http://localhost:5173
+- AI proxy health: http://localhost:3001/health
+
+Source files are bind-mounted, so edits to `src/` or `server/` are reflected immediately.
+
+### Production-like mode (multi-stage build)
+
+```bash
+npm run docker:prod
+```
+
+- Frontend: http://localhost
+- AI proxy health: http://localhost:3001/health
+
+Static assets are built and served by Nginx; the proxy runs with `tsx`.
+
+## Stop the stack
+
+```bash
+npm run docker:dev:down   # stop dev mode
+npm run docker:down       # stop production-like mode
+```
+
+## Environment variables
+
+Default values are in `app/.env.docker`. You can override any value in a local `.env.docker` file; it is ignored by Git.
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_AI_PROXY_URL` | Host-reachable URL the browser uses to reach the AI proxy. |
+| `AI_PROXY_PORT` | Port the Express proxy listens on inside its container. |
+| `AI_ALLOWED_ORIGINS` | Comma-separated CORS origins allowed by the proxy. |
+
+## Troubleshooting
+
+- If `localhost:80` is already in use, edit `docker-compose.yml` to map a different host port, e.g. `"8080:80"`.
+- If Vite does not reload on Windows, ensure Docker Desktop is sharing the `app` drive.
