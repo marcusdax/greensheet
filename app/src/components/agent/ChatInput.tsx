@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { useAi } from '../../stores/ai-store';
 import { streamCompletion } from '../../api/ai-client';
+import type { ProviderConfig, ProviderKey } from '../../stores/slices/ai-slice';
 
 export const ChatInput: React.FC = () => {
   const ai = useAi();
@@ -11,11 +12,10 @@ export const ChatInput: React.FC = () => {
     const trimmed = text.trim();
     if (!trimmed || ai.isStreaming) return;
 
-    const enabledProvider = (Object.entries(ai.providers).find(([, cfg]) => cfg.enabled) ?? [
-      'deepseek',
-      ai.providers.deepseek,
-    ]) as [keyof typeof ai.providers, typeof ai.providers.deepseek];
-    const [providerKey, config] = enabledProvider;
+    const providerEntries = Object.entries(ai.providers) as [ProviderKey, ProviderConfig][];
+    const found = providerEntries.find(([, cfg]) => cfg.enabled);
+    const providerKey = found ? found[0] : 'deepseek';
+    const config = ai.providers[providerKey];
 
     if (!config.apiKey) {
       ai.appendAssistantChunk('Please add an API key in the agent settings.');

@@ -33,21 +33,23 @@ export const AiSettingsPanel: React.FC = () => {
       </div>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         <div>
-          <label className="label block mb-1">API Key</label>
+          <label htmlFor={`${active}-api-key`} className="label block mb-1">API Key</label>
           <input
+            id={`${active}-api-key`}
             type="password"
             value={config.apiKey}
             onChange={(e) => ai.setProviderConfig(active, { apiKey: e.target.value })}
             placeholder={`${provider.label} API key`}
-            className="w-full mock-input text-xs"
+            className="w-full border border-border rounded-md bg-recessed/20 px-3 py-2 text-xs focus:border-teal focus:outline-none"
           />
         </div>
         <div>
-          <label className="label block mb-1">Model</label>
+          <label htmlFor={`${active}-model`} className="label block mb-1">Model</label>
           <select
+            id={`${active}-model`}
             value={config.model}
             onChange={(e) => ai.setProviderConfig(active, { model: e.target.value })}
-            className="w-full mock-input text-xs"
+            className="w-full border border-border rounded-md bg-recessed/20 px-3 py-2 text-xs focus:border-teal focus:outline-none"
           >
             {provider.models.map((m) => (
               <option key={m} value={m}>
@@ -56,8 +58,9 @@ export const AiSettingsPanel: React.FC = () => {
             ))}
           </select>
         </div>
-        <label className="flex items-center gap-2 text-xs">
+        <label htmlFor={`${active}-enabled`} className="flex items-center gap-2 text-xs">
           <input
+            id={`${active}-enabled`}
             type="checkbox"
             checked={config.enabled}
             onChange={(e) => ai.setProviderConfig(active, { enabled: e.target.checked })}
