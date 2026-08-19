@@ -45,8 +45,8 @@ app/src/pages/CampaignsPage.tsx     (derive A/B mock from seeded data)
 | File | Change |
 |------|--------|
 | `app/src/types/marketing.ts` | New types: `MarketingTemplate`, `CampaignToken`, `CampaignVariantDef`. |
-| `app/src/api/marketing-data.ts` | Constants `CAMPAIGN_TOKENS` (22 tokens) and `MARKETING_TEMPLATES` (all COF email/SMS templates with A/B subjects and body copy). |
-| `app/src/api/db.ts` | Replace placeholder `db.campaigns` and `db.rules`; add `db.templates` seeded from `marketing-data.ts`. |
+| `app/src/api/marketing-data.ts` | Constants `CAMPAIGN_TOKENS` (18 canonical tokens from §0.2 plus 6 extended copy tokens) and `MARKETING_TEMPLATES` (all 12 COF email/SMS templates with A/B subjects and body copy). |
+| `app/src/api/db.ts` | Replace placeholder `db.campaigns` and `db.rules`; add a runtime `db.templates` array seeded from `marketing-data.ts` (no API schema change). |
 | `app/src/api/client.ts` | Update `api.campaigns.performance` to return metrics that match each COF campaign's primary metric and funnel. |
 | `app/src/pages/CampaignsPage.tsx` | Replace hard-coded `CAMPAIGN_RULES_MOCK` with a helper that builds subject variants and A/B data from the seeded templates. |
 | `app/src/stores/__tests__/campaigns-slice.test.ts` | Update assertions that depend on old seed campaign/rule names or counts. |
@@ -97,6 +97,13 @@ app/src/pages/CampaignsPage.tsx     (derive A/B mock from seeded data)
   4. Update lifecycle to `first_order_active`.
   5. Halt on `order.created` or `user.unsubscribed`.
 
+## Schema mapping notes
+
+The marketing spec uses `SEND_EMAIL` / `SEND_SMS` action types and rule IDs such as `COF-001-R1`. The app's existing `RuleActionType` enum only defines `SEND_TEMPLATE`, plus `UPDATE_CRM_LIFECYCLE` and `EXECUTE_CAMPAIGN_HALT`. To keep seed data compatible with the existing API/types without expanding the runtime schema, rule actions will:
+- Use `SEND_TEMPLATE` with `channel: 'email'` or `channel: 'sms'` for all sends.
+- Store `ab_test_id` and `fire_if` inside the action `payload`.
+- Keep `ruleCode` values as `COF-001` … `COF-005` to match the existing `^COF-00[1-9]$` validation and the campaign codes.
+
 ## Template data
 
 Every template includes:
@@ -109,9 +116,9 @@ Every template includes:
 
 ## Merge-token registry
 
-All 22 canonical tokens from §0.2 are stored as `CAMPAIGN_TOKENS` with:
+`CAMPAIGN_TOKENS` contains the 18 canonical tokens from §0.2 plus the 6 extended tokens that appear in copy (`{feedback_highlight}`, `{bags_sold_since}`, `{days_left_on_lock}`, `{peer_count}`, `{first_order_lbs}`, `{days_since_order}`). Each token stores:
 - `token` — e.g. `{first_name}`
-- `sourceField` — e.g. `users.first_name`
+- `sourceField` — e.g. `users.first_name` or `template-derived`
 - `tooltip` — UI description
 
 ## Performance API
