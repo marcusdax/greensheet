@@ -16,15 +16,17 @@ import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface CampaignLiftChartProps {
   title: string;
+  description?: string;
   data: GrowthCampaignLiftPoint[];
 }
 
 export const CampaignLiftChart: React.FC<CampaignLiftChartProps> = ({
   title,
+  description,
   data,
 }) => {
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>

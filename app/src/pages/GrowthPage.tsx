@@ -55,12 +55,36 @@ export const GrowthPage: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WtrChart data={wtrPoints} title={t('growth:wtr.title')} />
-        <KitFunnelChart data={kitFunnel} title={t('growth:kitFunnel.title')} />
-        <CacByChannelChart data={cacByChannel} title={t('growth:cacByChannel.title')} />
-        <HazardHeatmap data={hazardHeatmap} title={t('growth:hazardHeatmap.title')} />
-        <KFactorGauge data={kFactor} title={t('growth:kFactor.title')} />
-        <CampaignLiftChart data={campaignLift} title={t('growth:campaignLift.title')} />
+        <WtrChart
+          data={wtrPoints}
+          title={t('growth:wtr.title')}
+          description={t('growth:wtr.description')}
+        />
+        <KitFunnelChart
+          data={kitFunnel}
+          title={t('growth:kitFunnel.title')}
+          description={t('growth:kitFunnel.description')}
+        />
+        <CacByChannelChart
+          data={cacByChannel}
+          title={t('growth:cacByChannel.title')}
+          description={t('growth:cacByChannel.description')}
+        />
+        <HazardHeatmap
+          data={hazardHeatmap}
+          title={t('growth:hazardHeatmap.title')}
+          description={t('growth:hazardHeatmap.description')}
+        />
+        <KFactorGauge
+          data={kFactor}
+          title={t('growth:kFactor.title')}
+          description={t('growth:kFactor.description')}
+        />
+        <CampaignLiftChart
+          data={campaignLift}
+          title={t('growth:campaignLift.title')}
+          description={t('growth:campaignLift.description')}
+        />
       </div>
     </div>
   );

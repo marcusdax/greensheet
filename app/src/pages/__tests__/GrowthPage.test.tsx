@@ -66,6 +66,24 @@ describe('GrowthPage', () => {
     expect(screen.getByText('Campaign Lift')).toBeInTheDocument();
   });
 
+  it('renders each widget description', async () => {
+    renderWithProviders();
+    await screen.findByText('Growth Dashboard');
+
+    expect(
+      screen.getByText('Trailing 7-day active roasters with 4-week moving average'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Kit Sent → Delivered → Feedback → First Order'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Blended customer acquisition cost vs. $500 ceiling'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Accounts by churn tier and segment')).toBeInTheDocument();
+    expect(screen.getByText('Viral referral coefficient vs. 0.6 target')).toBeInTheDocument();
+    expect(screen.getByText('Bayesian posterior probability vs. control')).toBeInTheDocument();
+  });
+
   it('renders the refresh button', async () => {
     renderWithProviders();
     expect(await screen.findByRole('button', { name: /refresh/i })).toBeInTheDocument();

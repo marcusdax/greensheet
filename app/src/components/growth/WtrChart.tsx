@@ -14,12 +14,13 @@ import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface WtrChartProps {
   title: string;
+  description?: string;
   data: WtrPoint[];
 }
 
-export const WtrChart: React.FC<WtrChartProps> = ({ title, data }) => {
+export const WtrChart: React.FC<WtrChartProps> = ({ title, description, data }) => {
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart

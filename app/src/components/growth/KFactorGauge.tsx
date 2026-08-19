@@ -4,14 +4,15 @@ import { GrowthWidgetCard } from './GrowthWidgetCard';
 
 export interface KFactorGaugeProps {
   title: string;
+  description?: string;
   data: GrowthKFactorPoint;
 }
 
-export const KFactorGauge: React.FC<KFactorGaugeProps> = ({ title, data }) => {
+export const KFactorGauge: React.FC<KFactorGaugeProps> = ({ title, description, data }) => {
   const percentage = Math.min(100, Math.max(0, (data.current / data.target) * 100));
 
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="h-64 flex flex-col items-center justify-center space-y-5">
         <div className="text-center">
           <div className="text-4xl font-display font-medium text-ink" data-testid="kfactor-current">

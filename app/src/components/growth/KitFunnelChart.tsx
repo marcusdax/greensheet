@@ -16,14 +16,15 @@ import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface KitFunnelChartProps {
   title: string;
+  description?: string;
   data: GrowthFunnelPoint[];
 }
 
 const FUNNEL_COLORS = ['#16323E', '#2A6E73', '#C9A34A', '#8C3B34'];
 
-export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, data }) => {
+export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, description, data }) => {
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 24, right: 10, left: -20, bottom: 0 }}>

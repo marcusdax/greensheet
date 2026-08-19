@@ -95,28 +95,40 @@ describe('Growth widgets', () => {
     },
   ];
 
-  it('WtrChart renders title and week label', () => {
-    const { container } = render(<WtrChart title="Weekly Tasting Rate" data={wtrData} />);
+  it('WtrChart renders title, description and week label', () => {
+    const { container } = render(
+      <WtrChart title="Weekly Tasting Rate" description="WTR description" data={wtrData} />,
+    );
     expect(container).toHaveTextContent('Weekly Tasting Rate');
+    expect(container).toHaveTextContent('WTR description');
     expect(container).toHaveTextContent('W01');
   });
 
-  it('KitFunnelChart renders title and stage label', () => {
-    const { container } = render(<KitFunnelChart title="Kit Funnel" data={funnelData} />);
+  it('KitFunnelChart renders title, description and stage label', () => {
+    const { container } = render(
+      <KitFunnelChart title="Kit Funnel" description="Funnel description" data={funnelData} />,
+    );
     expect(container).toHaveTextContent('Kit Funnel');
+    expect(container).toHaveTextContent('Funnel description');
     expect(container).toHaveTextContent(/Kit\s?Sent/);
   });
 
-  it('CacByChannelChart renders title, channel and ceiling label', () => {
-    const { container } = render(<CacByChannelChart title="CAC by Channel" data={cacData} />);
+  it('CacByChannelChart renders title, description, channel and ceiling label', () => {
+    const { container } = render(
+      <CacByChannelChart title="CAC by Channel" description="CAC description" data={cacData} />,
+    );
     expect(container).toHaveTextContent('CAC by Channel');
+    expect(container).toHaveTextContent('CAC description');
     expect(container).toHaveTextContent(/Paid\s?Social/);
     expect(container).toHaveTextContent('Ceiling $500');
   });
 
-  it('HazardHeatmap renders title and a hazard value', () => {
-    const { container } = render(<HazardHeatmap title="Hazard Heatmap" data={hazardData} />);
+  it('HazardHeatmap renders title, description and a hazard value', () => {
+    const { container } = render(
+      <HazardHeatmap title="Hazard Heatmap" description="Hazard description" data={hazardData} />,
+    );
     expect(container).toHaveTextContent('Hazard Heatmap');
+    expect(container).toHaveTextContent('Hazard description');
     expect(container).toHaveTextContent('0.20');
 
     const columnHeaders = container.querySelectorAll('th[scope="col"]');
@@ -128,15 +140,25 @@ describe('Growth widgets', () => {
     expect(rowHeaders[0]).toHaveTextContent('T3');
   });
 
-  it('KFactorGauge renders title and current value', () => {
-    const { container } = render(<KFactorGauge title="K-Factor" data={kFactorData} />);
+  it('KFactorGauge renders title, description and current value', () => {
+    const { container } = render(
+      <KFactorGauge title="K-Factor" description="K-Factor description" data={kFactorData} />,
+    );
     expect(container).toHaveTextContent('K-Factor');
+    expect(container).toHaveTextContent('K-Factor description');
     expect(container).toHaveTextContent('0.58');
   });
 
-  it('CampaignLiftChart renders title and campaign name', () => {
-    const { container } = render(<CampaignLiftChart title="Campaign Lift" data={campaignData} />);
+  it('CampaignLiftChart renders title, description and campaign name', () => {
+    const { container } = render(
+      <CampaignLiftChart
+        title="Campaign Lift"
+        description="Campaign lift description"
+        data={campaignData}
+      />,
+    );
     expect(container).toHaveTextContent('Campaign Lift');
+    expect(container).toHaveTextContent('Campaign lift description');
     expect(container).toHaveTextContent(/COF-001\s?Welcome/);
   });
 });

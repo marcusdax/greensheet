@@ -15,15 +15,17 @@ import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface CacByChannelChartProps {
   title: string;
+  description?: string;
   data: CacChannelRow[];
 }
 
 export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
   title,
+  description,
   data,
 }) => {
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

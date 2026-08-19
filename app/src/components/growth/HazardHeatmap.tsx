@@ -5,6 +5,7 @@ import { GrowthWidgetCard } from './GrowthWidgetCard';
 
 export interface HazardHeatmapProps {
   title: string;
+  description?: string;
   data: HazardHeatmapRow[];
 }
 
@@ -26,9 +27,9 @@ function hazardColorClass(value: number): string {
   return 'bg-cherry text-white';
 }
 
-export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, data }) => {
+export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, description, data }) => {
   return (
-    <GrowthWidgetCard title={title}>
+    <GrowthWidgetCard title={title} description={description}>
       <div className="overflow-x-auto">
         <table className="w-full text-center border-collapse border border-border font-sans text-xs">
           <thead>
