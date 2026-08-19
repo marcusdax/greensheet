@@ -375,11 +375,20 @@ export function deriveGrowthFunnel(stages: KitFunnelStage[]): GrowthFunnelPoint[
       { stage: 'First Order', count: 166, conversionRate: 40 },
     ];
   }
-  return stages.map((s, i) => ({
-    stage: s.stage.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-    count: s.count,
-    conversionRate: s.conversionRate ?? (i === 0 ? 100 : Math.round((s.count / stages[i - 1].count) * 1000) / 10),
-  }));
+  return stages.map((s, i) => {
+    const previousCount = i > 0 ? stages[i - 1].count : 0;
+    const rate =
+      i === 0
+        ? 100
+        : previousCount > 0
+          ? Math.round((s.count / previousCount) * 1000) / 10
+          : 0;
+    return {
+      stage: s.stage.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      count: s.count,
+      conversionRate: s.conversionRate ?? rate,
+    };
+  });
 }
 
 export function deriveKFactor(metric: KFactorMetric | null): GrowthKFactorPoint {

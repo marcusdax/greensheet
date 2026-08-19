@@ -216,6 +216,19 @@ describe('growth selectors', () => {
     expect(result[3]).toMatchObject({ stage: 'First Order', count: 166, conversionRate: 40 });
   });
 
+  it('guards funnel conversion rate against a previous stage count of zero', () => {
+    const stages: KitFunnelStage[] = [
+      { stage: 'sent', count: 0, conversionRate: 100 },
+      { stage: 'delivered', count: 0 },
+      { stage: 'feedback', count: 5 },
+    ];
+
+    const result = deriveGrowthFunnel(stages);
+
+    expect(result[1].conversionRate).toBe(0);
+    expect(result[2].conversionRate).toBe(0);
+  });
+
   it('falls back to hardcoded k-factor when metric is null', () => {
     expect(deriveKFactor(null)).toEqual({ current: 0.58, target: 0.6, gap: 0.02 });
   });
@@ -246,13 +259,50 @@ describe('useGrowthMetrics', () => {
     resetStore();
   });
 
-  it('returns cacCeiling from the analytics store state', () => {
+  it('wires every growth metric field from the analytics store state', () => {
     const analytics = useRootStore.getState().analytics;
-    useRootStore.setState({ analytics: { ...analytics, cacCeiling: 750 } });
+    const wtrPoints: WtrPoint[] = [{ week: '2025-W01', wtr: 1.2, movingAverage: 1.1 }];
+    const kitFunnelStages: KitFunnelStage[] = [
+      { stage: 'sent', count: 1000, conversionRate: 100 },
+      { stage: 'delivered', count: 920, conversionRate: 92 },
+    ];
+    const cacByChannel: CacChannelRow[] = [
+      { channel: 'organic', cac: 50, spend: 1000, newAccounts: 20 },
+    ];
+    const hazardHeatmap: HazardHeatmapRow[] = [
+      { segment: 'micro', tier: 'T1', count: 10, avgHazard: 0.2 },
+    ];
+    const kFactor: KFactorMetric = { current: 0.55, target: 0.6, period: '2025-06' };
+    const campaignLift: CampaignLiftRow[] = [
+      { campaignId: 'c1', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true },
+    ];
+
+    useRootStore.setState({
+      analytics: {
+        ...analytics,
+        wtrPoints,
+        kitFunnelStages,
+        cacByChannel,
+        cacCeiling: 750,
+        hazardHeatmap,
+        kFactor,
+        campaignLift,
+        loading: true,
+      },
+    });
 
     const { result } = renderHook(() => useGrowthMetrics());
 
+    expect(result.current.wtrPoints).toBe(wtrPoints);
+    expect(result.current.kitFunnel).toEqual([
+      { stage: 'Sent', count: 1000, conversionRate: 100 },
+      { stage: 'Delivered', count: 920, conversionRate: 92 },
+    ]);
+    expect(result.current.cacByChannel).toBe(cacByChannel);
     expect(result.current.cacCeiling).toBe(750);
-    expect(result.current.cacByChannel).toBe(analytics.cacByChannel);
+    expect(result.current.hazardHeatmap).toBe(hazardHeatmap);
+    expect(result.current.kFactor).toEqual({ current: 0.55, target: 0.6, gap: 0.05 });
+    expect(result.current.campaignLift).toBe(campaignLift);
+    expect(result.current.loading).toBe(true);
   });
 });
