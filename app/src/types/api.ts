@@ -48,6 +48,11 @@ export interface Roaster {
   totalOrders: number | null;
   billingCycle?: 'monthly' | 'quarterly' | 'annual';
   businessRegistration?: string;
+  taxId?: string;
+  billingAddress?: string;
+  cardFingerprint?: string;
+  deviceFingerprint?: string;
+  ipSubnet?: string;
   lastActivityAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -247,6 +252,8 @@ export interface Referral {
   firstOrderDeliveredAt?: string;
   qualifiedAt?: string;
   clawedBackAt?: string;
+  reviewStatus?: 'pending_review' | 'approved' | 'declined';
+  refereeOrderId?: string;
 }
 
 export interface RewardLedgerEntry {
