@@ -1063,3 +1063,12 @@ export const api = {
     },
   },
 };
+
+export type {
+  WtrPoint,
+  KitFunnelStage,
+  CacChannelRow,
+  HazardHeatmapRow,
+  KFactorMetric,
+  CampaignLiftRow,
+} from '../types/api';
