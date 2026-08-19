@@ -26,6 +26,15 @@ import type {
   PagedResponse,
   Problem,
   Reservation,
+  Referral,
+  ReferralChannel,
+  ReferralCode,
+  ReferralCodeStatus,
+  ReferralStats,
+  ReferralStatus,
+  RewardLedgerEntry,
+  RewardStatus,
+  RewardType,
   Roaster,
   RoasterCreate,
   SampleFeedback,
@@ -43,6 +52,25 @@ import type {
 import { db, seedDatabase } from './db';
 import { GS } from './problems';
 import { MARKETING_TEMPLATES } from './marketing-data';
+
+let refCodeCounter = 0;
+
+function nextRefCodeIndex(): number {
+  refCodeCounter += 1;
+  return refCodeCounter;
+}
+
+function generateRefCode(): string {
+  const adjectives = ['RIVER', 'BEAN', 'CUP', 'ROAST', 'GREEN', 'FIELD', 'BREW', 'SHEET'];
+  const idx = nextRefCodeIndex();
+  const word = adjectives[idx % adjectives.length];
+  const suffix = String(100 + (idx % 900));
+  return `GS-${word}-${suffix}`;
+}
+
+function id(): string {
+  return `ref_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+}
 
 seedDatabase();
 
@@ -1062,6 +1090,271 @@ export const api = {
       };
     },
   },
+
+  referrals: {
+    getCodeForAccount: async (accountId: string): Promise<ApiResult<{ code: ReferralCode }>> => {
+      const existing = db.referralCodes.find((c) => c.accountId === accountId && c.status === 'active');
+      if (existing) return { data: { code: existing } };
+
+      const code: ReferralCode = {
+        id: id(),
+        accountId,
+        code: generateRefCode(),
+        status: 'active',
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      };
+      db.referralCodes.push(code);
+      return { data: { code } };
+    },
+
+    createCode: async (
+      accountId: string,
+      requestedCode?: string,
+    ): Promise<ApiResult<{ code: ReferralCode }>> => {
+      const active = db.referralCodes.find((c) => c.accountId === accountId && c.status === 'active');
+      if (active) return { data: { code: active } };
+
+      let codeText: string;
+      if (requestedCode && /^GS-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
+        const taken = db.referralCodes.some(
+          (c) => c.code.toLowerCase() === requestedCode.toLowerCase(),
+        );
+        if (taken) {
+          return {
+            problem: {
+              type: 'about:blank',
+              title: 'Code already taken',
+              status: 409,
+              code: 'GS-REF-1001',
+              detail: `The referral code ${requestedCode} is already in use.`,
+            },
+          };
+        }
+        codeText = requestedCode;
+      } else {
+        codeText = generateRefCode();
+      }
+
+      const code: ReferralCode = {
+        id: id(),
+        accountId,
+        code: codeText,
+        status: 'active',
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      };
+      db.referralCodes.push(code);
+      return { data: { code } };
+    },
+
+    listReferrals: async (accountId: string): Promise<ApiResult<{ referrals: Referral[] }>> => {
+      const referrals = db.referrals
+        .filter((r) => r.referrerId === accountId)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return { data: { referrals } };
+    },
+
+    listLedger: async (
+      accountId: string,
+    ): Promise<ApiResult<{ entries: RewardLedgerEntry[] }>> => {
+      const entries = db.rewardsLedger
+        .filter((e) => e.accountId === accountId)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return { data: { entries } };
+    },
+
+    getStats: async (accountId: string): Promise<ApiResult<{ stats: ReferralStats }>> => {
+      const referrals = db.referrals.filter((r) => r.referrerId === accountId);
+      const entries = db.rewardsLedger.filter((e) => e.accountId === accountId);
+
+      const statusIndex: Record<ReferralStatus, number> = {
+        invited: 0,
+        clicked: 1,
+        signed_up: 2,
+        kit_requested: 3,
+        kit_delivered: 4,
+        feedback_submitted: 5,
+        first_order_delivered: 6,
+        qualified: 7,
+        clawed_back: 7,
+      };
+
+      const clicks = referrals.filter((r) => statusIndex[r.status] >= 1).length;
+      const signups = referrals.filter((r) => statusIndex[r.status] >= 2).length;
+      const kitRequests = referrals.filter((r) => statusIndex[r.status] >= 3).length;
+      const kitDeliveries = referrals.filter((r) => statusIndex[r.status] >= 4).length;
+      const feedbackSubmitted = referrals.filter((r) => statusIndex[r.status] >= 5).length;
+      const qualifiedReferrals = referrals.filter((r) => r.status === 'qualified').length;
+      const clawedBack = referrals.filter((r) => r.status === 'clawed_back').length;
+
+      const pendingRewardsCents = entries
+        .filter((e) => e.type === 'referrer_credit' && e.status === 'pending')
+        .reduce((sum, e) => sum + e.amountCents, 0);
+      const earnedRewardsCents = entries
+        .filter((e) => e.type === 'referrer_credit' && e.status === 'posted')
+        .reduce((sum, e) => sum + e.amountCents, 0);
+      const clawedBackRewardsCents = entries
+        .filter((e) => e.type === 'referrer_credit' && e.status === 'clawed_back')
+        .reduce((sum, e) => sum + e.amountCents, 0);
+
+      // K-factor = qualified referrals / active roasters, simplified to seeded account count
+      const activeAccounts = Math.max(db.roasters.filter((r) => r.status === 'active').length, 1);
+      const kFactor = Math.round((qualifiedReferrals / activeAccounts) * 100) / 100;
+
+      const stats: ReferralStats = {
+        accountId,
+        invitesSent: referrals.length,
+        clicks,
+        signups,
+        kitRequests,
+        kitDeliveries,
+        feedbackSubmitted,
+        qualifiedReferrals,
+        pendingRewardsCents,
+        earnedRewardsCents,
+        clawedBackRewardsCents,
+        kFactor,
+      };
+      return { data: { stats } };
+    },
+
+    recordClick: async (
+      code: string,
+      channel: ReferralChannel = 'invite_link',
+    ): Promise<ApiResult<{ referral: Referral }>> => {
+      const refCode = db.referralCodes.find(
+        (c) => c.code.toLowerCase() === code.toLowerCase() && c.status === 'active',
+      );
+      if (!refCode) {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral code not found',
+            status: 404,
+            code: 'GS-REF-1002',
+            detail: `No active referral code found for ${code}.`,
+          },
+        };
+      }
+
+      const existing = db.referrals.find(
+        (r) => r.refCode.toLowerCase() === code.toLowerCase() && r.status === 'invited' && !r.refereeId,
+      );
+
+      const now = nowIso();
+      if (existing) {
+        existing.status = 'clicked';
+        existing.channel = channel;
+        existing.clickedAt = now;
+        existing.updatedAt = now;
+        return { data: { referral: existing } };
+      }
+
+      const referral: Referral = {
+        id: id(),
+        referrerId: refCode.accountId,
+        refCode: refCode.code,
+        status: 'clicked',
+        channel,
+        createdAt: now,
+        clickedAt: now,
+      };
+      db.referrals.push(referral);
+      return { data: { referral } };
+    },
+
+    qualifyReferral: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
+      const referral = db.referrals.find((r) => r.id === referralId);
+      if (!referral) {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not found',
+            status: 404,
+            code: 'GS-REF-1003',
+            detail: `No referral found with id ${referralId}.`,
+          },
+        };
+      }
+
+      if (referral.status === 'qualified') {
+        const existingEntries = db.rewardsLedger.filter((e) => e.referralId === referralId);
+        return { data: { referral, entries: existingEntries } };
+      }
+
+      const now = nowIso();
+      referral.status = 'qualified';
+      referral.qualifiedAt = now;
+      referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
+
+      const referrerCredit: RewardLedgerEntry = {
+        id: id(),
+        accountId: referral.referrerId,
+        referralId: referral.id,
+        type: 'referrer_credit',
+        amountCents: 150_00,
+        status: 'posted',
+        description: `Referrer credit for ${referral.refCode} qualified referral`,
+        createdAt: now,
+        postedAt: now,
+      };
+
+      const refereeDiscount: RewardLedgerEntry = {
+        id: id(),
+        accountId: referral.refereeId ?? referral.referrerId,
+        referralId: referral.id,
+        type: 'referee_discount',
+        amountCents: 100_00,
+        status: 'posted',
+        description: `Referee discount for ${referral.refCode} qualified referral`,
+        createdAt: now,
+        postedAt: now,
+      };
+
+      db.rewardsLedger.push(referrerCredit, refereeDiscount);
+      return { data: { referral, entries: [referrerCredit, refereeDiscount] } };
+    },
+
+    clawBack: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
+      const referral = db.referrals.find((r) => r.id === referralId);
+      if (!referral) {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not found',
+            status: 404,
+            code: 'GS-REF-1003',
+            detail: `No referral found with id ${referralId}.`,
+          },
+        };
+      }
+
+      if (referral.status !== 'qualified') {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not qualified',
+            status: 400,
+            code: 'GS-REF-1004',
+            detail: 'Only qualified referrals can be clawed back.',
+          },
+        };
+      }
+
+      const now = nowIso();
+      referral.status = 'clawed_back';
+      referral.clawedBackAt = now;
+
+      const affected = db.rewardsLedger.filter((e) => e.referralId === referralId && e.status === 'posted');
+      for (const entry of affected) {
+        entry.status = 'clawed_back';
+        entry.clawedBackAt = now;
+      }
+
+      return { data: { referral, entries: affected } };
+    },
+  },
 };
 
 export type {
@@ -1071,4 +1364,10 @@ export type {
   HazardHeatmapRow,
   KFactorMetric,
   CampaignLiftRow,
+  Referral,
+  ReferralChannel,
+  ReferralCode,
+  ReferralCodeStatus,
+  ReferralStats,
+  RewardLedgerEntry,
 } from '../types/api';
