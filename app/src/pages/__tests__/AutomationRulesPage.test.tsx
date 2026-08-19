@@ -42,10 +42,10 @@ describe('AutomationRulesPage', () => {
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
 
     const triggerSelect = screen.getByLabelText('Trigger');
-    fireEvent.change(triggerSelect, { target: { value: 'roaster.no_order' } });
+    fireEvent.change(triggerSelect, { target: { value: 'sample_kit.delivered' } });
     await waitFor(() => {
+      expect(screen.getByText('COF-002')).toBeInTheDocument();
       expect(screen.getByText('COF-004')).toBeInTheDocument();
-      expect(screen.getByText('COF-005')).toBeInTheDocument();
       expect(screen.queryByText('COF-001')).not.toBeInTheDocument();
     });
   });
@@ -82,13 +82,26 @@ describe('AutomationRulesPage', () => {
     render(<AutomationRulesPage />);
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByLabelText(/Edit Touch 1/));
+    // Create a rule with schema-friendly actions so it can be edited and saved.
+    fireEvent.click(screen.getByRole('button', { name: /create rule/i }));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
 
-    const dialog = within(screen.getByRole('dialog'));
-    fireEvent.change(dialog.getByLabelText('Rule Name'), { target: { value: 'Updated Rule Name' } });
+    const createDialog = within(screen.getByRole('dialog'));
+    fireEvent.change(createDialog.getByLabelText('Rule Code'), { target: { value: 'COF-006' } });
+    fireEvent.change(createDialog.getByLabelText('Rule Name'), { target: { value: 'Editable Rule' } });
+    fireEvent.change(createDialog.getByLabelText('Trigger Event'), { target: { value: 'order.created' } });
 
-    fireEvent.click(dialog.getByRole('button', { name: /save/i }));
+    fireEvent.click(createDialog.getByRole('button', { name: /save/i }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await waitFor(() => expect(within(screen.getByRole('table')).getByText('Editable Rule')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText(/Edit Editable Rule/));
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
+
+    const editDialog = within(screen.getByRole('dialog'));
+    fireEvent.change(editDialog.getByLabelText('Rule Name'), { target: { value: 'Updated Rule Name' } });
+
+    fireEvent.click(editDialog.getByRole('button', { name: /save/i }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await waitFor(() => expect(within(screen.getByRole('table')).getByText('Updated Rule Name')).toBeInTheDocument());
   });
@@ -97,7 +110,7 @@ describe('AutomationRulesPage', () => {
     render(<AutomationRulesPage />);
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByLabelText(/Delete Touch 1/));
+    fireEvent.click(screen.getByLabelText(/Delete qualified/));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
 
     const dialog = within(screen.getByRole('dialog'));

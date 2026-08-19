@@ -19,7 +19,7 @@ describe('rules slice', () => {
     const rules = useRootStore.getState().rules;
     const created = await rules.createRule({
       ruleCode: 'NEW-001',
-      campaignId: 'c_001',
+      campaignId: 'campaign-cof-001',
       ruleName: 'New Rule',
       triggerEvent: 'order.created',
       conditionsJson: { minOrderValue: 10000 },

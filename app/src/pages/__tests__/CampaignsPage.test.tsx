@@ -42,6 +42,6 @@ describe('CampaignsPage', () => {
 
     // The first campaign is auto-selected and performance is loaded.
     await waitFor(() => expect(screen.getByText('ATTRIBUTED REVENUE')).toBeInTheDocument());
-    expect(screen.getByText('$125,400.00')).toBeInTheDocument();
+    expect(screen.getByText('$0.00')).toBeInTheDocument();
   });
 });

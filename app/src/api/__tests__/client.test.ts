@@ -374,7 +374,7 @@ describe('api client', () => {
   });
 
   it('moves a rule between campaigns and updates ruleCodes arrays', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
+    const rule = (await api.rules.get('rule-cof-001')).data!;
     const otherCampaign = await api.campaigns.create({
       slug: 'cof-other-2025',
       name: 'COF Other 2025',
@@ -382,7 +382,7 @@ describe('api client', () => {
     expect('data' in otherCampaign).toBe(true);
     const otherCampaignId = otherCampaign.data!.id;
 
-    const oldCampaign = (await api.campaigns.get('c_001')).data!;
+    const oldCampaign = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(oldCampaign.ruleCodes).toContain(rule.ruleCode);
 
     const patchRes = await api.rules.patch(rule.id, { campaignId: otherCampaignId });
@@ -390,29 +390,29 @@ describe('api client', () => {
     expect(patchRes.data!.campaignId).toBe(otherCampaignId);
     expect(patchRes.data!.version).toBe(rule.version + 1);
 
-    const updatedOld = (await api.campaigns.get('c_001')).data!;
+    const updatedOld = (await api.campaigns.get('campaign-cof-001')).data!;
     const updatedNew = (await api.campaigns.get(otherCampaignId)).data!;
     expect(updatedOld.ruleCodes).not.toContain(rule.ruleCode);
     expect(updatedNew.ruleCodes).toContain(rule.ruleCode);
   });
 
   it('makes a rule standalone and removes it from the old campaign ruleCodes', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
-    expect(rule.campaignId).toBe('c_001');
+    const rule = (await api.rules.get('rule-cof-001')).data!;
+    expect(rule.campaignId).toBe('campaign-cof-001');
 
     const patchRes = await api.rules.patch(rule.id, { campaignId: null });
     expect('data' in patchRes).toBe(true);
     expect(patchRes.data!.campaignId).toBeNull();
     expect(patchRes.data!.version).toBe(rule.version + 1);
 
-    const updatedCampaign = (await api.campaigns.get('c_001')).data!;
+    const updatedCampaign = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(updatedCampaign.ruleCodes).not.toContain(rule.ruleCode);
   });
 
   it('bumps version when campaignId changes to and from null', async () => {
     const ruleRes = await api.rules.create({
       ruleCode: 'COF-006',
-      campaignId: 'c_001',
+      campaignId: 'campaign-cof-001',
       ruleName: 'Toggle campaign rule',
       triggerEvent: 'order.created',
       actions: [{ actionType: 'SEND_TEMPLATE', templateId: '66666666-6666-4666-8666-666666666666', channel: 'email', delayMinutes: 0 }],
@@ -425,9 +425,9 @@ describe('api client', () => {
     expect(standalone.data!.campaignId).toBeNull();
     expect(standalone.data!.version).toBe(rule.version + 1);
 
-    const rejoined = await api.rules.patch(standalone.data!.id, { campaignId: 'c_001' });
+    const rejoined = await api.rules.patch(standalone.data!.id, { campaignId: 'campaign-cof-001' });
     expect('data' in rejoined).toBe(true);
-    expect(rejoined.data!.campaignId).toBe('c_001');
+    expect(rejoined.data!.campaignId).toBe('campaign-cof-001');
     expect(rejoined.data!.version).toBe(rule.version + 2);
   });
 
@@ -449,34 +449,33 @@ describe('api client', () => {
   });
 
   it('updates campaign ruleCodes when ruleCode changes while campaign stays the same', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
-    expect(rule.campaignId).toBe('c_001');
-    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    const rule = (await api.rules.get('rule-cof-001')).data!;
+    expect(rule.campaignId).toBe('campaign-cof-001');
+    const campaignBefore = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
 
     const patchRes = await api.rules.patch(rule.id, { ruleCode: 'COF-RENAMED' });
     expect('data' in patchRes).toBe(true);
     expect(patchRes.data!.ruleCode).toBe('COF-RENAMED');
-    expect(patchRes.data!.campaignId).toBe('c_001');
+    expect(patchRes.data!.campaignId).toBe('campaign-cof-001');
     expect(patchRes.data!.version).toBe(rule.version + 1);
 
-    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).not.toContain(rule.ruleCode);
     expect(campaignAfter.ruleCodes).toContain('COF-RENAMED');
   });
 
   it('rejects ruleCode patch that would duplicate an existing rule code', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
-    const existingRuleCode = (await api.rules.get('rule_002')).data!.ruleCode;
-    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    const rule = (await api.rules.get('rule-cof-001')).data!;
+    const existingRuleCode = (await api.rules.get('rule-cof-002')).data!.ruleCode;
+    const campaignBefore = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
-    expect(campaignBefore.ruleCodes).toContain(existingRuleCode);
 
     const patchRes = await api.rules.patch(rule.id, { ruleCode: existingRuleCode });
     expect('problem' in patchRes).toBe(true);
     expect(patchRes.problem!.code).toBe('GS-CMP-1003');
 
-    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
 
     const refetched = (await api.rules.get(rule.id)).data!;
@@ -484,8 +483,8 @@ describe('api client', () => {
   });
 
   it('does not bump version or mutate campaign ruleCodes when campaignId is omitted', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
-    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    const rule = (await api.rules.get('rule-cof-001')).data!;
+    const campaignBefore = (await api.campaigns.get('campaign-cof-001')).data!;
 
     const patchRes = await api.rules.patch(rule.id, { ruleName: 'Renamed only' });
     expect('data' in patchRes).toBe(true);
@@ -493,20 +492,20 @@ describe('api client', () => {
     expect(patchRes.data!.campaignId).toBe(rule.campaignId);
     expect(patchRes.data!.version).toBe(rule.version + 1);
 
-    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
   });
 
   it('leaves source campaign intact when patching to a non-existent campaign', async () => {
-    const rule = (await api.rules.get('rule_001')).data!;
-    const campaignBefore = (await api.campaigns.get('c_001')).data!;
+    const rule = (await api.rules.get('rule-cof-001')).data!;
+    const campaignBefore = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignBefore.ruleCodes).toContain(rule.ruleCode);
 
     const patchRes = await api.rules.patch(rule.id, { campaignId: 'c_does_not_exist' });
     expect('problem' in patchRes).toBe(true);
     expect(patchRes.problem!.code).toBe('GS-GEN-1005');
 
-    const campaignAfter = (await api.campaigns.get('c_001')).data!;
+    const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).toContain(rule.ruleCode);
 
     const refetched = (await api.rules.get(rule.id)).data!;

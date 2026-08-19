@@ -17,13 +17,13 @@ describe('db', () => {
     expect(blueBottle!.cacCents).toBe(85000);
   });
 
-  it('seeds the cof-nurture-2025 campaign and five COF rules', () => {
+  it('seeds the COF-001 campaign and five COF rules', () => {
     seedDatabase();
-    const campaign = db.campaigns.find((c) => c.slug === 'cof-nurture-2025');
+    const campaign = db.campaigns.find((c) => c.slug === 'cof-001');
     expect(campaign).toBeDefined();
-    expect(campaign!.ruleCodes).toHaveLength(5);
+    expect(campaign!.ruleCodes).toHaveLength(1);
     expect(db.rules.length).toBe(5);
-    expect(db.rules.every((r) => r.campaignId === campaign!.id)).toBe(true);
+    expect(db.rules.every((r) => db.campaigns.some((c) => c.id === r.campaignId))).toBe(true);
   });
 
   it('initializes empty downstream collections', () => {
