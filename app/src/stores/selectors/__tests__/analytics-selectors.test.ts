@@ -1,15 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import {
   deriveCampaignFunnel,
+  deriveCampaignLift,
   deriveCohortRows,
+  deriveGrowthFunnel,
   deriveInventoryForecast,
+  deriveKFactor,
   deriveScatterData,
   deriveSurvivalCurve,
   deriveViralCoefficient,
 } from '../analytics-selectors';
 import type {
+  CampaignLiftRow,
   CoffeeLot,
   FunnelStage,
+  KFactorMetric,
+  KitFunnelStage,
   Order,
   Roaster,
   ViralReferral,
@@ -184,5 +190,50 @@ describe('analytics selectors', () => {
     expect(funnel.length).toBe(4);
     expect(funnel[0]).toMatchObject({ stage: 'sent', count: 1000, conversionRate: 100 });
     expect(funnel[3]).toMatchObject({ stage: 'ordered', count: 36 });
+  });
+});
+
+describe('growth selectors', () => {
+  it('formats kit funnel stages', () => {
+    const stages: KitFunnelStage[] = [
+      { stage: 'sent', count: 1000, conversionRate: 100 },
+      { stage: 'delivered', count: 920, conversionRate: 92 },
+      { stage: 'feedback', count: 414, conversionRate: 45 },
+      { stage: 'first_order', count: 166, conversionRate: 40 },
+    ];
+    const result = deriveGrowthFunnel(stages);
+    expect(result[3].stage).toBe('First Order');
+    expect(result[3].count).toBe(166);
+  });
+
+  it('falls back to hardcoded kit funnel when stages are empty', () => {
+    const result = deriveGrowthFunnel([]);
+    expect(result).toHaveLength(4);
+    expect(result[0]).toMatchObject({ stage: 'Kit Sent', count: 1000, conversionRate: 100 });
+    expect(result[3]).toMatchObject({ stage: 'First Order', count: 166, conversionRate: 40 });
+  });
+
+  it('falls back to hardcoded k-factor when metric is null', () => {
+    expect(deriveKFactor(null)).toEqual({ current: 0.58, target: 0.6, gap: 0.02 });
+  });
+
+  it('derives k-factor gap from metric', () => {
+    const metric: KFactorMetric = { current: 0.55, target: 0.6, period: '2025-06' };
+    expect(deriveKFactor(metric)).toEqual({ current: 0.55, target: 0.6, gap: 0.05 });
+  });
+
+  it('falls back to hardcoded campaign lift when campaigns are empty', () => {
+    const result = deriveCampaignLift([]);
+    expect(result).toHaveLength(5);
+    expect(result[0]).toMatchObject({ campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true });
+  });
+
+  it('passes through campaign lift rows', () => {
+    const campaigns: CampaignLiftRow[] = [
+      { campaignId: 'cof-001', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true },
+    ];
+    const result = deriveCampaignLift(campaigns);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true });
   });
 });
