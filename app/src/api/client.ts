@@ -1243,7 +1243,6 @@ export const api = {
         existing.status = 'clicked';
         existing.channel = channel;
         existing.clickedAt = now;
-        existing.updatedAt = now;
         return { data: { referral: existing } };
       }
 
