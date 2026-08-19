@@ -194,6 +194,89 @@ export interface CampaignLiftRow {
   isSignificant: boolean;
 }
 
+export type ReferralStatus =
+  | 'invited'
+  | 'clicked'
+  | 'signed_up'
+  | 'kit_requested'
+  | 'kit_delivered'
+  | 'feedback_submitted'
+  | 'first_order_delivered'
+  | 'qualified'
+  | 'clawed_back';
+
+export type ReferralChannel =
+  | 'invite_link'
+  | 'qr_sticker'
+  | 'email_share'
+  | 'instagram_dm'
+  | 'event_badge'
+  | 'code_entry';
+
+export type ReferralCodeStatus = 'active' | 'paused' | 'retired';
+
+export type RewardType = 'referrer_credit' | 'referee_discount';
+
+export type RewardStatus = 'pending' | 'posted' | 'clawed_back';
+
+export interface ReferralCode {
+  id: string;
+  accountId: string;
+  code: string;
+  status: ReferralCodeStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Referral {
+  id: string;
+  referrerId: string;
+  refereeId?: string;
+  refCode: string;
+  status: ReferralStatus;
+  channel: ReferralChannel;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  createdAt: string;
+  clickedAt?: string;
+  signedUpAt?: string;
+  kitRequestedAt?: string;
+  kitDeliveredAt?: string;
+  feedbackSubmittedAt?: string;
+  firstOrderDeliveredAt?: string;
+  qualifiedAt?: string;
+  clawedBackAt?: string;
+}
+
+export interface RewardLedgerEntry {
+  id: string;
+  accountId: string;
+  referralId: string;
+  type: RewardType;
+  amountCents: number;
+  status: RewardStatus;
+  description: string;
+  createdAt: string;
+  postedAt?: string;
+  clawedBackAt?: string;
+}
+
+export interface ReferralStats {
+  accountId: string;
+  invitesSent: number;
+  clicks: number;
+  signups: number;
+  kitRequests: number;
+  kitDeliveries: number;
+  feedbackSubmitted: number;
+  qualifiedReferrals: number;
+  pendingRewardsCents: number;
+  earnedRewardsCents: number;
+  clawedBackRewardsCents: number;
+  kFactor: number;
+}
+
 export interface CoffeeLot {
   id: string;
   origin: string;
