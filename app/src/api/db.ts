@@ -571,7 +571,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_009',
       referrerId: 'r_002',
-      refereeId: 'r_006',
+      refereeId: 'r_004',
       refCode: 'GS-RVR-002',
       status: 'kit_delivered',
       channel: 'qr_sticker',
@@ -597,7 +597,7 @@ function seedReferrals(now: string) {
     },
     {
       id: 'rl_002',
-      accountId: 'r_001',
+      accountId: 'r_003',
       referralId: 'ref_001',
       type: 'referee_discount',
       amountCents: 100_00,
@@ -639,7 +639,7 @@ function seedReferrals(now: string) {
     },
     {
       id: 'rl_006',
-      accountId: 'r_002',
+      accountId: 'r_003',
       referralId: 'ref_006',
       type: 'referee_discount',
       amountCents: 100_00,
