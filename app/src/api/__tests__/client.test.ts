@@ -520,7 +520,7 @@ describe('api client', () => {
     expect(res.data!.variants.length).toBeGreaterThan(0);
   });
 
-  it('returns GS-GEN-1005 for performance of a campaign with an unknown slug', async () => {
+  it('returns GS-GEN-1005 when a campaign has no performance preset', async () => {
     const created = await api.campaigns.create(
       { slug: 'cof-unknown', name: 'Unknown Slug' },
       idempotencyKey(),
