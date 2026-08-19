@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Segment } from '../../types/api';
 import type { HazardHeatmapRow } from '../../types/api';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
 
 export interface HazardHeatmapProps {
   title: string;
@@ -27,18 +28,14 @@ function hazardColorClass(value: number): string {
 
 export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, data }) => {
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="overflow-x-auto">
         <table className="w-full text-center border-collapse border border-border font-sans text-xs">
           <thead>
             <tr className="bg-recessed/20 border-b border-border text-muted">
-              <th className="px-3 py-2 text-left font-semibold">Tier</th>
+              <th scope="col" className="px-3 py-2 text-left font-semibold">Tier</th>
               {SEGMENTS.map((segment) => (
-                <th key={segment} className="px-2 py-2 font-semibold capitalize">
+                <th key={segment} scope="col" className="px-2 py-2 font-semibold capitalize">
                   {segment}
                 </th>
               ))}
@@ -47,9 +44,9 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, data }) => 
           <tbody className="divide-y divide-border font-mono">
             {TIERS.map((tier) => (
               <tr key={tier}>
-                <td className="px-3 py-2.5 text-left font-sans text-ink font-semibold">
+                <th scope="row" className="px-3 py-2.5 text-left font-sans text-ink font-semibold">
                   {tier}
-                </td>
+                </th>
                 {SEGMENTS.map((segment) => {
                   const value = findValue(data, tier, segment);
                   return (
@@ -68,6 +65,6 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, data }) => 
           </tbody>
         </table>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { GrowthKFactorPoint } from '../../stores/selectors/analytics-selectors';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
 
 export interface KFactorGaugeProps {
   title: string;
@@ -10,11 +11,7 @@ export const KFactorGauge: React.FC<KFactorGaugeProps> = ({ title, data }) => {
   const percentage = Math.min(100, Math.max(0, (data.current / data.target) * 100));
 
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="h-64 flex flex-col items-center justify-center space-y-5">
         <div className="text-center">
           <div className="text-4xl font-display font-medium text-ink" data-testid="kfactor-current">
@@ -38,6 +35,6 @@ export const KFactorGauge: React.FC<KFactorGaugeProps> = ({ title, data }) => {
           </div>
         </div>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };

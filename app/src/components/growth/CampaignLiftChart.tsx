@@ -11,31 +11,20 @@ import {
   Cell,
 } from 'recharts';
 import type { GrowthCampaignLiftPoint } from '../../stores/selectors/analytics-selectors';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
+import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface CampaignLiftChartProps {
   title: string;
   data: GrowthCampaignLiftPoint[];
 }
 
-const tooltipStyle = {
-  backgroundColor: '#16323E',
-  borderColor: '#16323E',
-  borderRadius: '6px',
-  color: '#FDFBF5',
-  fontFamily: 'IBM Plex Mono',
-  fontSize: '11px',
-};
-
 export const CampaignLiftChart: React.FC<CampaignLiftChartProps> = ({
   title,
   data,
 }) => {
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
@@ -51,11 +40,8 @@ export const CampaignLiftChart: React.FC<CampaignLiftChartProps> = ({
             />
             <YAxis domain={[0, 1]} stroke="#8A8272" fontSize={10} tickLine={false} />
             <Tooltip
-              formatter={(value, name) => {
-                if (name === 'lift') return [`${value}`, 'Lift'];
-                return [`${value}`, 'Probability'];
-              }}
-              contentStyle={tooltipStyle}
+              formatter={(value) => [`${value}`, 'Probability']}
+              contentStyle={GROWTH_CHART_TOOLTIP_STYLE}
               itemStyle={{ color: '#FDFBF5' }}
             />
             <ReferenceLine
@@ -80,6 +66,6 @@ export const CampaignLiftChart: React.FC<CampaignLiftChartProps> = ({
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };

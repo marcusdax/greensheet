@@ -118,6 +118,14 @@ describe('Growth widgets', () => {
     const { container } = render(<HazardHeatmap title="Hazard Heatmap" data={hazardData} />);
     expect(container).toHaveTextContent('Hazard Heatmap');
     expect(container).toHaveTextContent('0.20');
+
+    const columnHeaders = container.querySelectorAll('th[scope="col"]');
+    expect(columnHeaders).toHaveLength(4);
+    expect(columnHeaders[0]).toHaveTextContent('Tier');
+
+    const rowHeaders = container.querySelectorAll('th[scope="row"]');
+    expect(rowHeaders).toHaveLength(3);
+    expect(rowHeaders[0]).toHaveTextContent('T3');
   });
 
   it('KFactorGauge renders title and current value', () => {

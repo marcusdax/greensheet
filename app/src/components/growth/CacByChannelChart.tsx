@@ -10,31 +10,20 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { CacChannelRow } from '../../types/api';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
+import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface CacByChannelChartProps {
   title: string;
   data: CacChannelRow[];
 }
 
-const tooltipStyle = {
-  backgroundColor: '#16323E',
-  borderColor: '#16323E',
-  borderRadius: '6px',
-  color: '#FDFBF5',
-  fontFamily: 'IBM Plex Mono',
-  fontSize: '11px',
-};
-
 export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
   title,
   data,
 }) => {
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -55,7 +44,7 @@ export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
             />
             <Tooltip
               formatter={(value) => [`$${value}`, 'CAC']}
-              contentStyle={tooltipStyle}
+              contentStyle={GROWTH_CHART_TOOLTIP_STYLE}
               itemStyle={{ color: '#FDFBF5' }}
             />
             <ReferenceLine
@@ -73,6 +62,6 @@ export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };

@@ -9,28 +9,17 @@ import {
   Tooltip,
 } from 'recharts';
 import type { WtrPoint } from '../../types/api';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
+import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface WtrChartProps {
   title: string;
   data: WtrPoint[];
 }
 
-const tooltipStyle = {
-  backgroundColor: '#16323E',
-  borderColor: '#16323E',
-  borderRadius: '6px',
-  color: '#FDFBF5',
-  fontFamily: 'IBM Plex Mono',
-  fontSize: '11px',
-};
-
 export const WtrChart: React.FC<WtrChartProps> = ({ title, data }) => {
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -40,7 +29,7 @@ export const WtrChart: React.FC<WtrChartProps> = ({ title, data }) => {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
             <XAxis dataKey="week" stroke="#8A8272" fontSize={10} tickLine={false} interval={0} />
             <YAxis domain={[0, 'auto']} stroke="#8A8272" fontSize={10} tickLine={false} />
-            <Tooltip contentStyle={tooltipStyle} itemStyle={{ color: '#FDFBF5' }} />
+            <Tooltip contentStyle={GROWTH_CHART_TOOLTIP_STYLE} itemStyle={{ color: '#FDFBF5' }} />
             <Line
               type="monotone"
               dataKey="wtr"
@@ -61,6 +50,6 @@ export const WtrChart: React.FC<WtrChartProps> = ({ title, data }) => {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };

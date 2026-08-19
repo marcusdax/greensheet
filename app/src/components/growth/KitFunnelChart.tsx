@@ -11,6 +11,8 @@ import {
   Cell,
 } from 'recharts';
 import type { GrowthFunnelPoint } from '../../stores/selectors/analytics-selectors';
+import { GrowthWidgetCard } from './GrowthWidgetCard';
+import { GROWTH_CHART_TOOLTIP_STYLE } from './chart-styles';
 
 export interface KitFunnelChartProps {
   title: string;
@@ -19,22 +21,9 @@ export interface KitFunnelChartProps {
 
 const FUNNEL_COLORS = ['#16323E', '#2A6E73', '#C9A34A', '#8C3B34'];
 
-const tooltipStyle = {
-  backgroundColor: '#16323E',
-  borderColor: '#16323E',
-  borderRadius: '6px',
-  color: '#FDFBF5',
-  fontFamily: 'IBM Plex Mono',
-  fontSize: '11px',
-};
-
 export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, data }) => {
   return (
-    <div className="bg-surface p-5 rounded-lg border border-border shadow-e1 space-y-4">
-      <div className="border-b border-border pb-3">
-        <h3 className="overline text-xs text-muted font-bold">{title}</h3>
-      </div>
-
+    <GrowthWidgetCard title={title}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 24, right: 10, left: -20, bottom: 0 }}>
@@ -46,7 +35,7 @@ export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, data }) =
                 if (name === 'conversionRate') return [`${value}%`, 'Conversion'];
                 return [value, 'Count'];
               }}
-              contentStyle={tooltipStyle}
+              contentStyle={GROWTH_CHART_TOOLTIP_STYLE}
               itemStyle={{ color: '#FDFBF5' }}
             />
             <Bar dataKey="count" name="Count">
@@ -67,6 +56,6 @@ export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, data }) =
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </GrowthWidgetCard>
   );
 };
