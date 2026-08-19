@@ -31,10 +31,7 @@ export const KitFunnelChart: React.FC<KitFunnelChartProps> = ({ title, data }) =
             <XAxis dataKey="stage" stroke="#8A8272" fontSize={10} tickLine={false} interval={0} />
             <YAxis stroke="#8A8272" fontSize={10} tickLine={false} />
             <Tooltip
-              formatter={(value, name) => {
-                if (name === 'conversionRate') return [`${value}%`, 'Conversion'];
-                return [value, 'Count'];
-              }}
+              formatter={(value, name) => [value, name]}
               contentStyle={GROWTH_CHART_TOOLTIP_STYLE}
               itemStyle={{ color: '#FDFBF5' }}
             />
