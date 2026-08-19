@@ -6,6 +6,7 @@ import type {
   CampaignCreate,
   CampaignPatch,
   CampaignPerformance,
+  CampaignVariant,
   ChurnRisk,
   Cohort,
   CoffeeLot,
@@ -35,6 +36,7 @@ import type {
 } from '../types/api';
 import { db, seedDatabase } from './db';
 import { GS } from './problems';
+import { MARKETING_TEMPLATES } from './marketing-data';
 
 seedDatabase();
 
@@ -93,6 +95,46 @@ function checkIdempotency<T>(
 
 function storeIdempotency<T>(key: string, input: unknown, response: T): void {
   db.idempotency.set(key, { bodyHash: JSON.stringify(input), response: deepClone(response) });
+}
+
+function buildVariant(
+  name: string,
+  sampleSize: number,
+  ratePercent: number,
+  probabilityBest: number,
+  isWinner: boolean,
+): CampaignVariant {
+  const conversions = Math.round(sampleSize * (ratePercent / 100));
+  const rate = conversions / sampleSize;
+  return {
+    variantName: name,
+    sampleSize,
+    conversions,
+    conversionRate: rate,
+    credibleInterval95: {
+      lower: Math.max(0, rate - 0.02),
+      upper: Math.min(1, rate + 0.02),
+    },
+    probabilityBest,
+    isWinner,
+  };
+}
+
+function firstTouchVariants(campaignId: string): CampaignVariant[] {
+  const touch = MARKETING_TEMPLATES.find(
+    (t) => t.campaignId === campaignId && t.touchpoint === 1 && t.channel === 'email',
+  );
+  if (!touch || !touch.subjectB) {
+    if (!touch) return [];
+    return [buildVariant('A', 600, touch.metrics.openRateA ?? 0, 1.0, true)];
+  }
+  const aRate = touch.metrics.openRateA ?? 0;
+  const bRate = touch.metrics.openRateB ?? 0;
+  const aWins = aRate >= bRate;
+  return [
+    buildVariant('A', 600, aRate, aWins ? 0.68 : 0.32, aWins),
+    buildVariant('B', 600, bRate, aWins ? 0.32 : 0.68, !aWins),
+  ];
 }
 
 export const api = {
@@ -249,38 +291,69 @@ export const api = {
     performance: async (id: string): Promise<ApiResult<CampaignPerformance>> => {
       const campaign = db.campaigns.find((c) => c.id === id);
       if (!campaign) return { problem: GS.GEN_1005() };
-      return {
-        data: {
-          campaignId: campaign.id,
-          sent: 1200,
-          openRate: 0.34,
-          clickRate: 0.08,
-          conversionRate: 0.04,
-          attributedRevenueCents: 12_540_000,
-          funnel: { kitSent: 1200, opened: 408, clicked: 96, ordered: 48 },
-          variants: [
-            {
-              variantName: 'A',
-              sampleSize: 600,
-              conversions: 26,
-              conversionRate: 0.0433,
-              credibleInterval95: { lower: 0.029, upper: 0.061 },
-              probabilityBest: 0.62,
-              isWinner: true,
-            },
-            {
-              variantName: 'B',
-              sampleSize: 600,
-              conversions: 22,
-              conversionRate: 0.0367,
-              credibleInterval95: { lower: 0.024, upper: 0.053 },
-              probabilityBest: 0.38,
-              isWinner: false,
-            },
-          ],
-          computedAt: nowIso(),
+
+      const now = nowIso();
+      const code = campaign.slug; // cof-001 .. cof-005
+
+      const presets: Record<string, CampaignPerformance> = {
+        'cof-001': {
+          campaignId: id,
+          sent: 1000,
+          openRate: 0.52,
+          clickRate: 0.234,
+          conversionRate: 0.32,
+          attributedRevenueCents: 0,
+          funnel: { kitSent: 1000, opened: 520, clicked: 234, ordered: 320 },
+          variants: firstTouchVariants('COF-001'),
+          computedAt: now,
+        },
+        'cof-002': {
+          campaignId: id,
+          sent: 320,
+          openRate: 0.52,
+          clickRate: 0.234,
+          conversionRate: 0.45,
+          attributedRevenueCents: 0,
+          funnel: { kitSent: 320, opened: 166, clicked: 75, ordered: 144, feedbackSubmitted: 144 },
+          variants: firstTouchVariants('COF-002'),
+          computedAt: now,
+        },
+        'cof-003': {
+          campaignId: id,
+          sent: 144,
+          openRate: 0.45,
+          clickRate: 0.20,
+          conversionRate: 0.40,
+          attributedRevenueCents: 3_770_000,
+          funnel: { feedbackSubmitted: 144, opened: 65, clicked: 29, ordered: 58 },
+          variants: firstTouchVariants('COF-003'),
+          computedAt: now,
+        },
+        'cof-004': {
+          campaignId: id,
+          sent: 176,
+          openRate: 0.28,
+          clickRate: 0.11,
+          conversionRate: 0.18,
+          attributedRevenueCents: 0,
+          funnel: { kitSent: 176, opened: 49, clicked: 19, ordered: 32, responded: 32 },
+          variants: firstTouchVariants('COF-004'),
+          computedAt: now,
+        },
+        'cof-005': {
+          campaignId: id,
+          sent: 58,
+          openRate: 0.38,
+          clickRate: 0.14,
+          conversionRate: 0.55,
+          attributedRevenueCents: 2_080_000,
+          funnel: { firstOrders: 58, referralSent: 55, reordered: 32, opened: 22, clicked: 8, ordered: 32 },
+          variants: firstTouchVariants('COF-005'),
+          computedAt: now,
         },
       };
+
+      return { data: presets[code] ?? presets['cof-001'] };
     },
   },
 
