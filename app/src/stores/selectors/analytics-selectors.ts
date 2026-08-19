@@ -9,6 +9,7 @@ import type {
   KFactorMetric,
   KitFunnelStage,
   Order,
+  Problem,
   Roaster,
   ViralReferral,
   WtrPoint,
