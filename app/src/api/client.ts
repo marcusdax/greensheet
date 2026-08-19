@@ -2,9 +2,10 @@ import type {
   AutomationRule,
   AutomationRuleCreate,
   AutomationRulePatch,
+  CacChannelRow,
   Campaign,
   CampaignCreate,
-  CampaignPatch,
+  CampaignLiftRow,
   CampaignPerformance,
   CampaignVariant,
   ChurnRisk,
@@ -14,7 +15,10 @@ import type {
   CoffeeLotPatch,
   Forecast,
   FunnelStage,
+  HazardHeatmapRow,
   Intervention,
+  KFactorMetric,
+  KitFunnelStage,
   LtvSnapshot,
   Order,
   OrderLineItem,
@@ -33,6 +37,7 @@ import type {
   WebhookSubscriptionCreate,
   WebhookSubscriptionPatch,
   WebhookSubscriptionWithSecret,
+  WtrPoint,
 } from '../types/api';
 import { db, seedDatabase } from './db';
 import { GS } from './problems';
@@ -970,6 +975,86 @@ export const api = {
           forecast: [
             { period: '2025-08', revenueCents: 5_000_000, orders: 1200, modelVersion: 'forecast-v1' },
             { period: '2025-09', revenueCents: 5_400_000, orders: 1300, modelVersion: 'forecast-v1' },
+          ],
+        },
+      };
+    },
+    wtr: async (): Promise<ApiResult<{ points: WtrPoint[] }>> => {
+      return {
+        data: {
+          points: [
+            { week: '2025-W18', wtr: 142, movingAverage: 138 },
+            { week: '2025-W19', wtr: 148, movingAverage: 142 },
+            { week: '2025-W20', wtr: 155, movingAverage: 146 },
+            { week: '2025-W21', wtr: 151, movingAverage: 150 },
+            { week: '2025-W22', wtr: 162, movingAverage: 154 },
+            { week: '2025-W23', wtr: 168, movingAverage: 160 },
+            { week: '2025-W24', wtr: 175, movingAverage: 165 },
+            { week: '2025-W25', wtr: 171, movingAverage: 169 },
+          ],
+        },
+      };
+    },
+    kitFunnel: async (): Promise<ApiResult<{ stages: KitFunnelStage[] }>> => {
+      return {
+        data: {
+          stages: [
+            { stage: 'sent', count: 1000, conversionRate: 100 },
+            { stage: 'delivered', count: 920, conversionRate: 92 },
+            { stage: 'feedback', count: 414, conversionRate: 45 },
+            { stage: 'first_order', count: 166, conversionRate: 40 },
+          ],
+        },
+      };
+    },
+    cacByChannel: async (): Promise<ApiResult<{ channels: CacChannelRow[] }>> => {
+      return {
+        data: {
+          channels: [
+            { channel: 'Sample-kit program', cac: 210, spend: 126_000, newAccounts: 600 },
+            { channel: 'Community & referral', cac: 95, spend: 19_000, newAccounts: 200 },
+            { channel: 'Content/SEO + video', cac: 175, spend: 52_500, newAccounts: 300 },
+            { channel: 'LinkedIn + trade pubs', cac: 380, spend: 57_000, newAccounts: 150 },
+            { channel: 'Trade shows / events', cac: 420, spend: 42_000, newAccounts: 100 },
+            { channel: 'Lifecycle / email-SMS', cac: 130, spend: 13_000, newAccounts: 100 },
+            { channel: 'Partnerships', cac: 150, spend: 22_500, newAccounts: 150 },
+          ],
+        },
+      };
+    },
+    hazardHeatmap: async (): Promise<ApiResult<{ rows: HazardHeatmapRow[] }>> => {
+      return {
+        data: {
+          rows: [
+            { segment: 'micro', tier: 'T1', count: 45, avgHazard: 0.22 },
+            { segment: 'micro', tier: 'T2', count: 32, avgHazard: 0.51 },
+            { segment: 'micro', tier: 'T3', count: 18, avgHazard: 0.78 },
+            { segment: 'boutique', tier: 'T1', count: 28, avgHazard: 0.18 },
+            { segment: 'boutique', tier: 'T2', count: 19, avgHazard: 0.47 },
+            { segment: 'boutique', tier: 'T3', count: 8, avgHazard: 0.81 },
+            { segment: 'commercial', tier: 'T1', count: 14, avgHazard: 0.15 },
+            { segment: 'commercial', tier: 'T2', count: 9, avgHazard: 0.44 },
+            { segment: 'commercial', tier: 'T3', count: 3, avgHazard: 0.73 },
+          ],
+        },
+      };
+    },
+    kFactor: async (): Promise<ApiResult<{ metric: KFactorMetric }>> => {
+      return {
+        data: {
+          metric: { current: 0.58, target: 0.6, period: '2025-06' },
+        },
+      };
+    },
+    campaignLift: async (): Promise<ApiResult<{ campaigns: CampaignLiftRow[] }>> => {
+      return {
+        data: {
+          campaigns: [
+            { campaignId: 'cof-001', campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
+            { campaignId: 'cof-002', campaignName: 'COF-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
+            { campaignId: 'cof-003', campaignName: 'COF-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
+            { campaignId: 'cof-004', campaignName: 'COF-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
+            { campaignId: 'cof-005', campaignName: 'COF-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
           ],
         },
       };

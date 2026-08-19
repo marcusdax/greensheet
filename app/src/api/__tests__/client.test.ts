@@ -532,3 +532,13 @@ describe('api client', () => {
     expect(res.problem!.code).toBe('GS-GEN-1005');
   });
 });
+
+describe('analytics growth endpoints', () => {
+  it('returns kit funnel with 1000 sent and 166 first orders', async () => {
+    const res = await api.analytics.kitFunnel();
+    expect('data' in res).toBe(true);
+    const stages = 'data' in res ? res.data.stages : [];
+    expect(stages[0]).toMatchObject({ stage: 'sent', count: 1000 });
+    expect(stages[3]).toMatchObject({ stage: 'first_order', count: 166 });
+  });
+});

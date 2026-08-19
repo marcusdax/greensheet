@@ -154,6 +154,46 @@ export interface Forecast {
   modelVersion?: string;
 }
 
+export interface WtrPoint {
+  week: string;
+  wtr: number;
+  movingAverage?: number;
+}
+
+export interface KitFunnelStage {
+  stage: 'sent' | 'delivered' | 'feedback' | 'first_order';
+  count: number;
+  conversionRate?: number;
+}
+
+export interface CacChannelRow {
+  channel: string;
+  cac: number;
+  spend: number;
+  newAccounts: number;
+}
+
+export interface HazardHeatmapRow {
+  segment: Segment;
+  tier: 'T1' | 'T2' | 'T3';
+  count: number;
+  avgHazard: number;
+}
+
+export interface KFactorMetric {
+  current: number;
+  target: number;
+  period: string;
+}
+
+export interface CampaignLiftRow {
+  campaignId: string;
+  campaignName: string;
+  lift: number;
+  probability: number;
+  isSignificant: boolean;
+}
+
 export interface CoffeeLot {
   id: string;
   origin: string;
