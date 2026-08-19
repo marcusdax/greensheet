@@ -25,7 +25,7 @@ void i18n
       'es-MX': esMX,
       'pt-BR': ptBR,
     },
-    ns: ['common', 'dashboard', 'catalog', 'campaigns', 'roasters', 'orders', 'sampleKits', 'rules', 'webhooks', 'errors', 'agent'],
+    ns: ['common', 'dashboard', 'catalog', 'campaigns', 'growth', 'roasters', 'orders', 'sampleKits', 'rules', 'webhooks', 'errors', 'agent'],
     defaultNS: 'common',
     detection: {
       order: ['path', 'localStorage', 'navigator'],

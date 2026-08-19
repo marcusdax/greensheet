@@ -14,7 +14,11 @@
       "reservations": "Reservations",
       "sampleKits": "Sample Kits",
       "automationRules": "Automation Rules",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "growth": "Growth"
+    },
+    "actions": {
+      "refresh": "Refresh"
     },
     "buttons": {
       "save": "Save",
@@ -348,6 +352,17 @@
     "create": "Create Campaign",
     "activate": "Activate",
     "retire": "Retire"
+  },
+  "growth": {
+    "overline": "GROWTH INTELLIGENCE",
+    "title": "Growth Dashboard",
+    "subtitle": "Weekly transacting roasters, kit funnel, CAC by channel, churn hazard, K-factor, and campaign lift.",
+    "wtr": { "title": "Weekly Transacting Roasters", "description": "Trailing 7-day active roasters with 4-week moving average" },
+    "kitFunnel": { "title": "Kit Funnel", "description": "Kit Sent → Delivered → Feedback → First Order" },
+    "cacByChannel": { "title": "CAC by Channel", "description": "Blended customer acquisition cost vs. $500 ceiling" },
+    "hazardHeatmap": { "title": "Churn Hazard Heatmap", "description": "Accounts by churn tier and segment" },
+    "kFactor": { "title": "K-Factor", "description": "Viral referral coefficient vs. 0.6 target" },
+    "campaignLift": { "title": "Campaign Lift", "description": "Bayesian posterior probability vs. control" }
   },
   "errors": {
     "title": "Something went wrong",

@@ -7,6 +7,7 @@ import { CampaignsPage } from './pages/CampaignsPage';
 import { AutomationRulesPage } from './pages/AutomationRulesPage';
 import { RoastersPage } from './pages/RoastersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { GrowthPage } from './pages/GrowthPage';
 import { ReservationsPage } from './pages/ReservationsPage';
 import { SampleKitsPage } from './pages/SampleKitsPage';
 import { OrdersPage } from './pages/OrdersPage';
@@ -98,6 +99,7 @@ function App() {
             <Route path="automation-rules" element={<AutomationRulesPage />} />
             <Route path="roasters" element={<RoastersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="growth" element={<GrowthPage />} />
             <Route path="sample-kits" element={<SampleKitsPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="webhooks" element={<WebhooksPage />} />

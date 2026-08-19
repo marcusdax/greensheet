@@ -15,6 +15,7 @@ const navLabels = [
   'Sample Kits',
   'Orders',
   'Analytics',
+  'Growth',
   'Webhooks',
 ];
 
@@ -32,6 +33,7 @@ function TestApp({ initialRoute = '/en-US/navigator' }: { initialRoute?: string 
           <Route path="sample-kits" element={<div data-testid="page">Sample Kits</div>} />
           <Route path="orders" element={<div data-testid="page">Orders</div>} />
           <Route path="analytics" element={<div data-testid="page">Analytics</div>} />
+          <Route path="growth" element={<div data-testid="page">Growth</div>} />
           <Route path="webhooks" element={<div data-testid="page">Webhooks</div>} />
         </Route>
       </Routes>
