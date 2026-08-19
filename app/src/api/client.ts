@@ -353,7 +353,9 @@ export const api = {
         },
       };
 
-      return { data: presets[code] ?? presets['cof-001'] };
+      const preset = presets[code];
+      if (!preset) return { problem: GS.GEN_1005() };
+      return { data: preset };
     },
   },
 

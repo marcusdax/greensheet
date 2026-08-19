@@ -8,7 +8,7 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const InputField: React.FC<InputFieldProps> = ({ name, label, ...rest }) => {
   const { register, formState: { errors } } = useFormContext();
-  const error = errors[name];
+  const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
   return (
     <div className="space-y-1">
       <label htmlFor={name} className="block text-xs font-sans font-semibold text-muted uppercase tracking-wider">{label}</label>

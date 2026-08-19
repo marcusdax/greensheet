@@ -1,5 +1,3 @@
-import type { CampaignVariant } from './api';
-
 export interface CampaignToken {
   token: string;
   sourceField: string;
@@ -25,5 +23,4 @@ export interface MarketingTemplate {
   body: string;
   mergeTokens: string[];
   metrics: TemplateMetrics;
-  abData?: CampaignVariant[];
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { db, seedDatabase } from '../db';
+import { MARKETING_TEMPLATES } from '../marketing-data';
 
 describe('db', () => {
   it('seeds lots with cents', () => {
@@ -38,5 +39,15 @@ describe('db', () => {
     db.idempotency.set('key', { bodyHash: 'hash', response: {} });
     seedDatabase();
     expect(db.idempotency.size).toBe(0);
+  });
+
+  it('seeds every SEND_TEMPLATE action with a templateId that exists in MARKETING_TEMPLATES', () => {
+    seedDatabase();
+    const templateIds = new Set(MARKETING_TEMPLATES.map((t) => t.id));
+    const sendActions = db.rules.flatMap((r) => r.actions).filter((a) => a.actionType === 'SEND_TEMPLATE');
+    expect(sendActions.length).toBeGreaterThan(0);
+    for (const action of sendActions) {
+      expect(templateIds.has(action.templateId!)).toBe(true);
+    }
   });
 });

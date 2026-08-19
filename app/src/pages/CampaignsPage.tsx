@@ -92,6 +92,8 @@ function buildABVariant(
 }
 
 function buildCampaignRuleMock(rule: AutomationRule): CampaignRuleMock | null {
+  // The A/B panel derives its data from the rule's first SEND_TEMPLATE action
+  // (touchpoint 1). Later touchpoints in the same rule are not rendered here.
   const template = findRuleTemplate(rule);
   if (!template) return null;
 

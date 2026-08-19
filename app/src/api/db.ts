@@ -300,6 +300,9 @@ export function seedDatabase() {
     },
   ];
 
+  // Seeded rule actions use human-readable templateIds (e.g., COF-001-E1) that
+  // intentionally bypass the API's UUID ruleCreateSchema because these rules are
+  // read-only seed data. Editing them through RuleForm will fail validation.
   db.rules = [
     {
       id: 'rule-cof-001',

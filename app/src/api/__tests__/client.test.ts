@@ -511,4 +511,24 @@ describe('api client', () => {
     const refetched = (await api.rules.get(rule.id)).data!;
     expect(refetched.campaignId).toBe(rule.campaignId);
   });
+
+  it('returns performance for a known seeded campaign slug', async () => {
+    const res = await api.campaigns.performance('campaign-cof-001');
+    expect('data' in res).toBe(true);
+    expect(res.data!.campaignId).toBe('campaign-cof-001');
+    expect(res.data!.sent).toBe(1000);
+    expect(res.data!.variants.length).toBeGreaterThan(0);
+  });
+
+  it('returns GS-GEN-1005 for performance of a campaign with an unknown slug', async () => {
+    const created = await api.campaigns.create(
+      { slug: 'cof-unknown', name: 'Unknown Slug' },
+      idempotencyKey(),
+    );
+    expect('data' in created).toBe(true);
+
+    const res = await api.campaigns.performance(created.data!.id);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('GS-GEN-1005');
+  });
 });

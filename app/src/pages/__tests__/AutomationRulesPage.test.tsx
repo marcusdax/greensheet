@@ -106,6 +106,20 @@ describe('AutomationRulesPage', () => {
     await waitFor(() => expect(within(screen.getByRole('table')).getByText('Updated Rule Name')).toBeInTheDocument());
   });
 
+  it('surfaces a validation error when editing a seeded COF rule with a non-UUID templateId', async () => {
+    render(<AutomationRulesPage />);
+    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText(/Edit qualified_lead_first_crack_sequence/));
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
+
+    const dialog = within(screen.getByRole('dialog'));
+    fireEvent.click(dialog.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => expect(dialog.getAllByText(/invalid uuid/i).length).toBeGreaterThan(0));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('deletes a rule', async () => {
     render(<AutomationRulesPage />);
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
