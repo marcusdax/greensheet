@@ -55,4 +55,67 @@ describe('analytics slice', () => {
     expect(useRootStore.getState().analytics.viralReferrals.length).toBeGreaterThan(0);
     expect(useRootStore.getState().analytics.forecast.length).toBeGreaterThan(0);
   });
+
+  it('loads WTR points', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadWtr();
+    expect(useRootStore.getState().analytics.wtrPoints.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.wtrPoints[0]).toHaveProperty('week');
+    expect(useRootStore.getState().analytics.wtrPoints[0]).toHaveProperty('wtr');
+    expect(useRootStore.getState().analytics.loading).toBe(false);
+  });
+
+  it('loads kit funnel stages', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadKitFunnel();
+    const stages = useRootStore.getState().analytics.kitFunnelStages;
+    expect(stages.length).toBe(4);
+    expect(stages[0]).toMatchObject({ stage: 'sent', count: 1000 });
+    expect(stages[3]).toMatchObject({ stage: 'first_order', count: 166 });
+  });
+
+  it('loads CAC by channel', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadCacByChannel();
+    expect(useRootStore.getState().analytics.cacByChannel.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.cacByChannel[0]).toHaveProperty('channel');
+    expect(useRootStore.getState().analytics.cacByChannel[0]).toHaveProperty('cac');
+  });
+
+  it('loads hazard heatmap rows', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadHazardHeatmap();
+    expect(useRootStore.getState().analytics.hazardHeatmap.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.hazardHeatmap[0]).toHaveProperty('segment');
+    expect(useRootStore.getState().analytics.hazardHeatmap[0]).toHaveProperty('tier');
+  });
+
+  it('loads k-factor metric', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadKFactor();
+    expect(useRootStore.getState().analytics.kFactor).toMatchObject({
+      current: 0.58,
+      target: 0.6,
+    });
+  });
+
+  it('loads campaign lift rows', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadCampaignLift();
+    expect(useRootStore.getState().analytics.campaignLift.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.campaignLift[0]).toHaveProperty('campaignId');
+    expect(useRootStore.getState().analytics.campaignLift[0]).toHaveProperty('lift');
+  });
+
+  it('loads all growth analytics in one call', async () => {
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadGrowthAll();
+    expect(useRootStore.getState().analytics.loading).toBe(false);
+    expect(useRootStore.getState().analytics.wtrPoints.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.kitFunnelStages.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.cacByChannel.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.hazardHeatmap.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.kFactor).not.toBeNull();
+    expect(useRootStore.getState().analytics.campaignLift.length).toBeGreaterThan(0);
+  });
 });

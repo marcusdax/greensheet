@@ -1,5 +1,19 @@
 import { api } from '../../api/client';
-import type { Cohort, ChurnRisk, Forecast, FunnelStage, LtvSnapshot, Problem, ViralReferral } from '../../types/api';
+import type {
+  CampaignLiftRow,
+  CacChannelRow,
+  ChurnRisk,
+  Cohort,
+  Forecast,
+  FunnelStage,
+  HazardHeatmapRow,
+  KFactorMetric,
+  KitFunnelStage,
+  LtvSnapshot,
+  Problem,
+  ViralReferral,
+  WtrPoint,
+} from '../../types/api';
 
 export interface AnalyticsState {
   cohorts: Cohort[];
@@ -8,6 +22,12 @@ export interface AnalyticsState {
   funnelStages: FunnelStage[];
   viralReferrals: ViralReferral[];
   forecast: Forecast[];
+  wtrPoints: WtrPoint[];
+  kitFunnelStages: KitFunnelStage[];
+  cacByChannel: CacChannelRow[];
+  hazardHeatmap: HazardHeatmapRow[];
+  kFactor: KFactorMetric | null;
+  campaignLift: CampaignLiftRow[];
   loading: boolean;
   error: Problem | null;
 }
@@ -20,6 +40,13 @@ export interface AnalyticsActions {
   loadViral: () => Promise<void>;
   loadForecast: () => Promise<void>;
   loadAll: () => Promise<void>;
+  loadWtr: () => Promise<void>;
+  loadKitFunnel: () => Promise<void>;
+  loadCacByChannel: () => Promise<void>;
+  loadHazardHeatmap: () => Promise<void>;
+  loadKFactor: () => Promise<void>;
+  loadCampaignLift: () => Promise<void>;
+  loadGrowthAll: () => Promise<void>;
 }
 
 export type AnalyticsSlice = AnalyticsState & AnalyticsActions;
@@ -31,6 +58,12 @@ export const initialAnalyticsState: AnalyticsState = {
   funnelStages: [],
   viralReferrals: [],
   forecast: [],
+  wtrPoints: [],
+  kitFunnelStages: [],
+  cacByChannel: [],
+  hazardHeatmap: [],
+  kFactor: null,
+  campaignLift: [],
   loading: false,
   error: null,
 };
@@ -116,5 +149,85 @@ export const createAnalyticsSlice = (set: any) => ({
       else s.analytics.forecast = forecast.data.forecast;
       s.analytics.loading = false;
     }, false, 'analytics/loadAll/done');
+  },
+  loadWtr: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadWtr/start');
+    const res = await api.analytics.wtr();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadWtr/error');
+    } else {
+      set((s: any) => { s.analytics.wtrPoints = res.data.points; s.analytics.loading = false; }, false, 'analytics/loadWtr/done');
+    }
+  },
+  loadKitFunnel: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadKitFunnel/start');
+    const res = await api.analytics.kitFunnel();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadKitFunnel/error');
+    } else {
+      set((s: any) => { s.analytics.kitFunnelStages = res.data.stages; s.analytics.loading = false; }, false, 'analytics/loadKitFunnel/done');
+    }
+  },
+  loadCacByChannel: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadCacByChannel/start');
+    const res = await api.analytics.cacByChannel();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadCacByChannel/error');
+    } else {
+      set((s: any) => { s.analytics.cacByChannel = res.data.channels; s.analytics.loading = false; }, false, 'analytics/loadCacByChannel/done');
+    }
+  },
+  loadHazardHeatmap: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadHazardHeatmap/start');
+    const res = await api.analytics.hazardHeatmap();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadHazardHeatmap/error');
+    } else {
+      set((s: any) => { s.analytics.hazardHeatmap = res.data.rows; s.analytics.loading = false; }, false, 'analytics/loadHazardHeatmap/done');
+    }
+  },
+  loadKFactor: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadKFactor/start');
+    const res = await api.analytics.kFactor();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadKFactor/error');
+    } else {
+      set((s: any) => { s.analytics.kFactor = res.data.metric; s.analytics.loading = false; }, false, 'analytics/loadKFactor/done');
+    }
+  },
+  loadCampaignLift: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadCampaignLift/start');
+    const res = await api.analytics.campaignLift();
+    if ('problem' in res) {
+      set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadCampaignLift/error');
+    } else {
+      set((s: any) => { s.analytics.campaignLift = res.data.campaigns; s.analytics.loading = false; }, false, 'analytics/loadCampaignLift/done');
+    }
+  },
+  loadGrowthAll: async () => {
+    set((s: any) => { s.analytics.loading = true; s.analytics.error = null; }, false, 'analytics/loadGrowthAll/start');
+    const [wtr, kitFunnel, cacByChannel, hazardHeatmap, kFactor, campaignLift] = await Promise.all([
+      api.analytics.wtr(),
+      api.analytics.kitFunnel(),
+      api.analytics.cacByChannel(),
+      api.analytics.hazardHeatmap(),
+      api.analytics.kFactor(),
+      api.analytics.campaignLift(),
+    ]);
+    set((s: any) => {
+      if ('problem' in wtr) s.analytics.error = wtr.problem;
+      else s.analytics.wtrPoints = wtr.data.points;
+      if ('problem' in kitFunnel) s.analytics.error = kitFunnel.problem;
+      else s.analytics.kitFunnelStages = kitFunnel.data.stages;
+      if ('problem' in cacByChannel) s.analytics.error = cacByChannel.problem;
+      else s.analytics.cacByChannel = cacByChannel.data.channels;
+      if ('problem' in hazardHeatmap) s.analytics.error = hazardHeatmap.problem;
+      else s.analytics.hazardHeatmap = hazardHeatmap.data.rows;
+      if ('problem' in kFactor) s.analytics.error = kFactor.problem;
+      else s.analytics.kFactor = kFactor.data.metric;
+      if ('problem' in campaignLift) s.analytics.error = campaignLift.problem;
+      else s.analytics.campaignLift = campaignLift.data.campaigns;
+      s.analytics.loading = false;
+    }, false, 'analytics/loadGrowthAll/done');
   },
 });
