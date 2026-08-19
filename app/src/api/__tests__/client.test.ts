@@ -579,3 +579,92 @@ describe('analytics growth endpoints', () => {
     expect(res.data!.campaigns.some((c) => typeof c.isSignificant === 'boolean')).toBe(true);
   });
 });
+
+describe('referrals api', () => {
+  it('creates a referral code lazily', async () => {
+    const res = await api.referrals.getCodeForAccount('r_003');
+    expect('data' in res).toBe(true);
+    expect(res.data!.code.code).toMatch(/^GS-[A-Z]{2,6}-\d{1,4}$/);
+    expect(res.data!.code.accountId).toBe('r_003');
+  });
+
+  it('returns an existing code on second call', async () => {
+    const first = await api.referrals.getCodeForAccount('r_001');
+    const second = await api.referrals.getCodeForAccount('r_001');
+    expect('data' in first && 'data' in second).toBe(true);
+    expect(first.data!.code.code).toBe(second.data!.code.code);
+  });
+
+  it('accepts a custom code and rejects duplicates', async () => {
+    const custom = await api.referrals.createCode('r_004', 'GS-CUSTOM-42');
+    expect('data' in custom).toBe(true);
+    expect(custom.data!.code.code).toBe('GS-CUSTOM-42');
+
+    const duplicate = await api.referrals.createCode('r_005', 'GS-CUSTOM-42');
+    expect('problem' in duplicate).toBe(true);
+    expect(duplicate.problem!.status).toBe(409);
+  });
+
+  it('lists referrals for a referrer', async () => {
+    const res = await api.referrals.listReferrals('r_001');
+    expect('data' in res).toBe(true);
+    expect(res.data!.referrals.length).toBeGreaterThan(0);
+    expect(res.data!.referrals.every((r) => r.referrerId === 'r_001')).toBe(true);
+  });
+
+  it('lists ledger entries for an account', async () => {
+    const res = await api.referrals.listLedger('r_001');
+    expect('data' in res).toBe(true);
+    expect(res.data!.entries.length).toBeGreaterThan(0);
+    expect(res.data!.entries.some((e) => e.type === 'referrer_credit')).toBe(true);
+  });
+
+  it('derives stats correctly', async () => {
+    const res = await api.referrals.getStats('r_001');
+    expect('data' in res).toBe(true);
+    const s = res.data!.stats;
+    expect(s.accountId).toBe('r_001');
+    expect(s.invitesSent).toBeGreaterThan(0);
+    expect(s.qualifiedReferrals).toBeGreaterThanOrEqual(1);
+    expect(s.earnedRewardsCents).toBeGreaterThanOrEqual(150_00);
+    expect(s.pendingRewardsCents).toBeGreaterThanOrEqual(0);
+    expect(s.kFactor).toBeGreaterThanOrEqual(0);
+  });
+
+  it('records a click and creates a referral', async () => {
+    const res = await api.referrals.recordClick('GS-RVR-001', 'qr_sticker');
+    expect('data' in res).toBe(true);
+    expect(res.data!.referral.status).toBe('clicked');
+    expect(res.data!.referral.channel).toBe('qr_sticker');
+  });
+
+  it('returns an error for an unknown referral code click', async () => {
+    const res = await api.referrals.recordClick('GS-UNKNOWN-99');
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.status).toBe(404);
+  });
+
+  it('qualifies a referral and posts rewards', async () => {
+    const seed = await api.referrals.listReferrals('r_002');
+    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
+    expect(target).toBeDefined();
+
+    const res = await api.referrals.qualifyReferral(target!.id);
+    expect('data' in res).toBe(true);
+    expect(res.data!.referral.status).toBe('qualified');
+    expect(res.data!.entries).toHaveLength(2);
+    expect(res.data!.entries.some((e) => e.type === 'referrer_credit' && e.amountCents === 150_00)).toBe(true);
+    expect(res.data!.entries.some((e) => e.type === 'referee_discount' && e.amountCents === 100_00)).toBe(true);
+  });
+
+  it('claws back a qualified referral and reverses rewards', async () => {
+    const seed = await api.referrals.listReferrals('r_002');
+    const target = seed.data!.referrals.find((r) => r.status === 'qualified');
+    expect(target).toBeDefined();
+
+    const res = await api.referrals.clawBack(target!.id);
+    expect('data' in res).toBe(true);
+    expect(res.data!.referral.status).toBe('clawed_back');
+    expect(res.data!.entries.every((e) => e.status === 'clawed_back')).toBe(true);
+  });
+});
