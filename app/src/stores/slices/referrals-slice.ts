@@ -90,6 +90,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.code = res.data.code;
+          s.referrals.loading = false;
         },
         false,
         'referrals/createCode/done',
@@ -106,6 +107,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.code = res.data.code;
+          s.referrals.loading = false;
         },
         false,
         'referrals/loadCode/done',
@@ -122,6 +124,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.referrals = res.data.referrals;
+          s.referrals.loading = false;
         },
         false,
         'referrals/loadReferrals/done',
@@ -138,6 +141,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.ledger = res.data.entries;
+          s.referrals.loading = false;
         },
         false,
         'referrals/loadLedger/done',
@@ -154,6 +158,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.stats = res.data.stats;
+          s.referrals.loading = false;
         },
         false,
         'referrals/loadStats/done',
@@ -171,6 +176,7 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.reviewQueue = queue;
+          s.referrals.loading = false;
         },
         false,
         'referrals/loadReviewQueue/done',
