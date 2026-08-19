@@ -13,6 +13,7 @@ import { createOrdersSlice, type OrdersSlice, initialOrdersState } from './slice
 import { createRulesSlice, type RulesSlice, initialRulesState } from './slices/rules-slice';
 import { createWebhooksSlice, type WebhooksSlice, initialWebhooksState } from './slices/webhooks-slice';
 import { createAnalyticsSlice, type AnalyticsSlice, initialAnalyticsState } from './slices/analytics-slice';
+import { createReferralsSlice, type ReferralsSlice, initialReferralsState } from './slices/referrals-slice';
 import { useAiStore } from './ai-store';
 
 export type RootStore = {
@@ -28,6 +29,7 @@ export type RootStore = {
   rules: RulesSlice;
   webhooks: WebhooksSlice;
   analytics: AnalyticsSlice;
+  referrals: ReferralsSlice;
 };
 
 export const useRootStore = create<RootStore>()(
@@ -47,6 +49,7 @@ export const useRootStore = create<RootStore>()(
           rules: createRulesSlice(set),
           webhooks: createWebhooksSlice(set),
           analytics: createAnalyticsSlice(set),
+          referrals: createReferralsSlice(set),
         })),
       ),
       {
@@ -95,6 +98,7 @@ export const useOrders = () => useRootStore((s) => s.orders);
 export const useRules = () => useRootStore((s) => s.rules);
 export const useWebhooks = () => useRootStore((s) => s.webhooks);
 export const useAnalytics = () => useRootStore((s) => s.analytics);
+export const useReferrals = () => useRootStore((s) => s.referrals);
 
 export function resetStore() {
   useAiStore.getState().resetAi();
@@ -107,5 +111,6 @@ export function resetStore() {
     rules: { ...state.rules, ...initialRulesState },
     webhooks: { ...state.webhooks, ...initialWebhooksState },
     analytics: { ...state.analytics, ...initialAnalyticsState },
+    referrals: { ...state.referrals, ...initialReferralsState },
   }));
 }
