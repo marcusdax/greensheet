@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import {
   deriveCampaignFunnel,
   deriveCampaignLift,
@@ -9,7 +10,9 @@ import {
   deriveScatterData,
   deriveSurvivalCurve,
   deriveViralCoefficient,
+  useGrowthMetrics,
 } from '../analytics-selectors';
+import { resetStore, useRootStore } from '../../root-store';
 import type {
   CampaignLiftRow,
   CoffeeLot,
@@ -235,5 +238,21 @@ describe('growth selectors', () => {
     const result = deriveCampaignLift(campaigns);
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({ campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true });
+  });
+});
+
+describe('useGrowthMetrics', () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it('returns cacCeiling from the analytics store state', () => {
+    const analytics = useRootStore.getState().analytics;
+    useRootStore.setState({ analytics: { ...analytics, cacCeiling: 750 } });
+
+    const { result } = renderHook(() => useGrowthMetrics());
+
+    expect(result.current.cacCeiling).toBe(750);
+    expect(result.current.cacByChannel).toBe(analytics.cacByChannel);
   });
 });

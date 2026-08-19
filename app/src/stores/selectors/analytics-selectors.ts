@@ -408,6 +408,7 @@ export interface GrowthMetrics {
   wtrPoints: WtrPoint[];
   kitFunnel: GrowthFunnelPoint[];
   cacByChannel: CacChannelRow[];
+  cacCeiling: number;
   hazardHeatmap: HazardHeatmapRow[];
   kFactor: GrowthKFactorPoint;
   campaignLift: GrowthCampaignLiftPoint[];
@@ -422,6 +423,7 @@ export function useGrowthMetrics(): GrowthMetrics {
       wtrPoints: analytics.wtrPoints,
       kitFunnel: deriveGrowthFunnel(analytics.kitFunnelStages),
       cacByChannel: analytics.cacByChannel,
+      cacCeiling: analytics.cacCeiling,
       hazardHeatmap: analytics.hazardHeatmap,
       kFactor: deriveKFactor(analytics.kFactor),
       campaignLift: deriveCampaignLift(analytics.campaignLift),
