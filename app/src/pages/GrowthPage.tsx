@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 import { useAnalytics } from '../stores/root-store';
 import { useGrowthMetrics } from '../stores/selectors/analytics-selectors';
 import {
@@ -13,16 +13,18 @@ import {
 } from '../components/growth';
 
 export const GrowthPage: React.FC = () => {
-  const { t } = useTranslation(['growth', 'common']);
+  const { t } = useTranslation(['growth', 'common', 'errors']);
   const { loadGrowthAll } = useAnalytics();
   const {
     wtrPoints,
     kitFunnel,
     cacByChannel,
+    cacCeiling,
     hazardHeatmap,
     kFactor,
     campaignLift,
     loading,
+    error,
   } = useGrowthMetrics();
 
   useEffect(() => {
@@ -54,6 +56,29 @@ export const GrowthPage: React.FC = () => {
         </button>
       </header>
 
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start justify-between gap-4 p-4 rounded-md border border-cherry/30 bg-cherry/10 text-cherry"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" aria-hidden="true" />
+            <div>
+              <p className="font-semibold text-sm">{t('errors:title')}</p>
+              <p className="text-sm">{t('errors:generic')}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void loadGrowthAll()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-cherry hover:bg-cherry/90 disabled:opacity-50 text-white rounded-md text-sm font-semibold transition-all focus-visible:ring-2 focus-visible:ring-cherry"
+          >
+            {t('common:buttons.retry', 'Retry')}
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WtrChart
           data={wtrPoints}
@@ -67,6 +92,7 @@ export const GrowthPage: React.FC = () => {
         />
         <CacByChannelChart
           data={cacByChannel}
+          ceiling={cacCeiling}
           title={t('growth:cacByChannel.title')}
           description={t('growth:cacByChannel.description')}
         />

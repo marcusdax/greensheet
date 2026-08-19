@@ -60,7 +60,7 @@ export const CampaignLiftChart: React.FC<CampaignLiftChartProps> = ({
             <Bar dataKey="probability" name="Probability">
               {data.map((entry) => (
                 <Cell
-                  key={entry.campaignName}
+                  key={entry.campaignId}
                   fill={entry.isSignificant ? '#C9A34A' : '#D8CFBB'}
                 />
               ))}

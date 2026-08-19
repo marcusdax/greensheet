@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { GrowthPage } from '../GrowthPage';
 import '../../i18n';
 import { resetStore } from '../../stores/root-store';
 import { resetDatabase } from '../../api/db';
+import { api } from '../../api/client';
+import { GS } from '../../api/problems';
 
 vi.setConfig({ testTimeout: 10000 });
 
@@ -87,5 +89,19 @@ describe('GrowthPage', () => {
   it('renders the refresh button', async () => {
     renderWithProviders();
     expect(await screen.findByRole('button', { name: /refresh/i })).toBeInTheDocument();
+  });
+
+  it('renders an error banner with a retry button when loadGrowthAll fails', async () => {
+    vi.spyOn(api.analytics, 'wtr').mockResolvedValue({ problem: GS.GEN_1000() });
+
+    renderWithProviders();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByText('Sorry, something went wrong. Please try again.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 });

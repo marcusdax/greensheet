@@ -82,12 +82,14 @@ describe('Growth widgets', () => {
 
   const campaignData: GrowthCampaignLiftPoint[] = [
     {
+      campaignId: 'cof-001',
       campaignName: 'COF-001 Welcome',
       lift: 0.12,
       probability: 0.97,
       isSignificant: true,
     },
     {
+      campaignId: 'cof-002',
       campaignName: 'COF-002 Feedback',
       lift: 0.08,
       probability: 0.91,
@@ -113,23 +115,25 @@ describe('Growth widgets', () => {
     expect(container).toHaveTextContent(/Kit\s?Sent/);
   });
 
-  it('CacByChannelChart renders title, description, channel and ceiling label', () => {
+  it('CacByChannelChart renders title, description, channel and data-driven ceiling label', () => {
     const { container } = render(
-      <CacByChannelChart title="CAC by Channel" description="CAC description" data={cacData} />,
+      <CacByChannelChart title="CAC by Channel" description="CAC description" data={cacData} ceiling={750} />,
     );
     expect(container).toHaveTextContent('CAC by Channel');
     expect(container).toHaveTextContent('CAC description');
     expect(container).toHaveTextContent(/Paid\s?Social/);
-    expect(container).toHaveTextContent('Ceiling $500');
+    expect(container).toHaveTextContent('Ceiling $750');
+    expect(container).not.toHaveTextContent('Ceiling $500');
   });
 
-  it('HazardHeatmap renders title, description and a hazard value', () => {
+  it('HazardHeatmap renders title, description, account count and hazard value', () => {
     const { container } = render(
       <HazardHeatmap title="Hazard Heatmap" description="Hazard description" data={hazardData} />,
     );
     expect(container).toHaveTextContent('Hazard Heatmap');
     expect(container).toHaveTextContent('Hazard description');
     expect(container).toHaveTextContent('0.20');
+    expect(container).toHaveTextContent('12 accounts');
 
     const columnHeaders = container.querySelectorAll('th[scope="col"]');
     expect(columnHeaders).toHaveLength(4);

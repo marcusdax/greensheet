@@ -360,6 +360,7 @@ export interface GrowthKFactorPoint {
 }
 
 export interface GrowthCampaignLiftPoint {
+  campaignId: string;
   campaignName: string;
   lift: number;
   probability: number;
@@ -403,11 +404,11 @@ export function deriveKFactor(metric: KFactorMetric | null): GrowthKFactorPoint 
 export function deriveCampaignLift(campaigns: CampaignLiftRow[]): GrowthCampaignLiftPoint[] {
   if (campaigns.length === 0) {
     return [
-      { campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
-      { campaignName: 'COF-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
-      { campaignName: 'COF-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
-      { campaignName: 'COF-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
-      { campaignName: 'COF-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
+      { campaignId: 'cof-001', campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
+      { campaignId: 'cof-002', campaignName: 'COF-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
+      { campaignId: 'cof-003', campaignName: 'COF-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
+      { campaignId: 'cof-004', campaignName: 'COF-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
+      { campaignId: 'cof-005', campaignName: 'COF-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
     ];
   }
   return campaigns;
@@ -422,6 +423,7 @@ export interface GrowthMetrics {
   kFactor: GrowthKFactorPoint;
   campaignLift: GrowthCampaignLiftPoint[];
   loading: boolean;
+  error: Problem | null;
 }
 
 export function useGrowthMetrics(): GrowthMetrics {
@@ -437,6 +439,7 @@ export function useGrowthMetrics(): GrowthMetrics {
       kFactor: deriveKFactor(analytics.kFactor),
       campaignLift: deriveCampaignLift(analytics.campaignLift),
       loading: analytics.loading,
+      error: analytics.error,
     }),
     [analytics],
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -17,13 +17,20 @@ export interface CacByChannelChartProps {
   title: string;
   description?: string;
   data: CacChannelRow[];
+  ceiling?: number;
 }
 
 export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
   title,
   description,
   data,
+  ceiling = 500,
 }) => {
+  const xMax = useMemo(
+    () => Math.max(ceiling, ...data.map((d) => d.cac)),
+    [ceiling, data],
+  );
+
   return (
     <GrowthWidgetCard title={title} description={description}>
       <div className="h-64">
@@ -34,7 +41,7 @@ export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
             margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CFBB" />
-            <XAxis type="number" stroke="#8A8272" fontSize={10} tickLine={false} />
+            <XAxis type="number" domain={[0, xMax]} stroke="#8A8272" fontSize={10} tickLine={false} />
             <YAxis
               dataKey="channel"
               type="category"
@@ -50,11 +57,11 @@ export const CacByChannelChart: React.FC<CacByChannelChartProps> = ({
               itemStyle={{ color: '#FDFBF5' }}
             />
             <ReferenceLine
-              x={500}
+              x={ceiling}
               stroke="#8C3B34"
               strokeDasharray="3 3"
               label={{
-                value: 'Ceiling $500',
+                value: `Ceiling $${ceiling}`,
                 fill: '#8C3B34',
                 fontSize: 10,
                 position: 'top',

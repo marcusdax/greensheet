@@ -12,13 +12,12 @@ export interface HazardHeatmapProps {
 const TIERS: Array<'T1' | 'T2' | 'T3'> = ['T3', 'T2', 'T1'];
 const SEGMENTS: Segment[] = ['micro', 'boutique', 'commercial'];
 
-function findValue(
+function findRow(
   data: HazardHeatmapRow[],
   tier: 'T1' | 'T2' | 'T3',
   segment: Segment,
-): number | null {
-  const row = data.find((d) => d.tier === tier && d.segment === segment);
-  return row?.avgHazard ?? null;
+): HazardHeatmapRow | undefined {
+  return data.find((d) => d.tier === tier && d.segment === segment);
 }
 
 function hazardColorClass(value: number): string {
@@ -42,22 +41,31 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({ title, description
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border font-mono">
+          <tbody className="divide-y divide-border">
             {TIERS.map((tier) => (
               <tr key={tier}>
                 <th scope="row" className="px-3 py-2.5 text-left font-sans text-ink font-semibold">
                   {tier}
                 </th>
                 {SEGMENTS.map((segment) => {
-                  const value = findValue(data, tier, segment);
+                  const row = findRow(data, tier, segment);
+                  const count = row?.count;
+                  const avgHazard = row?.avgHazard;
                   return (
                     <td
                       key={`${tier}-${segment}`}
-                      className={`px-2 py-2.5 border-l border-border figure font-bold ${
-                        value == null ? 'bg-transparent text-subtle/30' : hazardColorClass(value)
+                      className={`px-2 py-2 border-l border-border ${
+                        avgHazard == null ? 'bg-transparent text-subtle/30' : hazardColorClass(avgHazard)
                       }`}
                     >
-                      {value != null ? value.toFixed(2) : '—'}
+                      {avgHazard != null ? (
+                        <div className="leading-tight">
+                          <div className="text-[10px] font-sans opacity-90">{count} accounts</div>
+                          <div className="figure font-bold">{avgHazard.toFixed(2)}</div>
+                        </div>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                   );
                 })}
