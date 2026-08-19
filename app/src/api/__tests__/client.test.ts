@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { api, idempotencyKey } from '../client';
-import { resetDatabase } from '../db';
+import { db, resetDatabase } from '../db';
 
 describe('api client', () => {
   beforeEach(() => resetDatabase());
@@ -666,5 +666,59 @@ describe('referrals api', () => {
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('clawed_back');
     expect(res.data!.entries.every((e) => e.status === 'clawed_back')).toBe(true);
+  });
+
+  it('getPendingReview returns only referrals with pending_review status', async () => {
+    db.referrals.push({
+      id: 'ref_pending_001',
+      referrerId: 'r_001',
+      refereeId: 'r_005',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'pending_review',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+    db.referrals.push({
+      id: 'ref_approved_001',
+      referrerId: 'r_001',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'approved',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+
+    const res = await api.referrals.getPendingReview();
+    expect('data' in res).toBe(true);
+    expect(res.data!.referrals.length).toBe(1);
+    expect(res.data!.referrals[0].id).toBe('ref_pending_001');
+    expect(res.data!.referrals[0].reviewStatus).toBe('pending_review');
+  });
+
+  it('declineReview sets reviewStatus to declined and leaves referrer ledger unchanged', async () => {
+    const beforeLedger = db.rewardsLedger.filter((e) => e.accountId === 'r_001').length;
+    db.referrals.push({
+      id: 'ref_decline_001',
+      referrerId: 'r_001',
+      refereeId: 'r_005',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'pending_review',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+
+    const res = await api.referrals.declineReview('ref_decline_001');
+    expect('data' in res).toBe(true);
+    expect(res.data!.referral.reviewStatus).toBe('declined');
+    expect(db.rewardsLedger.filter((e) => e.accountId === 'r_001').length).toBe(beforeLedger);
+  });
+
+  it('declineReview returns not-found for a bogus id', async () => {
+    const res = await api.referrals.declineReview('ref_does_not_exist');
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.status).toBe(404);
+    expect(res.problem!.code).toBe('GS-GEN-1005');
   });
 });
