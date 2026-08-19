@@ -1,11 +1,24 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useRootStore, resetStore } from '../root-store';
 import { resetDatabase } from '../../api/db';
+import { api } from '../../api/client';
+
+const mockProblem = {
+  type: 'about:blank',
+  title: 'Internal Server Error',
+  status: 500,
+  code: 'GS-ANL-1000',
+  detail: 'Mocked analytics failure',
+};
 
 describe('analytics slice', () => {
   beforeEach(() => {
     resetDatabase();
     resetStore();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('loads cohorts', async () => {
@@ -80,6 +93,7 @@ describe('analytics slice', () => {
     expect(useRootStore.getState().analytics.cacByChannel.length).toBeGreaterThan(0);
     expect(useRootStore.getState().analytics.cacByChannel[0]).toHaveProperty('channel');
     expect(useRootStore.getState().analytics.cacByChannel[0]).toHaveProperty('cac');
+    expect(useRootStore.getState().analytics.cacCeiling).toBe(500);
   });
 
   it('loads hazard heatmap rows', async () => {
@@ -114,8 +128,27 @@ describe('analytics slice', () => {
     expect(useRootStore.getState().analytics.wtrPoints.length).toBeGreaterThan(0);
     expect(useRootStore.getState().analytics.kitFunnelStages.length).toBeGreaterThan(0);
     expect(useRootStore.getState().analytics.cacByChannel.length).toBeGreaterThan(0);
+    expect(useRootStore.getState().analytics.cacCeiling).toBe(500);
     expect(useRootStore.getState().analytics.hazardHeatmap.length).toBeGreaterThan(0);
     expect(useRootStore.getState().analytics.kFactor).not.toBeNull();
     expect(useRootStore.getState().analytics.campaignLift.length).toBeGreaterThan(0);
+  });
+
+  it('captures a problem from an individual growth loader', async () => {
+    vi.spyOn(api.analytics, 'cacByChannel').mockResolvedValueOnce({ problem: mockProblem });
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadCacByChannel();
+    expect(useRootStore.getState().analytics.loading).toBe(false);
+    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'GS-ANL-1000' });
+  });
+
+  it('captures a problem from loadGrowthAll', async () => {
+    vi.spyOn(api.analytics, 'cacByChannel').mockResolvedValueOnce({ problem: mockProblem });
+    const analytics = useRootStore.getState().analytics;
+    await analytics.loadGrowthAll();
+    expect(useRootStore.getState().analytics.loading).toBe(false);
+    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'GS-ANL-1000' });
+    expect(useRootStore.getState().analytics.cacByChannel).toHaveLength(0);
+    expect(useRootStore.getState().analytics.wtrPoints.length).toBeGreaterThan(0);
   });
 });

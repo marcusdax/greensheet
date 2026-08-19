@@ -25,6 +25,7 @@ export interface AnalyticsState {
   wtrPoints: WtrPoint[];
   kitFunnelStages: KitFunnelStage[];
   cacByChannel: CacChannelRow[];
+  cacCeiling: number;
   hazardHeatmap: HazardHeatmapRow[];
   kFactor: KFactorMetric | null;
   campaignLift: CampaignLiftRow[];
@@ -61,6 +62,7 @@ export const initialAnalyticsState: AnalyticsState = {
   wtrPoints: [],
   kitFunnelStages: [],
   cacByChannel: [],
+  cacCeiling: 500,
   hazardHeatmap: [],
   kFactor: null,
   campaignLift: [],
@@ -135,17 +137,17 @@ export const createAnalyticsSlice = (set: any) => ({
       api.analytics.forecast(),
     ]);
     set((s: any) => {
-      if ('problem' in cohorts) s.analytics.error = cohorts.problem;
+      if ('problem' in cohorts) { if (!s.analytics.error) s.analytics.error = cohorts.problem; }
       else s.analytics.cohorts = cohorts.data.cohorts;
-      if ('problem' in ltv) s.analytics.error = ltv.problem;
+      if ('problem' in ltv) { if (!s.analytics.error) s.analytics.error = ltv.problem; }
       else s.analytics.ltvSnapshots = ltv.data.snapshots;
-      if ('problem' in churn) s.analytics.error = churn.problem;
+      if ('problem' in churn) { if (!s.analytics.error) s.analytics.error = churn.problem; }
       else s.analytics.churnRisks = churn.data.risks;
-      if ('problem' in funnel) s.analytics.error = funnel.problem;
+      if ('problem' in funnel) { if (!s.analytics.error) s.analytics.error = funnel.problem; }
       else s.analytics.funnelStages = funnel.data.stages;
-      if ('problem' in viral) s.analytics.error = viral.problem;
+      if ('problem' in viral) { if (!s.analytics.error) s.analytics.error = viral.problem; }
       else s.analytics.viralReferrals = viral.data.referrals;
-      if ('problem' in forecast) s.analytics.error = forecast.problem;
+      if ('problem' in forecast) { if (!s.analytics.error) s.analytics.error = forecast.problem; }
       else s.analytics.forecast = forecast.data.forecast;
       s.analytics.loading = false;
     }, false, 'analytics/loadAll/done');
@@ -174,7 +176,7 @@ export const createAnalyticsSlice = (set: any) => ({
     if ('problem' in res) {
       set((s: any) => { s.analytics.error = res.problem; s.analytics.loading = false; }, false, 'analytics/loadCacByChannel/error');
     } else {
-      set((s: any) => { s.analytics.cacByChannel = res.data.channels; s.analytics.loading = false; }, false, 'analytics/loadCacByChannel/done');
+      set((s: any) => { s.analytics.cacByChannel = res.data.channels; s.analytics.cacCeiling = res.data.ceiling; s.analytics.loading = false; }, false, 'analytics/loadCacByChannel/done');
     }
   },
   loadHazardHeatmap: async () => {
@@ -215,17 +217,17 @@ export const createAnalyticsSlice = (set: any) => ({
       api.analytics.campaignLift(),
     ]);
     set((s: any) => {
-      if ('problem' in wtr) s.analytics.error = wtr.problem;
+      if ('problem' in wtr) { if (!s.analytics.error) s.analytics.error = wtr.problem; }
       else s.analytics.wtrPoints = wtr.data.points;
-      if ('problem' in kitFunnel) s.analytics.error = kitFunnel.problem;
+      if ('problem' in kitFunnel) { if (!s.analytics.error) s.analytics.error = kitFunnel.problem; }
       else s.analytics.kitFunnelStages = kitFunnel.data.stages;
-      if ('problem' in cacByChannel) s.analytics.error = cacByChannel.problem;
-      else s.analytics.cacByChannel = cacByChannel.data.channels;
-      if ('problem' in hazardHeatmap) s.analytics.error = hazardHeatmap.problem;
+      if ('problem' in cacByChannel) { if (!s.analytics.error) s.analytics.error = cacByChannel.problem; }
+      else { s.analytics.cacByChannel = cacByChannel.data.channels; s.analytics.cacCeiling = cacByChannel.data.ceiling; }
+      if ('problem' in hazardHeatmap) { if (!s.analytics.error) s.analytics.error = hazardHeatmap.problem; }
       else s.analytics.hazardHeatmap = hazardHeatmap.data.rows;
-      if ('problem' in kFactor) s.analytics.error = kFactor.problem;
+      if ('problem' in kFactor) { if (!s.analytics.error) s.analytics.error = kFactor.problem; }
       else s.analytics.kFactor = kFactor.data.metric;
-      if ('problem' in campaignLift) s.analytics.error = campaignLift.problem;
+      if ('problem' in campaignLift) { if (!s.analytics.error) s.analytics.error = campaignLift.problem; }
       else s.analytics.campaignLift = campaignLift.data.campaigns;
       s.analytics.loading = false;
     }, false, 'analytics/loadGrowthAll/done');
