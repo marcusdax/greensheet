@@ -16,7 +16,8 @@ import { RuleForm, type RuleFormValues } from '../components/forms/RuleForm';
 import { toRuleActions } from '../lib/rule-action-helpers';
 import { Modal } from '../components/ui/Modal';
 import { Drawer } from '../components/ui/Drawer';
-import type { Campaign, CampaignCreate, CampaignPatch, CampaignStatus, AutomationRuleCreate } from '../types/api';
+import { MARKETING_TEMPLATES } from '../api/marketing-data';
+import type { Campaign, CampaignCreate, CampaignPatch, CampaignStatus, AutomationRuleCreate, AutomationRule, RuleAction } from '../types/api';
 
 const STATUS_FILTERS: { value: CampaignStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -51,88 +52,78 @@ interface CampaignRuleMock {
   abData: ABVariant[];
 }
 
-const CAMPAIGN_RULES_MOCK: CampaignRuleMock[] = [
-  {
-    id: 'cof_001',
-    code: 'COF-001',
-    name: 'Welcome Series',
-    triggerEvent: 'roaster.registered',
-    channel: 'email',
-    subjectA: 'Explore Specialty Lots on Greensheet',
-    subjectB: 'Source Traceable Green Coffee Direct',
-    openRateA: 64.2,
-    openRateB: 58.7,
-    status: 'converted',
-    abData: [
-      { name: 'Variant A (Subject A)', sampleSize: 1240, conversions: 198, convRate: 15.96, ciLower: 14.2, ciUpper: 17.8, probBest: 97.4, status: 'winner' },
-      { name: 'Variant B (Subject B)', sampleSize: 1245, conversions: 142, convRate: 11.40, ciLower: 9.8, ciUpper: 13.1, probBest: 2.6, status: 'loser' }
-    ]
-  },
-  {
-    id: 'cof_002',
-    code: 'COF-002',
-    name: 'Kit Follow-up',
-    triggerEvent: 'sample_kit.delivered',
-    channel: 'email',
-    subjectA: 'Your sample kit has arrived! Let\'s cup.',
-    subjectB: 'Share your feedback on the latest samples',
-    openRateA: 72.8,
-    openRateB: 75.3,
-    status: 'active',
-    abData: [
-      { name: 'Variant A (Subject A)', sampleSize: 620, conversions: 112, convRate: 18.06, ciLower: 15.3, ciUpper: 21.0, probBest: 38.5, status: 'running' },
-      { name: 'Variant B (Subject B)', sampleSize: 618, conversions: 128, convRate: 20.71, ciLower: 17.9, ciUpper: 23.8, probBest: 61.5, status: 'running' }
-    ]
-  },
-  {
-    id: 'cof_003',
-    code: 'COF-003',
-    name: 'Score Report',
-    triggerEvent: 'lot.score_published',
-    channel: 'email',
-    subjectA: 'New 90+ SCA Lot Released',
-    subjectB: 'Fresh Arrivals: SCA Cupping Scores inside',
-    openRateA: 84.1,
-    openRateB: 88.5,
-    status: 'idle',
-    abData: [
-      { name: 'Variant A (Subject A)', sampleSize: 310, conversions: 68, convRate: 21.93, ciLower: 17.8, ciUpper: 26.5, probBest: 12.0, status: 'loser' },
-      { name: 'Variant B (Subject B)', sampleSize: 315, conversions: 94, convRate: 29.84, ciLower: 25.1, ciUpper: 34.9, probBest: 88.0, status: 'winner' }
-    ]
-  },
-  {
-    id: 'cof_004',
-    code: 'COF-004',
-    name: 'SMS Alerts',
-    triggerEvent: 'lot.out_of_stock',
-    channel: 'sms',
-    subjectA: 'SMS Variant A: Lot [Origin] is 90% reserved.',
-    subjectB: 'SMS Variant B: Alert: Only [Lbs] remaining of [Origin].',
-    openRateA: 95.0,
-    openRateB: 97.2,
-    status: 'idle',
-    abData: [
-      { name: 'Variant A (Standard SMS)', sampleSize: 850, conversions: 42, convRate: 4.94, ciLower: 3.7, ciUpper: 6.4, probBest: 5.5, status: 'loser' },
-      { name: 'Variant B (Urgency Alert)', sampleSize: 848, conversions: 78, convRate: 9.20, ciLower: 7.5, ciUpper: 11.2, probBest: 94.5, status: 'winner' }
-    ]
-  },
-  {
-    id: 'cof_005',
-    code: 'COF-005',
-    name: 'Suppression CRM',
-    triggerEvent: 'roaster.dormant_30d',
-    channel: 'system',
-    subjectA: 'Log CRM Intervention Task',
-    subjectB: 'Trigger 10% Save Offer Workflow',
-    openRateA: 100,
-    openRateB: 100,
-    status: 'idle',
-    abData: [
-      { name: 'Variant A (Task Assignment)', sampleSize: 140, conversions: 35, convRate: 25.00, ciLower: 18.5, ciUpper: 32.7, probBest: 50.0, status: 'running' },
-      { name: 'Variant B (Automatic Coupon)', sampleSize: 142, conversions: 36, convRate: 25.35, ciLower: 18.8, ciUpper: 33.1, probBest: 50.0, status: 'running' }
-    ]
+const RULE_STATUS_BY_CODE: Record<string, CampaignRuleMock['status']> = {
+  'COF-001': 'converted',
+  'COF-002': 'active',
+  'COF-003': 'idle',
+  'COF-004': 'idle',
+  'COF-005': 'idle',
+};
+
+function findSendTemplate(rule: AutomationRule): RuleAction | undefined {
+  return rule.actions.find((a) => a.actionType === 'SEND_TEMPLATE');
+}
+
+function findRuleTemplate(rule: AutomationRule) {
+  const send = findSendTemplate(rule);
+  if (!send?.templateId) return undefined;
+  return MARKETING_TEMPLATES.find((t) => t.id === send.templateId);
+}
+
+function buildABVariant(
+  label: string,
+  sampleSize: number,
+  rate: number,
+  probabilityBest: number,
+  status: ABVariant['status'],
+): ABVariant {
+  const conversions = Math.round(sampleSize * (rate / 100));
+  const convRate = (conversions / sampleSize) * 100;
+  return {
+    name: label,
+    sampleSize,
+    conversions,
+    convRate,
+    ciLower: Math.max(0, convRate - 2),
+    ciUpper: Math.min(100, convRate + 2),
+    probBest: probabilityBest * 100,
+    status,
+  };
+}
+
+function buildCampaignRuleMock(rule: AutomationRule): CampaignRuleMock | null {
+  const template = findRuleTemplate(rule);
+  if (!template) return null;
+
+  const { subjectA, subjectB, metrics, channel } = template;
+  const openRateA = metrics.openRateA ?? 0;
+  const openRateB = metrics.openRateB ?? null;
+  const sampleSize = 600;
+
+  const abData: ABVariant[] = [];
+
+  if (subjectB != null && openRateB != null && channel === 'email') {
+    const aWins = openRateA >= openRateB;
+    abData.push(buildABVariant(`Variant A (${subjectA.slice(0, 40)}…)`, sampleSize, openRateA, aWins ? 0.68 : 0.32, aWins ? 'winner' : 'loser'));
+    abData.push(buildABVariant(`Variant B (${subjectB.slice(0, 40)}…)`, sampleSize, openRateB, aWins ? 0.32 : 0.68, aWins ? 'loser' : 'winner'));
+  } else {
+    abData.push(buildABVariant(`Variant A (${subjectA.slice(0, 40)}…)`, sampleSize, openRateA, 1.0, 'running'));
   }
-];
+
+  return {
+    id: rule.id,
+    code: rule.ruleCode,
+    name: rule.ruleName,
+    triggerEvent: rule.triggerEvent,
+    channel,
+    subjectA,
+    subjectB: subjectB ?? '',
+    openRateA,
+    openRateB: openRateB ?? 0,
+    status: RULE_STATUS_BY_CODE[rule.ruleCode] ?? 'idle',
+    abData,
+  };
+}
 
 const MOCK_LINE_DATA = [
   { name: 'Week 1', opens: 400, clicks: 240, conversions: 120 },
@@ -180,9 +171,7 @@ export const CampaignsPage: React.FC = () => {
   );
 
   const activeRule = campaignRules[activeRuleIndex] || null;
-  const currentRuleMock = activeRule
-    ? CAMPAIGN_RULES_MOCK.find((m) => m.code === activeRule.ruleCode) || null
-    : null;
+  const currentRuleMock = activeRule ? buildCampaignRuleMock(activeRule) : null;
 
   useEffect(() => {
     void loadCampaigns({ status: statusFilter === 'all' ? undefined : [statusFilter] });
@@ -584,9 +573,9 @@ export const CampaignsPage: React.FC = () => {
                       <div className="absolute left-4 right-4 h-0.5 bg-recessed z-0" />
                       {campaignRules.map((rule, idx) => {
                         const isSelected = activeRuleIndex === idx;
-                        const mock = CAMPAIGN_RULES_MOCK.find((m) => m.code === rule.ruleCode);
-                        const isConverted = mock?.status === 'converted';
-                        const isActive = mock?.status === 'active';
+                        const ruleStatus = RULE_STATUS_BY_CODE[rule.ruleCode] ?? 'idle';
+                        const isConverted = ruleStatus === 'converted';
+                        const isActive = ruleStatus === 'active';
 
                         let medallionClass = 'bg-recessed text-muted border-transparent';
                         if (isConverted) medallionClass = 'bg-gold text-ink font-bold border-gold shadow-sm';
@@ -656,21 +645,23 @@ export const CampaignsPage: React.FC = () => {
                                 "{currentRuleMock.subjectA}"
                               </p>
                               <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
-                                <div className="h-full bg-teal" style={{ width: `${currentRuleMock.openRateA}%` }} />
+                                <div className="h-full bg-teal" style={{ width: `${Math.min(100, currentRuleMock.openRateA)}%` }} />
                               </div>
                             </div>
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-xs font-mono">
-                                <span className="font-bold text-ink">Variant B</span>
-                                <span className="figure text-teal">{currentRuleMock.openRateB}% open rate</span>
+                            {currentRuleMock.channel === 'email' && currentRuleMock.subjectB && (
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-xs font-mono">
+                                  <span className="font-bold text-ink">Variant B</span>
+                                  <span className="figure text-teal">{currentRuleMock.openRateB}% open rate</span>
+                                </div>
+                                <p className="text-sm text-ink font-sans pl-2 border-l-2 border-teal/20">
+                                  "{currentRuleMock.subjectB}"
+                                </p>
+                                <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
+                                  <div className="h-full bg-teal/55" style={{ width: `${Math.min(100, currentRuleMock.openRateB)}%` }} />
+                                </div>
                               </div>
-                              <p className="text-sm text-ink font-sans pl-2 border-l-2 border-teal/20">
-                                "{currentRuleMock.subjectB}"
-                              </p>
-                              <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
-                                <div className="h-full bg-teal/55" style={{ width: `${currentRuleMock.openRateB}%` }} />
-                              </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
