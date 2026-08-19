@@ -1183,7 +1183,6 @@ export const api = {
       const kitDeliveries = referrals.filter((r) => statusIndex[r.status] >= 4).length;
       const feedbackSubmitted = referrals.filter((r) => statusIndex[r.status] >= 5).length;
       const qualifiedReferrals = referrals.filter((r) => r.status === 'qualified').length;
-      const clawedBack = referrals.filter((r) => r.status === 'clawed_back').length;
 
       const pendingRewardsCents = entries
         .filter((e) => e.type === 'referrer_credit' && e.status === 'pending')
