@@ -312,6 +312,12 @@ export interface CampaignFunnel {
   opened?: number;
   clicked?: number;
   ordered?: number;
+  // Extended fields for the COF nurture engine
+  feedbackSubmitted?: number;
+  responded?: number;
+  firstOrders?: number;
+  referralSent?: number;
+  reordered?: number;
 }
 
 export interface CampaignVariant {
