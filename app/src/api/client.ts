@@ -6,6 +6,7 @@ import type {
   Campaign,
   CampaignCreate,
   CampaignLiftRow,
+  CampaignPatch,
   CampaignPerformance,
   CampaignVariant,
   ChurnRisk,
@@ -1007,9 +1008,10 @@ export const api = {
         },
       };
     },
-    cacByChannel: async (): Promise<ApiResult<{ channels: CacChannelRow[] }>> => {
+    cacByChannel: async (): Promise<ApiResult<{ channels: CacChannelRow[]; ceiling: number }>> => {
       return {
         data: {
+          ceiling: 500,
           channels: [
             { channel: 'Sample-kit program', cac: 210, spend: 126_000, newAccounts: 600 },
             { channel: 'Community & referral', cac: 95, spend: 19_000, newAccounts: 200 },

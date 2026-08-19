@@ -541,4 +541,41 @@ describe('analytics growth endpoints', () => {
     expect(stages[0]).toMatchObject({ stage: 'sent', count: 1000 });
     expect(stages[3]).toMatchObject({ stage: 'first_order', count: 166 });
   });
+
+  it('returns WTR points with numeric wtr', async () => {
+    const res = await api.analytics.wtr();
+    expect('data' in res).toBe(true);
+    expect(res.data!.points.length).toBeGreaterThan(0);
+    expect(res.data!.points.some((p) => typeof p.wtr === 'number')).toBe(true);
+  });
+
+  it('returns CAC by channel with $500 ceiling', async () => {
+    const res = await api.analytics.cacByChannel();
+    expect('data' in res).toBe(true);
+    expect(res.data!.ceiling).toBe(500);
+    expect(res.data!.channels.length).toBeGreaterThan(0);
+  });
+
+  it('returns k-factor metric with current and target', async () => {
+    const res = await api.analytics.kFactor();
+    expect('data' in res).toBe(true);
+    expect(res.data!.metric.current).toBe(0.58);
+    expect(res.data!.metric.target).toBe(0.6);
+  });
+
+  it('returns hazard heatmap rows covering all three segments', async () => {
+    const res = await api.analytics.hazardHeatmap();
+    expect('data' in res).toBe(true);
+    const segments = new Set(res.data!.rows.map((r) => r.segment));
+    expect(segments.has('micro')).toBe(true);
+    expect(segments.has('boutique')).toBe(true);
+    expect(segments.has('commercial')).toBe(true);
+  });
+
+  it('returns campaign lift with isSignificant booleans', async () => {
+    const res = await api.analytics.campaignLift();
+    expect('data' in res).toBe(true);
+    expect(res.data!.campaigns.length).toBeGreaterThan(0);
+    expect(res.data!.campaigns.some((c) => typeof c.isSignificant === 'boolean')).toBe(true);
+  });
 });
