@@ -13,6 +13,10 @@ import { createOrdersSlice, type OrdersSlice, initialOrdersState } from './slice
 import { createRulesSlice, type RulesSlice, initialRulesState } from './slices/rules-slice';
 import { createWebhooksSlice, type WebhooksSlice, initialWebhooksState } from './slices/webhooks-slice';
 import { createAnalyticsSlice, type AnalyticsSlice, initialAnalyticsState } from './slices/analytics-slice';
+import { createConnectionsSlice, type ConnectionsSlice, initialConnectionsState } from './slices/connections-slice';
+import { createSpacesSlice, type SpacesSlice, initialSpacesState } from './slices/spaces-slice';
+import { createFeedsSlice, type FeedsSlice, initialFeedsState } from './slices/feeds-slice';
+import { createReputationSlice, type ReputationSlice, initialReputationState } from './slices/reputation-slice';
 import { useAiStore } from './ai-store';
 
 export type RootStore = {
@@ -28,13 +32,17 @@ export type RootStore = {
   rules: RulesSlice;
   webhooks: WebhooksSlice;
   analytics: AnalyticsSlice;
+  connections: ConnectionsSlice;
+  spaces: SpacesSlice;
+  feeds: FeedsSlice;
+  reputation: ReputationSlice;
 };
 
 export const useRootStore = create<RootStore>()(
   devtools(
     persist(
       subscribeWithSelector(
-        immer((set) => ({
+        immer((set, get) => ({
           sourcing: createSourcingSlice(set),
           selection: createSelectionSlice(set),
           campaign: createCampaignSlice(set),
@@ -47,6 +55,10 @@ export const useRootStore = create<RootStore>()(
           rules: createRulesSlice(set),
           webhooks: createWebhooksSlice(set),
           analytics: createAnalyticsSlice(set),
+          connections: createConnectionsSlice(set, get),
+          spaces: createSpacesSlice(set, get),
+          feeds: createFeedsSlice(set, get),
+          reputation: createReputationSlice(set, get),
         })),
       ),
       {
@@ -95,6 +107,10 @@ export const useOrders = () => useRootStore((s) => s.orders);
 export const useRules = () => useRootStore((s) => s.rules);
 export const useWebhooks = () => useRootStore((s) => s.webhooks);
 export const useAnalytics = () => useRootStore((s) => s.analytics);
+export const useConnections = () => useRootStore((s) => s.connections);
+export const useSpaces = () => useRootStore((s) => s.spaces);
+export const useFeeds = () => useRootStore((s) => s.feeds);
+export const useReputation = () => useRootStore((s) => s.reputation);
 
 export function resetStore() {
   useAiStore.getState().resetAi();
@@ -107,5 +123,9 @@ export function resetStore() {
     rules: { ...state.rules, ...initialRulesState },
     webhooks: { ...state.webhooks, ...initialWebhooksState },
     analytics: { ...state.analytics, ...initialAnalyticsState },
+    connections: { ...state.connections, ...initialConnectionsState },
+    spaces: { ...state.spaces, ...initialSpacesState },
+    feeds: { ...state.feeds, ...initialFeedsState },
+    reputation: { ...state.reputation, ...initialReputationState },
   }));
 }
