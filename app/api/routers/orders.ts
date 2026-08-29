@@ -5,6 +5,7 @@ import { createRouter, publicQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { coffeeLots, orderLineItems, orders, roasters } from "@db/schema";
 import { emitEvent } from "../engine";
+import { accrueRevenueShareForOrder } from "./partners";
 import { ORDER_TRANSITIONS, FLAT_SHIPPING_CENTS } from "@contracts/constants";
 
 export const ordersRouter = createRouter({
@@ -168,6 +169,8 @@ export const ordersRouter = createRouter({
             ltvCents,
           });
         }
+        // Revenue Share Agreement — accrue the partner's share on final sale.
+        await accrueRevenueShareForOrder(order.id);
       }
       return { ok: true };
     }),

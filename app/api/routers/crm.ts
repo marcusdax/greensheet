@@ -46,6 +46,24 @@ export const crmRouter = createRouter({
       return db.query.roasters.findFirst({ where: eq(roasters.id, id) });
     }),
 
+  // WhatsApp channel opt-in — E.164 number stored on the roaster record.
+  setWhatsapp: publicQuery
+    .input(z.object({ roasterId: z.number(), whatsappNumber: z.string().min(7).max(40) }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const roaster = await db.query.roasters.findFirst({ where: eq(roasters.id, input.roasterId) });
+      if (!roaster) throw new TRPCError({ code: "NOT_FOUND", message: "GS-CRM-1000 · roaster not found" });
+      await db
+        .update(roasters)
+        .set({ whatsappNumber: input.whatsappNumber, lastActivityAt: new Date() })
+        .where(eq(roasters.id, input.roasterId));
+      await emitEvent("crm.engagement_recorded", "roaster", input.roasterId, {
+        roasterId: input.roasterId,
+        engagementType: "whatsapp_opt_in",
+      });
+      return { ok: true };
+    }),
+
   setLifecycle: publicQuery
     .input(z.object({ roasterId: z.number(), stage: z.enum(LIFECYCLE_STAGES) }))
     .mutation(async ({ input }) => {
