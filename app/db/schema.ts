@@ -62,6 +62,7 @@ export const roasters = mysqlTable(
     ltvCents: int("ltvCents").notNull().default(0),
     cacCents: int("cacCents").notNull().default(37800), // blended CAC $378
     referralCode: varchar("referralCode", { length: 40 }),
+    whatsappNumber: varchar("whatsappNumber", { length: 40 }), // E.164, e.g. +15551234567
     nurtureHalted: boolean("nurtureHalted").notNull().default(false), // COF-005
     lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -173,10 +174,10 @@ export const dispatches = mysqlTable(
     ruleCode: varchar("ruleCode", { length: 20 }).notNull(),
     campaignId: bigint("campaignId", { mode: "number", unsigned: true }).notNull(),
     roasterId: bigint("roasterId", { mode: "number", unsigned: true }).notNull(),
-    channel: mysqlEnum("channel", ["email", "sms", "crm", "system"]).notNull(),
+    channel: mysqlEnum("channel", ["email", "sms", "whatsapp", "crm", "system"]).notNull(),
     subject: varchar("subject", { length: 255 }).notNull().default(""),
     body: text("body").notNull(),
-    status: mysqlEnum("status", ["sent", "halted", "lifecycle_updated", "converted"])
+    status: mysqlEnum("status", ["sent", "queued", "halted", "lifecycle_updated", "converted"])
       .notNull()
       .default("sent"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -235,6 +236,297 @@ export const domainEvents = mysqlTable(
   (t) => [index("events_type_idx").on(t.eventType)],
 );
 
+// ─── Warehouse & Verification Context (warehouse runbooks) ───────────────────
+export const warehouseExceptions = mysqlTable(
+  "warehouse_exceptions",
+  {
+    id: serial("id").primaryKey(),
+    lotId: bigint("lotId", { mode: "number", unsigned: true }),
+    containerNumber: varchar("containerNumber", { length: 60 }).notNull().default(""),
+    exceptionType: mysqlEnum("exceptionType", [
+      "seal_compromise",
+      "weight_moisture_variance",
+      "quality_anomaly",
+      "partial_compromise",
+      "equipment_failure",
+      "customs_inspection",
+    ]).notNull(),
+    tier: int("tier").notNull(), // 1 | 2 | 3
+    status: mysqlEnum("status", [
+      "open",
+      "hard_hold",
+      "quarantine",
+      "investigating",
+      "resolved",
+      "closed",
+    ])
+      .notNull()
+      .default("open"),
+    disposition: mysqlEnum("disposition", [
+      "release",
+      "downgrade",
+      "reject_claim",
+      "reverify_partition",
+    ]),
+    description: text("description").notNull(),
+    rootCause: varchar("rootCause", { length: 255 }).notNull().default(""),
+    atFaultParty: mysqlEnum("atFaultParty", [
+      "supplier",
+      "carrier",
+      "customs",
+      "greensheet",
+      "indeterminate",
+    ]),
+    financialCents: int("financialCents").notNull().default(0), // credit/claim value
+    slaDueAt: timestamp("slaDueAt"),
+    resolvedAt: timestamp("resolvedAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("exceptions_tier_idx").on(t.tier), index("exceptions_status_idx").on(t.status)],
+);
+
+export const exceptionEvents = mysqlTable(
+  "exception_events",
+  {
+    id: serial("id").primaryKey(),
+    exceptionId: bigint("exceptionId", { mode: "number", unsigned: true }).notNull(),
+    note: varchar("note", { length: 500 }).notNull(),
+    actor: varchar("actor", { length: 120 }).notNull().default("system"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("exception_events_idx").on(t.exceptionId)],
+);
+
+// ─── Retained Samples & Cupping Context (retained-sample + cupping SOPs) ─────
+export const retainedSamples = mysqlTable(
+  "retained_samples",
+  {
+    id: serial("id").primaryKey(),
+    lotId: bigint("lotId", { mode: "number", unsigned: true }),
+    lotCode: varchar("lotCode", { length: 60 }).notNull(), // e.g. VN-26-001
+    containerNumber: varchar("containerNumber", { length: 60 }).notNull().default(""),
+    bagPosition: varchar("bagPosition", { length: 40 }).notNull().default("middle"),
+    pulledBy: varchar("pulledBy", { length: 120 }).notNull(),
+    storageLocation: varchar("storageLocation", { length: 120 }).notNull().default("Cabinet A"),
+    status: mysqlEnum("status", ["sealed", "opened", "destroyed", "lost"])
+      .notNull()
+      .default("sealed"),
+    openedCount: int("openedCount").notNull().default(0),
+    destructionEligibleAt: timestamp("destructionEligibleAt"),
+    destroyedAt: timestamp("destroyedAt"),
+    destructionMethod: varchar("destructionMethod", { length: 60 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("samples_lot_idx").on(t.lotId), index("samples_status_idx").on(t.status)],
+);
+
+export const sampleAccessLogs = mysqlTable(
+  "sample_access_logs",
+  {
+    id: serial("id").primaryKey(),
+    sampleId: bigint("sampleId", { mode: "number", unsigned: true }).notNull(),
+    accessedBy: varchar("accessedBy", { length: 120 }).notNull(),
+    purpose: varchar("purpose", { length: 255 }).notNull(),
+    quantityGrams: double("quantityGrams").notNull().default(0),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("access_logs_sample_idx").on(t.sampleId)],
+);
+
+export const cuppingSessions = mysqlTable(
+  "cupping_sessions",
+  {
+    id: serial("id").primaryKey(),
+    sampleId: bigint("sampleId", { mode: "number", unsigned: true }),
+    lotCode: varchar("lotCode", { length: 60 }).notNull(),
+    isPanel: boolean("isPanel").notNull().default(false),
+    cuppers: varchar("cuppers", { length: 255 }).notNull(), // comma-separated names w/ tier
+    // SCA 10-attribute scorecard (0.5-point precision), each 6–10 except overall 0–10
+    fragrance: double("fragrance").notNull(),
+    flavor: double("flavor").notNull(),
+    aftertaste: double("aftertaste").notNull(),
+    acidity: double("acidity").notNull(),
+    body: double("body").notNull(),
+    balance: double("balance").notNull(),
+    uniformity: double("uniformity").notNull(),
+    cleanliness: double("cleanliness").notNull(),
+    sweetness: double("sweetness").notNull(),
+    overall: double("overall").notNull(),
+    totalScore: double("totalScore").notNull(),
+    referenceScore: double("referenceScore"), // baseline of retained reference sample
+    deltaVsReference: double("deltaVsReference"),
+    toleranceBand: double("toleranceBand"), // ±2 Tier1 / ±1.5 Tier2 / ±1 Tier3
+    verdict: mysqlEnum("verdict", ["within_tolerance", "outside_tolerance", "red_flag"]),
+    redFlags: varchar("redFlags", { length: 255 }).notNull().default(""),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("cupping_lot_idx").on(t.lotCode)],
+);
+
+// ─── Partners Context (Revenue Share White-Glove Agreement) ──────────────────
+export const partners = mysqlTable(
+  "partners",
+  {
+    id: serial("id").primaryKey(),
+    partnerName: varchar("partnerName", { length: 255 }).notNull(),
+    partnerType: mysqlEnum("partnerType", ["farmer", "collector"]).notNull(),
+    originRegion: varchar("originRegion", { length: 120 }).notNull(),
+    partnerTier: mysqlEnum("partnerTier", ["tier_a", "tier_b", "tier_c"])
+      .notNull()
+      .default("tier_b"),
+    agreementStatus: mysqlEnum("agreementStatus", ["draft", "active", "terminated"])
+      .notNull()
+      .default("active"),
+    email: varchar("email", { length: 320 }).notNull().default(""),
+    phone: varchar("phone", { length: 40 }).notNull().default(""),
+    effectiveDate: timestamp("effectiveDate").defaultNow().notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("partners_type_idx").on(t.partnerType)],
+);
+
+// Exhibit D — Lot Addendum: floor price, protocol, delivery window per lot
+export const lotAddenda = mysqlTable(
+  "lot_addenda",
+  {
+    id: serial("id").primaryKey(),
+    partnerId: bigint("partnerId", { mode: "number", unsigned: true }).notNull(),
+    lotId: bigint("lotId", { mode: "number", unsigned: true }), // linked catalog lot (nullable)
+    lotCode: varchar("lotCode", { length: 60 }).notNull(),
+    processingProtocol: varchar("processingProtocol", { length: 255 }).notNull().default(""),
+    floorPricePerLbCents: int("floorPricePerLbCents").notNull(),
+    expectedQtyLbs: int("expectedQtyLbs").notNull().default(0),
+    deliveryWindow: varchar("deliveryWindow", { length: 120 }).notNull().default(""),
+    status: mysqlEnum("status", ["pending", "delivered", "verified", "sold", "settled"])
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("addenda_partner_idx").on(t.partnerId)],
+);
+
+// Floor payments + revenue share payments, each with a True Price Receipt (JSON)
+export const partnerPayments = mysqlTable(
+  "partner_payments",
+  {
+    id: serial("id").primaryKey(),
+    partnerId: bigint("partnerId", { mode: "number", unsigned: true }).notNull(),
+    addendumId: bigint("addendumId", { mode: "number", unsigned: true }).notNull(),
+    paymentType: mysqlEnum("paymentType", ["floor", "revenue_share"]).notNull(),
+    amountCents: int("amountCents").notNull(),
+    status: mysqlEnum("status", ["accrued", "paid", "held"]).notNull().default("accrued"),
+    receipt: text("receipt").notNull(), // JSON True Price Receipt
+    paidAt: timestamp("paidAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("payments_partner_idx").on(t.partnerId), index("payments_addendum_idx").on(t.addendumId)],
+);
+
+// Exhibit C — Collector pass-through: ≥80% of revenue share to identified farmers
+export const collectorPassThroughs = mysqlTable(
+  "collector_pass_throughs",
+  {
+    id: serial("id").primaryKey(),
+    partnerId: bigint("partnerId", { mode: "number", unsigned: true }).notNull(), // collector
+    addendumId: bigint("addendumId", { mode: "number", unsigned: true }).notNull(),
+    farmerName: varchar("farmerName", { length: 255 }).notNull(),
+    pctOfLot: double("pctOfLot").notNull(), // 0–100
+    floorOwedCents: int("floorOwedCents").notNull().default(0),
+    floorPaidAt: timestamp("floorPaidAt"),
+    rsOwedCents: int("rsOwedCents").notNull().default(0),
+    rsPaidAt: timestamp("rsPaidAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("pass_through_partner_idx").on(t.partnerId)],
+);
+
+// ─── Education Context (SOP library + training acknowledgments) ──────────────
+export const sopDocuments = mysqlTable(
+  "sop_documents",
+  {
+    id: serial("id").primaryKey(),
+    code: varchar("code", { length: 40 }).notNull().unique(), // e.g. SOP-WAREHOUSE-RB
+    title: varchar("title", { length: 255 }).notNull(),
+    category: mysqlEnum("category", ["warehouse", "cupping", "samples", "agreements", "marketing"]).notNull(),
+    summary: varchar("summary", { length: 500 }).notNull().default(""),
+    content: text("content").notNull(), // markdown body
+    version: varchar("version", { length: 20 }).notNull().default("1.0"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("sop_category_idx").on(t.category)],
+);
+
+export const sopAcknowledgments = mysqlTable(
+  "sop_acknowledgments",
+  {
+    id: serial("id").primaryKey(),
+    documentId: bigint("documentId", { mode: "number", unsigned: true }).notNull(),
+    personName: varchar("personName", { length: 120 }).notNull(),
+    role: varchar("role", { length: 120 }).notNull().default(""),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("sop_ack_doc_idx").on(t.documentId)],
+);
+
+// ─── Growth Context (teaser waitlists, referrals, marketing calendar) ────────
+export const waitlistSignups = mysqlTable(
+  "waitlist_signups",
+  {
+    id: serial("id").primaryKey(),
+    product: mysqlEnum("product", ["foundry", "lotspace"]).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 320 }).notNull(),
+    company: varchar("company", { length: 255 }).notNull().default(""),
+    interest: varchar("interest", { length: 500 }).notNull().default(""),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("waitlist_unique_idx").on(t.product, t.email)],
+);
+
+// "Give a Kit, Get a Bag" referral engine
+export const referrals = mysqlTable(
+  "referrals",
+  {
+    id: serial("id").primaryKey(),
+    code: varchar("code", { length: 40 }).notNull(), // the referral code used
+    referrerRoasterId: bigint("referrerRoasterId", { mode: "number", unsigned: true }).notNull(),
+    referredRoasterId: bigint("referredRoasterId", { mode: "number", unsigned: true }).notNull(),
+    status: mysqlEnum("status", ["signed_up", "kit_sent", "rewarded"]).notNull().default("signed_up"),
+    rewardNote: varchar("rewardNote", { length: 255 }).notNull().default(""),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("referrals_referrer_idx").on(t.referrerRoasterId)],
+);
+
+// Social series content calendar (POS-01…POS-04 pillars)
+export const marketingPosts = mysqlTable(
+  "marketing_posts",
+  {
+    id: serial("id").primaryKey(),
+    pillar: varchar("pillar", { length: 10 }).notNull(), // POS-01…POS-04
+    channel: mysqlEnum("channel", ["linkedin", "instagram", "twitter", "tiktok", "newsletter"]).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    body: text("body").notNull(),
+    week: int("week").notNull(), // 1–4 rollout
+    status: mysqlEnum("status", ["draft", "scheduled", "published"]).notNull().default("draft"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("posts_pillar_idx").on(t.pillar)],
+);
+
+// COF-004 trigger: pricing-link clicks
+export const pricingLinkClicks = mysqlTable(
+  "pricing_link_clicks",
+  {
+    id: serial("id").primaryKey(),
+    roasterId: bigint("roasterId", { mode: "number", unsigned: true }).notNull(),
+    lotId: bigint("lotId", { mode: "number", unsigned: true }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("clicks_roaster_idx").on(t.roasterId)],
+);
+
 // Inferred types
 export type CoffeeLot = typeof coffeeLots.$inferSelect;
 export type Roaster = typeof roasters.$inferSelect;
@@ -248,3 +540,18 @@ export type Dispatch = typeof dispatches.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderLineItem = typeof orderLineItems.$inferSelect;
 export type DomainEvent = typeof domainEvents.$inferSelect;
+export type WarehouseException = typeof warehouseExceptions.$inferSelect;
+export type ExceptionEvent = typeof exceptionEvents.$inferSelect;
+export type RetainedSample = typeof retainedSamples.$inferSelect;
+export type SampleAccessLog = typeof sampleAccessLogs.$inferSelect;
+export type CuppingSession = typeof cuppingSessions.$inferSelect;
+export type Partner = typeof partners.$inferSelect;
+export type LotAddendum = typeof lotAddenda.$inferSelect;
+export type PartnerPayment = typeof partnerPayments.$inferSelect;
+export type CollectorPassThrough = typeof collectorPassThroughs.$inferSelect;
+export type SopDocument = typeof sopDocuments.$inferSelect;
+export type SopAcknowledgment = typeof sopAcknowledgments.$inferSelect;
+export type WaitlistSignup = typeof waitlistSignups.$inferSelect;
+export type Referral = typeof referrals.$inferSelect;
+export type MarketingPost = typeof marketingPosts.$inferSelect;
+export type PricingLinkClick = typeof pricingLinkClicks.$inferSelect;
