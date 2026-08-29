@@ -67,10 +67,10 @@ async function recordDispatch(input: {
   ruleCode: string;
   campaignId: number;
   roasterId: number;
-  channel: "email" | "sms" | "crm" | "system";
+  channel: "email" | "sms" | "whatsapp" | "crm" | "system";
   subject: string;
   body: string;
-  status: "sent" | "halted" | "lifecycle_updated" | "converted";
+  status: "sent" | "queued" | "halted" | "lifecycle_updated" | "converted";
 }) {
   await getDb().insert(dispatches).values(input);
 }
@@ -194,6 +194,44 @@ async function evaluateRules(eventType: string, payload: Payload): Promise<void>
         await logEvent("crm.intervention_started", "roaster", roasterId, { roasterId, interventionType: "sales_call" });
       }
     }
+    return;
+  }
+
+  // ── COF-004: campaigns.link_clicked (pricing page) → Touch-3 volume CTA ───
+  if (eventType === "campaigns.link_clicked" && payload.clickedPricingPage === true) {
+    const armed = await ruleIsArmed("COF-004");
+    const roasterId = Number(payload.roasterId);
+    const roaster = await db.query.roasters.findFirst({ where: eq(roasters.id, roasterId) });
+    if (!armed || !roaster || roaster.nurtureHalted) return;
+
+    await logEvent("campaigns.rule_triggered", "rule", "COF-004", {
+      ruleCode: "COF-004",
+      roasterId,
+      lotId: payload.lotId,
+    });
+    await recordDispatch({
+      ruleCode: "COF-004",
+      campaignId: armed.campaign.id,
+      roasterId,
+      channel: "email",
+      subject: "Touch-3 · Volume tiers unlocked on the lot you priced",
+      body: `${roaster.contactName} — we noticed you reviewing pricing. Volume discounts unlock at 500 lbs (5%), 1,000 lbs (8%) and full-pallet (12%). Reply to lock a tier before this allocation moves.`,
+      status: "sent",
+    });
+    await recordDispatch({
+      ruleCode: "COF-004",
+      campaignId: armed.campaign.id,
+      roasterId,
+      channel: "whatsapp",
+      subject: "Volume CTA (WhatsApp)",
+      body: `Hi ${roaster.contactName}, volume tiers just opened on the lot you priced — 5% at 500 lbs, 8% at 1,000 lbs. Want me to hold allocation?`,
+      status: "queued",
+    });
+    await logEvent("campaigns.message_sent", "dispatch", `COF-004:${roasterId}`, {
+      ruleCode: "COF-004",
+      roasterId,
+      channel: "email",
+    });
     return;
   }
 
