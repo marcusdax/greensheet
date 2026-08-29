@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCents, LIFECYCLE_STAGES } from "@contracts/constants";
-import { Plus, RefreshCw, PhoneCall, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, RefreshCw, PhoneCall, CheckCircle2, XCircle, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const STAGE_STYLE: Record<string, string> = {
@@ -42,6 +42,10 @@ export default function Crm() {
   });
   const resolve = trpc.crm.resolveIntervention.useMutation({
     onSuccess: () => { invalidate(); utils.analytics.dashboard.invalidate(); toast.success("Intervention resolved"); },
+    onError: (e) => toast.error(e.message),
+  });
+  const setWhatsapp = trpc.crm.setWhatsapp.useMutation({
+    onSuccess: () => { invalidate(); toast.success("WhatsApp number saved"); },
     onError: (e) => toast.error(e.message),
   });
   const rescore = trpc.crm.rescoreChurn.useMutation({
@@ -122,7 +126,26 @@ export default function Crm() {
                   <TableCell>
                     <div className="font-medium">{r.roasterName}</div>
                     <div className="text-xs text-muted-foreground">{r.contactName} · {r.email}</div>
-                    {r.nurtureHalted && <Badge variant="outline" className="mt-1 text-[10px]">nurture halted (COF-005)</Badge>}
+                    <div className="flex items-center gap-1 mt-1">
+                      {r.nurtureHalted && <Badge variant="outline" className="text-[10px]">nurture halted (COF-005)</Badge>}
+                      {r.whatsappNumber ? (
+                        <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">
+                          <MessageCircle className="h-2.5 w-2.5 mr-0.5" /> {r.whatsappNumber}
+                        </Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 px-1.5 text-[10px] text-muted-foreground"
+                          onClick={() => {
+                            const num = window.prompt(`WhatsApp number for ${r.roasterName} (E.164, e.g. +15551234567)`);
+                            if (num) setWhatsapp.mutate({ roasterId: r.id, whatsappNumber: num.trim() });
+                          }}
+                        >
+                          <MessageCircle className="h-2.5 w-2.5 mr-0.5" /> add WhatsApp
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-xs">{r.segment}<br /><span className="text-muted-foreground capitalize">{r.companySize}</span></TableCell>
                   <TableCell>
