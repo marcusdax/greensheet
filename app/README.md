@@ -1,0 +1,65 @@
+# Greensheet Platform — Working Application
+
+A runnable full-stack implementation of the Greensheet expansion-pack specs (`../engineering/*.md`), built with React 19 + TypeScript + Vite + Tailwind + shadcn/ui on the front end, and Hono + tRPC 11 + Drizzle ORM (MySQL) on the back end.
+
+## Feature ↔ Spec Mapping
+
+| Feature (working) | Spec source |
+|---|---|
+| Catalog: lots, SCA cup-score badges, spot inventory, price changes, retire | `01-domain-model` §4.1, `02-openapi-contract` `/v1/catalog/lots` |
+| CRM: roaster accounts, lifecycle stages, LTV/CAC, churn hazard (0.70 threshold), interventions | `01-domain-model` §4.2, `04-database-evolution` |
+| Sample kits: state machine (requested→assembling→shipped→delivered→feedback), max 2 active kits, lot snapshots locked at assembly | `01-domain-model` §4.4 |
+| Campaigns: COF-001…005 rule engine, arm/disarm, per-send dispatch ledger | `01-domain-model` §4.3, `../marketing/02-cof-campaign-expansion.md` |
+| Orders: idempotent `CreateOrder`, atomic reservation, saga compensation on cancel (reservation released), LTV recalculation on delivery, revenue-share accrual on delivery | `01-domain-model` §4.5 |
+| Domain event outbox: every mutation emits its canonical event (`sample_kit.delivered`, `feedback.submitted`, `order.created`, …) into a queryable log | `01-domain-model` §6, `03-event-driven-pipeline` |
+| Analytics dashboard: KPIs, revenue time series, dispatch-by-channel donut, lot performance, cup-score distribution, exception tiers, campaign funnel, churn watchlist, live event stream | `01-domain-model` §4.6 |
+| Warehouse: exception runbooks (seal/weight/moisture classifiers), tiers 1–3 with SLAs (48h/5bd/10bd), hard hold on Tier ≥ 2, four dispositions, daily report | `../engineering/warehouse-runbooks-seal-weight-exceptions.md` |
+| QC Lab: retained samples (middle-bag pull, tamper-evident seal, access log, >5-open compromise flag, dual-witness destruction, active-exception block), SCA 10-attribute cupping with tolerance bands, red flags → Tier-3 escalation, 3-cupper panel enforcement | `../engineering/cupping-standards-sop.md`, `retained-sample-procedures.md` |
+| Partners: Revenue Share White-Glove agreement — floor payment on Tier-1 verification (never clawed back), revenue share by cup-quality tier (50/35/20/10/0%), $0.30/lb documented costs, True Price Receipts, collector pass-through ≥80%, partner tiers A/B/C floor SLAs | `../engineering/Revenue_Share_White_Glove_Farmer_Collector_Agreement.docx` |
+| Comms: email via SMTP when configured (honest "queued" ledger entry otherwise), WhatsApp via wa.me deep links with pre-filled templates, full dispatch ledger | `../marketing/02-cof-campaign-expansion.md` |
+| COF-004: pricing-link click (`campaigns.link_clicked`, `clickedPricingPage: true`) → Touch-3 volume-discount email + queued WhatsApp, suppressed when nurture halted | `../marketing/02-cof-campaign-expansion.md` |
+| Education: SOP library (warehouse runbooks, cupping standards, retained samples, partnership agreement, marketing playbook) with training acknowledgments | `../engineering/*sop*.md` |
+| Growth: "Give a Kit, Get a Bag" referral engine (signed_up → kit_sent → rewarded), POS-01…04 marketing calendar (4-week rollout), pricing-click telemetry | `../marketing/greensheet_social_series.md` |
+| Teasers: Flavor Foundry (13 process families / 110 processes × 14 sensory families, HOUSE/SEMI/DE NOVO tiers) + Lotspace coming-soon pages with deduplicated waitlists | `../marketing/flavor-foundry-menu.md` |
+
+## Canonical conventions preserved
+
+- Money is integer cents at rest (`*_cents`), dollars only at the presentation boundary.
+- Event strings are byte-identical to the marketing schema contract (`sample_kit.delivered`, `feedback.submitted`).
+- Automation actions: `SEND_EMAIL`, `SEND_SMS`, `UPDATE_CRM_LIFECYCLE`, `EXECUTE_CAMPAIGN_HALT`.
+- Merge tags rendered by the rule engine: `{roaster_name}`, `{origin}`, `{varietal}`, `{process_method}`, `{sca_cup_score}`, `{price_per_lb}`.
+- Economics: blended CAC $378 (referral CAC $196 via `GIVEKIT-`), churn hazard threshold 0.70.
+- Error model: `GS-CAT-1001 InsufficientInventory`, `GS-SMP-1001/1003/1004/1005`, `GS-ORD-1001`, etc.
+
+## Run
+
+```bash
+npm install
+npm run db:push               # sync schema (requires DATABASE_URL in .env)
+npm run db:seed               # 8 lots, 5 roasters, campaign cof-nurture-2025 + COF-001…005
+npm run db:seed:expansion     # SOP library, partners + addenda, marketing calendar, COF-004
+npm run dev                   # http://localhost:3000
+```
+
+Optional env for live email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`,
+`SMTP_SECURE`, `SMTP_FROM`. Without it, sends are honestly recorded as `queued`
+in the dispatch ledger. WhatsApp uses wa.me deep links (no Business API needed).
+
+## Verified flows (e2e)
+
+1. Request kit → deliver → **COF-001** Touch-1 email dispatched with rendered tokens.
+2. Feedback rating 5 → **COF-002** pricing-sheet email (per-lot snapshot pricing).
+3. Feedback rating 2 → **COF-003** lifecycle → `needs_attention`, churn risk ≥ 0.72, consultative SMS, sales-call intervention opened.
+4. First order → inventory reserved atomically → **COF-005** nurture halted + conversion recorded.
+5. Re-submitting `CreateOrder` with the same idempotency key returns the original order (no double charge).
+6. Cancel releases the reservation back to the lot (`catalog.reservation_released`).
+7. Delivery recalculates discounted LTV and writes back to the roaster record.
+8. Seal-broken receiving check → Tier 3 exception, hard hold, 10bd SLA → resolved Reject & Claim (carrier at fault).
+9. Retained sample pull → access log → dual-witness destruction guard (GS-QC-1003) and active-exception block (GS-QC-1004).
+10. Red-flag cupping → verdict `red_flag` + automatic Tier-3 escalation event; single-cupper Tier 2 session rejected (GS-QC-1005).
+11. Addendum verification → floor payment accrued with True Price Receipt; double accrual rejected (GS-PRT-1002).
+12. Order delivered on an addendum-linked lot → revenue share auto-accrued (net = sale − floor − $0.30/lb costs, tier % by cup score).
+13. Pricing-link click → **COF-004** Touch-3 email + queued WhatsApp (suppressed for nurture-halted accounts).
+14. Waitlist signup deduplication per product+email; referral advanced signed_up → kit_sent → rewarded.
+
+*An ODASI Technologies product — Navigate Your Reality. Own Your Journey.*
