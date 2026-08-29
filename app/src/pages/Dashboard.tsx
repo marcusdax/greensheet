@@ -4,7 +4,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatCents } from "@contracts/constants";
-import { Activity, Coffee, DollarSign, Megaphone, ShoppingCart, Users, AlertTriangle, Trophy } from "lucide-react";
+import {
+  Activity,
+  Coffee,
+  DollarSign,
+  Megaphone,
+  ShoppingCart,
+  Users,
+  AlertTriangle,
+  Trophy,
+  Handshake,
+  MousePointerClick,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
 
 const EVENT_COLORS: Record<string, string> = {
   catalog: "bg-emerald-100 text-emerald-800",
@@ -14,7 +40,25 @@ const EVENT_COLORS: Record<string, string> = {
   feedback: "bg-amber-100 text-amber-800",
   campaigns: "bg-violet-100 text-violet-800",
   order: "bg-green-100 text-green-800",
+  warehouse: "bg-orange-100 text-orange-800",
+  qc: "bg-teal-100 text-teal-800",
+  partners: "bg-yellow-100 text-yellow-800",
+  comms: "bg-blue-100 text-blue-800",
+  growth: "bg-pink-100 text-pink-800",
+  education: "bg-indigo-100 text-indigo-800",
 };
+
+const CHANNEL_COLORS: Record<string, string> = {
+  email: "#16382a",
+  whatsapp: "#25D366",
+  sms: "#d9a441",
+  crm: "#5B6A5F",
+  system: "#94a3b8",
+};
+
+const TIER_COLORS: Record<string, string> = { "1": "#f59e0b", "2": "#f97316", "3": "#dc2626" };
+
+const usd = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
 export default function Dashboard() {
   const { data } = trpc.analytics.dashboard.useQuery(undefined, { refetchInterval: 5000 });
@@ -27,7 +71,19 @@ export default function Dashboard() {
     );
   }
 
-  const { kpis, funnel, lifecycleDist, churnRiskList, events } = data;
+  const {
+    kpis,
+    funnel,
+    lifecycleDist,
+    churnRiskList,
+    events,
+    revenueSeries,
+    channelDist,
+    orderStatusDist,
+    exceptionsByTier,
+    lotPerformance,
+    scoreBuckets,
+  } = data;
   const maxFunnel = Math.max(1, ...funnel.map((f) => f.value));
 
   const kpiCards = [
@@ -39,13 +95,28 @@ export default function Dashboard() {
     { label: "Messages sent", value: kpis.messagesSent, icon: Megaphone },
     { label: "Conversions", value: kpis.conversions, icon: Trophy },
     { label: "High churn risk", value: kpis.highRisk, icon: AlertTriangle },
+    { label: "Open exceptions", value: kpis.openExceptions, icon: AlertTriangle },
+    { label: "Pricing clicks", value: kpis.pricingClicks, icon: MousePointerClick },
+    { label: "Floor accrued", value: formatCents(kpis.floorAccruedCents), icon: Handshake },
+    { label: "Rev-share accrued", value: formatCents(kpis.revenueShareAccruedCents), icon: Handshake },
   ];
+
+  const channelData = Object.entries(channelDist).map(([channel, count]) => ({
+    name: channel,
+    value: count,
+  }));
+  const tierData = Object.entries(exceptionsByTier)
+    .filter(([, v]) => v > 0)
+    .map(([tier, count]) => ({ name: `Tier ${tier}`, value: count, tier }));
 
   return (
     <Layout>
-      <PageHeader title="Greensheet Operations Dashboard" sub="COF-001–005 nurture funnel · live domain event stream" />
+      <PageHeader
+        title="Greensheet Operations Dashboard"
+        sub="Trade, comms, warehouse & partner telemetry · live domain event stream"
+      />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 mb-6">
         {kpiCards.map(({ label, value, icon: Icon }) => (
           <Card key={label}>
             <CardContent className="pt-5 flex items-center gap-3">
@@ -61,7 +132,134 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Revenue + channel row */}
       <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Revenue & order volume</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            {revenueSeries.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueSeries} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#16382a" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#16382a" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" />
+                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                  <YAxis yAxisId="rev" tickFormatter={(v: number) => usd(v)} tick={{ fontSize: 11 }} width={70} />
+                  <YAxis yAxisId="ord" orientation="right" allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
+                  <Tooltip
+                    formatter={(value: number | string, name: string) =>
+                      name === "Revenue" ? [usd(Number(value)), name] : [value, name]
+                    }
+                  />
+                  <Legend />
+                  <Area yAxisId="rev" type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16382a" fill="url(#rev)" strokeWidth={2} />
+                  <Bar yAxisId="ord" dataKey="orders" name="Orders" fill="#d9a441" radius={[3, 3, 0, 0]} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart label="No orders yet — revenue appears here as orders are placed." />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dispatch volume by channel</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            {channelData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={channelData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={3} label={(p) => `${p.name} ${p.value}`} fontSize={11}>
+                    {channelData.map((d) => (
+                      <Cell key={d.name} fill={CHANNEL_COLORS[d.name] ?? "#94a3b8"} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart label="No dispatches yet." />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Lot performance + quality + exceptions row */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Top lots by lbs sold</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            {lotPerformance.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={lotPerformance} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10 }} />
+                  <Tooltip formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
+                  <Bar dataKey="lbs" fill="#16382a" radius={[0, 3, 3, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart label="No line items yet." />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Cup score distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            {scoreBuckets.some((b) => b.count > 0) ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={scoreBuckets} margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" vertical={false} />
+                  <XAxis dataKey="band" tick={{ fontSize: 11 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" name="Sessions" fill="#d9a441" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart label="No cupping sessions yet — record one in the QC Lab." />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Exceptions by tier</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            {tierData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={tierData} dataKey="value" nameKey="name" outerRadius={80} label={(p) => `${p.name} (${p.value})`} fontSize={11}>
+                    {tierData.map((d) => (
+                      <Cell key={d.tier} fill={TIER_COLORS[d.tier]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart label="No warehouse exceptions on record." />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Funnel + lifecycle + churn + order status row */}
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader><CardTitle className="text-base">Campaign funnel</CardTitle></CardHeader>
           <CardContent className="space-y-3">
@@ -88,6 +286,21 @@ export default function Dashboard() {
             ))}
             {Object.keys(lifecycleDist).length === 0 && (
               <p className="text-sm text-muted-foreground">No roasters yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Order status</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {Object.entries(orderStatusDist).map(([stage, count]) => (
+              <div key={stage} className="flex items-center justify-between text-sm">
+                <Badge variant="outline" className="capitalize">{stage}</Badge>
+                <span className="font-semibold">{count}</span>
+              </div>
+            ))}
+            {Object.keys(orderStatusDist).length === 0 && (
+              <p className="text-sm text-muted-foreground">No orders yet.</p>
             )}
           </CardContent>
         </Card>
@@ -135,5 +348,13 @@ export default function Dashboard() {
         </CardContent>
       </Card>
     </Layout>
+  );
+}
+
+function EmptyChart({ label }: { label: string }) {
+  return (
+    <div className="h-full flex items-center justify-center text-sm text-muted-foreground text-center px-6">
+      {label}
+    </div>
   );
 }
