@@ -43,7 +43,7 @@ export default function Campaigns() {
       />
 
       <div className="space-y-6">
-        {data?.campaigns.map((c) => (
+        {data?.map((c) => (
           <Card key={c.id}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -62,7 +62,7 @@ export default function Campaigns() {
                         <span className="font-mono text-sm font-semibold">{r.ruleCode}</span>
                         <Switch
                           checked={r.active}
-                          onCheckedChange={(active) => toggle.mutate({ ruleId: r.id, active })}
+                          onCheckedChange={(active) => toggle.mutate({ ruleCode: r.ruleCode, active })}
                         />
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

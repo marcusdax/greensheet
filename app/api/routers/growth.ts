@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, publicQuery, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   coffeeLots,
@@ -40,7 +40,7 @@ export const growthRouter = createRouter({
       return { ok: true, alreadyJoined: false, position: id };
     }),
 
-  waitlist: publicQuery.query(async () => {
+  waitlist: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(waitlistSignups).orderBy(desc(waitlistSignups.id));
     return {
@@ -53,7 +53,7 @@ export const growthRouter = createRouter({
   }),
 
   // ── Referrals — "Give a Kit, Get a Bag" ──────────────────────────────────
-  createReferral: publicQuery
+  createReferral: staffProcedure
     .input(
       z.object({
         referrerRoasterId: z.number(),
@@ -88,7 +88,7 @@ export const growthRouter = createRouter({
     }),
 
   // Advance the referral: signed_up → kit_sent → rewarded (both sides get a bag).
-  advanceReferral: publicQuery
+  advanceReferral: staffProcedure
     .input(z.object({ referralId: z.number(), target: z.enum(["kit_sent", "rewarded"] as const) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -118,7 +118,7 @@ export const growthRouter = createRouter({
       return { ok: true };
     }),
 
-  referrals: publicQuery.query(async () => {
+  referrals: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(referrals).orderBy(desc(referrals.id));
     const rosterRows = await db.select().from(roasters);
@@ -131,13 +131,13 @@ export const growthRouter = createRouter({
   }),
 
   // ── Marketing calendar (POS-01…POS-04 social series) ────────────────────
-  marketingCalendar: publicQuery.query(async () => {
+  marketingCalendar: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(marketingPosts).orderBy(marketingPosts.week, marketingPosts.id);
     return rows;
   }),
 
-  setPostStatus: publicQuery
+  setPostStatus: staffProcedure
     .input(z.object({ postId: z.number(), status: z.enum(["draft", "scheduled", "published"] as const) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -176,7 +176,7 @@ export const growthRouter = createRouter({
       return { ok: true };
     }),
 
-  pricingClicks: publicQuery.query(async () => {
+  pricingClicks: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(pricingLinkClicks).orderBy(desc(pricingLinkClicks.id)).limit(100);
     const rosterRows = await db.select().from(roasters);

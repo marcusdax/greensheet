@@ -3,7 +3,7 @@
 // anomaly, partial compromise, equipment failure, customs, escalation).
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   warehouseExceptions,
@@ -84,7 +84,7 @@ const createInput = z.object({
 });
 
 export const warehouseRouter = createRouter({
-  list: publicQuery.query(async () => {
+  list: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db
       .select()
@@ -109,7 +109,7 @@ export const warehouseRouter = createRouter({
   }),
 
   /** Classify a receiving measurement without persisting (wizard preview). */
-  classify: publicQuery
+  classify: staffProcedure
     .input(
       z.object({
         kind: z.enum(["seal", "weight_moisture"]),
@@ -135,7 +135,7 @@ export const warehouseRouter = createRouter({
       });
     }),
 
-  create: publicQuery.input(createInput).mutation(async ({ input }) => {
+  create: staffProcedure.input(createInput).mutation(async ({ input }) => {
     const db = getDb();
     const slaDueAt = new Date(Date.now() + TIER_SLA_HOURS[input.tier] * 3600 * 1000);
     // Tier 3 and most Tier 2 start as hard hold (Runbook: containment first).
@@ -158,7 +158,7 @@ export const warehouseRouter = createRouter({
     return { id, status, slaDueAt };
   }),
 
-  advance: publicQuery
+  advance: staffProcedure
     .input(
       z.object({
         exceptionId: z.number().int().positive(),
@@ -182,7 +182,7 @@ export const warehouseRouter = createRouter({
     }),
 
   /** Close with one of the four dispositions (supplier agreement Section B.1). */
-  resolve: publicQuery
+  resolve: staffProcedure
     .input(
       z.object({
         exceptionId: z.number().int().positive(),
@@ -224,7 +224,7 @@ export const warehouseRouter = createRouter({
     }),
 
   /** End-of-day warehouse report data (runbook template). */
-  dailyReport: publicQuery.query(async () => {
+  dailyReport: staffProcedure.query(async () => {
     const db = getDb();
     const all = await db.select().from(warehouseExceptions).orderBy(desc(warehouseExceptions.id));
     const today = new Date().toDateString();

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, analystProcedure, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   automationRules,
@@ -22,7 +22,7 @@ import {
 import { emitEvent, recentEvents } from "../engine";
 
 export const campaignsRouter = createRouter({
-  overview: publicQuery.query(async () => {
+  overview: staffProcedure.query(async () => {
     const db = getDb();
     const campaignRows = await db.select().from(campaigns);
     const rules = await db.select().from(automationRules).orderBy(automationRules.ruleCode);
@@ -39,7 +39,7 @@ export const campaignsRouter = createRouter({
     }));
   }),
 
-  dispatches: publicQuery.query(async () => {
+  dispatches: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(dispatches).orderBy(desc(dispatches.id)).limit(100);
     const rosterRows = await db.select().from(roasters);
@@ -47,7 +47,7 @@ export const campaignsRouter = createRouter({
     return rows.map((d) => ({ ...d, roasterName: rosterMap.get(d.roasterId) ?? "—" }));
   }),
 
-  toggleRule: publicQuery
+  toggleRule: staffProcedure
     .input(z.object({ ruleCode: z.string(), active: z.boolean() }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -65,7 +65,7 @@ export const campaignsRouter = createRouter({
 });
 
 export const analyticsRouter = createRouter({
-  dashboard: publicQuery.query(async () => {
+  dashboard: analystProcedure.query(async () => {
     const db = getDb();
     const [
       lots,
@@ -225,7 +225,7 @@ export const analyticsRouter = createRouter({
     };
   }),
 
-  events: publicQuery.input(z.object({ limit: z.number().default(50) })).query(async ({ input }) => {
+  events: analystProcedure.input(z.object({ limit: z.number().default(50) })).query(async ({ input }) => {
     return recentEvents(input.limit);
   }),
 });

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   LayoutDashboard,
   Coffee,
@@ -13,43 +13,70 @@ import {
   Send,
   GraduationCap,
   Rocket,
+  LogOut,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth";
+import { trpc } from "@/providers/trpc";
+import { ROLE_LABELS, type UserRole } from "@contracts/constants";
 import type { ReactNode } from "react";
 
-const NAV_GROUPS: { label: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[] = [
+const STAFF: UserRole[] = ["platform_admin", "ops_manager"];
+const ALL_ROLES: UserRole[] = ["platform_admin", "ops_manager", "sales_csm", "analyst", "roaster_buyer"];
+const READERS: UserRole[] = ["platform_admin", "ops_manager", "sales_csm", "analyst"];
+
+const NAV_GROUPS: {
+  label: string;
+  items: { to: string; label: string; icon: typeof LayoutDashboard; roles: UserRole[] }[];
+}[] = [
   {
     label: "Trade",
     items: [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/catalog", label: "Catalog", icon: Coffee },
-      { to: "/orders", label: "Orders", icon: ShoppingCart },
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, roles: READERS },
+      { to: "/catalog", label: "Catalog", icon: Coffee, roles: ALL_ROLES },
+      { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
     ],
   },
   {
     label: "Relationships",
     items: [
-      { to: "/crm", label: "CRM", icon: Users },
-      { to: "/samples", label: "Sample Kits", icon: Package },
-      { to: "/campaigns", label: "Campaigns", icon: Megaphone },
-      { to: "/comms", label: "Comms", icon: Send },
-      { to: "/growth", label: "Growth", icon: Rocket },
+      { to: "/crm", label: "CRM", icon: Users, roles: READERS },
+      { to: "/samples", label: "Sample Kits", icon: Package, roles: [...STAFF, "sales_csm", "roaster_buyer"] },
+      { to: "/campaigns", label: "Campaigns", icon: Megaphone, roles: STAFF },
+      { to: "/comms", label: "Comms", icon: Send, roles: STAFF },
+      { to: "/growth", label: "Growth", icon: Rocket, roles: STAFF },
     ],
   },
   {
     label: "Operations",
     items: [
-      { to: "/warehouse", label: "Warehouse", icon: WarehouseIcon },
-      { to: "/qc", label: "QC Lab", icon: FlaskConical },
-      { to: "/partners", label: "Partners", icon: Handshake },
-      { to: "/education", label: "Education", icon: GraduationCap },
+      { to: "/warehouse", label: "Warehouse", icon: WarehouseIcon, roles: STAFF },
+      { to: "/qc", label: "QC Lab", icon: FlaskConical, roles: STAFF },
+      { to: "/partners", label: "Partners", icon: Handshake, roles: STAFF },
+      { to: "/education", label: "Education", icon: GraduationCap, roles: ALL_ROLES },
     ],
   },
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const utils = trpc.useUtils();
+  const logout = trpc.auth.logout.useMutation({
+    onSettled: async () => {
+      await utils.invalidate();
+      navigate("/login", { replace: true });
+    },
+  });
+
+  const role = user?.role;
+  const visibleGroups = NAV_GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((item) => role != null && item.roles.includes(role)),
+  })).filter((g) => g.items.length > 0);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 w-60 border-r border-border bg-[#16382a] text-[#eaf2ec] flex flex-col">
@@ -63,7 +90,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.label}>
               <div className="px-3 pb-1 text-[10px] uppercase tracking-widest text-[#7fa48e]">
                 {group.label}
@@ -88,21 +115,40 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className="p-4 space-y-2 border-t border-white/10 shrink-0">
-          <div className="flex gap-2">
-            <Link
-              to="/foundry"
-              className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
-            >
-              Flavor Foundry
-            </Link>
-            <Link
-              to="/lotspace"
-              className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
-            >
-              Lotspace
-            </Link>
-          </div>
+        <div className="p-4 space-y-3 border-t border-white/10 shrink-0">
+          {role != null && STAFF.includes(role) && (
+            <div className="flex gap-2">
+              <Link
+                to="/foundry"
+                className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
+              >
+                Flavor Foundry
+              </Link>
+              <Link
+                to="/lotspace"
+                className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
+              >
+                Lotspace
+              </Link>
+            </div>
+          )}
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium truncate">{user.name}</div>
+                <div className="text-[10px] uppercase tracking-widest text-[#7fa48e]">
+                  {ROLE_LABELS[user.role]}
+                </div>
+              </div>
+              <button
+                onClick={() => logout.mutate()}
+                title="Sign out"
+                className="rounded-md p-2 text-[#c4d8cb] hover:bg-white/10 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           <div className="text-[10px] text-[#7fa48e] leading-relaxed">
             Navigate Your Reality.
             <br />

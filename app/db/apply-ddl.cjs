@@ -187,6 +187,18 @@ const statements = [
     INDEX clicks_roaster_idx (roasterId)
   )`,
   "ALTER TABLE automation_rules ADD UNIQUE KEY automation_rules_ruleCode_unique (ruleCode)",
+  `CREATE TABLE IF NOT EXISTS users (
+    id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email varchar(320) NOT NULL,
+    name varchar(120) NOT NULL,
+    passwordHash varchar(255) NOT NULL,
+    role ENUM('platform_admin','ops_manager','sales_csm','analyst','roaster_buyer') NOT NULL DEFAULT 'roaster_buyer',
+    roasterId bigint unsigned NULL,
+    active boolean NOT NULL DEFAULT true,
+    createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY users_email_unique (email),
+    INDEX users_roaster_idx (roasterId)
+  )`,
 ];
 (async () => {
   const conn = await mysql.createConnection({ uri: env.DATABASE_URL });

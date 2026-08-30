@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { assertOwnRoaster, createRouter, roleProcedure, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { coffeeLots, orderLineItems, orders, roasters } from "@db/schema";
 import { emitEvent } from "../engine";
@@ -9,9 +9,14 @@ import { accrueRevenueShareForOrder } from "./partners";
 import { ORDER_TRANSITIONS, FLAT_SHIPPING_CENTS } from "@contracts/constants";
 
 export const ordersRouter = createRouter({
-  list: publicQuery.query(async () => {
+  list: roleProcedure("ops_manager", "sales_csm", "analyst", "roaster_buyer").query(async ({ ctx }) => {
     const db = getDb();
-    const rows = await db.select().from(orders).orderBy(desc(orders.id));
+    const allRows = await db.select().from(orders).orderBy(desc(orders.id));
+    // Buyers only ever see their own tenant's order book.
+    const rows =
+      ctx.user.role === "roaster_buyer"
+        ? allRows.filter((o) => o.roasterId === ctx.user.roasterId)
+        : allRows;
     const lines = await db.select().from(orderLineItems);
     const rosterRows = await db.select().from(roasters);
     const rosterMap = new Map(rosterRows.map((r) => [r.id, r.roasterName]));
@@ -24,7 +29,7 @@ export const ordersRouter = createRouter({
 
   // CreateOrder — Idempotency-Key required; duplicate submissions return the
   // original order, never a second charge. Reservation is atomic with creation.
-  create: publicQuery
+  create: roleProcedure("ops_manager", "roaster_buyer")
     .input(
       z.object({
         roasterId: z.number(),
@@ -33,7 +38,8 @@ export const ordersRouter = createRouter({
         idempotencyKey: z.string().min(8),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertOwnRoaster(ctx.user, input.roasterId);
       const db = getDb();
 
       // Idempotent replay
@@ -112,7 +118,7 @@ export const ordersRouter = createRouter({
       return { order, replayed: false };
     }),
 
-  advance: publicQuery
+  advance: staffProcedure
     .input(z.object({ orderId: z.number(), target: z.enum(["shipped", "delivered", "cancelled"] as const) }))
     .mutation(async ({ input }) => {
       const db = getDb();
