@@ -9,7 +9,7 @@
 
 ```mermaid
 flowchart TB
-    subgraph Pyramid["Greensheet Test Pyramid (~count of specs)"]
+    subgraph Pyramid["Auctum Ledger Test Pyramid (~count of specs)"]
         E2E["E2E — Playwright (18)<br/>critical journeys only"]
         CT["Contract — Pact + oasdiff (32)<br/>consumer/provider/OpenAPI drift"]
         IT["Integration — Testcontainers (64)<br/>DB, Kafka, Redis, migrations"]
@@ -162,7 +162,7 @@ describe('migrations (04-database-evolution.md ledger)', () => {
 
   beforeAll(async () => {
     container = await new PostgreSqlContainer(IMAGE)
-      .withDatabase('greensheet').withUsername('gs').withPassword('gs')
+      .withDatabase('auctum-ledger').withUsername('gs').withPassword('gs')
       .withCommand(['postgres', '-c', 'shared_preload_libraries=timescaledb'])
       .start();
     pg = new Client({ connectionString: container.getConnectionUri() });
@@ -301,7 +301,7 @@ describe('POST /v1/roasters idempotency (02-openapi-contract.md §2)', () => {
     expect(res.status).toBe(400);
     expect(res.headers['content-type']).toContain('application/problem+json');
     expect(res.body).toMatchObject({ code: 'GS-GEN-1004' });
-    expect(res.body.type).toMatch(/^https:\/\/api\.greensheet\.io\/problems\//);
+    expect(res.body.type).toMatch(/^https:\/\/api\.auctumledger\.io\/problems\//);
   });
 });
 ```
@@ -393,7 +393,7 @@ export default defineConfig({
 Consumer tests produce pacts; the provider verifies them against a running instance seeded from the marketing schema's COF seed data — closing the loop with `02-openapi-contract.md`.
 
 ```typescript
-// test/contract/roasters.pact.ts — consumer: greensheet-web
+// test/contract/roasters.pact.ts — consumer: auctum-ledger-web
 import { describe, it, expect } from 'vitest';
 import { PactV3, MatchersV3 } from '@pact-foundation/pact';
 import { apiClient } from '../../src/lib/api-client';
@@ -401,13 +401,13 @@ import { apiClient } from '../../src/lib/api-client';
 const { like, integer, uuid, string } = MatchersV3;
 
 const provider = new PactV3({
-  consumer: 'greensheet-web',
-  provider: 'greensheet-api',
+  consumer: 'auctum-ledger-web',
+  provider: 'auctum-ledger-api',
   dir: './pacts',
   logLevel: 'warn',
 });
 
-describe('greensheet-web → greensheet-api contract', () => {
+describe('auctum-ledger-web → auctum-ledger-api contract', () => {
   it('GET /v1/roasters/{id}/churn-risk returns RFC9457-aware shape', () => {
     return provider
       .addInteraction({
@@ -446,7 +446,7 @@ describe('greensheet-web → greensheet-api contract', () => {
         willRespondWith: {
           status: 400,
           headers: { 'Content-Type': 'application/problem+json' },
-          body: { type: like('https://api.greensheet.io/problems/GS-GEN-1004'),
+          body: { type: like('https://api.auctumledger.io/problems/GS-GEN-1004'),
                   title: string('Idempotency key required'),
                   status: integer(400), code: 'GS-GEN-1004' },
         },
@@ -470,7 +470,7 @@ async function verify() {
   execSync('psql $DATABASE_URL -f test/contract/provider-states.sql'); // states below
 
   const result = await new Verifier({
-    provider: 'greensheet-api',
+    provider: 'auctum-ledger-api',
     providerBaseUrl: process.env.API_URL ?? 'http://localhost:3000',
     pactUrls: ['./pacts'],
     publishVerificationResult: process.env.CI === 'true',
@@ -488,7 +488,7 @@ async function verify() {
 void verify();
 ```
 
-**OpenAPI drift gate:** `oasdiff breaking api/openapi/greensheet-v1.prev.yaml api/openapi/greensheet-v1.yaml --fail-on ERR` runs on every PR (see §7 `api-contract` job).
+**OpenAPI drift gate:** `oasdiff breaking api/openapi/auctum-ledger-v1.prev.yaml api/openapi/auctum-ledger-v1.yaml --fail-on ERR` runs on every PR (see §7 `api-contract` job).
 
 ---
 
@@ -516,12 +516,12 @@ apiVersion: chaos-mesh.org/v1alpha1
 kind: NetworkChaos
 metadata:
   name: ch-04-egress-latency
-  namespace: greensheet-staging
+  namespace: auctum-ledger-staging
 spec:
   action: delay
   mode: all
   selector:
-    namespaces: [greensheet-staging]
+    namespaces: [auctum-ledger-staging]
     labelSelectors:
       app: campaigns-service
   delay:
@@ -536,12 +536,12 @@ apiVersion: chaos-mesh.org/v1alpha1
 kind: PodChaos
 metadata:
   name: ch-05-consumer-kill
-  namespace: greensheet-staging
+  namespace: auctum-ledger-staging
 spec:
   action: pod-kill
   mode: one
   selector:
-    namespaces: [greensheet-staging]
+    namespaces: [auctum-ledger-staging]
     labelSelectors:
       app: campaigns-rule-engine
   gracePeriod: 0
@@ -557,7 +557,7 @@ spec:
   "targets": {
     "broker": {
       "resourceType": "aws:msk:cluster",
-      "resourceArns": ["arn:aws:kafka:us-west-2:ACCT:cluster/greensheet-events-staging/*"],
+      "resourceArns": ["arn:aws:kafka:us-west-2:ACCT:cluster/auctum-ledger-events-staging/*"],
       "selectionMode": "COUNT(1)"
     }
   },
@@ -665,7 +665,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint && pnpm typecheck
-      - run: pnpm exec vacuum lint api/openapi/greensheet-v1.yaml -d   # OpenAPI lint
+      - run: pnpm exec vacuum lint api/openapi/auctum-ledger-v1.yaml -d   # OpenAPI lint
 
   unit:
     runs-on: ubuntu-latest
@@ -692,8 +692,8 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Breaking-change detection (02-openapi-contract.md §8)
         run: |
-          git show origin/main:api/openapi/greensheet-v1.yaml > /tmp/prev.yaml || touch /tmp/prev.yaml
-          pnpm dlx oasdiff breaking /tmp/prev.yaml api/openapi/greensheet-v1.yaml --fail-on ERR
+          git show origin/main:api/openapi/auctum-ledger-v1.yaml > /tmp/prev.yaml || touch /tmp/prev.yaml
+          pnpm dlx oasdiff breaking /tmp/prev.yaml api/openapi/auctum-ledger-v1.yaml --fail-on ERR
       - name: Avro compatibility (03-event-driven-pipeline.md §2.3)
         run: pnpm exec ts-node scripts/check-avro-compat.ts --registry $SCHEMA_REGISTRY_MOCK
 
@@ -722,10 +722,10 @@ jobs:
       # -ha image preloads timescaledb via shared_preload_libraries by default
       postgres:
         image: timescale/timescaledb-ha:pg15-latest
-        env: { POSTGRES_DB: greensheet, POSTGRES_USER: gs, POSTGRES_PASSWORD: gs }
+        env: { POSTGRES_DB: auctum-ledger, POSTGRES_USER: gs, POSTGRES_PASSWORD: gs }
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U gs -d greensheet"
+          --health-cmd "pg_isready -U gs -d auctum-ledger"
           --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@v4
@@ -740,7 +740,7 @@ jobs:
       - run: pnpm start:test &                                       # boot API
       - run: pnpm ts-node test/contract/provider.verify.ts
         env:
-          DATABASE_URL: postgres://gs:gs@localhost:5432/greensheet
+          DATABASE_URL: postgres://gs:gs@localhost:5432/auctum-ledger
           CI: 'true'
           GITHUB_SHA: ${{ github.sha }}
 
@@ -777,7 +777,7 @@ jobs:
       - uses: aws-actions/amazon-ecr-login@v2
         id: ecr
       - id: meta
-        run: echo "image=${{ steps.ecr.outputs.registry }}/greensheet-api:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        run: echo "image=${{ steps.ecr.outputs.registry }}/auctum-ledger-api:${{ github.sha }}" >> "$GITHUB_OUTPUT"
       - run: |
           docker build -t ${{ steps.meta.outputs.image }} \
             --label org.opencontainers.image.revision=${{ github.sha }} .
@@ -793,7 +793,7 @@ jobs:
         with:
           filename: perf/lots-search.k6.js
         env:
-          API_URL: https://api.staging.greensheet.io
+          API_URL: https://api.staging.auctumledger.io
           TOKEN: ${{ secrets.K6_TEST_TOKEN }}
 ```
 
@@ -843,11 +843,11 @@ jobs:
       - name: Register canary task def (5% traffic)
         run: |
           aws ecs register-task-definition \
-            --family greensheet-api-canary \
+            --family auctum-ledger-api-canary \
             --cli-input-json file://deploy/taskdef.canary.json
-          aws ecs update-service --cluster greensheet-cluster \
-            --service greensheet-api-canary \
-            --task-definition greensheet-api-canary --desired-count 1
+          aws ecs update-service --cluster auctum-ledger-cluster \
+            --service auctum-ledger-api-canary \
+            --task-definition auctum-ledger-api-canary --desired-count 1
       - name: Set ALB weighted routing 95/5
         run: |
           aws elbv2 modify-listener --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
@@ -869,8 +869,8 @@ jobs:
         run: |
           aws elbv2 modify-listener --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
             --default-actions file://deploy/weights.100-0.json
-          aws ecs update-service --cluster greensheet-cluster \
-            --service greensheet-api-canary --desired-count 0
+          aws ecs update-service --cluster auctum-ledger-cluster \
+            --service auctum-ledger-api-canary --desired-count 0
           exit 1
 
   promote:
@@ -894,7 +894,7 @@ jobs:
       - name: Slack notify
         uses: slackapi/slack-github-action@v1
         with:
-          payload: '{"text": "greensheet-api ${{ github.sha }} promoted to 100%"}'
+          payload: '{"text": "auctum-ledger-api ${{ github.sha }} promoted to 100%"}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 ```
