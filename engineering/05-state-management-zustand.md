@@ -53,7 +53,7 @@ Every action in the Base Doc reducer (§IV.4.2) maps 1:1 to a slice action — t
 | `{ type: 'TOGGLE_PROCESS', payload }` | `toggleProcess(p)` | — |
 | `{ type: 'SET_MIN_CUP_SCORE', payload }` | `setMinCupScore(n)` | — |
 | `{ type: 'RESET_FILTERS' }` | `resetFilters()` | — |
-| `useLocalStorage('greensheet-navigator-view')` | `persist` middleware (partialize) | saved views now versioned, see §4.3 |
+| `useLocalStorage('auctum-ledger-navigator-view')` | `persist` middleware (partialize) | saved views now versioned, see §4.3 |
 | `useMemo(rankedLots)` | **selector** `selectRankedLots` (memoized) | moves computation out of render, §4.4 |
 
 **Migration steps (per component, zero big-bang):**
@@ -314,7 +314,7 @@ export const useRootStore = create<RootStore>()(
         })),
       ),
       {
-        name: 'greensheet-store',
+        name: 'auctum-ledger-store',
         version: 3,
         // Persist ONLY the durable bits — never server data, never toasts.
         partialize: (s) => ({
@@ -335,7 +335,7 @@ export const useRootStore = create<RootStore>()(
         },
       },
     ),
-    { name: 'GreensheetStore' },
+    { name: 'AuctumLedgerStore' },
   ),
 );
 
