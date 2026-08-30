@@ -1,7 +1,7 @@
 # 01 — Domain Model & Event Storming
 
 > **Extends:** Base Doc §I.3 (Software Engineering & Systems Architecture), §V (Backend Services), and the marketing schema's `automation_rules` trigger catalogue (`sample_kit.delivered`, `feedback.submitted`).
-> **Purpose:** This is the canonical output of the Greensheet domain-modelling event-storming workshop. It defines bounded contexts, aggregates, commands, domain events, and reactive policies that every downstream artefact in this series (OpenAPI contract, Kafka topology, DB migrations, frontend stores) must conform to.
+> **Purpose:** This is the canonical output of the Auctum Ledger (formerly Greensheet) domain-modelling event-storming workshop. It defines bounded contexts, aggregates, commands, domain events, and reactive policies that every downstream artefact in this series (OpenAPI contract, Kafka topology, DB migrations, frontend stores) must conform to.
 
 ---
 
