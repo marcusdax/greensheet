@@ -1349,6 +1349,20 @@ export const api = {
 
       return { data: { referral, entries: affected } };
     },
+
+    getPendingReview: async (): Promise<ApiResult<{ referrals: Referral[] }>> => {
+      const referrals = db.referrals.filter((r) => r.reviewStatus === 'pending_review');
+      return { data: { referrals } };
+    },
+
+    declineReview: async (referralId: string): Promise<ApiResult<{ referral: Referral }>> => {
+      const referral = db.referrals.find((r) => r.id === referralId);
+      if (!referral) {
+        return { problem: GS.GEN_1005() };
+      }
+      referral.reviewStatus = 'declined';
+      return { data: { referral } };
+    },
   },
 };
 

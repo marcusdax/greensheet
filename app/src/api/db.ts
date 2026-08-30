@@ -158,6 +158,12 @@ export function seedDatabase() {
       lastActivityAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      businessRegistration: 'BR-001-BLUE',
+      taxId: 'TAX-001-BLUE',
+      billingAddress: '123 Roastery Way, Oakland, CA 94607',
+      cardFingerprint: 'fp_card_r001',
+      deviceFingerprint: 'fp_device_shared_acme',
+      ipSubnet: '192.168.1.0/24',
       primaryContact: { fullName: 'J. Doe', email: 'j@bluebottle.com', marketingOptIn: true },
       interventions: [
         { id: 'i1', type: 'sales_call', date: '2025-06-10', outcome: 'retained', notes: 'Scheduled annual contract renewal meeting.' },
@@ -179,6 +185,12 @@ export function seedDatabase() {
       lastActivityAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      businessRegistration: 'BR-002-HEART',
+      taxId: 'TAX-002-HEART',
+      billingAddress: '456 Roast Blvd, Portland, OR 97214',
+      cardFingerprint: 'fp_card_r002',
+      deviceFingerprint: 'fp_device_r002',
+      ipSubnet: '192.168.2.0/24',
       primaryContact: { fullName: 'A. Smith', email: 'a@heartcoffee.com', marketingOptIn: true },
       interventions: [
         { id: 'i2', type: 'email_campaign', date: '2025-06-15', outcome: 'retained', notes: 'FOB price threshold alert sent.' },
@@ -200,6 +212,12 @@ export function seedDatabase() {
       lastActivityAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      businessRegistration: 'BR-003-COAVA',
+      taxId: 'TAX-003-COAVA',
+      billingAddress: '789 Brew Ave, Los Angeles, CA 90012',
+      cardFingerprint: 'fp_card_r003',
+      deviceFingerprint: 'fp_device_shared_acme',
+      ipSubnet: '192.168.3.0/24',
       primaryContact: { fullName: 'B. Brown', email: 'b@coava.com', marketingOptIn: true },
       interventions: [
         { id: 'i3', type: 'discount_offer', date: '2025-06-20', outcome: 'pending', notes: 'Offered 10% sample kit discount on Nyeri Kenya lot.' },
@@ -222,6 +240,12 @@ export function seedDatabase() {
       lastActivityAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      businessRegistration: 'BR-004-METRIC',
+      taxId: 'TAX-004-METRIC',
+      billingAddress: '321 Espresso St, Chicago, IL 60608',
+      cardFingerprint: 'fp_card_r004',
+      deviceFingerprint: 'fp_device_r004',
+      ipSubnet: '192.168.4.0/24',
       primaryContact: { fullName: 'C. White', email: 'c@metriccoffee.com', marketingOptIn: false },
       interventions: [
         { id: 'i5', type: 'survey', date: '2025-06-25', outcome: 'pending', notes: 'Onboarding survey sent via automatic flow.' },
@@ -243,6 +267,12 @@ export function seedDatabase() {
       lastActivityAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      businessRegistration: 'BR-005-STUMP',
+      taxId: 'TAX-005-STUMP',
+      billingAddress: '555 Cold Brew Ln, Seattle, WA 98108',
+      cardFingerprint: 'fp_card_r005',
+      deviceFingerprint: 'fp_device_r005',
+      ipSubnet: '192.168.5.0/24',
       primaryContact: { fullName: 'D. Black', email: 'd@stumptown.com', marketingOptIn: true },
       interventions: [
         { id: 'i6', type: 'discount_offer', date: '2025-04-12', outcome: 'churned', notes: 'Attempted save offer. No response.' },
@@ -434,7 +464,24 @@ export function seedDatabase() {
 
   seedReferrals(now);
 
-  db.orders = [];
+  db.orders = [
+    {
+      id: 'ord_referee_001',
+      accountId: 'r_003',
+      status: 'delivered',
+      lineItems: [
+        {
+          lotId: 'lot_001',
+          quantityLbs: 50,
+          unitPriceCents: 500,
+        },
+      ],
+      finalTotalCents: 250_00,
+      invoiceNumber: 'INV-R3-001',
+      createdAt: '2025-03-01T00:00:00.000Z',
+      updatedAt: '2025-03-01T00:00:00.000Z',
+    },
+  ];
   db.reservations = [];
   db.sampleKits = [];
   db.webhooks = [];
