@@ -1,17 +1,17 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, protectedProcedure, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { coffeeLots } from "@db/schema";
 import { emitEvent } from "../engine";
 
 export const catalogRouter = createRouter({
-  list: publicQuery.query(async () => {
+  list: protectedProcedure.query(async () => {
     return getDb().select().from(coffeeLots).orderBy(desc(coffeeLots.cupScore));
   }),
 
-  register: publicQuery
+  register: staffProcedure
     .input(
       z.object({
         name: z.string().min(2),
@@ -42,7 +42,7 @@ export const catalogRouter = createRouter({
       return lot;
     }),
 
-  adjustPrice: publicQuery
+  adjustPrice: staffProcedure
     .input(
       z.object({
         lotId: z.number(),
@@ -74,7 +74,7 @@ export const catalogRouter = createRouter({
       return db.query.coffeeLots.findFirst({ where: eq(coffeeLots.id, input.lotId) });
     }),
 
-  retire: publicQuery
+  retire: staffProcedure
     .input(z.object({ lotId: z.number() }))
     .mutation(async ({ input }) => {
       const db = getDb();

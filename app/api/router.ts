@@ -1,4 +1,5 @@
 import { createRouter, publicQuery } from "./middleware";
+import { authRouter } from "./routers/auth";
 import { catalogRouter } from "./routers/catalog";
 import { crmRouter } from "./routers/crm";
 import { samplesRouter } from "./routers/samples";
@@ -13,6 +14,7 @@ import { growthRouter } from "./routers/growth";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
+  auth: authRouter,
   catalog: catalogRouter,
   crm: crmRouter,
   samples: samplesRouter,

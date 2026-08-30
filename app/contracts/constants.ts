@@ -199,3 +199,21 @@ export const MARKETING_PILLARS = [
 
 export const TEASER_PRODUCTS = ["foundry", "lotspace"] as const;
 export type TeaserProduct = (typeof TEASER_PRODUCTS)[number];
+
+// ─── Identity & access (engineering/07 RBAC matrix) ──────────────────────────
+export const USER_ROLES = [
+  "platform_admin",
+  "ops_manager",
+  "sales_csm",
+  "analyst",
+  "roaster_buyer",
+] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  platform_admin: "Platform Admin",
+  ops_manager: "Ops Manager",
+  sales_csm: "Sales / CSM",
+  analyst: "Analyst",
+  roaster_buyer: "Roaster Buyer",
+};

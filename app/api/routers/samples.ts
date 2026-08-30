@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { assertOwnRoaster, createRouter, roleProcedure, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { coffeeLots, feedback, roasters, sampleKitItems, sampleKits } from "@db/schema";
 import { emitEvent } from "../engine";
@@ -10,9 +10,14 @@ import { KIT_TRANSITIONS, MAX_ACTIVE_KITS_PER_ROASTER, type KitStatus } from "@c
 const ACTIVE_KIT_STATUSES: KitStatus[] = ["requested", "assembling", "shipped", "delivered"];
 
 export const samplesRouter = createRouter({
-  list: publicQuery.query(async () => {
+  list: roleProcedure("ops_manager", "sales_csm", "roaster_buyer").query(async ({ ctx }) => {
     const db = getDb();
-    const kits = await db.select().from(sampleKits).orderBy(desc(sampleKits.id));
+    const allKits = await db.select().from(sampleKits).orderBy(desc(sampleKits.id));
+    // Buyers only ever see kits addressed to their own roaster account.
+    const kits =
+      ctx.user.role === "roaster_buyer"
+        ? allKits.filter((k) => k.roasterId === ctx.user.roasterId)
+        : allKits;
     const items = await db.select().from(sampleKitItems);
     const fb = await db.select().from(feedback);
     const rosterRows = await db.select().from(roasters);
@@ -25,14 +30,15 @@ export const samplesRouter = createRouter({
     }));
   }),
 
-  request: publicQuery
+  request: roleProcedure("ops_manager", "roaster_buyer")
     .input(
       z.object({
         roasterId: z.number(),
         lotIds: z.array(z.number()).min(1).max(5),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertOwnRoaster(ctx.user, input.roasterId);
       const db = getDb();
       const roaster = await db.query.roasters.findFirst({ where: eq(roasters.id, input.roasterId) });
       if (!roaster) throw new TRPCError({ code: "NOT_FOUND", message: "GS-CRM-1000 · roaster not found" });
@@ -74,7 +80,7 @@ export const samplesRouter = createRouter({
       return { kitId: id };
     }),
 
-  advance: publicQuery
+  advance: staffProcedure
     .input(
       z.object({
         kitId: z.number(),
@@ -121,7 +127,7 @@ export const samplesRouter = createRouter({
       return { ok: true };
     }),
 
-  submitFeedback: publicQuery
+  submitFeedback: roleProcedure("ops_manager", "roaster_buyer")
     .input(
       z.object({
         kitId: z.number(),
@@ -129,10 +135,11 @@ export const samplesRouter = createRouter({
         notes: z.string().default(""),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = getDb();
       const kit = await db.query.sampleKits.findFirst({ where: eq(sampleKits.id, input.kitId) });
       if (!kit) throw new TRPCError({ code: "NOT_FOUND", message: "GS-SMP-1000 · kit not found" });
+      assertOwnRoaster(ctx.user, kit.roasterId);
       if (kit.status !== "delivered") {
         throw new TRPCError({ code: "BAD_REQUEST", message: "GS-SMP-1004 · feedback requires a delivered kit" });
       }

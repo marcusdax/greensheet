@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, analystProcedure, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { churnInterventions, orders, roasters } from "@db/schema";
 import { emitEvent } from "../engine";
 import { LIFECYCLE_STAGES, CHURN_HAZARD_THRESHOLD } from "@contracts/constants";
 
 export const crmRouter = createRouter({
-  list: publicQuery.query(async () => {
+  list: analystProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(roasters).orderBy(desc(roasters.lastActivityAt));
     const interventions = await db.select().from(churnInterventions).orderBy(desc(churnInterventions.id));
@@ -24,7 +24,7 @@ export const crmRouter = createRouter({
     }));
   }),
 
-  register: publicQuery
+  register: staffProcedure
     .input(
       z.object({
         roasterName: z.string().min(2),
@@ -47,7 +47,7 @@ export const crmRouter = createRouter({
     }),
 
   // WhatsApp channel opt-in — E.164 number stored on the roaster record.
-  setWhatsapp: publicQuery
+  setWhatsapp: staffProcedure
     .input(z.object({ roasterId: z.number(), whatsappNumber: z.string().min(7).max(40) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -64,7 +64,7 @@ export const crmRouter = createRouter({
       return { ok: true };
     }),
 
-  setLifecycle: publicQuery
+  setLifecycle: staffProcedure
     .input(z.object({ roasterId: z.number(), stage: z.enum(LIFECYCLE_STAGES) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -82,7 +82,7 @@ export const crmRouter = createRouter({
       return { ok: true };
     }),
 
-  startIntervention: publicQuery
+  startIntervention: staffProcedure
     .input(
       z.object({
         roasterId: z.number(),
@@ -97,7 +97,7 @@ export const crmRouter = createRouter({
       return { ok: true };
     }),
 
-  resolveIntervention: publicQuery
+  resolveIntervention: staffProcedure
     .input(z.object({ interventionId: z.number(), outcome: z.enum(["retained", "churned"]) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -132,7 +132,7 @@ export const crmRouter = createRouter({
     }),
 
   // Heuristic re-score: inactivity-driven hazard, threshold 0.70 (Cox model stand-in).
-  rescoreChurn: publicQuery.mutation(async () => {
+  rescoreChurn: staffProcedure.mutation(async () => {
     const db = getDb();
     const rows = await db.select().from(roasters);
     const now = Date.now();

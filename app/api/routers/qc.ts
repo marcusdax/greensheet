@@ -2,7 +2,7 @@
 // cupping sessions (SCA 10-attribute scorecard + tolerance bands).
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   retainedSamples,
@@ -24,7 +24,7 @@ const RETENTION_DAYS = {
 
 export const qcRouter = createRouter({
   // ── Retained samples ──────────────────────────────────────────────────────
-  samples: publicQuery.query(async () => {
+  samples: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(retainedSamples).orderBy(desc(retainedSamples.id)).limit(200);
     return Promise.all(
@@ -45,7 +45,7 @@ export const qcRouter = createRouter({
     );
   }),
 
-  pullSample: publicQuery
+  pullSample: staffProcedure
     .input(
       z.object({
         lotId: z.number().int().positive().optional(),
@@ -75,7 +75,7 @@ export const qcRouter = createRouter({
     }),
 
   /** Open a sample for cupping: access log + openedCount + re-seal trail. */
-  logAccess: publicQuery
+  logAccess: staffProcedure
     .input(
       z.object({
         sampleId: z.number().int().positive(),
@@ -114,7 +114,7 @@ export const qcRouter = createRouter({
     }),
 
   /** Destruction protocol: dual-witness, only when eligible + no active exception. */
-  destroySample: publicQuery
+  destroySample: staffProcedure
     .input(
       z.object({
         sampleId: z.number().int().positive(),
@@ -154,11 +154,11 @@ export const qcRouter = createRouter({
     }),
 
   // ── Cupping sessions ──────────────────────────────────────────────────────
-  cuppings: publicQuery.query(async () => {
+  cuppings: staffProcedure.query(async () => {
     return getDb().select().from(cuppingSessions).orderBy(desc(cuppingSessions.id)).limit(100);
   }),
 
-  recordCupping: publicQuery
+  recordCupping: staffProcedure
     .input(
       z.object({
         sampleId: z.number().int().positive().optional(),
@@ -246,7 +246,7 @@ export const qcRouter = createRouter({
     }),
 
   /** Reference lots for the cupping form (catalog names as lotCode options). */
-  referenceOptions: publicQuery.query(async () => {
+  referenceOptions: staffProcedure.query(async () => {
     const db = getDb();
     const lots = await db.select().from(coffeeLots);
     return lots.map((l) => ({ lotCode: `LOT-${l.id}`, name: l.name, cupScore: l.cupScore }));

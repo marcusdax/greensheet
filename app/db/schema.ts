@@ -527,6 +527,31 @@ export const pricingLinkClicks = mysqlTable(
   (t) => [index("clicks_roaster_idx").on(t.roasterId)],
 );
 
+// ─── Identity Context (engineering/07 RBAC — credential auth, role scoping) ──
+export const users = mysqlTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 320 }).notNull().unique(),
+    name: varchar("name", { length: 120 }).notNull(),
+    passwordHash: varchar("passwordHash", { length: 255 }).notNull(), // scrypt$N$r$p$salt$hash
+    role: mysqlEnum("role", [
+      "platform_admin",
+      "ops_manager",
+      "sales_csm",
+      "analyst",
+      "roaster_buyer",
+    ])
+      .notNull()
+      .default("roaster_buyer"),
+    // Tenant binding for roaster_buyer accounts (gs_account_ids analogue).
+    roasterId: bigint("roasterId", { mode: "number", unsigned: true }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("users_roaster_idx").on(t.roasterId)],
+);
+
 // Inferred types
 export type CoffeeLot = typeof coffeeLots.$inferSelect;
 export type Roaster = typeof roasters.$inferSelect;
