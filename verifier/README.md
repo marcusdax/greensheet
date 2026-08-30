@@ -1,7 +1,7 @@
-# Verifier Index — Greensheet Platform Expansion
+# Verifier Index — Auctum Ledger Expansion
 
 ## v1 (created 2026-07-19)
-Measures: structural completeness and depth of the four workstreams under /mnt/agents/output/greensheet-expansion/.
+Measures: structural completeness and depth of the four Auctum Ledger expansion workstreams (engineering, design-system, marketing, localization) in this repository.
 Criteria (verifier/v1/criteria.md):
 1. All required files per workstream exist.
 2. Each markdown file >= 100 lines (substantive depth); locale JSONs valid.

@@ -1,63 +1,56 @@
-# Greensheet — Design Tokens
+# Auctum Ledger — Design Tokens
 
-**Version 1.0 · Source of truth for all UI color, type, space, elevation, and motion · WCAG 2.2 AA minimum**
+**Version 2.0 · The Auctum Ledger (formerly Greensheet) · Source of truth for all UI color, type, space, elevation, and motion · WCAG 2.2 AA minimum · Museum Folio palette**
 
 Token architecture has three tiers. **Engineers consume tier 2 (semantic) and tier 3 (component) tokens only.** Tier 1 primitives exist so a rebrand never touches component code.
 
 ```
-primitive  (gs-color-navy-700)   raw values, named by hue+step
+primitive  (auctum-color-oxblood-700)   raw values, named by hue+step
    ↓ alias
-semantic   (gs-color-action-primary)   role-based, theme-switched (light/dark)
+semantic   (auctum-color-action-primary)   role-based, theme-switched (light/dark)
    ↓ alias
-component  (gs-button-primary-bg)   bound to a component slot
+component  (auctum-button-primary-bg)   bound to a component slot
 ```
 
 All contrast ratios below were computed with the WCAG 2.x relative-luminance formula. "AA ✓" = ≥ 4.5:1 for normal text; "AA-large ✓" = ≥ 3:1 (18 pt / 14 pt bold+, and non-text UI per 1.4.11).
+
+The palette is **Museum Folio** (Auctum master brand): restraint, archival, editorial. Ivory paper grounds, near-black ink, a single oxblood accent, brass for metadata, hairline borders always 1 px. No gradients, no saturated fills, no blue-purple.
 
 ---
 
 ## 1. Color — Tier 1 primitives
 
-### 1.1 Brand hues (with lineage)
+### 1.1 Brand hues (Museum Folio, with lineage)
 
-| Token | Hex | LCH approx. | Source |
+| Token | Hex | HSL | Source |
 |---|---|---|---|
-| `navy-900` | `#0E1A22` | L18 C10 H235 | ODASI navy `#142435`, deepened |
-| `navy-800` | `#12252F` | — | interpolated |
-| **`navy-700` (Compass Navy)** | `#16323E` | L20 C12 H228 | **primary brand ink**, harmonized with ODASI |
-| `navy-600` | `#1F4F54` | — | navy→teal bridge (teal-dark text) |
-| `teal-700` | `#1F4F54` | L31 C13 H198 | teal text on parchment |
-| **`teal-600` (Constellation Teal)** | `#2A6E73` | L42 C16 H196 | ODASI teal `#3D7681`, darkened for AA |
-| `teal-500` | `#3D8A90` | — | hover on teal fills |
-| `teal-300` | `#7FB6BA` | L70 C14 H200 | dark-mode primary action |
-| `teal-100` | `#DCEAEA` | — | teal tint surface |
-| `gold-600` | `#7A5F22` | L40 C45 H85 | gold text on parchment |
-| **`gold-500` (Core Gold)** | `#C9A34A` | L70 C50 H88 | ODASI gold `#968853`, brightened; badges/graphics |
-| `gold-300` | `#D4B96A` | L76 C42 H90 | dark-mode gold |
-| `gold-100` | `#F0E6CC` | — | gold tint surface |
-| `cherry-600` | `#8C3B34` | L38 C42 H38 | coffee cherry; destructive |
-| `cherry-300` | `#E8B4A6` | — | dark-mode cherry |
-| `cherry-100` | `#F9E6E2` | — | cherry tint surface |
-| `roast-800` | `#3A2A1E` | — | deepest roast |
-| **`roast-700` (Roast Brown)** | `#4A3527` | L23 C18 H60 | stamp ink, footer bands |
-| `roast-100` | `#E9DFD2` | — | roast tint surface |
-| **`green-600` (Greensheet Green)** | `#3E6B50` | L41 C22 H155 | namesake; ESG/certified; evolved from legacy `#2F6B4A` |
-| `green-300` | `#9FD3B4` | — | dark-mode green |
-| `green-100` | `#E5EFE7` | — | green tint surface |
+| **`ink-900` (Ink)** | `#221E1B` | 24 12% 12% | **primary brand ink** — Museum Folio `ink` |
+| `ink-700` (Ink Soft) | `#58514B` | 26 8% 32% | Museum Folio `ink-soft` — secondary text |
+| **`oxblood-700` (Oxblood)** | `#74362F` | 6 42% 32% | Museum Folio `oxblood` — **THE accent**: active nav, seals, underlines, key figures |
+| `oxblood-800` | `#5E2B25` | — | oxblood hover/active, deepened |
+| `oxblood-300` | `#C9978F` | — | dark-mode accent |
+| `oxblood-100` | `#F2E3E0` | — | oxblood tint surface |
+| **`brass-500` (Brass)** | `#947642` | 38 38% 42% | Museum Folio `brass` — fig captions, rules, metadata |
+| `brass-600` | `#6E572C` | — | brass words on paper (AA) |
+| `brass-300` | `#C9A86A` | — | dark-mode brass |
+| `brass-100` | `#F0E6CC` | — | brass tint surface |
+| **`sage-600` (Sage)** | `#4F6958` | 140 14% 36% | Museum Folio success — verified states, ESG/certified |
+| `sage-700` | `#3E5546` | — | sage text on tints |
+| `sage-300` | `#8FAF9B` | — | dark-mode sage |
+| `sage-100` | `#E4EBE4` | — | sage tint surface |
 
-### 1.2 Warm neutral ramp (parchment scale)
+### 1.2 Warm neutral ramp (paper scale)
 
 | Token | Hex | Role |
 |---|---|---|
-| `parchment-50` | `#FDFBF5` | raised surface (cards, inputs) |
-| **`parchment-100`** | `#F6F1E7` | **page ground ("the green sheet")** |
-| `parchment-200` | `#EFE8DA` | recessed surface, table zebra |
-| `parchment-300` | `#E4DCC9` | hover on recessed |
-| `neutral-400` | `#D8CFBB` | decorative border (1.38:1 — decorative only) |
+| `paper-50` | `#FAF9F4` | raised surface — Museum Folio `paper-raised` (cards, plates, inputs) |
+| **`paper-100`** | `#F5F2EB` | **page ground** — Museum Folio `paper` (ivory) |
+| `paper-200` | `#EDE7DA` | recessed surface, table zebra |
+| `paper-300` | `#E4DECE` | hover on recessed |
+| **`neutral-400` (Hairline)** | `#D9D3C9` | Museum Folio `hairline` — decorative border, always 1 px (1.33:1 — decorative only) |
 | `neutral-500` | `#B9AE97` | strong decorative border |
-| `neutral-600` | `#8A8272` | **interactive border** (3.38:1 ✓ 1.4.11), muted-light large text (3.38:1, AA-large only) |
-| `neutral-700` | `#5C5546` | muted body text (6.56:1 AA ✓) |
-| `ink-900` | `#221D16` | primary ink / headings/body (14.86:1 AAA ✓) |
+| `neutral-600` | `#8A8272` | **interactive border** (3.40:1 ✓ 1.4.11), muted-light large text (AA-large only) |
+| `neutral-700` | `#5C5546` | muted body text (6.97:1 AA ✓) |
 
 ---
 
@@ -67,77 +60,77 @@ All contrast ratios below were computed with the WCAG 2.x relative-luminance for
 
 | Semantic token | Value | Used for | Contrast (vs. stated ground) |
 |---|---|---|---|
-| `color.bg.canvas` | `parchment-100 #F6F1E7` | app background | — |
-| `color.bg.surface` | `parchment-50 #FDFBF5` | cards, tables, inputs | — |
-| `color.bg.recessed` | `parchment-200 #EFE8DA` | wells, metric tracks, zebra | — |
-| `color.bg.hover` | `parchment-300 #E4DCC9` | hover on recessed rows | — |
-| `color.bg.inverse` | `navy-700 #16323E` | top bar, footer band, tooltips | — |
-| `color.text.primary` | `ink-900 #221D16` | headings, body | 14.86:1 on canvas AAA ✓ · 16.17:1 on surface AAA ✓ |
-| `color.text.muted` | `neutral-700 #5C5546` | secondary text, labels | 6.56:1 AA ✓ |
-| `color.text.subtle` | `neutral-600 #8A8272` | captions ≥12 px bold, placeholders | 3.38:1 AA-large only — never for body |
-| `color.text.inverse` | `#FDFBF5` | text on navy/roast fills | 13.46:1 on navy-700 AAA ✓ |
-| `color.text.link` | `teal-600 #2A6E73` | inline links (always underlined) | 5.22:1 AA ✓ |
-| `color.action.primary.bg` | `navy-700 #16323E` | primary button fill | white text 13.46:1 AAA ✓ |
-| `color.action.primary.hover` | `navy-800 #12252F` | primary hover | white 15.8:1 AAA ✓ |
-| `color.action.secondary.bg` | `teal-600 #2A6E73` | secondary button fill | white 5.87:1 AA ✓ |
-| `color.action.secondary.hover` | `teal-700 #1F4F54` | secondary hover | white 9.11:1 AAA ✓ |
-| `color.accent.gold` | `gold-500 #C9A34A` | winner badges, bean core, 90+ scores | ink text 7.03:1 AAA ✓ · navy text 5.65:1 AA ✓ |
-| `color.accent.gold.text` | `gold-600 #7A5F22` | gold words on parchment | 5.35:1 AA ✓ |
-| `color.accent.cherry` | `cherry-600 #8C3B34` | origin accent, destructive | white text 7.53:1 AAA ✓ · on canvas 6.69:1 AA ✓ |
-| `color.brand.green` | `green-600 #3E6B50` | ESG, certifications, namesake | white 6.13:1 AA ✓ · on canvas 5.45:1 AA ✓ |
-| `color.border.decorative` | `neutral-400 #D8CFBB` | card hairlines, dividers | decorative (no requirement) |
+| `color.bg.canvas` | `paper-100 #F5F2EB` | app background | — |
+| `color.bg.surface` | `paper-50 #FAF9F4` | cards, archival plates, tables, inputs | — |
+| `color.bg.recessed` | `paper-200 #EDE7DA` | wells, metric tracks, zebra | — |
+| `color.bg.hover` | `paper-300 #E4DECE` | hover on recessed rows | — |
+| `color.bg.inverse` | `ink-900 #221E1B` | top bar, footer band, tooltips | — |
+| `color.text.primary` | `ink-900 #221E1B` | headings, body | 14.79:1 on canvas AAA ✓ · 15.69:1 on surface AAA ✓ |
+| `color.text.muted` | `ink-700 #58514B` | secondary text, labels | 6.97:1 AA ✓ |
+| `color.text.subtle` | `neutral-600 #8A8272` | captions ≥12 px bold, placeholders | 3.40:1 AA-large only — never for body |
+| `color.text.inverse` | `#FAF9F4` | text on ink fills | 15.69:1 on ink-900 AAA ✓ |
+| `color.text.link` | `oxblood-700 #74362F` | inline links (always underlined) | 8.13:1 AA ✓ |
+| `color.action.primary.bg` | `oxblood-700 #74362F` | primary button fill | paper-raised text 8.62:1 AAA ✓ |
+| `color.action.primary.hover` | `oxblood-800 #5E2B25` | primary hover | white 11.36:1 AAA ✓ |
+| `color.action.secondary.bg` | `ink-900 #221E1B` | secondary button fill | paper-raised 15.69:1 AAA ✓ |
+| `color.action.secondary.hover` | `ink-700 #58514B` | secondary hover | white 7.80:1 AA ✓ |
+| `color.accent.oxblood` | `oxblood-700 #74362F` | seals, active nav, underlines, key figures | on canvas 8.13:1 AA ✓ |
+| `color.accent.brass` | `brass-500 #947642` | fig captions, rules, metadata (non-text) | decorative · ink text 3.88:1 AA-large only |
+| `color.accent.brass.text` | `brass-600 #6E572C` | brass words on paper | 6.13:1 AA ✓ |
+| `color.brand.sage` | `sage-600 #4F6958` | verified states, ESG, certifications | white 6.01:1 AA ✓ · on canvas 5.38:1 AA ✓ |
+| `color.border.decorative` | `neutral-400 #D9D3C9` | card hairlines, dividers — always 1 px | decorative (no requirement) |
 | `color.border.strong` | `neutral-500 #B9AE97` | table outer frame | decorative |
-| `color.border.interactive` | `neutral-600 #8A8272` | input/select/checkbox outlines | 3.38:1 ✓ 1.4.11 |
-| `color.border.focus` | `teal-600 #2A6E73` | focus ring (2 px + 2 px offset) | 5.22:1 ✓ 1.4.11 |
+| `color.border.interactive` | `neutral-600 #8A8272` | input/select/checkbox outlines | 3.40:1 ✓ 1.4.11 |
+| `color.border.focus` | `oxblood-700 #74362F` | focus ring (2 px + 2 px offset) | 8.13:1 ✓ 1.4.11 |
 
 ### 2.2 Functional / status (light)
 
 | Token | Text/base | Tint bg | Pairing check |
 |---|---|---|---|
-| `color.status.success` | `#33684A` | `#E5EFE7` | text on canvas 5.79:1 AA ✓ · on tint 5.54:1 AA ✓ · white on base 6.52:1 AA ✓ |
-| `color.status.warning` | `#8A5F14` | `#FBF0DA` | on canvas 5.00:1 AA ✓ · on tint 4.98:1 AA ✓ · white on base 5.63:1 AA ✓ |
-| `color.status.danger` | `#9E3D31` | `#F9E6E2` | on canvas 5.89:1 AA ✓ · on tint 5.51:1 AA ✓ · white on base 6.63:1 AA ✓ |
-| `color.status.info` | `#2C6E8C` | `#E4EEF3` | on canvas 5.02:1 AA ✓ · on tint 4.80:1 AA ✓ |
+| `color.status.success` | `#4F6958` (sage-600) · text-on-tint `#3E5546` | `#E4EBE4` | on canvas 5.38:1 AA ✓ · on tint 6.67:1 AA ✓ · white on base 6.01:1 AA ✓ |
+| `color.status.warning` | `#A36A29` · text-on-tint `#7E521F` | `#F6EBD8` | on canvas 4.04:1 AA-large · on tint 5.71:1 AA ✓ · white on base 4.52:1 AA ✓ |
+| `color.status.danger` | `#962C2C` | `#F5E0DE` | on canvas 6.97:1 AA ✓ · on tint 6.16:1 AA ✓ · white on base 7.80:1 AA ✓ |
+| `color.status.info` | `#6E572C` (brass-600) | `#F0E6CC` | on canvas 6.13:1 AA ✓ · on tint 5.52:1 AA ✓ — Museum Folio has no blue; informational states are brass |
 
-### 2.3 Cup-score semantic scale (SCA tiers — used by badges, charts, filters)
+### 2.3 Cup-score semantic scale (CQI tiers — used by badges, charts, filters)
 
 | Tier | Range | Token pair | Rationale |
 |---|---|---|---|
-| Outstanding | 90.0–100 | `gold-500` bg + `ink-900` text (7.03:1 AAA ✓) | gold is *earned* |
-| Excellent | 85.0–89.9 | `teal-600` bg + white (5.87:1 AA ✓) | house tier |
-| Very Good | 80.0–84.9 | `green-600` bg + white (6.13:1 AA ✓) | specialty floor |
+| Outstanding | 90.0–100 | `brass-300` bg + `ink-900` text (7.32:1 AAA ✓) | brass is *earned* |
+| Excellent | 85.0–89.9 | `oxblood-700` bg + `paper-50` (8.62:1 AAA ✓) | house tier |
+| Very Good | 80.0–84.9 | `sage-600` bg + white (6.01:1 AA ✓) | specialty floor |
 | Below specialty | < 80.0 | `neutral-700` bg + white (7.39:1 AAA ✓) | de-emphasized |
 
 ### 2.4 Dark mode (`data-theme="dark"` or `prefers-color-scheme`)
 
-Warm espresso-navy darks — **never pure black, never cool gray.**
+Warm espresso-ink darks — **never pure black, never cool gray.**
 
 | Semantic token | Dark value | Contrast |
 |---|---|---|
-| `color.bg.canvas` | `#101B23` | — |
-| `color.bg.surface` | `#1B2933` | — |
-| `color.bg.recessed` | `#22333F` | ink on it 10.75:1 AAA ✓ |
-| `color.bg.hover` | `#2A3D49` | — |
-| `color.bg.inverse` | `#F6F1E7` | — |
-| `color.text.primary` | `#EFE9DB` | 14.42:1 on canvas AAA ✓ |
-| `color.text.muted` | `#A9A08C` | 6.73:1 on canvas AA ✓ · 5.73:1 on surface AA ✓ |
-| `color.text.subtle` | `#8A8272` | 4.59:1 on canvas AA ✓ (captions only) · 3.91:1 on surface AA-large only |
-| `color.text.inverse` | `#101B23` | for text on teal-300/gold-300 fills (7.73/9.10:1 AAA ✓) |
-| `color.text.link` | `#7FB6BA` | 7.73:1 AAA ✓ |
-| `color.action.primary.bg` | `#7FB6BA` (teal-300) | canvas-navy text `#101B23` 7.73:1 AAA ✓ |
-| `color.action.primary.hover` | `#93C4C7` | — |
-| `color.action.secondary.bg` | `#2F7E84` | white text 4.73:1 AA ✓ |
-| `color.action.secondary.hover` | `teal-500 #3D8A90` | — |
-| `color.accent.gold` | `#D4B96A` (gold-300) | canvas text 9.10:1 AAA ✓ |
-| `color.accent.cherry` | `#E8B4A6` | 9.57:1 AAA ✓ |
-| `color.brand.green` | `#9FD3B4` | 10.35:1 AAA ✓ |
-| `color.border.decorative` | `#3A4B57` | decorative |
-| `color.border.strong` | `#4A5B68` | decorative |
-| `color.border.interactive` | `#5F7180` | 3.46:1 ✓ 1.4.11 |
-| `color.border.focus` | `#7FB6BA` | 7.73:1 ✓ |
-| `color.status.*` | success `#9FD3B4` / warning `#E3B76B` / danger `#E89A8F` / info `#8FC3D9` on tints at 12% alpha | 7.85–10.35:1 on canvas, all AAA/AA ✓ |
+| `color.bg.canvas` | `#16120E` | — |
+| `color.bg.surface` | `#211B14` | — |
+| `color.bg.recessed` | `#2A2318` | text on it 13.31:1 AAA ✓ |
+| `color.bg.hover` | `#362C1E` | — |
+| `color.bg.inverse` | `#F5F2EB` | — |
+| `color.text.primary` | `#F2EDE3` | 15.97:1 on canvas AAA ✓ · 14.61:1 on surface AAA ✓ |
+| `color.text.muted` | `#B3A996` | 8.01:1 on canvas AA ✓ · 7.33:1 on surface AA ✓ |
+| `color.text.subtle` | `#8A8272` | 4.90:1 on canvas AA ✓ (captions only) |
+| `color.text.inverse` | `#16120E` | for text on oxblood-300/brass-300 fills (7.37/8.25:1 AAA ✓) |
+| `color.text.link` | `#C9978F` (oxblood-300) | 7.37:1 AAA ✓ |
+| `color.action.primary.bg` | `#C9978F` (oxblood-300) | canvas-ink text `#16120E` 7.37:1 AAA ✓ |
+| `color.action.primary.hover` | `#D8B0A8` | — |
+| `color.action.secondary.bg` | `#3A3226` | text `#F2EDE3` 10.82:1 AAA ✓ |
+| `color.action.secondary.hover` | `#4A3F2E` | — |
+| `color.accent.oxblood` | `#C9978F` (oxblood-300) | canvas text 7.37:1 AAA ✓ |
+| `color.accent.brass` | `#C9A86A` (brass-300) | canvas text 8.25:1 AAA ✓ |
+| `color.brand.sage` | `#8FAF9B` (sage-300) | 7.78:1 AAA ✓ |
+| `color.border.decorative` | `#3A3226` | decorative |
+| `color.border.strong` | `#4A3F2E` | decorative |
+| `color.border.interactive` | `#7A6F5C` | 3.46:1 ✓ 1.4.11 |
+| `color.border.focus` | `#C9978F` | 7.37:1 ✓ |
+| `color.status.*` | success `#8FAF9B` / warning `#D9A45C` / danger `#E08A80` / info `#C9A86A` on tints at 12% alpha | 7.20–8.35:1 on canvas, all AAA/AA ✓ |
 
-**Chart dark-mode rule:** categorical series keep light-mode hues but step one rung lighter (teal-500→300, gold-500→300, cherry-600→300) to hold ≥3:1 against `#1B2933`.
+**Chart dark-mode rule:** categorical series keep light-mode hues but step one rung lighter (oxblood-700→300, brass-500→300, sage-600→300) to hold ≥3:1 against `#211B14`.
 
 ---
 
@@ -147,9 +140,11 @@ Warm espresso-navy darks — **never pure black, never cool gray.**
 
 | Token | Stack | Role |
 |---|---|---|
-| `font.display` | `"Fraunces", "Cormorant Garamond", Georgia, serif` | wordmark, page titles, hero numerals, pull quotes. Optical size opsz ≥ 40 for display; SOFT 0, WONK 0 |
-| `font.sans` | `"Archivo", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif` | UI text, labels, tables |
-| `font.mono` | `"IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace` | **all figures**: prices, cup scores, weights, table numerals, merge tags |
+| `font.display` | `"Playfair Display", Georgia, serif` | wordmark, page titles, hero numerals, italic lede, pull quotes |
+| `font.sans` | `"Inter", system-ui, -apple-system, "Segoe UI", sans-serif` | UI text, labels, tables; small-caps micro-labels at 10–11 px uppercase, letter-spacing 0.18em–0.35em |
+| `font.mono` | `"JetBrains Mono", ui-monospace, SFMono-Regular, monospace` | **all figures**: prices, cup scores, weights, table numerals, merge tags, FIG./PLATE captions, codes |
+
+Families load via Google Fonts in `index.html`.
 
 Numerals rule (from product code): every price, score, and quantity renders in `font.mono` with `font-variant-numeric: tabular-nums` — columns of figures must align like the paper ledger.
 
@@ -157,15 +152,15 @@ Numerals rule (from product code): every price, score, and quantity renders in `
 
 | Token | px | rem | Line-height | Weight / face | Letter-spacing | Use |
 |---|---|---|---|---|---|---|
-| `text.caption` | 12.8 → **13** | 0.8125 | 1.3 | Archivo 500 | +0.02em | table captions, axis labels, timestamps |
-| `text.sm` | 14 | 0.875 | 1.5 | Archivo 400/500 | 0 | secondary body, badges, chips |
-| `text.base` | 16 | 1 | 1.5 | Archivo 400 | 0 | body, inputs, table cells |
-| `text.lg` | 20 | 1.25 | 1.4 | Archivo 500 | −0.005em | card titles, lead paragraphs |
-| `text.xl` | 25 | 1.5625 | 1.3 | Archivo 600 | −0.01em | section headings (h3) |
-| `text.2xl` | 31.25 → **31** | 1.9531 | 1.25 | Fraunces 560 | −0.012em | page titles (h2) |
-| `text.3xl` | 39.06 → **39** | 2.4414 | 1.2 | Fraunces 560 | −0.015em | view headers (h1) |
-| `text.4xl` | 48.83 → **49** | 3.0518 | 1.15 | Fraunces 560 | −0.018em | marketing hero, KPI hero numerals |
-| `text.5xl` | 61.04 → **61** | 3.8147 | 1.1 | Fraunces 480 | −0.02em | brand moments only (landing) |
+| `text.caption` | 12.8 → **13** | 0.8125 | 1.3 | Inter 500 | +0.02em | table captions, axis labels, timestamps |
+| `text.sm` | 14 | 0.875 | 1.5 | Inter 400/500 | 0 | secondary body, badges, chips |
+| `text.base` | 16 | 1 | 1.5 | Inter 400 | 0 | body, inputs, table cells |
+| `text.lg` | 20 | 1.25 | 1.4 | Inter 500 | −0.005em | card titles, lead paragraphs |
+| `text.xl` | 25 | 1.5625 | 1.3 | Inter 600 | −0.01em | section headings (h3) |
+| `text.2xl` | 31.25 → **31** | 1.9531 | 1.25 | Playfair Display 560 | −0.012em | page titles (h2) |
+| `text.3xl` | 39.06 → **39** | 2.4414 | 1.2 | Playfair Display 560 | −0.015em | view headers (h1) |
+| `text.4xl` | 48.83 → **49** | 3.0518 | 1.15 | Playfair Display 560 | −0.018em | marketing hero, KPI hero numerals |
+| `text.5xl` | 61.04 → **61** | 3.8147 | 1.1 | Playfair Display 480 | −0.02em | brand moments only (landing) |
 
 Fluid forms (viewport-interpolated, from legacy architecture §4.1 — keep `clamp()`):
 
@@ -182,11 +177,12 @@ Fluid forms (viewport-interpolated, from legacy architecture §4.1 — keep `cla
 
 | Style | Compose of | Notes |
 |---|---|---|
-| `overline` | caption · Archivo 700 · +0.12em · uppercase · `text.muted` | filter labels ("BUDGET CEILING"), table group headers |
+| `overline` | caption · Inter 700 · +0.18em · uppercase · `text.muted` | small-caps micro-labels ("BUDGET CEILING"), folio metadata lines, table group headers |
+| `folio` | overline · brass-600 | `FOLIO 03 — THE LEDGER` metadata lines, `PLATE IV` / `FIG. 05-A` captions (mono variant for figure numbers) |
 | `figure` | mono 500 · tabular-nums | prices, lbs, scores inside sentences |
 | `figure.strong` | mono 700 | KPI values, composite scores |
-| `label` | sm · Archivo 600 | form labels, button text |
-| `link` | base · teal-600 · underline offset 3px | hover: teal-700 |
+| `label` | sm · Inter 600 | form labels, button text |
+| `link` | base · oxblood-700 · underline offset 3px | hover: oxblood-800 |
 
 ---
 
@@ -213,30 +209,30 @@ Component density presets: `comfortable` (default: row h 48, card p 20) · `comp
 
 | Token | px | Use |
 |---|---|---|
-| `radius.xs` | 2 | table cell highlights |
-| `radius.sm` | 4 | checkboxes, small chips, sort buttons |
+| `radius.xs` | 2 | table cell highlights, archival plates |
+| `radius.sm` | 4 | checkboxes, small chips, sort buttons, cards |
 | `radius.md` | 6 | inputs, buttons |
-| `radius.lg` | 8 | cards, dropdowns |
+| `radius.lg` | 8 | dropdowns |
 | `radius.xl` | 12 | modals, drawer panels |
 | `radius.2xl` | 16 | sheets, hero panels |
 | `radius.full` | 9999 | badges, score pills, avatar, metric tracks |
 
-Brand note: corners stay **small and precise** (4–8) — the brand is a ledger, not a toy. `2xl` reserved for marketing surfaces.
+Brand note: corners stay **squared or barely rounded** (2–4) — the brand is an archival folio, not a toy. `xl`+ reserved for overlays and marketing surfaces.
 
-## 6. Elevation (warm-tinted, navy-based shadows)
+## 6. Elevation (warm-tinted, ink-based shadows)
 
-Light mode shadows are tinted with Compass Navy `rgb(22 50 62)` — never neutral black — so depth feels printed, not dropped.
+Light mode shadows are tinted with Ink `rgb(34 30 27)` — never neutral black — so depth feels printed, not dropped.
 
 | Token | Light value | Dark value |
 |---|---|---|
 | `elevation.0` | none | none |
-| `elevation.1` | `0 1px 2px 0 rgb(22 50 62 / 0.07)` | `0 1px 2px 0 rgb(0 0 0 / 0.40)` |
-| `elevation.2` | `0 2px 4px -1px rgb(22 50 62 / 0.08), 0 4px 8px -2px rgb(22 50 62 / 0.06)` | `0 2px 4px -1px rgb(0 0 0 / 0.45), 0 4px 8px -2px rgb(0 0 0 / 0.40)` |
-| `elevation.3` | `0 4px 8px -2px rgb(22 50 62 / 0.09), 0 10px 20px -4px rgb(22 50 62 / 0.08)` | `0 4px 8px -2px rgb(0 0 0 / 0.50), 0 10px 20px -4px rgb(0 0 0 / 0.45)` |
-| `elevation.4` | `0 8px 16px -4px rgb(22 50 62 / 0.10), 0 20px 32px -8px rgb(22 50 62 / 0.10)` | `0 8px 16px -4px rgb(0 0 0 / 0.55), 0 20px 32px -8px rgb(0 0 0 / 0.50)` |
-| `elevation.5` | `0 16px 48px -8px rgb(22 50 62 / 0.18)` | `0 16px 48px -8px rgb(0 0 0 / 0.60)` |
+| `elevation.1` | `0 1px 2px 0 rgb(34 30 27 / 0.07)` | `0 1px 2px 0 rgb(0 0 0 / 0.40)` |
+| `elevation.2` | `0 2px 4px -1px rgb(34 30 27 / 0.08), 0 4px 8px -2px rgb(34 30 27 / 0.06)` | `0 2px 4px -1px rgb(0 0 0 / 0.45), 0 4px 8px -2px rgb(0 0 0 / 0.40)` |
+| `elevation.3` | `0 4px 8px -2px rgb(34 30 27 / 0.09), 0 10px 20px -4px rgb(34 30 27 / 0.08)` | `0 4px 8px -2px rgb(0 0 0 / 0.50), 0 10px 20px -4px rgb(0 0 0 / 0.45)` |
+| `elevation.4` | `0 8px 16px -4px rgb(34 30 27 / 0.10), 0 20px 32px -8px rgb(34 30 27 / 0.10)` | `0 8px 16px -4px rgb(0 0 0 / 0.55), 0 20px 32px -8px rgb(0 0 0 / 0.50)` |
+| `elevation.5` | `0 16px 48px -8px rgb(34 30 27 / 0.18)` | `0 16px 48px -8px rgb(0 0 0 / 0.60)` |
 
-Placement: cards rest at `1` → hover `3`; dropdowns/popovers `2`; sticky bars `2`; modals `4`; drawers/toasts `5`.
+Placement: cards rest at `1` → hover `3`; dropdowns/popovers `2`; sticky bars `2`; modals `4`; drawers/toasts `5`. Archival plates add a 1 px hairline border at every elevation.
 
 ## 7. Motion
 
@@ -250,7 +246,7 @@ Placement: cards rest at `1` → hover `3`; dropdowns/popovers `2`; sticky bars 
 | `ease.standard` | `cubic-bezier(0.4, 0, 0.2, 1)` | default in-out |
 | `ease.out` | `cubic-bezier(0, 0, 0.2, 1)` | entrances |
 | `ease.in` | `cubic-bezier(0.4, 0, 1, 1)` | exits |
-| `ease.compass` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | spring settle: badge pop, winner reveal, toast |
+| `ease.seal` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | spring settle: badge pop, seal stamp, winner reveal, toast |
 
 Choreography rules: stagger list items ≤ 40ms each, max 8 items; metric bars fill once on mount (`slow`/`ease.out`); **nothing loops** except the loading spinner; `prefers-reduced-motion` collapses all durations to `instant` and disables parallax/stagger.
 
@@ -263,8 +259,8 @@ Choreography rules: stagger list items ≤ 40ms each, max 8 items; metric bars f
 | App shell | sidebar 264 px (collapses to 72 px icon rail < lg; overlay drawer < md); topbar 64 px |
 | `z.base/dropdown/sticky/modal/overlay/max` | 1 / 10 / 20 / 50 / 100 / 999 |
 | `opacity.disabled` | 0.45 (plus `cursor: not-allowed`) |
-| `opacity.scrim` | navy-900 at 0.5 |
-| `opacity.stamp` | 0.85 (Lot Stamp texture) |
+| `opacity.scrim` | ink-900 at 0.5 |
+| `opacity.stamp` | 0.9 (Verification Seal texture) |
 
 ---
 
@@ -274,142 +270,127 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
 
 ```json
 {
-  "$description": "Greensheet design tokens v1.0 — ODASI product family. W3C DTCG draft format.",
-  "gs": {
+  "$description": "Auctum Ledger design tokens v2.0 — Auctum master brand, Museum Folio palette. W3C DTCG draft format.",
+  "auctum": {
     "color": {
       "primitive": {
-        "navy": {
-          "900": { "$value": "#0E1A22", "$type": "color" },
-          "800": { "$value": "#12252F", "$type": "color" },
-          "700": { "$value": "#16323E", "$type": "color", "$description": "Compass Navy — primary brand" },
-          "600": { "$value": "#1F4F54", "$type": "color" }
+        "ink": {
+          "900": { "$value": "#221E1B", "$type": "color", "$description": "Ink — primary brand ink" },
+          "700": { "$value": "#58514B", "$type": "color", "$description": "Ink Soft — secondary text" }
         },
-        "teal": {
-          "700": { "$value": "#1F4F54", "$type": "color" },
-          "600": { "$value": "#2A6E73", "$type": "color", "$description": "Constellation Teal" },
-          "500": { "$value": "#3D8A90", "$type": "color" },
-          "300": { "$value": "#7FB6BA", "$type": "color" },
-          "100": { "$value": "#DCEAEA", "$type": "color" }
+        "oxblood": {
+          "800": { "$value": "#5E2B25", "$type": "color" },
+          "700": { "$value": "#74362F", "$type": "color", "$description": "Oxblood — THE accent: active nav, seals, underlines, key figures" },
+          "300": { "$value": "#C9978F", "$type": "color" },
+          "100": { "$value": "#F2E3E0", "$type": "color" }
         },
-        "gold": {
-          "600": { "$value": "#7A5F22", "$type": "color" },
-          "500": { "$value": "#C9A34A", "$type": "color", "$description": "Core Gold — earned accent only" },
-          "300": { "$value": "#D4B96A", "$type": "color" },
+        "brass": {
+          "600": { "$value": "#6E572C", "$type": "color", "$description": "Brass text on paper (AA)" },
+          "500": { "$value": "#947642", "$type": "color", "$description": "Brass — fig captions, rules, metadata" },
+          "300": { "$value": "#C9A86A", "$type": "color" },
           "100": { "$value": "#F0E6CC", "$type": "color" }
         },
-        "cherry": {
-          "600": { "$value": "#8C3B34", "$type": "color", "$description": "Coffee Cherry" },
-          "300": { "$value": "#E8B4A6", "$type": "color" },
-          "100": { "$value": "#F9E6E2", "$type": "color" }
+        "sage": {
+          "700": { "$value": "#3E5546", "$type": "color" },
+          "600": { "$value": "#4F6958", "$type": "color", "$description": "Sage — success / verified" },
+          "300": { "$value": "#8FAF9B", "$type": "color" },
+          "100": { "$value": "#E4EBE4", "$type": "color" }
         },
-        "roast": {
-          "800": { "$value": "#3A2A1E", "$type": "color" },
-          "700": { "$value": "#4A3527", "$type": "color", "$description": "Roast Brown — stamp ink" },
-          "100": { "$value": "#E9DFD2", "$type": "color" }
-        },
-        "green": {
-          "600": { "$value": "#3E6B50", "$type": "color", "$description": "Greensheet Green — ESG/certified" },
-          "300": { "$value": "#9FD3B4", "$type": "color" },
-          "100": { "$value": "#E5EFE7", "$type": "color" }
-        },
-        "parchment": {
-          "50":  { "$value": "#FDFBF5", "$type": "color" },
-          "100": { "$value": "#F6F1E7", "$type": "color", "$description": "Parchment — the green sheet ground" },
-          "200": { "$value": "#EFE8DA", "$type": "color" },
-          "300": { "$value": "#E4DCC9", "$type": "color" }
+        "paper": {
+          "50":  { "$value": "#FAF9F4", "$type": "color", "$description": "Paper Raised — cards/plates" },
+          "100": { "$value": "#F5F2EB", "$type": "color", "$description": "Paper — ivory page ground" },
+          "200": { "$value": "#EDE7DA", "$type": "color" },
+          "300": { "$value": "#E4DECE", "$type": "color" }
         },
         "neutral": {
-          "400": { "$value": "#D8CFBB", "$type": "color" },
+          "400": { "$value": "#D9D3C9", "$type": "color", "$description": "Hairline — borders, always 1px" },
           "500": { "$value": "#B9AE97", "$type": "color" },
           "600": { "$value": "#8A8272", "$type": "color" },
           "700": { "$value": "#5C5546", "$type": "color" }
         },
-        "ink": {
-          "900": { "$value": "#221D16", "$type": "color" }
-        },
         "status": {
-          "success": { "$value": "#33684A", "$type": "color" },
-          "successBg": { "$value": "#E5EFE7", "$type": "color" },
-          "warning": { "$value": "#8A5F14", "$type": "color" },
-          "warningBg": { "$value": "#FBF0DA", "$type": "color" },
-          "danger":  { "$value": "#9E3D31", "$type": "color" },
-          "dangerBg":  { "$value": "#F9E6E2", "$type": "color" },
-          "info":    { "$value": "#2C6E8C", "$type": "color" },
-          "infoBg":    { "$value": "#E4EEF3", "$type": "color" }
+          "success": { "$value": "#4F6958", "$type": "color" },
+          "successBg": { "$value": "#E4EBE4", "$type": "color" },
+          "warning": { "$value": "#A36A29", "$type": "color" },
+          "warningBg": { "$value": "#F6EBD8", "$type": "color" },
+          "danger":  { "$value": "#962C2C", "$type": "color" },
+          "dangerBg":  { "$value": "#F5E0DE", "$type": "color" },
+          "info":    { "$value": "#6E572C", "$type": "color", "$description": "Informational states are brass — Museum Folio has no blue" },
+          "infoBg":    { "$value": "#F0E6CC", "$type": "color" }
         }
       },
       "semantic": {
         "light": {
-          "bg-canvas":    { "$value": "{gs.color.primitive.parchment.100}", "$type": "color" },
-          "bg-surface":   { "$value": "{gs.color.primitive.parchment.50}", "$type": "color" },
-          "bg-recessed":  { "$value": "{gs.color.primitive.parchment.200}", "$type": "color" },
-          "bg-hover":     { "$value": "{gs.color.primitive.parchment.300}", "$type": "color" },
-          "bg-inverse":   { "$value": "{gs.color.primitive.navy.700}", "$type": "color" },
-          "text-primary": { "$value": "{gs.color.primitive.ink.900}", "$type": "color" },
-          "text-muted":   { "$value": "{gs.color.primitive.neutral.700}", "$type": "color" },
-          "text-subtle":  { "$value": "{gs.color.primitive.neutral.600}", "$type": "color" },
-          "text-inverse": { "$value": "{gs.color.primitive.parchment.50}", "$type": "color" },
-          "text-link":    { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "action-primary-bg":     { "$value": "{gs.color.primitive.navy.700}", "$type": "color" },
-          "action-primary-hover":  { "$value": "{gs.color.primitive.navy.800}", "$type": "color" },
-          "action-secondary-bg":   { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "action-secondary-hover":{ "$value": "{gs.color.primitive.teal.700}", "$type": "color" },
-          "accent-gold":       { "$value": "{gs.color.primitive.gold.500}", "$type": "color" },
-          "accent-gold-text":  { "$value": "{gs.color.primitive.gold.600}", "$type": "color" },
-          "accent-cherry":     { "$value": "{gs.color.primitive.cherry.600}", "$type": "color" },
-          "brand-green":       { "$value": "{gs.color.primitive.green.600}", "$type": "color" },
-          "border-decorative": { "$value": "{gs.color.primitive.neutral.400}", "$type": "color" },
-          "border-strong":     { "$value": "{gs.color.primitive.neutral.500}", "$type": "color" },
-          "border-interactive":{ "$value": "{gs.color.primitive.neutral.600}", "$type": "color" },
-          "border-focus":      { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "status-success":    { "$value": "{gs.color.primitive.status.success}", "$type": "color" },
-          "status-success-bg": { "$value": "{gs.color.primitive.status.successBg}", "$type": "color" },
-          "status-warning":    { "$value": "{gs.color.primitive.status.warning}", "$type": "color" },
-          "status-warning-bg": { "$value": "{gs.color.primitive.status.warningBg}", "$type": "color" },
-          "status-danger":     { "$value": "{gs.color.primitive.status.danger}", "$type": "color" },
-          "status-danger-bg":  { "$value": "{gs.color.primitive.status.dangerBg}", "$type": "color" },
-          "status-info":       { "$value": "{gs.color.primitive.status.info}", "$type": "color" },
-          "status-info-bg":    { "$value": "{gs.color.primitive.status.infoBg}", "$type": "color" }
+          "bg-canvas":    { "$value": "{auctum.color.primitive.paper.100}", "$type": "color" },
+          "bg-surface":   { "$value": "{auctum.color.primitive.paper.50}", "$type": "color" },
+          "bg-recessed":  { "$value": "{auctum.color.primitive.paper.200}", "$type": "color" },
+          "bg-hover":     { "$value": "{auctum.color.primitive.paper.300}", "$type": "color" },
+          "bg-inverse":   { "$value": "{auctum.color.primitive.ink.900}", "$type": "color" },
+          "text-primary": { "$value": "{auctum.color.primitive.ink.900}", "$type": "color" },
+          "text-muted":   { "$value": "{auctum.color.primitive.ink.700}", "$type": "color" },
+          "text-subtle":  { "$value": "{auctum.color.primitive.neutral.600}", "$type": "color" },
+          "text-inverse": { "$value": "{auctum.color.primitive.paper.50}", "$type": "color" },
+          "text-link":    { "$value": "{auctum.color.primitive.oxblood.700}", "$type": "color" },
+          "action-primary-bg":     { "$value": "{auctum.color.primitive.oxblood.700}", "$type": "color" },
+          "action-primary-hover":  { "$value": "{auctum.color.primitive.oxblood.800}", "$type": "color" },
+          "action-secondary-bg":   { "$value": "{auctum.color.primitive.ink.900}", "$type": "color" },
+          "action-secondary-hover":{ "$value": "{auctum.color.primitive.ink.700}", "$type": "color" },
+          "accent-oxblood":    { "$value": "{auctum.color.primitive.oxblood.700}", "$type": "color" },
+          "accent-brass":      { "$value": "{auctum.color.primitive.brass.500}", "$type": "color" },
+          "accent-brass-text": { "$value": "{auctum.color.primitive.brass.600}", "$type": "color" },
+          "brand-sage":        { "$value": "{auctum.color.primitive.sage.600}", "$type": "color" },
+          "border-decorative": { "$value": "{auctum.color.primitive.neutral.400}", "$type": "color" },
+          "border-strong":     { "$value": "{auctum.color.primitive.neutral.500}", "$type": "color" },
+          "border-interactive":{ "$value": "{auctum.color.primitive.neutral.600}", "$type": "color" },
+          "border-focus":      { "$value": "{auctum.color.primitive.oxblood.700}", "$type": "color" },
+          "status-success":    { "$value": "{auctum.color.primitive.status.success}", "$type": "color" },
+          "status-success-bg": { "$value": "{auctum.color.primitive.status.successBg}", "$type": "color" },
+          "status-warning":    { "$value": "{auctum.color.primitive.status.warning}", "$type": "color" },
+          "status-warning-bg": { "$value": "{auctum.color.primitive.status.warningBg}", "$type": "color" },
+          "status-danger":     { "$value": "{auctum.color.primitive.status.danger}", "$type": "color" },
+          "status-danger-bg":  { "$value": "{auctum.color.primitive.status.dangerBg}", "$type": "color" },
+          "status-info":       { "$value": "{auctum.color.primitive.status.info}", "$type": "color" },
+          "status-info-bg":    { "$value": "{auctum.color.primitive.status.infoBg}", "$type": "color" }
         },
         "dark": {
-          "bg-canvas":    { "$value": "#101B23", "$type": "color" },
-          "bg-surface":   { "$value": "#1B2933", "$type": "color" },
-          "bg-recessed":  { "$value": "#22333F", "$type": "color" },
-          "bg-hover":     { "$value": "#2A3D49", "$type": "color" },
-          "bg-inverse":   { "$value": "{gs.color.primitive.parchment.100}", "$type": "color" },
-          "text-primary": { "$value": "#EFE9DB", "$type": "color" },
-          "text-muted":   { "$value": "#A9A08C", "$type": "color" },
+          "bg-canvas":    { "$value": "#16120E", "$type": "color" },
+          "bg-surface":   { "$value": "#211B14", "$type": "color" },
+          "bg-recessed":  { "$value": "#2A2318", "$type": "color" },
+          "bg-hover":     { "$value": "#362C1E", "$type": "color" },
+          "bg-inverse":   { "$value": "{auctum.color.primitive.paper.100}", "$type": "color" },
+          "text-primary": { "$value": "#F2EDE3", "$type": "color" },
+          "text-muted":   { "$value": "#B3A996", "$type": "color" },
           "text-subtle":  { "$value": "#8A8272", "$type": "color" },
-          "text-inverse": { "$value": "#101B23", "$type": "color" },
-          "text-link":    { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
-          "action-primary-bg":     { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
-          "action-primary-hover":  { "$value": "#93C4C7", "$type": "color" },
-          "action-secondary-bg":   { "$value": "#2F7E84", "$type": "color" },
-          "action-secondary-hover":{ "$value": "{gs.color.primitive.teal.500}", "$type": "color" },
-          "accent-gold":       { "$value": "{gs.color.primitive.gold.300}", "$type": "color" },
-          "accent-gold-text":  { "$value": "{gs.color.primitive.gold.300}", "$type": "color" },
-          "accent-cherry":     { "$value": "{gs.color.primitive.cherry.300}", "$type": "color" },
-          "brand-green":       { "$value": "{gs.color.primitive.green.300}", "$type": "color" },
-          "border-decorative": { "$value": "#3A4B57", "$type": "color" },
-          "border-strong":     { "$value": "#4A5B68", "$type": "color" },
-          "border-interactive":{ "$value": "#5F7180", "$type": "color" },
-          "border-focus":      { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
-          "status-success":    { "$value": "#9FD3B4", "$type": "color" },
-          "status-success-bg": { "$value": "#1E3328", "$type": "color" },
-          "status-warning":    { "$value": "#E3B76B", "$type": "color" },
-          "status-warning-bg": { "$value": "#3A2E17", "$type": "color" },
-          "status-danger":     { "$value": "#E89A8F", "$type": "color" },
-          "status-danger-bg":  { "$value": "#3A1F1B", "$type": "color" },
-          "status-info":       { "$value": "#8FC3D9", "$type": "color" },
-          "status-info-bg":    { "$value": "#1B2C38", "$type": "color" }
+          "text-inverse": { "$value": "#16120E", "$type": "color" },
+          "text-link":    { "$value": "{auctum.color.primitive.oxblood.300}", "$type": "color" },
+          "action-primary-bg":     { "$value": "{auctum.color.primitive.oxblood.300}", "$type": "color" },
+          "action-primary-hover":  { "$value": "#D8B0A8", "$type": "color" },
+          "action-secondary-bg":   { "$value": "#3A3226", "$type": "color" },
+          "action-secondary-hover":{ "$value": "#4A3F2E", "$type": "color" },
+          "accent-oxblood":    { "$value": "{auctum.color.primitive.oxblood.300}", "$type": "color" },
+          "accent-brass":      { "$value": "{auctum.color.primitive.brass.300}", "$type": "color" },
+          "accent-brass-text": { "$value": "{auctum.color.primitive.brass.300}", "$type": "color" },
+          "brand-sage":        { "$value": "{auctum.color.primitive.sage.300}", "$type": "color" },
+          "border-decorative": { "$value": "#3A3226", "$type": "color" },
+          "border-strong":     { "$value": "#4A3F2E", "$type": "color" },
+          "border-interactive":{ "$value": "#7A6F5C", "$type": "color" },
+          "border-focus":      { "$value": "{auctum.color.primitive.oxblood.300}", "$type": "color" },
+          "status-success":    { "$value": "#8FAF9B", "$type": "color" },
+          "status-success-bg": { "$value": "#1E2A20", "$type": "color" },
+          "status-warning":    { "$value": "#D9A45C", "$type": "color" },
+          "status-warning-bg": { "$value": "#332713", "$type": "color" },
+          "status-danger":     { "$value": "#E08A80", "$type": "color" },
+          "status-danger-bg":  { "$value": "#331A16", "$type": "color" },
+          "status-info":       { "$value": "#C9A86A", "$type": "color" },
+          "status-info-bg":    { "$value": "#2A2210", "$type": "color" }
         }
       }
     },
     "font": {
       "family": {
-        "display": { "$value": ["Fraunces", "Cormorant Garamond", "Georgia", "serif"], "$type": "fontFamily" },
-        "sans":    { "$value": ["Archivo", "Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"], "$type": "fontFamily" },
-        "mono":    { "$value": ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"], "$type": "fontFamily" }
+        "display": { "$value": ["Playfair Display", "Georgia", "serif"], "$type": "fontFamily" },
+        "sans":    { "$value": ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"], "$type": "fontFamily" },
+        "mono":    { "$value": ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"], "$type": "fontFamily" }
       },
       "size": {
         "caption": { "$value": "0.8125rem", "$type": "dimension" },
@@ -433,7 +414,7 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
         "display":  { "$value": "-0.015em", "$type": "dimension" },
         "tight":    { "$value": "-0.01em",  "$type": "dimension" },
         "normal":   { "$value": "0",        "$type": "dimension" },
-        "overline": { "$value": "0.12em",   "$type": "dimension" }
+        "overline": { "$value": "0.18em",   "$type": "dimension" }
       }
     },
     "space": {
@@ -462,11 +443,11 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
     },
     "elevation": {
       "0": { "$value": "none", "$type": "shadow" },
-      "1": { "$value": "0 1px 2px 0 rgb(22 50 62 / 0.07)", "$type": "shadow" },
-      "2": { "$value": "0 2px 4px -1px rgb(22 50 62 / 0.08), 0 4px 8px -2px rgb(22 50 62 / 0.06)", "$type": "shadow" },
-      "3": { "$value": "0 4px 8px -2px rgb(22 50 62 / 0.09), 0 10px 20px -4px rgb(22 50 62 / 0.08)", "$type": "shadow" },
-      "4": { "$value": "0 8px 16px -4px rgb(22 50 62 / 0.10), 0 20px 32px -8px rgb(22 50 62 / 0.10)", "$type": "shadow" },
-      "5": { "$value": "0 16px 48px -8px rgb(22 50 62 / 0.18)", "$type": "shadow" }
+      "1": { "$value": "0 1px 2px 0 rgb(34 30 27 / 0.07)", "$type": "shadow" },
+      "2": { "$value": "0 2px 4px -1px rgb(34 30 27 / 0.08), 0 4px 8px -2px rgb(34 30 27 / 0.06)", "$type": "shadow" },
+      "3": { "$value": "0 4px 8px -2px rgb(34 30 27 / 0.09), 0 10px 20px -4px rgb(34 30 27 / 0.08)", "$type": "shadow" },
+      "4": { "$value": "0 8px 16px -4px rgb(34 30 27 / 0.10), 0 20px 32px -8px rgb(34 30 27 / 0.10)", "$type": "shadow" },
+      "5": { "$value": "0 16px 48px -8px rgb(34 30 27 / 0.18)", "$type": "shadow" }
     },
     "motion": {
       "duration": {
@@ -480,7 +461,7 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
         "standard": { "$value": "cubic-bezier(0.4, 0, 0.2, 1)", "$type": "cubicBezier" },
         "out":      { "$value": "cubic-bezier(0, 0, 0.2, 1)", "$type": "cubicBezier" },
         "in":       { "$value": "cubic-bezier(0.4, 0, 1, 1)", "$type": "cubicBezier" },
-        "compass":  { "$value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "$type": "cubicBezier" }
+        "seal":     { "$value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "$type": "cubicBezier" }
       }
     },
     "zIndex": {
@@ -502,7 +483,7 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
     "opacity": {
       "disabled": { "$value": "0.45", "$type": "number" },
       "scrim":    { "$value": "0.5",  "$type": "number" },
-      "stamp":    { "$value": "0.85", "$type": "number" }
+      "stamp":    { "$value": "0.9",  "$type": "number" }
     }
   }
 }
@@ -515,36 +496,35 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
 Consume semantic tokens as CSS variables so dark mode is a single attribute flip. Add to `tailwind.config.js`:
 
 ```js
-// tailwind.config.js — Greensheet extension
+// tailwind.config.js — Auctum Ledger extension
 module.exports = {
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
         // semantic (CSS-var backed; vars emitted from tokens.json)
-        canvas:    'rgb(var(--gs-bg-canvas) / <alpha-value>)',
-        surface:   'rgb(var(--gs-bg-surface) / <alpha-value>)',
-        recessed:  'rgb(var(--gs-bg-recessed) / <alpha-value>)',
-        ink:       'rgb(var(--gs-text-primary) / <alpha-value>)',
-        muted:     'rgb(var(--gs-text-muted) / <alpha-value>)',
-        subtle:    'rgb(var(--gs-text-subtle) / <alpha-value>)',
-        // brand primitives (static)
-        navy:   { DEFAULT: '#16323E', 800: '#12252F', 900: '#0E1A22', 600: '#1F4F54' },
-        teal:   { DEFAULT: '#2A6E73', 700: '#1F4F54', 500: '#3D8A90', 300: '#7FB6BA', 100: '#DCEAEA' },
-        gold:   { DEFAULT: '#C9A34A', 600: '#7A5F22', 300: '#D4B96A', 100: '#F0E6CC' },
-        cherry: { DEFAULT: '#8C3B34', 300: '#E8B4A6', 100: '#F9E6E2' },
-        roast:  { DEFAULT: '#4A3527', 800: '#3A2A1E', 100: '#E9DFD2' },
-        leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // greensheet green
-        parchment: { DEFAULT: '#F6F1E7', 50: '#FDFBF5', 200: '#EFE8DA', 300: '#E4DCC9' },
-        success: { DEFAULT: '#33684A', bg: '#E5EFE7' },
-        warning: { DEFAULT: '#8A5F14', bg: '#FBF0DA' },
-        danger:  { DEFAULT: '#9E3D31', bg: '#F9E6E2' },
-        info:    { DEFAULT: '#2C6E8C', bg: '#E4EEF3' },
+        canvas:    'rgb(var(--auctum-bg-canvas) / <alpha-value>)',
+        surface:   'rgb(var(--auctum-bg-surface) / <alpha-value>)',
+        recessed:  'rgb(var(--auctum-bg-recessed) / <alpha-value>)',
+        ink:       'rgb(var(--auctum-text-primary) / <alpha-value>)',
+        muted:     'rgb(var(--auctum-text-muted) / <alpha-value>)',
+        subtle:    'rgb(var(--auctum-text-subtle) / <alpha-value>)',
+        // brand primitives (static) — Museum Folio
+        oxblood: { DEFAULT: '#74362F', 800: '#5E2B25', 300: '#C9978F', 100: '#F2E3E0' },
+        brass:   { DEFAULT: '#947642', 600: '#6E572C', 300: '#C9A86A', 100: '#F0E6CC' },
+        sage:    { DEFAULT: '#4F6958', 700: '#3E5546', 300: '#8FAF9B', 100: '#E4EBE4' },
+        ink:     { 900: '#221E1B', 700: '#58514B' },
+        paper:   { DEFAULT: '#F5F2EB', 50: '#FAF9F4', 200: '#EDE7DA', 300: '#E4DECE' },
+        neutral: { 400: '#D9D3C9', 500: '#B9AE97', 600: '#8A8272', 700: '#5C5546' },
+        success: { DEFAULT: '#4F6958', bg: '#E4EBE4' },
+        warning: { DEFAULT: '#A36A29', bg: '#F6EBD8' },
+        danger:  { DEFAULT: '#962C2C', bg: '#F5E0DE' },
+        info:    { DEFAULT: '#6E572C', bg: '#F0E6CC' },
       },
       fontFamily: {
-        display: ['Fraunces', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans:    ['Archivo', 'Inter', 'system-ui', 'sans-serif'],
-        mono:    ['IBM Plex Mono', 'JetBrains Mono', 'ui-monospace', 'monospace'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         caption: ['0.8125rem', { lineHeight: '1.3',  letterSpacing: '0.02em' }],
@@ -565,18 +545,18 @@ module.exports = {
         xs: '2px', sm: '4px', md: '6px', lg: '8px', xl: '12px', '2xl': '16px',
       },
       boxShadow: {
-        'e1': '0 1px 2px 0 rgb(22 50 62 / 0.07)',
-        'e2': '0 2px 4px -1px rgb(22 50 62 / 0.08), 0 4px 8px -2px rgb(22 50 62 / 0.06)',
-        'e3': '0 4px 8px -2px rgb(22 50 62 / 0.09), 0 10px 20px -4px rgb(22 50 62 / 0.08)',
-        'e4': '0 8px 16px -4px rgb(22 50 62 / 0.10), 0 20px 32px -8px rgb(22 50 62 / 0.10)',
-        'e5': '0 16px 48px -8px rgb(22 50 62 / 0.18)',
+        'e1': '0 1px 2px 0 rgb(34 30 27 / 0.07)',
+        'e2': '0 2px 4px -1px rgb(34 30 27 / 0.08), 0 4px 8px -2px rgb(34 30 27 / 0.06)',
+        'e3': '0 4px 8px -2px rgb(34 30 27 / 0.09), 0 10px 20px -4px rgb(34 30 27 / 0.08)',
+        'e4': '0 8px 16px -4px rgb(34 30 27 / 0.10), 0 20px 32px -8px rgb(34 30 27 / 0.10)',
+        'e5': '0 16px 48px -8px rgb(34 30 27 / 0.18)',
       },
       transitionDuration: {
         instant: '100ms', fast: '150ms', base: '250ms', slow: '350ms', slower: '500ms',
       },
       transitionTimingFunction: {
         standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        compass:  'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        seal:     'cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
       screens: { xs: '480px', sm: '640px', md: '768px', lg: '1024px', xl: '1280px', '2xl': '1536px' },
       zIndex: { dropdown: '10', sticky: '20', modal: '50', overlay: '100', max: '999' },
@@ -592,20 +572,20 @@ Corresponding CSS variables (emitted by Style Dictionary from `tokens.json`; sho
 
 ```css
 :root {
-  --gs-bg-canvas: 246 241 231;   /* parchment-100 */
-  --gs-bg-surface: 253 251 245;
-  --gs-bg-recessed: 239 232 218;
-  --gs-text-primary: 34 29 22;
-  --gs-text-muted: 92 85 70;
-  --gs-text-subtle: 138 130 114;
+  --auctum-bg-canvas: 245 242 235;   /* paper-100 */
+  --auctum-bg-surface: 250 249 244;
+  --auctum-bg-recessed: 237 231 218;
+  --auctum-text-primary: 34 30 27;
+  --auctum-text-muted: 88 81 75;
+  --auctum-text-subtle: 138 130 114;
 }
 [data-theme="dark"] {
-  --gs-bg-canvas: 16 27 35;
-  --gs-bg-surface: 27 41 51;
-  --gs-bg-recessed: 34 51 63;
-  --gs-text-primary: 239 233 219;
-  --gs-text-muted: 169 160 140;
-  --gs-text-subtle: 138 130 114;
+  --auctum-bg-canvas: 22 18 14;
+  --auctum-bg-surface: 33 27 20;
+  --auctum-bg-recessed: 42 35 24;
+  --auctum-text-primary: 242 237 227;
+  --auctum-text-muted: 179 169 150;
+  --auctum-text-subtle: 138 130 114;
 }
 ```
 
@@ -615,15 +595,16 @@ Corresponding CSS variables (emitted by Style Dictionary from `tokens.json`; sho
 
 | Token | Traces to |
 |---|---|
-| navy-700 `#16323E` | ODASI compass navy `#142435` (sampled from parent mark), lightened +6% for UI text AA |
-| teal-600 `#2A6E73` | ODASI constellation teal `#3D7681` (sampled), darkened to reach 4.5:1 with white |
-| gold-500 `#C9A34A` | ODASI core gold `#968853` (sampled), brightened for badge graphics; gold-600 `#7A5F22` derived for text AA |
-| parchment-100 `#F6F1E7` | legacy `--color-paper #fbfaf6`, warmed toward green-sheet paper stock |
-| ink-900 `#221D16` | legacy `--color-ink #26201a`, deepened slightly for AAA on parchment |
-| green-600 `#3E6B50` | legacy `--color-primary #2f6b4a`, desaturated to sit beside navy |
-| status.* | legacy `--color-success/warning/danger/info`, re-balanced; warning darkened `#a8721f → #8A5F14` to reach AA |
-| type scale 1.25 / Archivo / Fraunces / IBM Plex Mono | legacy §4.1 font stacks and modular ratio, fixed-step rendering of its fluid clamps |
-| radius 2–16, durations 100–500, easings | legacy §4.1 values, pruned (bounce → `ease.compass`, scoped to badge/winner moments) |
-| cherry/roast | new to this system — coffee materiality (cherry fruit, roast profile); no legacy equivalent |
+| ink-900 `#221E1B` | Museum Folio `ink 24 12% 12%` (master brand), held at AAA on paper grounds |
+| oxblood-700 `#74362F` | Museum Folio `oxblood 6 42% 32%` (master brand) — the single earned accent |
+| brass-500 `#947642` | Museum Folio `brass 38 38% 42%` (master brand); brass-600 `#6E572C` derived for text AA |
+| paper-100 `#F5F2EB` | Museum Folio `paper 42 33% 94%` (master brand ivory ground) |
+| paper-50 `#FAF9F4` | Museum Folio `paper-raised 45 40% 97%` — archival plates |
+| neutral-400 `#D9D3C9` | Museum Folio `hairline 38 18% 82%` — borders, always 1 px |
+| sage-600 `#4F6958` | Museum Folio `success 140 14% 36%`; warning `#A36A29` = `32 60% 40%`; danger `#962C2C` = `0 55% 38%` |
+| status.info → brass-600 | Museum Folio has no blue; informational states resolved to brass (see §2.2) |
+| type scale 1.25 / Playfair Display / Inter / JetBrains Mono | Museum Folio typography (master brand); modular ratio retained from legacy §4.1 fluid clamps |
+| radius 2–16, durations 100–500, easings | legacy §4.1 values, pruned (bounce → `ease.seal`, scoped to badge/seal/winner moments); radius re-anchored to 2–4 per Museum Folio |
+| dark mode `#16120E–#362C1E` | new to this system — warm espresso-ink darks derived from the ink/paper hue family; no legacy equivalent |
 
 **Governance:** any new token requires (a) a role name, (b) a computed contrast note, (c) an entry in this ledger. Ad-hoc hex in product code fails CI stylelint.

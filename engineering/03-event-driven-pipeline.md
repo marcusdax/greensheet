@@ -1,6 +1,6 @@
 # 03 — Event-Driven Pipeline: Kafka Topology, Schemas, Exactly-Once
 
-> **Extends:** Base Doc §5.1 (`OrderService` Kafka producer/consumer), §I.3 (Event-Driven Architecture), §VI (MSK cluster `greensheet-events`).
+> **Extends:** Base Doc §5.1 (`OrderService` Kafka producer/consumer), §I.3 (Event-Driven Architecture), §VI (MSK cluster `auctum-ledger-events`).
 > **Fixes:** the **dual-write defect** in Base Doc §5.1 — `createOrder()` commits Postgres *then* calls `producer.send()`; a crash between the two loses `order.created` (inventory never reserved, COF-005 never fires). This document replaces direct sends with the **transactional outbox** and defines the full topology, schemas, and delivery semantics.
 
 ---
@@ -31,7 +31,7 @@ flowchart LR
         OUT[Outbox Relay<br/>per-service sidecar]
     end
 
-    subgraph MSK["MSK cluster: greensheet-events (SASL_TLS + IAM)"]
+    subgraph MSK["MSK cluster: auctum-ledger-events (SASL_TLS + IAM)"]
         T1["gs.orders.events.v1<br/>12p · RF3 · 7d"]
         T2["gs.catalog.events.v1<br/>12p · RF3 · 7d"]
         T3["gs.samples.events.v1<br/>6p · RF3 · 7d"]
@@ -124,7 +124,7 @@ Every message uses **CloudEvents binary mode**: attributes in Kafka headers, Avr
 | `specversion` | `ce_specversion` | `1.0` | constant |
 | `id` | `ce_id` | `018f3c2a-…` (UUIDv7) | dedupe key for inbox pattern (§5.3) |
 | `type` | `ce_type` | `order.created` | **must match** domain catalogue (§01-6) and `automation_rules.trigger_event` for rule-triggering events |
-| `source` | `ce_source` | `//greensheet/orders` | producing service |
+| `source` | `ce_source` | `//auctum-ledger/orders` | producing service |
 | `subject` | `ce_subject` | `/orders/6d2f…` | aggregate URI |
 | `time` | `ce_time` | RFC3339 | business occurrence time |
 | `datacontenttype` | `content-type` | `application/avro` | |
@@ -141,7 +141,7 @@ Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union s
 {
   "type": "record",
   "name": "OrderCreated",
-  "namespace": "io.greensheet.events.orders",
+  "namespace": "io.auctumledger.events.orders",
   "doc": "Emitted when an Order aggregate is created (Base Doc 5.1 order.created).",
   "fields": [
     { "name": "orderId", "type": { "type": "string", "logicalType": "uuid" } },
@@ -166,7 +166,7 @@ Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union s
 {
   "type": "record",
   "name": "SampleKitDelivered",
-  "namespace": "io.greensheet.events.samples",
+  "namespace": "io.auctumledger.events.samples",
   "doc": "Pivotal funnel event; CloudEvents type 'sample_kit.delivered' triggers COF-001.",
   "fields": [
     { "name": "kitId", "type": { "type": "string", "logicalType": "uuid" } },
@@ -184,7 +184,7 @@ Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union s
 {
   "type": "record",
   "name": "RuleTriggered",
-  "namespace": "io.greensheet.events.campaigns",
+  "namespace": "io.auctumledger.events.campaigns",
   "fields": [
     { "name": "campaignId", "type": { "type": "string", "logicalType": "uuid" } },
     { "name": "ruleCode", "type": "string", "doc": "COF-001..COF-005 (validated regex ^COF-00[1-9]$)" },
@@ -279,7 +279,7 @@ export async function runOrderSaga() {
               key: payload.orderId,
               headers: cloudEventHeaders({
                 id: uuidv7(), type: 'billing.payment_authorized',
-                source: '//greensheet/billing', subject: `/orders/${payload.orderId}`,
+                source: '//auctum-ledger/billing', subject: `/orders/${payload.orderId}`,
               }),
               value: encodeAvro('PaymentAuthorized', { orderId: payload.orderId, amountCents: payload.amountCents, occurredAt: Date.now() }),
             }],
@@ -293,7 +293,7 @@ export async function runOrderSaga() {
               key: payload.lotId,
               headers: cloudEventHeaders({
                 id: uuidv7(), type: 'catalog.reservation_released',
-                source: '//greensheet/orders', subject: `/lots/${payload.lotId}`,
+                source: '//auctum-ledger/orders', subject: `/lots/${payload.lotId}`,
               }),
               value: encodeAvro('ReservationReleased', payload),
             }],
@@ -454,7 +454,7 @@ export async function runOutboxRelay(signal: AbortSignal) {
               ce_specversion: '1.0',
               ce_id: row.id,
               ce_type: row.event_type,
-              ce_source: `//greensheet/${process.env.SERVICE_NAME}`,
+              ce_source: `//auctum-ledger/${process.env.SERVICE_NAME}`,
               ce_subject: `/${row.topic.split('.')[1]}/${row.aggregate_id}`,
               ce_time: new Date(row.occurred_at).toISOString(),
               'content-type': 'application/avro',
