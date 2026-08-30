@@ -1,6 +1,6 @@
 # 02 — COF-001 → COF-005 Campaign Expansion (Complete Nurture Engine)
 
-> Implements base doc §I.2 (A/B/n Testing & Attribution, Predictive Lead Scoring, Automated Sample Kit Fulfillment) against the `coffee-marketing-schema.sql` blueprint: `campaigns` → `campaign_tokens` → `marketing_templates` → `automation_rules` → `rule_actions`, compiled at runtime via `view_compiled_campaign_rules`. All copy uses canonical merge tokens from §0.2. Economic guardrails inherited from `01-growth-architecture.md` §6.3 (CAC ceilings, LTV:CAC ≥ 3:1, sample-to-sale ≥ 40%).
+> Implements base doc §I.2 (A/B/n Testing & Attribution, Predictive Lead Scoring, Automated Sample Kit Fulfillment) against the `coffee-marketing-schema.sql` blueprint: `campaigns` → `campaign_tokens` → `marketing_templates` → `automation_rules` → `rule_actions`, compiled at runtime via `view_compiled_campaign_rules` — the nurture engine of the Auctum Ledger (formerly Greensheet). All copy uses canonical merge tokens from §0.2. Economic guardrails inherited from `01-growth-architecture.md` §6.3 (CAC ceilings, LTV:CAC ≥ 3:1, sample-to-sale ≥ 40%).
 
 ---
 
@@ -27,7 +27,7 @@ Suppression and lifecycle hygiene are enforced by global rules in §7 (never let
 | `{origin}` | coffee_lots.origin | Country of origin |
 | `{region}` | coffee_lots origin metadata | Producing region (e.g., Gedeb, Huila) |
 | `{process_method}` | coffee_lots.processing_method | washed / natural / honey / anaerobic |
-| `{sca_cup_score}` | coffee_lots.cup_score | SCA cup score, one decimal (e.g., 86.5) |
+| `{sca_cup_score}` | coffee_lots.cup_score | CQI cup score, one decimal (e.g., 86.5) |
 | `{elevation_masl}` | coffee_lots.elevation | Meters above sea level |
 | `{varietal}` | coffee_lots.varietal | e.g., Heirloom, Caturra, Pink Bourbon |
 | `{flavor_notes}` | coffee_lots.flavor_notes (JSONB) | Top three cupping notes |
@@ -97,7 +97,7 @@ Every touchpoint runs as an `ab_tests` row. Standard config unless overridden pe
 >
 > No contract. No minimum. If the coffee doesn't cup, you've lost nothing but a brew cycle.
 >
-> — {rep_first_name}, Greensheet
+> — {rep_first_name}, Auctum Ledger
 > P.S. There are {lot_size_bags} bags of the {region} lot. We'll never email you fake scarcity — that's the real count from the warehouse.
 
 **Boutique variant note:** swap P.S. for: *"P.S. Two roasteries in your peer quantile cupped this lot last week. Their benchmarking data is in your dashboard if you want the receipts."*
@@ -117,7 +117,7 @@ Every touchpoint runs as an `ab_tests` row. Standard config unless overridden pe
 
 ### SMS — Touch 3 (`COF-001-S1`, `touchpoint: 3`, `template_style: option_b_consultative`, fires day 5 if opened-but-unconverted)
 
-> Hi {first_name}, {rep_first_name} from Greensheet. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.
+> Hi {first_name}, {rep_first_name} from Auctum Ledger. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.
 
 ### Landing page (`/kits/claim?utm_campaign=cof-001`)
 
@@ -241,7 +241,7 @@ Minimum sample: 400 sends/arm (posterior ≥ 0.95 governs promotion; see §0.3).
 
 ### SMS — Touch 2 (`COF-002-S1`, `touchpoint: 2`, `template_style: option_b_consultative`, day 7 if no feedback)
 
-> Hi {first_name}, {rep_first_name} at Greensheet. Your {origin} kit's been there a week — cupped it yet? Even a "too bright for us" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}
+> Hi {first_name}, {rep_first_name} at Auctum Ledger. Your {origin} kit's been there a week — cupped it yet? Even a "too bright for us" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}
 
 ### Landing page (`/feedback?kit={kit_id}&utm_campaign=cof-002`)
 
@@ -370,7 +370,7 @@ Minimum sample: 400 kits/arm.
 
 ### SMS — Touch 3 (`COF-003-S1`, `touchpoint: 3`, day 10, no order)
 
-> {first_name}, {rep_first_name} (Greensheet). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow's the blocker. Want me to? {shortlist_url}
+> {first_name}, {rep_first_name} (Auctum Ledger). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow's the blocker. Want me to? {shortlist_url}
 
 ### Landing page (`/shortlist?utm_campaign=cof-003`)
 
