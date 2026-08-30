@@ -527,6 +527,26 @@ export const pricingLinkClicks = mysqlTable(
   (t) => [index("clicks_roaster_idx").on(t.roasterId)],
 );
 
+// ─── Warehouse intake (doc-intake commit target for CMR shipping documents) ──
+export const shipmentIntakes = mysqlTable(
+  "shipment_intakes",
+  {
+    id: serial("id").primaryKey(),
+    lotId: bigint("lotId", { mode: "number", unsigned: true }),
+    consignor: varchar("consignor", { length: 255 }).notNull().default(""),
+    consignee: varchar("consignee", { length: 255 }).notNull().default(""),
+    containerNumber: varchar("containerNumber", { length: 60 }).notNull().default(""),
+    sealNumber: varchar("sealNumber", { length: 60 }).notNull().default(""),
+    grossWeightLbs: int("grossWeightLbs").notNull().default(0),
+    shippedAt: timestamp("shippedAt"),
+    arrivedAt: timestamp("arrivedAt"),
+    source: mysqlEnum("source", ["manual", "docintake"]).notNull().default("manual"),
+    extractionJson: text("extractionJson"), // audit copy of the OCR payload
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [index("intakes_lot_idx").on(t.lotId)],
+);
+
 // ─── Identity Context (engineering/07 RBAC — credential auth, role scoping) ──
 export const users = mysqlTable(
   "users",

@@ -14,6 +14,8 @@ import {
   GraduationCap,
   Rocket,
   LogOut,
+  BarChart3,
+  ScanLine,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -39,6 +41,10 @@ const NAV_GROUPS: {
     ],
   },
   {
+    label: "Intelligence",
+    items: [{ to: "/analytics", label: "Analytics", icon: BarChart3, roles: READERS }],
+  },
+  {
     label: "Relationships",
     items: [
       { to: "/crm", label: "CRM", icon: Users, roles: READERS },
@@ -52,6 +58,7 @@ const NAV_GROUPS: {
     label: "Operations",
     items: [
       { to: "/warehouse", label: "Warehouse", icon: WarehouseIcon, roles: STAFF },
+      { to: "/intake", label: "Doc Intake", icon: ScanLine, roles: STAFF },
       { to: "/qc", label: "QC Lab", icon: FlaskConical, roles: STAFF },
       { to: "/partners", label: "Partners", icon: Handshake, roles: STAFF },
       { to: "/education", label: "Education", icon: GraduationCap, roles: ALL_ROLES },
