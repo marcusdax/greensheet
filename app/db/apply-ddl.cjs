@@ -199,6 +199,21 @@ const statements = [
     UNIQUE KEY users_email_unique (email),
     INDEX users_roaster_idx (roasterId)
   )`,
+  `CREATE TABLE IF NOT EXISTS shipment_intakes (
+    id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    lotId bigint unsigned NULL,
+    consignor varchar(255) NOT NULL DEFAULT '',
+    consignee varchar(255) NOT NULL DEFAULT '',
+    containerNumber varchar(60) NOT NULL DEFAULT '',
+    sealNumber varchar(60) NOT NULL DEFAULT '',
+    grossWeightLbs int NOT NULL DEFAULT 0,
+    shippedAt timestamp NULL,
+    arrivedAt timestamp NULL,
+    source ENUM('manual','docintake') NOT NULL DEFAULT 'manual',
+    extractionJson text NULL,
+    createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX intakes_lot_idx (lotId)
+  )`,
 ];
 (async () => {
   const conn = await mysql.createConnection({ uri: env.DATABASE_URL });
