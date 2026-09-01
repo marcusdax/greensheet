@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { UserRole } from "@contracts/constants";
+import { rolesFor, type RbacProcedurePath } from "@contracts/rbac";
 import type { SessionUser, TrpcContext } from "./context";
 
 const t = initTRPC.context<TrpcContext>().create({
@@ -26,6 +27,17 @@ export function roleProcedure(...roles: UserRole[]) {
     }
     return next();
   });
+}
+
+/**
+ * Bind a procedure to its line in contracts/rbac.ts (§5.3).
+ *
+ * Using this rather than a literal role list means the table is the single
+ * source of truth: it cannot drift from what the router actually enforces, and
+ * widening access is a one-line diff in a file reviewers watch.
+ */
+export function rbacProcedure(path: RbacProcedurePath) {
+  return roleProcedure(...rolesFor(path));
 }
 
 // Internal staff who run day-to-day operations.

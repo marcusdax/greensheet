@@ -3,15 +3,24 @@ import {
   serial,
   bigint,
   int,
+  smallint,
   double,
+  decimal,
   varchar,
   text,
   boolean,
   timestamp,
+  date,
+  json,
   mysqlEnum,
   index,
   uniqueIndex,
 } from "drizzle-orm/mysql-core";
+
+// drizzle.config.ts points at this single file, so the manager and payments
+// contexts are re-exported here for drizzle-kit to pick them up (spec §2).
+export * from "./manager-schema";
+export * from "./payments-schema";
 
 // ─── Catalog Context ─────────────────────────────────────────────────────────
 // Money is always integer cents at rest (canonical convention).
@@ -33,6 +42,20 @@ export const coffeeLots = mysqlTable(
     flavorNotes: varchar("flavorNotes", { length: 500 }).notNull().default(""),
     status: mysqlEnum("status", ["active", "retired"]).notNull().default("active"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
+    // ── §3.1 additive columns for this sprint. Do not restructure this table. ──
+    // cupScore stays `double` deliberately: retyping it to decimal(5,2) is a
+    // separate, carefully-tested migration (R5). Until then every tier
+    // comparison goes through roundScore() — see contracts/constants.ts.
+    farm: varchar("farm", { length: 255 }), // farm or cooperative; distinct from origin
+    moistureContent: decimal("moistureContent", { precision: 5, scale: 2 }), // runbook 11.0–12.5%
+    waterActivity: decimal("waterActivity", { precision: 4, scale: 3 }),
+    density: decimal("density", { precision: 5, scale: 2 }), // g/mL
+    defectCount: int("defectCount"),
+    certifications: json("certifications").$type<string[]>().notNull().default([]),
+    harvestYear: smallint("harvestYear"),
+    arrivalDate: date("arrivalDate", { mode: "string" }),
+    warehouseLocation: varchar("warehouseLocation", { length: 120 }),
+    deletedAt: timestamp("deletedAt"),
   },
   (t) => [index("lots_status_idx").on(t.status), index("lots_origin_idx").on(t.origin)],
 );
@@ -230,10 +253,28 @@ export const domainEvents = mysqlTable(
     eventType: varchar("eventType", { length: 80 }).notNull(), // canonical snake_case dotted
     aggregateType: varchar("aggregateType", { length: 40 }).notNull(),
     aggregateId: varchar("aggregateId", { length: 40 }).notNull(),
-    payload: text("payload").notNull(), // JSON
+    // §3.13 — was `text`. The migration backfills and validates that every
+    // existing row parses; a row that does not stops the migration rather than
+    // being coerced.
+    payload: json("payload").$type<Record<string, unknown>>().notNull(),
+    // ── §3.13 outbox columns (fixes B6) ──────────────────────────────────────
+    processed: boolean("processed").notNull().default(false),
+    processedAt: timestamp("processedAt"),
+    attempts: int("attempts").notNull().default(0),
+    lastError: text("lastError"),
+    availableAt: timestamp("availableAt").defaultNow().notNull(), // backoff scheduling
+    eventVersion: smallint("eventVersion").notNull().default(1), // payload schema version
+    skippedReason: varchar("skippedReason", { length: 255 }),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
-  (t) => [index("events_type_idx").on(t.eventType)],
+  (t) => [
+    index("events_type_idx").on(t.eventType),
+    // Claim-based dispatch index. The consumer must NOT use `id > lastSeenId`:
+    // MySQL allocates AUTO_INCREMENT at insert but exposes it at commit, so a
+    // long transaction can commit an id below one a later short transaction has
+    // already shown. A cursor consumer skips it silently (§3.13).
+    index("events_dispatch_idx").on(t.processed, t.availableAt, t.id),
+  ],
 );
 
 // ─── Warehouse & Verification Context (warehouse runbooks) ───────────────────
