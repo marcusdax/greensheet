@@ -7,6 +7,7 @@ import {
   campaigns,
   coffeeLots,
   roasters,
+  users,
 } from "./schema";
 
 async function seed() {
@@ -191,6 +192,16 @@ async function seed() {
       cacCents: 33500,
     },
   ]);
+
+  // ─── Admin user ──────────────────────────────────────────────────────────────
+  // Default admin credentials: admin@greensheet.local / greensheet_admin_2025
+  await db.insert(users).values({
+    email: "admin@greensheet.local",
+    name: "Admin User",
+    passwordHash: "greensheet_admin_2025",
+    role: "admin",
+    active: true,
+  });
 
   // ─── Campaigns: COF nurture campaign + COF-001…005 rules ───────────────────
   const [{ id: campaignId }] = await db

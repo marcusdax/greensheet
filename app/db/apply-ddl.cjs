@@ -7,6 +7,17 @@ for (const line of fs.readFileSync(".env","utf8").split("\n")) {
   if (m) env[m[1]] = m[2];
 }
 const statements = [
+  `CREATE TABLE IF NOT EXISTS users (
+    id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email varchar(320) NOT NULL,
+    name varchar(255) NOT NULL,
+    passwordHash varchar(255) NOT NULL,
+    role ENUM('admin','user','operator') NOT NULL DEFAULT 'user',
+    roasterId bigint unsigned NULL,
+    active boolean NOT NULL DEFAULT true,
+    createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX users_email_idx (email), INDEX users_roaster_idx (roasterId)
+  )`,
   "ALTER TABLE dispatches MODIFY channel ENUM('email','sms','whatsapp','crm','system') NOT NULL",
   "ALTER TABLE dispatches MODIFY status ENUM('sent','queued','halted','lifecycle_updated','converted') NOT NULL DEFAULT 'sent'",
   "ALTER TABLE roasters ADD COLUMN whatsappNumber varchar(40) NULL",

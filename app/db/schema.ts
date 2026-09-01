@@ -38,6 +38,24 @@ export const coffeeLots = mysqlTable(
 );
 
 // ─── CRM Context ─────────────────────────────────────────────────────────────
+export const users = mysqlTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 320 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+    role: mysqlEnum("role", ["admin", "user", "operator"]).notNull().default("user"),
+    roasterId: bigint("roasterId", { mode: "number", unsigned: true }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    index("users_email_idx").on(t.email),
+    index("users_roaster_idx").on(t.roasterId),
+  ]
+);
+
 export const roasters = mysqlTable(
   "roasters",
   {
@@ -530,6 +548,7 @@ export const pricingLinkClicks = mysqlTable(
 // Inferred types
 export type CoffeeLot = typeof coffeeLots.$inferSelect;
 export type Roaster = typeof roasters.$inferSelect;
+export type User = typeof users.$inferSelect;
 export type ChurnIntervention = typeof churnInterventions.$inferSelect;
 export type SampleKit = typeof sampleKits.$inferSelect;
 export type SampleKitItem = typeof sampleKitItems.$inferSelect;
@@ -555,3 +574,7 @@ export type WaitlistSignup = typeof waitlistSignups.$inferSelect;
 export type Referral = typeof referrals.$inferSelect;
 export type MarketingPost = typeof marketingPosts.$inferSelect;
 export type PricingLinkClick = typeof pricingLinkClicks.$inferSelect;
+
+// ─── Re-export bounded-context schemas (Manager + Payments) ─────────────────
+export * from "./manager-schema";
+export * from "./payments-schema";

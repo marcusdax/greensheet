@@ -5,7 +5,7 @@ A runnable full-stack implementation of the Greensheet expansion-pack specs (`..
 ## Feature ↔ Spec Mapping
 
 | Feature (working) | Spec source |
-|---|---|
+| --- | --- |
 | Catalog: lots, SCA cup-score badges, spot inventory, price changes, retire | `01-domain-model` §4.1, `02-openapi-contract` `/v1/catalog/lots` |
 | CRM: roaster accounts, lifecycle stages, LTV/CAC, churn hazard (0.70 threshold), interventions | `01-domain-model` §4.2, `04-database-evolution` |
 | Sample kits: state machine (requested→assembling→shipped→delivered→feedback), max 2 active kits, lot snapshots locked at assembly | `01-domain-model` §4.4 |
