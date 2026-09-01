@@ -15,16 +15,16 @@ import { FlaskConical, Archive, Plus, Skull } from "lucide-react";
 import { toast } from "sonner";
 
 const SAMPLE_STATUS: Record<string, string> = {
-  sealed: "bg-emerald-100 text-emerald-800",
-  opened: "bg-amber-100 text-amber-800",
-  destroyed: "bg-slate-200 text-slate-700",
-  lost: "bg-red-100 text-red-800",
+  sealed: "bg-success-soft text-success",
+  opened: "bg-warning-soft text-warning",
+  destroyed: "bg-muted text-muted-foreground",
+  lost: "bg-danger-soft text-danger",
 };
 
 const VERDICT_STYLE: Record<string, string> = {
-  within_tolerance: "bg-emerald-100 text-emerald-800",
-  outside_tolerance: "bg-orange-100 text-orange-800",
-  red_flag: "bg-red-100 text-red-800",
+  within_tolerance: "bg-success-soft text-success",
+  outside_tolerance: "bg-clay-soft text-clay",
+  red_flag: "bg-danger-soft text-danger",
 };
 
 const RED_FLAGS = [
@@ -100,11 +100,11 @@ export default function QcLab() {
                       <div className="flex items-center gap-1">
                         <Badge className={SAMPLE_STATUS[s.status]}>{s.status}</Badge>
                         {s.hasActiveException && (
-                          <Badge className="bg-red-100 text-red-800">exception</Badge>
+                          <Badge className="bg-danger-soft text-danger">exception</Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className={`text-sm ${s.openedCount > 5 ? "text-red-600 font-semibold" : ""}`}>
+                    <TableCell className={`text-sm ${s.openedCount > 5 ? "text-danger font-semibold" : ""}`}>
                       {s.openedCount}×{s.openedCount > 5 && " compromised"}
                     </TableCell>
                     <TableCell className="text-xs">
@@ -263,7 +263,7 @@ function PullSampleDialog({ onDone }: { onDone: () => void }) {
             <Input value={pulledBy} onChange={(e) => setPulledBy(e.target.value)} />
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={pull.isPending || !lotCode.trim() || !pulledBy.trim()}
             onClick={() =>
               pull.mutate({
@@ -324,7 +324,7 @@ function AccessDialog({ sampleId, onDone }: { sampleId: number; onDone: () => vo
             <Input type="number" value={grams} onChange={(e) => setGrams(e.target.value)} />
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={log.isPending || !accessedBy.trim() || !purpose.trim()}
             onClick={() => log.mutate({ sampleId, accessedBy, purpose, quantityGrams: Number(grams) || 0 })}
           >
@@ -450,7 +450,7 @@ function CuppingDialog({ onDone }: { onDone: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#16382a] hover:bg-[#1f4a38]">
+        <Button className="bg-navy hover:bg-navy-800">
           <FlaskConical className="h-4 w-4 mr-1" /> Record cupping
         </Button>
       </DialogTrigger>
@@ -553,7 +553,7 @@ function CuppingDialog({ onDone }: { onDone: () => void }) {
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={record.isPending || !lotCode || !cuppers.trim()}
             onClick={submit}
           >

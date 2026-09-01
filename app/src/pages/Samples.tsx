@@ -159,7 +159,7 @@ export default function Samples() {
                 <div className="rounded-md bg-muted p-2 text-xs">
                   <div className="flex items-center gap-1 font-medium">
                     {Array.from({ length: kit.feedback.rating }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-[#d9a441] text-[#d9a441]" />
+                      <Star key={i} className="h-3 w-3 fill-gold text-gold" />
                     ))}
                     <span className="ml-1">{kit.feedback.rating}/5</span>
                   </div>
@@ -207,7 +207,7 @@ export default function Samples() {
               <div className="flex gap-1 mt-2">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button key={n} type="button" onClick={() => setRating(n)}>
-                    <Star className={`h-7 w-7 ${n <= rating ? "fill-[#d9a441] text-[#d9a441]" : "text-muted-foreground"}`} />
+                    <Star className={`h-7 w-7 ${n <= rating ? "fill-gold text-gold" : "text-muted-foreground"}`} />
                   </button>
                 ))}
               </div>

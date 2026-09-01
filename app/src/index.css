@@ -2,66 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Auctum Ledger theme — parchment grounds, Compass Navy ink, earned gold.
+   HSL triplets derive from design-system/02-design-tokens.md. */
 @layer base {
   :root {
-    --background: 42 32% 95%;
-    --foreground: 152 30% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 152 30% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 152 30% 12%;
-    --primary: 152 38% 26%;
-    --primary-foreground: 42 32% 96%;
-    --secondary: 42 24% 90%;
-    --secondary-foreground: 152 30% 16%;
-    --muted: 42 24% 90%;
-    --muted-foreground: 150 8% 40%;
-    --accent: 38 55% 52%;
-    --accent-foreground: 152 30% 12%;
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 40 16% 84%;
-    --input: 40 16% 84%;
-    --ring: 152 38% 26%;
+    --background: 40 45.5% 93.5%;          /* parchment-100 #F6F1E7 */
+    --foreground: 35 21.4% 11%;            /* ink-900 #221D16 */
+    --card: 45 66.7% 97.6%;                /* parchment-50 #FDFBF5 */
+    --card-foreground: 35 21.4% 11%;
+    --popover: 45 66.7% 97.6%;
+    --popover-foreground: 35 21.4% 11%;
+    --primary: 198 47.6% 16.5%;            /* navy-700 #16323E */
+    --primary-foreground: 45 66.7% 97.6%;
+    --secondary: 40 39.6% 89.6%;           /* parchment-200 #EFE8DA */
+    --secondary-foreground: 40.9 13.6% 31.8%;
+    --muted: 40 39.6% 89.6%;
+    --muted-foreground: 40.9 13.6% 31.8%;  /* neutral-700 #5C5546 */
+    --accent: 42.2 33.3% 84.1%;            /* parchment-300 #E4DCC9 */
+    --accent-foreground: 35 21.4% 11%;
+    --destructive: 6.6 52.7% 40.6%;        /* status danger #9E3D31 */
+    --destructive-foreground: 45 66.7% 97.6%;
+    --border: 41.4 27.1% 79%;              /* neutral-400 #D8CFBB */
+    --input: 40.6 19.5% 65.9%;             /* neutral-500 #B9AE97 */
+    --ring: 184.1 46.5% 30.8%;             /* teal-600 #2A6E73 */
     --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 204 41.7% 9.4%;  /* navy-900 */
+    --sidebar-foreground: 40 45.5% 93.5%;
+    --sidebar-primary: 44.7 55.2% 62.4%;   /* gold-300 */
+    --sidebar-primary-foreground: 204 41.7% 9.4%;
+    --sidebar-accent: 200.7 44.6% 12.7%;
+    --sidebar-accent-foreground: 40 45.5% 93.5%;
+    --sidebar-border: 204.8 20% 28.4%;
+    --sidebar-ring: 44.7 55.2% 62.4%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 205.3 37.3% 10%;         /* #101B23 */
+    --foreground: 42 38.5% 89.8%;          /* #EFE9DB */
+    --card: 205 30.8% 15.3%;               /* #1B2933 */
+    --card-foreground: 42 38.5% 89.8%;
+    --popover: 205 30.8% 15.3%;
+    --popover-foreground: 42 38.5% 89.8%;
+    --primary: 184.1 29.9% 61.4%;          /* teal-300 #7FB6BA */
+    --primary-foreground: 205.3 37.3% 10%;
+    --secondary: 204.8 29.9% 19%;          /* #22333F */
+    --secondary-foreground: 42 38.5% 89.8%;
+    --muted: 204.8 29.9% 19%;
+    --muted-foreground: 41.4 14.4% 60.6%;  /* #A9A08C */
+    --accent: 203.2 27% 22.5%;             /* #2A3D49 */
+    --accent-foreground: 42 38.5% 89.8%;
+    --destructive: 7.4 65.9% 73.5%;        /* #E89A8F */
+    --destructive-foreground: 205.3 37.3% 10%;
+    --border: 204.8 20% 28.4%;             /* #3A4B57 */
+    --input: 207.3 14.8% 43.7%;            /* #5F7180 */
+    --ring: 184.1 29.9% 61.4%;
+    --sidebar-background: 205.3 37.3% 10%;
+    --sidebar-foreground: 42 38.5% 89.8%;
+    --sidebar-primary: 44.7 55.2% 62.4%;
+    --sidebar-primary-foreground: 205.3 37.3% 10%;
+    --sidebar-accent: 204.8 29.9% 19%;
+    --sidebar-accent-foreground: 42 38.5% 89.8%;
+    --sidebar-border: 204.8 20% 28.4%;
+    --sidebar-ring: 44.7 55.2% 62.4%;
   }
 }
 
@@ -69,7 +71,56 @@
   * {
     @apply border-border;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-variant-numeric: tabular-nums; /* figures align like the paper ledger */
+  }
+  ::selection {
+    background: #f0e6cc; /* gold-100 */
+    color: #221d16;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(138, 130, 114, 0.35); /* neutral-600 */
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 130, 114, 0.55);
+    background-clip: content-box;
+  }
+}
+
+@layer utilities {
+  /* Overline label — tokens §typography "overline" */
+  .overline-label {
+    @apply text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+  /* Gold hairline rule under page headers — "gold is earned" */
+  .gold-rule {
+    @apply h-px w-full bg-gradient-to-r from-gold/70 via-border to-transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

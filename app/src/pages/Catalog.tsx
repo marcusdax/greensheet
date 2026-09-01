@@ -12,10 +12,10 @@ import { Plus, Archive, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 function cupScoreBadge(score: number) {
-  if (score >= 88) return "bg-[#16382a] text-white";
-  if (score >= 85) return "bg-[#2f6b4a] text-white";
-  if (score >= 83) return "bg-[#d9a441] text-[#16382a]";
-  return "bg-muted text-foreground";
+  if (score >= 90) return "bg-gold text-ink";
+  if (score >= 85) return "bg-teal text-white";
+  if (score >= 80) return "bg-green text-white";
+  return "bg-muted-foreground text-parchment-50";
 }
 
 export default function Catalog() {

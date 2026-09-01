@@ -29,34 +29,51 @@ import {
   Cell,
   BarChart,
   Bar,
-  Legend,
 } from "recharts";
 
+// Domain chips on the event stream — brand tint surfaces (tokens §status + brand tints).
 const EVENT_COLORS: Record<string, string> = {
-  catalog: "bg-emerald-100 text-emerald-800",
-  crm: "bg-sky-100 text-sky-800",
-  samples: "bg-amber-100 text-amber-800",
-  sample_kit: "bg-amber-100 text-amber-800",
-  feedback: "bg-amber-100 text-amber-800",
-  campaigns: "bg-violet-100 text-violet-800",
-  order: "bg-green-100 text-green-800",
-  warehouse: "bg-orange-100 text-orange-800",
-  qc: "bg-teal-100 text-teal-800",
-  partners: "bg-yellow-100 text-yellow-800",
-  comms: "bg-blue-100 text-blue-800",
-  growth: "bg-pink-100 text-pink-800",
-  education: "bg-indigo-100 text-indigo-800",
+  catalog: "bg-success-soft text-success",
+  crm: "bg-info-soft text-info",
+  samples: "bg-gold-100 text-gold-600",
+  sample_kit: "bg-gold-100 text-gold-600",
+  feedback: "bg-gold-100 text-gold-600",
+  campaigns: "bg-teal-100 text-teal-700",
+  order: "bg-navy/[0.08] text-navy",
+  warehouse: "bg-clay-soft text-clay",
+  qc: "bg-roast-100 text-roast",
+  partners: "bg-warning-soft text-warning",
+  comms: "bg-info-soft text-info",
+  growth: "bg-cherry-100 text-cherry",
+  education: "bg-muted text-muted-foreground",
 };
 
+// Categorical channel palette — validated with the dataviz six-checks script
+// (all-pairs CVD ΔE 9.8, normal ΔE 17.1 on #FDFBF5); "system" takes the
+// neutral Other slot. Donut renders in this fixed order with direct labels.
+const CHANNEL_ORDER = ["email", "sms", "whatsapp", "crm", "system"] as const;
 const CHANNEL_COLORS: Record<string, string> = {
-  email: "#16382a",
-  whatsapp: "#25D366",
-  sms: "#d9a441",
-  crm: "#5B6A5F",
-  system: "#94a3b8",
+  email: "#128A78",
+  sms: "#C9A34A",
+  whatsapp: "#3468C0",
+  crm: "#B03A30",
+  system: "#8A8272",
 };
 
-const TIER_COLORS: Record<string, string> = { "1": "#f59e0b", "2": "#f97316", "3": "#dc2626" };
+// Severity ramp for exception tiers — validated (adjacent CVD ΔE 15.2, normal 16.9).
+const TIER_COLORS: Record<string, string> = { "1": "#D4A94C", "2": "#C0641F", "3": "#8C2F26" };
+
+// Shared chart chrome — parchment surface, decorative-border grid, muted ink ticks.
+const GRID_STROKE = "#D8CFBB";
+const TICK = { fontSize: 11, fill: "#5C5546" } as const;
+const TOOLTIP_STYLE = {
+  background: "#FDFBF5",
+  border: "1px solid #D8CFBB",
+  borderRadius: 10,
+  boxShadow: "0 8px 24px -8px rgba(14, 26, 34, 0.18)",
+  fontSize: 12,
+  color: "#221D16",
+} as const;
 
 const usd = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
@@ -66,7 +83,7 @@ export default function Dashboard() {
   if (!data) {
     return (
       <Layout>
-        <PageHeader title="Dashboard" sub="Loading platform telemetry…" />
+        <PageHeader title="Operations Dashboard" sub="Loading platform telemetry…" />
       </Layout>
     );
   }
@@ -101,9 +118,11 @@ export default function Dashboard() {
     { label: "Rev-share accrued", value: formatCents(kpis.revenueShareAccruedCents), icon: Handshake },
   ];
 
-  const channelData = Object.entries(channelDist).map(([channel, count]) => ({
+  // Fixed entity order keeps donut adjacency (and color identity) stable across refreshes.
+  const channelDistMap = channelDist as Record<string, number>;
+  const channelData = CHANNEL_ORDER.filter((c) => (channelDistMap[c] ?? 0) > 0).map((channel) => ({
     name: channel,
-    value: count,
+    value: channelDistMap[channel],
   }));
   const tierData = Object.entries(exceptionsByTier)
     .filter(([, v]) => v > 0)
@@ -112,7 +131,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <PageHeader
-        title="Greensheet Operations Dashboard"
+        title="Operations Dashboard"
         sub="Trade, comms, warehouse & partner telemetry · live domain event stream"
       />
 
@@ -120,12 +139,12 @@ export default function Dashboard() {
         {kpiCards.map(({ label, value, icon: Icon }) => (
           <Card key={label}>
             <CardContent className="pt-5 flex items-center gap-3">
-              <div className="rounded-md bg-primary/10 p-2">
+              <div className="rounded-lg bg-primary/10 p-2">
                 <Icon className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <div className="text-xl font-bold leading-none">{value}</div>
-                <div className="text-xs text-muted-foreground mt-1">{label}</div>
+                <div className="font-display text-[1.35rem] font-semibold leading-none tracking-tight">{value}</div>
+                <div className="text-xs text-muted-foreground mt-1.5">{label}</div>
               </div>
             </CardContent>
           </Card>
@@ -138,30 +157,44 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-base">Revenue & order volume</CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-80">
             {revenueSeries.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenueSeries} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#16382a" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#16382a" stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" />
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis yAxisId="rev" tickFormatter={(v: number) => usd(v)} tick={{ fontSize: 11 }} width={70} />
-                  <YAxis yAxisId="ord" orientation="right" allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
-                  <Tooltip
-                    formatter={(value: number | string, name: string) =>
-                      name === "Revenue" ? [usd(Number(value)), name] : [value, name]
-                    }
-                  />
-                  <Legend />
-                  <Area yAxisId="rev" type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16382a" fill="url(#rev)" strokeWidth={2} />
-                  <Bar yAxisId="ord" dataKey="orders" name="Orders" fill="#d9a441" radius={[3, 3, 0, 0]} />
-                </AreaChart>
-              </ResponsiveContainer>
+              /* Two synced panels sharing one x-domain — never a dual-axis chart. */
+              <div className="h-full flex flex-col">
+                <div className="overline-label mb-1">Revenue</div>
+                <div className="flex-[3] min-h-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={revenueSeries} syncId="revops" margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#16323E" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#16323E" stopOpacity={0.02} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+                      <XAxis dataKey="day" hide />
+                      <YAxis tickFormatter={(v: number) => usd(v)} tick={TICK} width={70} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={TOOLTIP_STYLE}
+                        formatter={(value: number | string) => [usd(Number(value)), "Revenue"]}
+                      />
+                      <Area type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16323E" fill="url(#rev)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="overline-label mt-2 mb-1">Orders</div>
+                <div className="flex-[2] min-h-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={revenueSeries} syncId="revops" margin={{ top: 0, right: 8, left: 8, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+                      <XAxis dataKey="day" tick={TICK} axisLine={{ stroke: GRID_STROKE }} tickLine={false} />
+                      <YAxis allowDecimals={false} tick={TICK} width={70} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Bar dataKey="orders" name="Orders" fill="#A8842E" radius={[3, 3, 0, 0]} maxBarSize={26} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             ) : (
               <EmptyChart label="No orders yet — revenue appears here as orders are placed." />
             )}
@@ -176,12 +209,23 @@ export default function Dashboard() {
             {channelData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={channelData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={3} label={(p) => `${p.name} ${p.value}`} fontSize={11}>
+                  <Pie
+                    data={channelData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    stroke="#FDFBF5"
+                    strokeWidth={2}
+                    label={(p) => `${p.name} ${p.value}`}
+                    fontSize={11}
+                  >
                     {channelData.map((d) => (
-                      <Cell key={d.name} fill={CHANNEL_COLORS[d.name] ?? "#94a3b8"} />
+                      <Cell key={d.name} fill={CHANNEL_COLORS[d.name] ?? "#8A8272"} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -201,11 +245,11 @@ export default function Dashboard() {
             {lotPerformance.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={lotPerformance} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11 }} />
-                  <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
-                  <Bar dataKey="lbs" fill="#16382a" radius={[0, 3, 3, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} horizontal={false} />
+                  <XAxis type="number" tick={TICK} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10, fill: "#5C5546" }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
+                  <Bar dataKey="lbs" fill="#128A78" radius={[0, 3, 3, 0]} maxBarSize={18} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -222,11 +266,11 @@ export default function Dashboard() {
             {scoreBuckets.some((b) => b.count > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={scoreBuckets} margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" vertical={false} />
-                  <XAxis dataKey="band" tick={{ fontSize: 11 }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Sessions" fill="#d9a441" radius={[3, 3, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+                  <XAxis dataKey="band" tick={TICK} axisLine={{ stroke: GRID_STROKE }} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <Bar dataKey="count" name="Sessions" fill="#A8842E" radius={[3, 3, 0, 0]} maxBarSize={34} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -243,12 +287,22 @@ export default function Dashboard() {
             {tierData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={tierData} dataKey="value" nameKey="name" outerRadius={80} label={(p) => `${p.name} (${p.value})`} fontSize={11}>
+                  <Pie
+                    data={tierData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={80}
+                    paddingAngle={2}
+                    stroke="#FDFBF5"
+                    strokeWidth={2}
+                    label={(p) => `${p.name} (${p.value})`}
+                    fontSize={11}
+                  >
                     {tierData.map((d) => (
                       <Cell key={d.tier} fill={TIER_COLORS[d.tier]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -267,7 +321,7 @@ export default function Dashboard() {
               <div key={f.stage}>
                 <div className="flex justify-between text-sm mb-1">
                   <span>{f.stage}</span>
-                  <span className="font-semibold">{f.value}</span>
+                  <span className="font-semibold font-mono text-[13px]">{f.value}</span>
                 </div>
                 <Progress value={(f.value / maxFunnel) * 100} className="h-2" />
               </div>
@@ -281,7 +335,7 @@ export default function Dashboard() {
             {Object.entries(lifecycleDist).map(([stage, count]) => (
               <div key={stage} className="flex items-center justify-between text-sm">
                 <Badge variant="outline" className="capitalize">{stage.replace("_", " ")}</Badge>
-                <span className="font-semibold">{count}</span>
+                <span className="font-semibold font-mono text-[13px]">{count}</span>
               </div>
             ))}
             {Object.keys(lifecycleDist).length === 0 && (
@@ -296,7 +350,7 @@ export default function Dashboard() {
             {Object.entries(orderStatusDist).map(([stage, count]) => (
               <div key={stage} className="flex items-center justify-between text-sm">
                 <Badge variant="outline" className="capitalize">{stage}</Badge>
-                <span className="font-semibold">{count}</span>
+                <span className="font-semibold font-mono text-[13px]">{count}</span>
               </div>
             ))}
             {Object.keys(orderStatusDist).length === 0 && (
@@ -312,7 +366,7 @@ export default function Dashboard() {
               <div key={r.id}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="truncate mr-2">{r.roasterName}</span>
-                  <span className={r.churnRiskScore >= 0.7 ? "text-destructive font-semibold" : ""}>
+                  <span className={`font-mono text-[13px] ${r.churnRiskScore >= 0.7 ? "text-destructive font-semibold" : ""}`}>
                     {r.churnRiskScore.toFixed(2)}
                   </span>
                 </div>
@@ -332,7 +386,7 @@ export default function Dashboard() {
           <div className="space-y-1.5 max-h-96 overflow-y-auto">
             {events.map((e) => (
               <div key={e.id} className="flex items-center gap-3 text-sm border-b border-border/60 pb-1.5">
-                <span className={`rounded px-2 py-0.5 text-xs font-mono ${EVENT_COLORS[e.eventType.split(".")[0]] ?? "bg-gray-100"}`}>
+                <span className={`rounded px-2 py-0.5 text-xs font-mono ${EVENT_COLORS[e.eventType.split(".")[0]] ?? "bg-muted text-muted-foreground"}`}>
                   {e.eventType}
                 </span>
                 <span className="text-muted-foreground text-xs">

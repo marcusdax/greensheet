@@ -29,10 +29,10 @@ export default function WaitlistForm({
 
   if (joined != null) {
     return (
-      <div className={`rounded-xl border p-8 text-center ${dark ? "border-[#d9a441]/40 bg-white/5" : "border-border bg-muted/40"}`}>
-        <CheckCircle2 className="h-10 w-10 mx-auto text-[#d9a441]" />
-        <div className="mt-3 text-xl font-semibold">You're on the list</div>
-        <p className={`mt-1 text-sm ${dark ? "text-[#c4d8cb]" : "text-muted-foreground"}`}>
+      <div className={`rounded-xl border p-8 text-center animate-fade-in ${dark ? "border-gold/40 bg-white/5" : "border-border bg-muted/40"}`}>
+        <CheckCircle2 className={`h-10 w-10 mx-auto ${dark ? "text-gold-300" : "text-gold-600"}`} />
+        <div className="mt-3 font-display text-xl font-semibold">You're on the list</div>
+        <p className={`mt-1 text-sm ${dark ? "text-parchment-100/70" : "text-muted-foreground"}`}>
           We'll reach out the moment early access opens.
         </p>
       </div>
@@ -40,7 +40,7 @@ export default function WaitlistForm({
   }
 
   const inputCls = dark
-    ? "bg-white/10 border-white/20 text-white placeholder:text-white/40"
+    ? "bg-white/10 border-white/20 text-parchment-50 placeholder:text-white/40 transition-colors duration-200 focus-visible:border-gold/60 focus-visible:ring-gold/30"
     : "";
 
   return (
@@ -66,7 +66,7 @@ export default function WaitlistForm({
       <Button
         type="submit"
         disabled={join.isPending}
-        className="w-full bg-[#d9a441] text-[#16382a] hover:bg-[#c9963a] font-semibold"
+        className="w-full bg-gold text-navy hover:bg-gold-deep font-semibold"
       >
         {join.isPending ? "Joining…" : "Join the waitlist"}
       </Button>

@@ -14,16 +14,16 @@ import { toast } from "sonner";
 
 const TIER_LABEL: Record<string, string> = { tier_a: "Tier A", tier_b: "Tier B", tier_c: "Tier C" };
 const TIER_STYLE: Record<string, string> = {
-  tier_a: "bg-[#16382a] text-white",
-  tier_b: "bg-[#d9a441] text-[#16382a]",
-  tier_c: "bg-slate-200 text-slate-700",
+  tier_a: "bg-navy text-white",
+  tier_b: "bg-gold text-navy",
+  tier_c: "bg-muted text-muted-foreground",
 };
 const ADDENDUM_STATUS: Record<string, string> = {
-  pending: "bg-slate-200 text-slate-700",
-  delivered: "bg-sky-100 text-sky-800",
-  verified: "bg-emerald-100 text-emerald-800",
-  sold: "bg-amber-100 text-amber-800",
-  settled: "bg-[#16382a] text-white",
+  pending: "bg-muted text-muted-foreground",
+  delivered: "bg-info-soft text-info",
+  verified: "bg-success-soft text-success",
+  sold: "bg-warning-soft text-warning",
+  settled: "bg-navy text-white",
 };
 
 type ReceiptData = {
@@ -84,7 +84,7 @@ export default function Partners() {
                   {p.partnerName}
                   <Badge className={TIER_STYLE[p.partnerTier]}>{TIER_LABEL[p.partnerTier]}</Badge>
                   <Badge variant="outline">{p.partnerType}</Badge>
-                  <Badge variant="outline" className={p.agreementStatus === "active" ? "border-emerald-500 text-emerald-700" : ""}>
+                  <Badge variant="outline" className={p.agreementStatus === "active" ? "border-success/60 text-success" : ""}>
                     {p.agreementStatus}
                   </Badge>
                 </CardTitle>
@@ -158,13 +158,13 @@ export default function Partners() {
                       {p.payments.map((pay) => (
                         <TableRow key={pay.id}>
                           <TableCell>
-                            <Badge variant="outline" className={pay.paymentType === "floor" ? "border-[#16382a] text-[#16382a]" : "border-[#d9a441] text-[#8a6420]"}>
+                            <Badge variant="outline" className={pay.paymentType === "floor" ? "border-navy text-navy" : "border-gold text-gold-600"}>
                               {pay.paymentType === "floor" ? "Floor" : "Revenue share"}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-semibold">{money(pay.amountCents)}</TableCell>
                           <TableCell>
-                            <Badge className={pay.status === "paid" ? "bg-emerald-100 text-emerald-800" : pay.status === "held" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}>
+                            <Badge className={pay.status === "paid" ? "bg-success-soft text-success" : pay.status === "held" ? "bg-danger-soft text-danger" : "bg-warning-soft text-warning"}>
                               {pay.status}
                             </Badge>
                           </TableCell>
@@ -209,11 +209,11 @@ export default function Partners() {
                           <TableCell>{pt.pctOfLot}%</TableCell>
                           <TableCell>
                             {money(pt.floorOwedCents)}
-                            {pt.floorPaidAt && <span className="text-xs text-emerald-600 ml-1">paid</span>}
+                            {pt.floorPaidAt && <span className="text-xs text-success ml-1">paid</span>}
                           </TableCell>
                           <TableCell>
                             {money(pt.rsOwedCents)}
-                            {pt.rsPaidAt && <span className="text-xs text-emerald-600 ml-1">paid</span>}
+                            {pt.rsPaidAt && <span className="text-xs text-success ml-1">paid</span>}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
@@ -271,7 +271,7 @@ function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#16382a] hover:bg-[#1f4a38]">
+        <Button className="bg-navy hover:bg-navy-800">
           <FileSignature className="h-4 w-4 mr-1" /> Sign partner
         </Button>
       </DialogTrigger>
@@ -326,7 +326,7 @@ function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
             </div>
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={register.isPending || !partnerName.trim() || !originRegion.trim()}
             onClick={() => register.mutate({ partnerName, partnerType, originRegion, partnerTier, email, phone })}
           >
@@ -431,7 +431,7 @@ function AddendumDialog({
             </div>
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={create.isPending || !partnerId || !lotCode.trim() || !floor || !qty}
             onClick={() =>
               create.mutate({
@@ -492,7 +492,7 @@ function VerifyFloorDialog({ addendumId, lotCode, onDone }: { addendumId: number
             <Input type="number" step="0.25" min={0} max={100} value={cupScore} onChange={(e) => setCupScore(e.target.value)} />
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={verify.isPending || !qty || !cupScore}
             onClick={() => verify.mutate({ addendumId, verifiedQtyLbs: Number(qty), cupScore: Number(cupScore) })}
           >

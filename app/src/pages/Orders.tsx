@@ -15,11 +15,11 @@ import { Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  pending: "bg-slate-200 text-slate-700",
-  processing: "bg-amber-100 text-amber-800",
-  shipped: "bg-blue-100 text-blue-800",
-  delivered: "bg-emerald-100 text-emerald-800",
-  cancelled: "bg-red-100 text-red-800",
+  pending: "bg-muted text-muted-foreground",
+  processing: "bg-warning-soft text-warning",
+  shipped: "bg-info-soft text-info",
+  delivered: "bg-success-soft text-success",
+  cancelled: "bg-danger-soft text-danger",
 };
 
 export default function Orders() {
@@ -178,7 +178,7 @@ export default function Orders() {
                   <TableCell>
                     <span className="font-mono text-sm">{o.orderNumber}</span>
                     {o.firstOrder && (
-                      <Badge className="ml-2 bg-amber-100 text-amber-800 text-[10px]">
+                      <Badge className="ml-2 bg-warning-soft text-warning text-[10px]">
                         <Star className="h-2.5 w-2.5 mr-0.5" /> first
                       </Badge>
                     )}

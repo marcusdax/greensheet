@@ -15,10 +15,10 @@ const ACTION_ICON: Record<string, typeof Mail> = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  sent: "bg-emerald-100 text-emerald-800",
-  halted: "bg-slate-200 text-slate-700",
-  lifecycle_updated: "bg-red-100 text-red-800",
-  converted: "bg-amber-100 text-amber-800",
+  sent: "bg-success-soft text-success",
+  halted: "bg-muted text-muted-foreground",
+  lifecycle_updated: "bg-danger-soft text-danger",
+  converted: "bg-warning-soft text-warning",
 };
 
 export default function Campaigns() {
@@ -48,7 +48,7 @@ export default function Campaigns() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{c.name}</CardTitle>
-                <Badge className={c.status === "active" ? "bg-emerald-100 text-emerald-800" : ""}>{c.status}</Badge>
+                <Badge className={c.status === "active" ? "bg-success-soft text-success" : ""}>{c.status}</Badge>
               </div>
               <p className="text-xs text-muted-foreground font-mono">{c.code}</p>
             </CardHeader>

@@ -15,11 +15,11 @@ import { Plus, RefreshCw, PhoneCall, CheckCircle2, XCircle, MessageCircle } from
 import { toast } from "sonner";
 
 const STAGE_STYLE: Record<string, string> = {
-  trial: "bg-amber-100 text-amber-800",
-  active: "bg-emerald-100 text-emerald-800",
-  dormant: "bg-slate-200 text-slate-700",
-  needs_attention: "bg-red-100 text-red-800",
-  churned: "bg-slate-800 text-white",
+  trial: "bg-warning-soft text-warning",
+  active: "bg-success-soft text-success",
+  dormant: "bg-muted text-muted-foreground",
+  needs_attention: "bg-danger-soft text-danger",
+  churned: "bg-roast text-parchment-50",
 };
 
 export default function Crm() {
@@ -129,7 +129,7 @@ export default function Crm() {
                     <div className="flex items-center gap-1 mt-1">
                       {r.nurtureHalted && <Badge variant="outline" className="text-[10px]">nurture halted (COF-005)</Badge>}
                       {r.whatsappNumber ? (
-                        <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">
+                        <Badge variant="outline" className="text-[10px] border-success/60 text-success">
                           <MessageCircle className="h-2.5 w-2.5 mr-0.5" /> {r.whatsappNumber}
                         </Badge>
                       ) : (
@@ -186,7 +186,7 @@ export default function Crm() {
                         <span key={i.id} className="inline-flex gap-1">
                           <Button size="sm" variant="ghost" className="h-7 px-2" title="Mark retained"
                             onClick={() => resolve.mutate({ interventionId: i.id, outcome: "retained" })}>
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                           </Button>
                           <Button size="sm" variant="ghost" className="h-7 px-2" title="Mark churned"
                             onClick={() => resolve.mutate({ interventionId: i.id, outcome: "churned" })}>

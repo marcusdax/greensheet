@@ -15,18 +15,18 @@ import { AlertTriangle, Clock, ShieldAlert, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const TIER_STYLE: Record<number, string> = {
-  1: "bg-amber-100 text-amber-800",
-  2: "bg-orange-100 text-orange-800",
-  3: "bg-red-100 text-red-800",
+  1: "bg-warning-soft text-warning",
+  2: "bg-clay-soft text-clay",
+  3: "bg-danger-soft text-danger",
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  open: "bg-sky-100 text-sky-800",
-  hard_hold: "bg-red-100 text-red-800",
-  quarantine: "bg-orange-100 text-orange-800",
-  investigating: "bg-amber-100 text-amber-800",
-  resolved: "bg-emerald-100 text-emerald-800",
-  closed: "bg-slate-200 text-slate-700",
+  open: "bg-info-soft text-info",
+  hard_hold: "bg-danger-soft text-danger",
+  quarantine: "bg-clay-soft text-clay",
+  investigating: "bg-warning-soft text-warning",
+  resolved: "bg-success-soft text-success",
+  closed: "bg-muted text-muted-foreground",
 };
 
 const NEXT_STATUSES = ["open", "hard_hold", "quarantine", "investigating"] as const;
@@ -119,7 +119,7 @@ export default function Warehouse() {
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#16382a] hover:bg-[#1f4a38]">
+              <Button className="bg-navy hover:bg-navy-800">
                 <Plus className="h-4 w-4 mr-1" /> New Exception
               </Button>
             </DialogTrigger>
@@ -177,10 +177,10 @@ export default function Warehouse() {
                   <div
                     className={`rounded-md p-3 text-sm font-medium ${
                       preview.tier === 0
-                        ? "bg-emerald-50 text-emerald-800"
+                        ? "bg-success-soft text-success"
                         : preview.tier === 3
-                          ? "bg-red-50 text-red-800"
-                          : "bg-amber-50 text-amber-800"
+                          ? "bg-danger-soft text-danger"
+                          : "bg-warning-soft text-warning"
                     }`}
                   >
                     {preview.tier === 0 ? (
@@ -220,7 +220,7 @@ export default function Warehouse() {
                   <Label>Description</Label>
                   <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Findings, photos taken, parties notified…" />
                 </div>
-                <Button onClick={submitCreate} disabled={create.isPending || !preview || preview.tier === 0} className="w-full bg-[#16382a] hover:bg-[#1f4a38]">
+                <Button onClick={submitCreate} disabled={create.isPending || !preview || preview.tier === 0} className="w-full bg-navy hover:bg-navy-800">
                   Open exception
                 </Button>
               </div>
@@ -255,13 +255,13 @@ export default function Warehouse() {
             </CardHeader>
             <CardContent className="text-2xl font-bold">{report.onHold.length}</CardContent>
           </Card>
-          <Card className={report.overdue.length > 0 ? "border-red-300" : ""}>
+          <Card className={report.overdue.length > 0 ? "border-danger/50" : ""}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" /> SLA overdue
               </CardTitle>
             </CardHeader>
-            <CardContent className={`text-2xl font-bold ${report.overdue.length > 0 ? "text-red-600" : ""}`}>
+            <CardContent className={`text-2xl font-bold ${report.overdue.length > 0 ? "text-danger" : ""}`}>
               {report.overdue.length}
             </CardContent>
           </Card>
@@ -298,7 +298,7 @@ export default function Warehouse() {
                     <TableCell>
                       <Badge className={STATUS_STYLE[ex.status]}>{ex.status.replaceAll("_", " ")}</Badge>
                     </TableCell>
-                    <TableCell className={`text-xs ${overdue ? "text-red-600 font-semibold" : ""}`}>
+                    <TableCell className={`text-xs ${overdue ? "text-danger font-semibold" : ""}`}>
                       {ex.slaDueAt ? new Date(ex.slaDueAt).toLocaleDateString() : "—"}
                       {overdue && " · OVERDUE"}
                     </TableCell>
@@ -412,7 +412,7 @@ function ResolveDialog({
             <Input type="number" step="0.01" value={financial} onChange={(e) => setFinancial(e.target.value)} />
           </div>
           <Button
-            className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
+            className="w-full bg-navy hover:bg-navy-800"
             disabled={pending || (ex.tier >= 2 && !rootCause.trim())}
             onClick={() => {
               onResolve({

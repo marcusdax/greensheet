@@ -13,11 +13,11 @@ import { Mail, MessageCircle, MessageSquare, Send, ExternalLink } from "lucide-r
 import { toast } from "sonner";
 
 const STATUS_STYLE: Record<string, string> = {
-  sent: "bg-emerald-100 text-emerald-800",
-  queued: "bg-amber-100 text-amber-800",
-  halted: "bg-slate-200 text-slate-700",
-  lifecycle_updated: "bg-sky-100 text-sky-800",
-  converted: "bg-[#16382a] text-white",
+  sent: "bg-success-soft text-success",
+  queued: "bg-warning-soft text-warning",
+  halted: "bg-muted text-muted-foreground",
+  lifecycle_updated: "bg-info-soft text-info",
+  converted: "bg-navy text-white",
 };
 
 const CHANNEL_ICON: Record<string, typeof Mail> = {
@@ -88,10 +88,10 @@ export default function Comms() {
                   <Badge
                     className={
                       s.mode === "live"
-                        ? "bg-emerald-100 text-emerald-800"
+                        ? "bg-success-soft text-success"
                         : s.mode === "deeplink"
-                          ? "bg-sky-100 text-sky-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "bg-info-soft text-info"
+                          : "bg-warning-soft text-warning"
                     }
                   >
                     {s.mode}
@@ -157,7 +157,7 @@ export default function Comms() {
             </div>
             <div className="flex gap-2">
               <Button
-                className="flex-1 bg-[#16382a] hover:bg-[#1f4a38]"
+                className="flex-1 bg-navy hover:bg-navy-800"
                 disabled={sendEmail.isPending || !roasterId || !subject.trim() || !body.trim()}
                 onClick={() => sendEmail.mutate({ roasterId: Number(roasterId), subject, body })}
               >
@@ -173,7 +173,7 @@ export default function Comms() {
               </Button>
             </div>
             {selectedRoaster && !selectedRoaster.whatsappNumber && (
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-warning">
                 No WhatsApp number on this roaster's record — set one from the CRM page.
               </p>
             )}
@@ -182,7 +182,7 @@ export default function Comms() {
                 href={waLink}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-800 break-all"
+                className="flex items-center gap-1 rounded-md bg-success-soft border border-success/30 px-3 py-2 text-xs text-success break-all"
               >
                 <ExternalLink className="h-3 w-3 shrink-0" /> Open WhatsApp handoff
               </a>
@@ -223,7 +223,7 @@ export default function Comms() {
                       </TableCell>
                       <TableCell className="text-sm max-w-[240px] truncate">{d.subject}</TableCell>
                       <TableCell>
-                        <Badge className={STATUS_STYLE[d.status] ?? "bg-slate-100 text-slate-700"}>
+                        <Badge className={STATUS_STYLE[d.status] ?? "bg-muted text-muted-foreground"}>
                           {d.status.replaceAll("_", " ")}
                         </Badge>
                       </TableCell>
