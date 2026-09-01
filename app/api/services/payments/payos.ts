@@ -151,8 +151,11 @@ export function parseAmount(value: unknown): bigint {
 export function parseProviderDate(value: unknown): Date | null {
   const s = str(value).trim();
   if (!s) return null;
+  // Treat bare "YYYY-MM-DD HH:mm:ss" provider timestamps as UTC rather than
+  // local time. ISO date-only strings ("YYYY-MM-DD") parse as UTC already,
+  // and full ISO timestamps with explicit zone offsets are left intact.
   const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)
-    ? s.replace(" ", "T")
+    ? `${s.replace(" ", "T")}Z`
     : s;
   const parsed = new Date(normalized);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
