@@ -63,11 +63,11 @@ export function createReferralsSlice(set: any): ReferralsSlice {
       `referrals/${action}/done`,
     );
 
-  const error = (action: string, problem: Problem) =>
+  const error = (action: string, problem?: Problem) =>
     set(
       (s: { referrals: ReferralsState }) => {
         s.referrals.loading = false;
-        s.referrals.error = problem;
+        s.referrals.error = problem ?? null;
       },
       false,
       `referrals/${action}/error`,
