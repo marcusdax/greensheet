@@ -1,37 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 42 32% 95%;
+    /* ── Greensheet Design Tokens (02-design-tokens.md) ── */
+    /* Compass Navy — primary brand color */
+    --background: 199 27% 96%;
     --foreground: 152 30% 12%;
+
+    /* Cards and surfaces */
     --card: 0 0% 100%;
     --card-foreground: 152 30% 12%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 152 30% 12%;
-    --primary: 152 38% 26%;
+
+    /* Primary: Greensheet Green / Compass Navy */
+    --primary: 198 34% 22%;
     --primary-foreground: 42 32% 96%;
-    --secondary: 42 24% 90%;
+
+    /* Secondary: Parchment / muted surfaces */
+    --secondary: 40 24% 90%;
     --secondary-foreground: 152 30% 16%;
+
+    /* Muted: subtle backgrounds */
     --muted: 42 24% 90%;
-    --muted-foreground: 150 8% 40%;
-    --accent: 38 55% 52%;
+    --muted-foreground: 32 8% 40%;
+
+    /* Accent: Core Gold — earned value, CTAs */
+    --accent: 40 55% 52%;
     --accent-foreground: 152 30% 12%;
-    --destructive: 0 70% 45%;
+
+    /* Destructive: Coffee Cherry */
+    --destructive: 4 55% 51%;
     --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs */
     --border: 40 16% 84%;
     --input: 40 16% 84%;
-    --ring: 152 38% 26%;
-    --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 198 34% 22%;
+
+    /* Radius: small precise (2-8px max) */
+    --radius: 0.5rem;
+
+    /* Sidebar: dark Compass Navy */
+    --sidebar-background: 198 34% 10%;
+    --sidebar-foreground: 42 32% 96%;
+    --sidebar-primary: 42 32% 96%;
+    --sidebar-primary-foreground: 198 34% 10%;
+    --sidebar-accent: 198 34% 18%;
+    --sidebar-accent-foreground: 42 32% 96%;
+    --sidebar-border: 198 34% 18%;
+    --sidebar-ring: 42 55% 52%;
+
+    /* Chart tokens */
+    --chart-ink: 14 14% 11%;
+    --chart-oxblood: 7 38% 43%;
+    --chart-brass: 40 36% 45%;
+    --chart-sage: 152 22% 38%;
+    --chart-paper: 40 32% 92%;
+    --chart-danger: 4 64% 56%;
+
+    /* Semantic colors */
+    --success: 152 40% 35%;
+    --warning: 40 55% 52%;
   }
 
   .dark {
@@ -41,35 +76,89 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 42 32% 96%;
+    --primary-foreground: 198 34% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 40 55% 52%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 42 55% 52%;
   }
-}
 
-@layer base {
+  @font-face {
+    font-family: 'Fraunces';
+    font-display: swap;
+  }
+
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Fraunces for display/titles */
+  h1, h2, h3, .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  /* IBM Plex Mono for all figures */
+  .font-mono, [data-figure], .tabular-nums {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: hsl(var(--accent) / 0.2);
+    color: hsl(var(--foreground));
+  }
+}
+
+/* ── Scrollbar styling ── */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* ── Focus ring (design-system: 2px teal + 2px offset) ── */
+.focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  --tw-ring-color: hsl(var(--ring));
+  --tw-ring-offset-color: hsl(var(--background));
+}
+
+/* ── Recharts tooltip override ── */
+.recharts-tooltip-wrapper {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
 }

@@ -18,6 +18,8 @@ import Lotspace from "./pages/Lotspace";
 import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
 import DocIntake from "./pages/DocIntake";
+import Invoices from "./pages/Invoices";
+import Payments from "./pages/Payments";
 import Login from "./pages/Login";
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -56,6 +58,8 @@ export default function App() {
               <Route path="/samples" element={<Samples />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/payments" element={<Payments />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/intake" element={<DocIntake />} />
               <Route path="/qc" element={<QcLab />} />

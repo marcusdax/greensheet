@@ -4,11 +4,11 @@ WORKDIR /app
 
 FROM base AS builder
 WORKDIR /app
-COPY app/package.json ./
 RUN corepack enable pnpm && corepack prepare pnpm@8.15.0 --activate
-RUN pnpm install
 COPY app/ ./app/
 WORKDIR /app/app
+RUN pnpm install
+RUN pnpm add -D @rollup/rollup-linux-x64-musl
 RUN pnpm run build
 
 FROM base AS runner
@@ -17,7 +17,6 @@ RUN corepack enable pnpm && corepack prepare pnpm@8.15.0 --activate
 COPY --from=builder /app/app/package.json ./app/package.json
 COPY --from=builder /app/app/node_modules ./app/node_modules
 COPY --from=builder /app/app/dist ./dist
-COPY --from=builder /app/app/app ./app
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "dist/boot.js"]
