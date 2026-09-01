@@ -19,7 +19,10 @@ import {
 } from "./payos";
 
 /** Constant-time comparison of the shared secret. */
-export function verifyCassoToken(received: string | null, expected: string): boolean {
+export function verifyCassoToken(
+  received: string | null,
+  expected: string
+): boolean {
   if (!received || !expected) return false;
   const a = Buffer.from(received, "utf8");
   const b = Buffer.from(expected, "utf8");
@@ -35,16 +38,22 @@ export function verifyCassoToken(received: string | null, expected: string): boo
  * Casso posts `{ error, data: [ ...transactions ] }`. One callback can carry
  * several transactions, and each is independently idempotent on its `tid`.
  */
-export function normalizeCassoBatch(body: unknown): NormalizedProviderTransaction[] {
+export function normalizeCassoBatch(
+  body: unknown
+): NormalizedProviderTransaction[] {
   const data = (body as { data?: unknown })?.data;
   const rows = Array.isArray(data) ? data : data ? [data] : [];
-  return rows.map((row) => normalizeCasso(row as Record<string, unknown>));
+  return rows.map(row => normalizeCasso(row as Record<string, unknown>));
 }
 
-export function normalizeCasso(row: Record<string, unknown>): NormalizedProviderTransaction {
+export function normalizeCasso(
+  row: Record<string, unknown>
+): NormalizedProviderTransaction {
   const tid = str(row.tid) || str(row.id);
   if (!tid) {
-    throw new Error("GS-PAY-1020 · Casso payload carries no tid to key idempotency on");
+    throw new Error(
+      "GS-PAY-1020 · Casso payload carries no tid to key idempotency on"
+    );
   }
   return {
     provider: "casso",
@@ -77,7 +86,7 @@ export type CassoVerification =
 export async function verifyWithCassoApi(
   providerTxnId: string,
   expected: { amountMinor: bigint },
-  deps: { fetchImpl?: typeof fetch; apiKey?: string; baseUrl?: string } = {},
+  deps: { fetchImpl?: typeof fetch; apiKey?: string; baseUrl?: string } = {}
 ): Promise<CassoVerification> {
   const apiKey = deps.apiKey ?? env.cassoApiKey;
   if (!apiKey) return { ok: false, reason: "CASSO_API_KEY is not configured" };
@@ -87,9 +96,15 @@ export async function verifyWithCassoApi(
 
   let response: Response;
   try {
-    response = await doFetch(`${baseUrl}/transactions/${encodeURIComponent(providerTxnId)}`, {
-      headers: { Authorization: `Apikey ${apiKey}`, Accept: "application/json" },
-    });
+    response = await doFetch(
+      `${baseUrl}/transactions/${encodeURIComponent(providerTxnId)}`,
+      {
+        headers: {
+          Authorization: `Apikey ${apiKey}`,
+          Accept: "application/json",
+        },
+      }
+    );
   } catch (err) {
     return { ok: false, reason: `Casso API unreachable: ${String(err)}` };
   }

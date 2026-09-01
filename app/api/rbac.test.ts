@@ -6,7 +6,12 @@
 // fails here rather than shipping open.
 import { describe, it, expect } from "vitest";
 import { appRouter } from "./router";
-import { RBAC_PROCEDURE_PATHS, rolesFor, noteFor, isRbacProcedure } from "@contracts/rbac";
+import {
+  RBAC_PROCEDURE_PATHS,
+  rolesFor,
+  noteFor,
+  isRbacProcedure,
+} from "@contracts/rbac";
 import { USER_ROLES } from "@contracts/constants";
 
 /** Routers covered by the sprint's RBAC table. */
@@ -14,8 +19,9 @@ const GOVERNED_ROOTS = ["config", "invoices", "payments", "documents"] as const;
 
 function proceduresUnder(root: string): string[] {
   // tRPC 11 flattens nested routers into dotted keys on _def.procedures.
-  const procedures = (appRouter._def as { procedures: Record<string, unknown> }).procedures;
-  return Object.keys(procedures).filter((path) => path.split(".")[0] === root);
+  const procedures = (appRouter._def as { procedures: Record<string, unknown> })
+    .procedures;
+  return Object.keys(procedures).filter(path => path.split(".")[0] === root);
 }
 
 describe("RBAC table completeness (§5.3)", () => {
@@ -28,29 +34,32 @@ describe("RBAC table completeness (§5.3)", () => {
     }
     expect(
       missing,
-      `these procedures have no entry in contracts/rbac.ts — add one before merging:\n  ${missing.join("\n  ")}`,
+      `these procedures have no entry in contracts/rbac.ts — add one before merging:\n  ${missing.join("\n  ")}`
     ).toEqual([]);
   });
 
   it("has no stale entries for procedures that no longer exist", () => {
     const live = new Set(GOVERNED_ROOTS.flatMap(proceduresUnder));
-    const stale = RBAC_PROCEDURE_PATHS.filter((p) => !live.has(p));
+    const stale = RBAC_PROCEDURE_PATHS.filter(p => !live.has(p));
     expect(stale, `stale RBAC entries: ${stale.join(", ")}`).toEqual([]);
   });
 
   it("names only real roles", () => {
     for (const path of RBAC_PROCEDURE_PATHS) {
       for (const role of rolesFor(path)) {
-        expect(USER_ROLES, `${path} names an unknown role "${role}"`).toContain(role);
+        expect(USER_ROLES, `${path} names an unknown role "${role}"`).toContain(
+          role
+        );
       }
     }
   });
 
   it("never grants platform_admin explicitly — it passes everything by design", () => {
     for (const path of RBAC_PROCEDURE_PATHS) {
-      expect(rolesFor(path), `${path} lists platform_admin redundantly`).not.toContain(
-        "platform_admin",
-      );
+      expect(
+        rolesFor(path),
+        `${path} lists platform_admin redundantly`
+      ).not.toContain("platform_admin");
     }
   });
 
@@ -64,12 +73,16 @@ describe("RBAC table completeness (§5.3)", () => {
   });
 
   it("lets a roaster_buyer read invoices but never write or allocate", () => {
-    const buyerReadable = RBAC_PROCEDURE_PATHS.filter((p) => rolesFor(p).includes("roaster_buyer"));
+    const buyerReadable = RBAC_PROCEDURE_PATHS.filter(p =>
+      rolesFor(p).includes("roaster_buyer")
+    );
     for (const path of buyerReadable) {
       expect(
         path,
-        `roaster_buyer must not reach a mutating procedure (${path})`,
-      ).not.toMatch(/\.(issue|void|writeOff|create|cancel|reverse|ignore|recordManual|setFlag|confirmUpload|upload|recordReview)$/);
+        `roaster_buyer must not reach a mutating procedure (${path})`
+      ).not.toMatch(
+        /\.(issue|void|writeOff|create|cancel|reverse|ignore|recordManual|setFlag|confirmUpload|upload|recordReview)$/
+      );
     }
     expect(buyerReadable.length).toBeGreaterThan(0);
   });
@@ -78,7 +91,10 @@ describe("RBAC table completeness (§5.3)", () => {
     for (const path of RBAC_PROCEDURE_PATHS) {
       const roles = rolesFor(path);
       if (roles.length === 0 || roles.length >= 4) {
-        expect(noteFor(path), `${path} needs a note explaining its access level`).toBeTruthy();
+        expect(
+          noteFor(path),
+          `${path} needs a note explaining its access level`
+        ).toBeTruthy();
       }
     }
   });

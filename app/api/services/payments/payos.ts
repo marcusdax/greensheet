@@ -25,18 +25,24 @@ export type PayosWebhookBody = {
 export function canonicalPayosPayload(data: Record<string, unknown>): string {
   return Object.keys(data)
     .sort()
-    .map((key) => `${key}=${stringifyValue(data[key])}`)
+    .map(key => `${key}=${stringifyValue(data[key])}`)
     .join("&");
 }
 
 function stringifyValue(value: unknown): string {
   if (value === null || value === undefined) return "";
-  if (Array.isArray(value) || typeof value === "object") return JSON.stringify(value);
+  if (Array.isArray(value) || typeof value === "object")
+    return JSON.stringify(value);
   return String(value);
 }
 
-export function signPayosPayload(data: Record<string, unknown>, checksumKey: string): string {
-  return createHmac("sha256", checksumKey).update(canonicalPayosPayload(data)).digest("hex");
+export function signPayosPayload(
+  data: Record<string, unknown>,
+  checksumKey: string
+): string {
+  return createHmac("sha256", checksumKey)
+    .update(canonicalPayosPayload(data))
+    .digest("hex");
 }
 
 /**
@@ -44,13 +50,20 @@ export function signPayosPayload(data: Record<string, unknown>, checksumKey: str
  * timingSafeEqual, which throws on unequal buffers — that check leaks only the
  * length, which is fixed for a hex SHA-256 digest anyway.
  */
-export function verifyPayosSignature(body: PayosWebhookBody, checksumKey: string): boolean {
-  if (!body?.signature || !body?.data || typeof body.data !== "object") return false;
+export function verifyPayosSignature(
+  body: PayosWebhookBody,
+  checksumKey: string
+): boolean {
+  if (!body?.signature || !body?.data || typeof body.data !== "object")
+    return false;
   const expected = signPayosPayload(body.data, checksumKey);
   const received = body.signature;
   if (expected.length !== received.length) return false;
   try {
-    return timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(received, "utf8"));
+    return timingSafeEqual(
+      Buffer.from(expected, "utf8"),
+      Buffer.from(received, "utf8")
+    );
   } catch {
     return false;
   }
@@ -76,10 +89,15 @@ export type NormalizedProviderTransaction = {
  * units and must NOT be multiplied by 100. Amounts arrive as a number or a
  * string depending on endpoint (§11.3 requires a fixture for both).
  */
-export function normalizePayos(data: Record<string, unknown>): NormalizedProviderTransaction {
-  const reference = str(data.reference) || str(data.paymentLinkId) || str(data.orderCode);
+export function normalizePayos(
+  data: Record<string, unknown>
+): NormalizedProviderTransaction {
+  const reference =
+    str(data.reference) || str(data.paymentLinkId) || str(data.orderCode);
   if (!reference) {
-    throw new Error("GS-PAY-1020 · PayOS payload carries no reference to key idempotency on");
+    throw new Error(
+      "GS-PAY-1020 · PayOS payload carries no reference to key idempotency on"
+    );
   }
   return {
     provider: "payos",
@@ -110,13 +128,17 @@ export function parseAmount(value: unknown): bigint {
   if (typeof value === "bigint") return value;
   if (typeof value === "number") {
     if (!Number.isInteger(value)) {
-      throw new Error(`GS-PAY-1021 · non-integral minor amount from provider: ${value}`);
+      throw new Error(
+        `GS-PAY-1021 · non-integral minor amount from provider: ${value}`
+      );
     }
     return BigInt(value);
   }
   const s = str(value).trim().replace(/[,\s]/g, "");
   if (!/^-?\d+$/.test(s)) {
-    throw new Error(`GS-PAY-1021 · cannot read a minor amount from "${str(value)}"`);
+    throw new Error(
+      `GS-PAY-1021 · cannot read a minor amount from "${str(value)}"`
+    );
   }
   return BigInt(s);
 }
@@ -129,7 +151,9 @@ export function parseAmount(value: unknown): bigint {
 export function parseProviderDate(value: unknown): Date | null {
   const s = str(value).trim();
   if (!s) return null;
-  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s) ? s.replace(" ", "T") : s;
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)
+    ? s.replace(" ", "T")
+    : s;
   const parsed = new Date(normalized);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }

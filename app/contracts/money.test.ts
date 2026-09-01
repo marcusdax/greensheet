@@ -19,7 +19,12 @@ import {
   INT64_MAX,
   type Currency,
 } from "./money";
-import { roundScore, qualityTierForScore, lbsToGrams, gramsToLbs } from "./constants";
+import {
+  roundScore,
+  qualityTierForScore,
+  lbsToGrams,
+  gramsToLbs,
+} from "./constants";
 
 /** Deterministic pseudo-random bigints, so a failure reproduces exactly. */
 function* sampleAmounts(seed = 42, count = 400): Generator<bigint> {
@@ -45,10 +50,14 @@ describe("money round-trip (§11.1)", () => {
 
   it("round-trips the named boundary values, including the ₫5bn invoice", () => {
     // §14.7 — an invoice of ₫5,000,000,000 must survive the whole path.
-    expect(parseMinor(formatMinor(5_000_000_000n, "VND"), "VND")).toBe(5_000_000_000n);
+    expect(parseMinor(formatMinor(5_000_000_000n, "VND"), "VND")).toBe(
+      5_000_000_000n
+    );
     expect(formatMinor(5_000_000_000n, "VND")).toBe("5,000,000,000₫");
     // The container contract from B3 that overflows a signed int.
-    expect(parseMinor(formatMinor(3_900_000_000n, "VND"), "VND")).toBe(3_900_000_000n);
+    expect(parseMinor(formatMinor(3_900_000_000n, "VND"), "VND")).toBe(
+      3_900_000_000n
+    );
     expect(formatMinor(148_000_00n, "USD")).toBe("$148,000.00");
     expect(parseMinor("$148,000.00", "USD")).toBe(14_800_000n);
     expect(formatMinor(0n, "VND")).toBe("0₫");
@@ -93,9 +102,13 @@ describe("no currency mixing (§11.1)", () => {
 
   it("converts only with an explicit rate, rounding half-up in the target", () => {
     // $1.00 at 26,000 ₫/$ is ₫26,000 — exponent 2 → exponent 0.
-    expect(convertMoney(money(100n, "USD"), "VND", "26000").amountMinor).toBe(26_000n);
+    expect(convertMoney(money(100n, "USD"), "VND", "26000").amountMinor).toBe(
+      26_000n
+    );
     // ₫26,000 back at the same rate is $1.00.
-    expect(convertMoney(money(26_000n, "VND"), "USD", "0.0000384615").amountMinor).toBe(100n);
+    expect(
+      convertMoney(money(26_000n, "VND"), "USD", "0.0000384615").amountMinor
+    ).toBe(100n);
     expect(divRoundHalfUp(5n, 2n)).toBe(3n); // half-up, not half-even
     expect(divRoundHalfUp(-5n, 2n)).toBe(-3n); // sign-symmetric
   });
@@ -157,6 +170,8 @@ describe("formatMinor always carries its currency (§8.3)", () => {
   });
 
   it("groups Vietnamese figures with dots when asked", () => {
-    expect(formatMinor(5_000_000_000n, "VND", { locale: "vi-VN" })).toBe("5.000.000.000₫");
+    expect(formatMinor(5_000_000_000n, "VND", { locale: "vi-VN" })).toBe(
+      "5.000.000.000₫"
+    );
   });
 });

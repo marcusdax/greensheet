@@ -10,11 +10,13 @@
 export const FEATURE_FLAGS = {
   ocrUpload: {
     default: false,
-    description: "Document intake: upload, scan and OCR proposal pipeline (Slice 3)",
+    description:
+      "Document intake: upload, scan and OCR proposal pipeline (Slice 3)",
   },
   vietqrPayments: {
     default: false,
-    description: "VietQR payment intents, QR rendering and provider webhooks (Slice 2)",
+    description:
+      "VietQR payment intents, QR rendering and provider webhooks (Slice 2)",
   },
   autoAllocation: {
     default: false,
@@ -35,7 +37,7 @@ export const FLAG_KEYS = Object.keys(FEATURE_FLAGS) as FlagKey[];
 
 export function defaultFlags(): Flags {
   return Object.fromEntries(
-    FLAG_KEYS.map((k) => [k, FEATURE_FLAGS[k].default]),
+    FLAG_KEYS.map(k => [k, FEATURE_FLAGS[k].default])
   ) as Flags;
 }
 

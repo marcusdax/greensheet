@@ -55,7 +55,10 @@ export function exponentOf(currency: Currency): number {
 /** A monetary amount. Minor units as bigint; the currency is not optional. */
 export type Money = { amountMinor: bigint; currency: Currency };
 
-export function money(amountMinor: bigint | number | string, currency: string): Money {
+export function money(
+  amountMinor: bigint | number | string,
+  currency: string
+): Money {
   const c = assertCurrency(currency);
   return { amountMinor: toBigInt(amountMinor), currency: c };
 }
@@ -64,10 +67,16 @@ function toBigInt(v: bigint | number | string): bigint {
   if (typeof v === "bigint") return v;
   if (typeof v === "string") return BigInt(v);
   if (!Number.isInteger(v)) {
-    throw new MoneyError("GS-PAY-1011", `minor units must be integral, got ${v}`);
+    throw new MoneyError(
+      "GS-PAY-1011",
+      `minor units must be integral, got ${v}`
+    );
   }
   if (!Number.isSafeInteger(v)) {
-    throw new MoneyError("GS-PAY-1011", `minor units exceed safe integer range: ${v}`);
+    throw new MoneyError(
+      "GS-PAY-1011",
+      `minor units exceed safe integer range: ${v}`
+    );
   }
   return BigInt(v);
 }
@@ -79,7 +88,7 @@ function toBigInt(v: bigint | number | string): bigint {
 export function formatMinor(
   amountMinor: bigint | number | string,
   currency: string,
-  opts: { symbol?: boolean; locale?: string } = {},
+  opts: { symbol?: boolean; locale?: string } = {}
 ): string {
   const c = assertCurrency(currency);
   const exp = CURRENCY_EXPONENT[c];
@@ -140,13 +149,16 @@ export function parseMinor(input: string, currency: string): bigint {
     }
   }
 
-  intPart = intPart.replace(/[.,\s  ']/g, "");
+  // NBSP and narrow NBSP are real thousands separators in the wild.
+  intPart = intPart.replace(/[.,\s\u00a0\u202f']/g, "");
   if (intPart === "") intPart = "0";
   if (!/^\d+$/.test(intPart) || (fracPart !== "" && !/^\d+$/.test(fracPart))) {
     throw new MoneyError("GS-PAY-1012", `cannot parse "${input}" as ${c}`);
   }
 
-  const scaled = BigInt(intPart) * 10n ** BigInt(exp) + BigInt(fracPart.padEnd(exp, "0") || "0");
+  const scaled =
+    BigInt(intPart) * 10n ** BigInt(exp) +
+    BigInt(fracPart.padEnd(exp, "0") || "0");
   return negative ? -scaled : scaled;
 }
 
@@ -169,14 +181,18 @@ export function assertSameCurrency(a: Money, b: Money): void {
   if (a.currency !== b.currency) {
     throw new MoneyError(
       "GS-PAY-1013",
-      `currency mismatch: ${a.currency} vs ${b.currency} — convert with an explicit fxRate`,
+      `currency mismatch: ${a.currency} vs ${b.currency} — convert with an explicit fxRate`
     );
   }
 }
 
 export function cmpMoney(a: Money, b: Money): -1 | 0 | 1 {
   assertSameCurrency(a, b);
-  return a.amountMinor < b.amountMinor ? -1 : a.amountMinor > b.amountMinor ? 1 : 0;
+  return a.amountMinor < b.amountMinor
+    ? -1
+    : a.amountMinor > b.amountMinor
+      ? 1
+      : 0;
 }
 
 export const isZero = (m: Money) => m.amountMinor === 0n;
@@ -187,7 +203,11 @@ export const isPositive = (m: Money) => m.amountMinor > 0n;
  * target's minor units. `rate` is major-unit-to-major-unit (the shape a bank
  * quotes), expressed as a decimal string so no float ever touches money.
  */
-export function convertMoney(from: Money, toCurrency: Currency, rate: string): Money {
+export function convertMoney(
+  from: Money,
+  toCurrency: Currency,
+  rate: string
+): Money {
   const { num, den } = decimalToFraction(rate);
   const fromExp = BigInt(CURRENCY_EXPONENT[from.currency]);
   const toExp = BigInt(CURRENCY_EXPONENT[toCurrency]);
@@ -195,13 +215,19 @@ export function convertMoney(from: Money, toCurrency: Currency, rate: string): M
   // amountMinor / 10^fromExp * rate * 10^toExp, rounded half-up.
   const numerator = from.amountMinor * num * 10n ** toExp;
   const denominator = den * 10n ** fromExp;
-  return { amountMinor: divRoundHalfUp(numerator, denominator), currency: toCurrency };
+  return {
+    amountMinor: divRoundHalfUp(numerator, denominator),
+    currency: toCurrency,
+  };
 }
 
 function decimalToFraction(rate: string): { num: bigint; den: bigint } {
   const s = rate.trim();
   if (!/^-?\d+(\.\d+)?$/.test(s)) {
-    throw new MoneyError("GS-PAY-1014", `fx rate must be a decimal string, got "${rate}"`);
+    throw new MoneyError(
+      "GS-PAY-1014",
+      `fx rate must be a decimal string, got "${rate}"`
+    );
   }
   const [intPart, fracPart = ""] = s.split(".");
   const num = BigInt(intPart.replace("-", "") + fracPart);
@@ -211,7 +237,8 @@ function decimalToFraction(rate: string): { num: bigint; den: bigint } {
 
 /** Banker-free, deterministic half-up division on bigints (sign-aware). */
 export function divRoundHalfUp(numerator: bigint, denominator: bigint): bigint {
-  if (denominator === 0n) throw new MoneyError("GS-PAY-1015", "division by zero");
+  if (denominator === 0n)
+    throw new MoneyError("GS-PAY-1015", "division by zero");
   const negative = numerator < 0n !== denominator < 0n;
   const n = numerator < 0n ? -numerator : numerator;
   const d = denominator < 0n ? -denominator : denominator;
@@ -230,7 +257,10 @@ export function minorFromDb(value: unknown): bigint {
   if (typeof value === "number") return toBigInt(value);
   if (typeof value === "string") return BigInt(value);
   if (value == null) return 0n;
-  throw new MoneyError("GS-PAY-1016", `cannot read minor units from ${typeof value}`);
+  throw new MoneyError(
+    "GS-PAY-1016",
+    `cannot read minor units from ${typeof value}`
+  );
 }
 
 /**
@@ -249,7 +279,10 @@ export const INT64_MIN = -9223372036854775808n;
 
 export function assertFitsInt64(amountMinor: bigint, label = "amount"): bigint {
   if (amountMinor > INT64_MAX || amountMinor < INT64_MIN) {
-    throw new MoneyError("GS-PAY-1017", `${label} overflows a 64-bit money column`);
+    throw new MoneyError(
+      "GS-PAY-1017",
+      `${label} overflows a 64-bit money column`
+    );
   }
   return amountMinor;
 }

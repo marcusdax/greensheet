@@ -18,17 +18,22 @@ export const MEMO_TOKEN_LENGTH = 10; // PREFIX + PAYLOAD + CHECK
 export const MAX_ENCODABLE_INVOICE_ID = 32 ** PAYLOAD_LENGTH - 1; // 1,073,741,823
 
 /** Anything outside the alphabet is noise a bank may have inserted. */
-const TOKEN_PATTERN = new RegExp(`${PREFIX}[${ALPHABET}]{${PAYLOAD_LENGTH + 1}}`, "g");
+const TOKEN_PATTERN = new RegExp(
+  `${PREFIX}[${ALPHABET}]{${PAYLOAD_LENGTH + 1}}`,
+  "g"
+);
 
 export class MemoTokenError extends Error {}
 
 function encodePayload(invoiceId: number): string {
   if (!Number.isInteger(invoiceId) || invoiceId < 0) {
-    throw new MemoTokenError(`invoice id must be a non-negative integer, got ${invoiceId}`);
+    throw new MemoTokenError(
+      `invoice id must be a non-negative integer, got ${invoiceId}`
+    );
   }
   if (invoiceId > MAX_ENCODABLE_INVOICE_ID) {
     throw new MemoTokenError(
-      `invoice id ${invoiceId} exceeds the ${PAYLOAD_LENGTH}-character memo payload`,
+      `invoice id ${invoiceId} exceeds the ${PAYLOAD_LENGTH}-character memo payload`
     );
   }
   let n = invoiceId;
@@ -49,7 +54,10 @@ function checkChar(payload: string): string {
   let sum = 0;
   for (let i = 0; i < payload.length; i++) {
     const value = ALPHABET.indexOf(payload[i]);
-    if (value < 0) throw new MemoTokenError(`character "${payload[i]}" is not in the alphabet`);
+    if (value < 0)
+      throw new MemoTokenError(
+        `character "${payload[i]}" is not in the alphabet`
+      );
     sum += value * (i + 1); // position-weighted, so transpositions are caught
   }
   return ALPHABET[sum % 32];
@@ -65,7 +73,7 @@ export function isValidMemoToken(token: string): boolean {
   if (!token.startsWith(PREFIX)) return false;
   const payload = token.slice(PREFIX.length, PREFIX.length + PAYLOAD_LENGTH);
   const check = token.slice(PREFIX.length + PAYLOAD_LENGTH);
-  if ([...payload].some((c) => !ALPHABET.includes(c))) return false;
+  if ([...payload].some(c => !ALPHABET.includes(c))) return false;
   return checkChar(payload) === check;
 }
 

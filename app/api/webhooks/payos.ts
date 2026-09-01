@@ -21,7 +21,11 @@ import { providerTransactions } from "@db/schema";
 import { writeEvent } from "../engine";
 import { env } from "../lib/env";
 import { getFlags } from "../services/flags";
-import { normalizePayos, verifyPayosSignature, type PayosWebhookBody } from "../services/payments/payos";
+import {
+  normalizePayos,
+  verifyPayosSignature,
+  type PayosWebhookBody,
+} from "../services/payments/payos";
 import {
   isDuplicateKeyError,
   logWebhook,
@@ -87,7 +91,7 @@ export async function payosWebhook(c: Context) {
 
   try {
     const db = getDb();
-    const inserted = await db.transaction(async (tx) => {
+    const inserted = await db.transaction(async tx => {
       const [res] = await tx.insert(providerTransactions).values({
         provider: "payos",
         providerTxnId: normalized.providerTxnId,
@@ -106,16 +110,22 @@ export async function payosWebhook(c: Context) {
       });
       const id = Number(res.insertId);
 
-      await writeEvent(tx, "payment.transaction_received", "provider_transaction", id, {
-        providerTransactionId: id,
-        provider: "payos",
-        providerTxnId: normalized.providerTxnId,
-        amountMinor: normalized.amountMinor.toString(),
-        currency: normalized.currency,
-        description: normalized.description,
-        signatureValid: true,
-        providerOrderCode: normalized.providerOrderCode,
-      });
+      await writeEvent(
+        tx,
+        "payment.transaction_received",
+        "provider_transaction",
+        id,
+        {
+          providerTransactionId: id,
+          provider: "payos",
+          providerTxnId: normalized.providerTxnId,
+          amountMinor: normalized.amountMinor.toString(),
+          currency: normalized.currency,
+          description: normalized.description,
+          signatureValid: true,
+          providerOrderCode: normalized.providerOrderCode,
+        }
+      );
       return id;
     });
 
@@ -133,10 +143,18 @@ export async function payosWebhook(c: Context) {
     if (isDuplicateKeyError(err)) {
       // The replay case. 200 with no side effects — the provider stops
       // retrying and nothing is credited twice (§14.2).
-      log({ outcome: "duplicate", providerTxnId: normalized.providerTxnId, signatureValid: true });
+      log({
+        outcome: "duplicate",
+        providerTxnId: normalized.providerTxnId,
+        signatureValid: true,
+      });
       return c.json({ success: true, duplicate: true }, 200);
     }
-    log({ outcome: "error", error: String(err), providerTxnId: normalized.providerTxnId });
+    log({
+      outcome: "error",
+      error: String(err),
+      providerTxnId: normalized.providerTxnId,
+    });
     // 500 so the provider retries: the money is real and we failed to record it.
     return c.json({ error: "internal error" }, 500);
   }

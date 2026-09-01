@@ -29,9 +29,12 @@ export type VietQrInput = {
 };
 
 export function tlv(tag: string, value: string): string {
-  if (tag.length !== 2) throw new Error(`EMVCo tag must be two digits, got "${tag}"`);
+  if (tag.length !== 2)
+    throw new Error(`EMVCo tag must be two digits, got "${tag}"`);
   if (value.length > 99) {
-    throw new Error(`EMVCo value for tag ${tag} exceeds 99 characters (${value.length})`);
+    throw new Error(
+      `EMVCo value for tag ${tag} exceeds 99 characters (${value.length})`
+    );
   }
   return `${tag}${String(value.length).padStart(2, "0")}${value}`;
 }
@@ -58,12 +61,15 @@ export function buildVietQrPayload(input: VietQrInput): string {
     throw new Error(`GS-PAY-1023 · VietQR cannot encode ${currency}`);
   }
   if (!/^\d{6}$/.test(input.bankBin)) {
-    throw new Error(`GS-PAY-1024 · bank BIN must be six digits, got "${input.bankBin}"`);
+    throw new Error(
+      `GS-PAY-1024 · bank BIN must be six digits, got "${input.bankBin}"`
+    );
   }
 
   // 38 — merchant account information, VietQR template.
   const beneficiary = tlv("00", input.bankBin) + tlv("01", input.accountNumber);
-  const merchantAccount = tlv("00", VIETQR_GUID) + tlv("01", beneficiary) + tlv("02", "QRIBFTTA");
+  const merchantAccount =
+    tlv("00", VIETQR_GUID) + tlv("01", beneficiary) + tlv("02", "QRIBFTTA");
 
   const parts = [
     tlv("00", "01"), // payload format indicator
@@ -74,13 +80,16 @@ export function buildVietQrPayload(input: VietQrInput): string {
   ];
 
   if (input.amountMinor !== undefined) {
-    if (input.amountMinor <= 0n) throw new Error("GS-PAY-1025 · QR amount must be > 0");
+    if (input.amountMinor <= 0n)
+      throw new Error("GS-PAY-1025 · QR amount must be > 0");
     parts.push(tlv("54", formatQrAmount(input.amountMinor, currency)));
   }
 
   parts.push(tlv("58", "VN"));
-  if (input.merchantName) parts.push(tlv("59", truncate(input.merchantName, 25)));
-  if (input.merchantCity) parts.push(tlv("60", truncate(input.merchantCity, 15)));
+  if (input.merchantName)
+    parts.push(tlv("59", truncate(input.merchantName, 25)));
+  if (input.merchantCity)
+    parts.push(tlv("60", truncate(input.merchantCity, 15)));
 
   if (input.addInfo) {
     // 62-08 is the transfer description — where the memo token lives, and the

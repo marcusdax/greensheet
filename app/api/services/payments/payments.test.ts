@@ -13,11 +13,19 @@ import {
   normalizeDescription,
   MEMO_TOKEN_LENGTH,
 } from "./memo";
-import { decideMatch, outstandingMinor, type MatchCandidates } from "./matching";
+import {
+  decideMatch,
+  outstandingMinor,
+  type MatchCandidates,
+} from "./matching";
 import { statusFor } from "./allocation";
 import { canonicalJson, fingerprint } from "./idempotency";
 import { bucketFor, daysOverdue, ictToday } from "./aging";
-import { vatMinorFor, formatInvoiceNumber, assertCurrencyAllowed } from "./invoicing";
+import {
+  vatMinorFor,
+  formatInvoiceNumber,
+  assertCurrencyAllowed,
+} from "./invoicing";
 import { buildVietQrPayload, crc16, tlv, verifyVietQrPayload } from "./vietqr";
 import {
   canonicalPayosPayload,
@@ -29,7 +37,11 @@ import {
 } from "./payos";
 import { normalizeCassoBatch, verifyCassoToken } from "./casso";
 import { gateForField, assertConfidenceCoverage } from "@contracts/ocr-schemas";
-import { nextAvailableAt, shouldDeadLetter, RETRY_BACKOFF_SECONDS } from "../outbox/registry";
+import {
+  nextAvailableAt,
+  shouldDeadLetter,
+  RETRY_BACKOFF_SECONDS,
+} from "../outbox/registry";
 
 // ─── §7.1 memo token ─────────────────────────────────────────────────────────
 describe("memo token (§7.1)", () => {
@@ -94,7 +106,9 @@ describe("memo token (§7.1)", () => {
 });
 
 // ─── §7.1 matching order ─────────────────────────────────────────────────────
-const invoiceCandidate = (over: Partial<Parameters<typeof outstandingMinor>[0]> = {}) => ({
+const invoiceCandidate = (
+  over: Partial<Parameters<typeof outstandingMinor>[0]> = {}
+) => ({
   id: 1,
   memoToken: memoTokenFor(1),
   counterpartyId: 10,
@@ -105,26 +119,47 @@ const invoiceCandidate = (over: Partial<Parameters<typeof outstandingMinor>[0]> 
   ...over,
 });
 
-const noCandidates: MatchCandidates = { byMemoToken: [], byOrderCode: null, byCounterAccount: [] };
+const noCandidates: MatchCandidates = {
+  byMemoToken: [],
+  byOrderCode: null,
+  byCounterAccount: [],
+};
 
 describe("matching engine (§7.1)", () => {
   it("matches on an exact memo token first", () => {
     const invoice = invoiceCandidate();
     const decision = decideMatch(
-      { description: `PAY ${invoice.memoToken}`, amountMinor: 500_000n, currency: "VND" },
-      { ...noCandidates, byMemoToken: [invoice] },
+      {
+        description: `PAY ${invoice.memoToken}`,
+        amountMinor: 500_000n,
+        currency: "VND",
+      },
+      { ...noCandidates, byMemoToken: [invoice] }
     );
-    expect(decision).toMatchObject({ status: "matched", method: "memo_token", invoiceId: 1 });
+    expect(decision).toMatchObject({
+      status: "matched",
+      method: "memo_token",
+      invoiceId: 1,
+    });
     expect(decision.requiresReview).toBe(false);
   });
 
   it("falls back to the provider order code", () => {
     const invoice = invoiceCandidate({ id: 9 });
     const decision = decideMatch(
-      { description: "no reference here", amountMinor: 1_000_000n, currency: "VND", providerOrderCode: 4242 },
-      { ...noCandidates, byOrderCode: invoice },
+      {
+        description: "no reference here",
+        amountMinor: 1_000_000n,
+        currency: "VND",
+        providerOrderCode: 4242,
+      },
+      { ...noCandidates, byOrderCode: invoice }
     );
-    expect(decision).toMatchObject({ status: "matched", method: "order_code", invoiceId: 9 });
+    expect(decision).toMatchObject({
+      status: "matched",
+      method: "order_code",
+      invoiceId: 9,
+    });
   });
 
   it("NEVER matches on amount alone", () => {
@@ -132,7 +167,7 @@ describe("matching engine (§7.1)", () => {
     const decision = decideMatch(
       // Exact amount, but no memo, no order code and no known bank account.
       { description: "thanh toan", amountMinor: 1_000_000n, currency: "VND" },
-      { ...noCandidates, byCounterAccount: [invoice] },
+      { ...noCandidates, byCounterAccount: [invoice] }
     );
     expect(decision.status).toBe("unmatched");
   });
@@ -146,7 +181,7 @@ describe("matching engine (§7.1)", () => {
         currency: "VND",
         counterAccountNumber: "1234567890",
       },
-      { ...noCandidates, byCounterAccount: [invoice] },
+      { ...noCandidates, byCounterAccount: [invoice] }
     );
     expect(decision).toMatchObject({ status: "matched", method: "heuristic" });
     // Correct most of the time is not the same as correct.
@@ -163,7 +198,7 @@ describe("matching engine (§7.1)", () => {
         currency: "VND",
         counterAccountNumber: "1234567890",
       },
-      { ...noCandidates, byCounterAccount: [a, b] },
+      { ...noCandidates, byCounterAccount: [a, b] }
     );
     expect(decision.status).toBe("ambiguous");
     expect(decision.invoiceId).toBeNull();
@@ -172,8 +207,12 @@ describe("matching engine (§7.1)", () => {
   it("refuses to guess an fx rate on a cross-currency transfer", () => {
     const invoice = invoiceCandidate({ currency: "USD" });
     const decision = decideMatch(
-      { description: `PAY ${invoice.memoToken}`, amountMinor: 1_000_000n, currency: "VND" },
-      { ...noCandidates, byMemoToken: [invoice] },
+      {
+        description: `PAY ${invoice.memoToken}`,
+        amountMinor: 1_000_000n,
+        currency: "VND",
+      },
+      { ...noCandidates, byMemoToken: [invoice] }
     );
     expect(decision.status).toBe("ambiguous");
     expect(decision.reason).toMatch(/fx rate/i);
@@ -182,14 +221,21 @@ describe("matching engine (§7.1)", () => {
   it("is ambiguous, not arbitrary, when a memo carries two tokens", () => {
     const decision = decideMatch(
       { description: "two refs", amountMinor: 1n, currency: "VND" },
-      { ...noCandidates, byMemoToken: [invoiceCandidate({ id: 1 }), invoiceCandidate({ id: 2 })] },
+      {
+        ...noCandidates,
+        byMemoToken: [invoiceCandidate({ id: 1 }), invoiceCandidate({ id: 2 })],
+      }
     );
     expect(decision.status).toBe("ambiguous");
   });
 
   it("computes outstanding without going negative on an overpaid invoice", () => {
-    expect(outstandingMinor(invoiceCandidate({ paidMinor: 1_200_000n }))).toBe(0n);
-    expect(outstandingMinor(invoiceCandidate({ paidMinor: 400_000n }))).toBe(600_000n);
+    expect(outstandingMinor(invoiceCandidate({ paidMinor: 1_200_000n }))).toBe(
+      0n
+    );
+    expect(outstandingMinor(invoiceCandidate({ paidMinor: 400_000n }))).toBe(
+      600_000n
+    );
   });
 });
 
@@ -277,7 +323,7 @@ describe("invoice issuance (§3.7, §3.6)", () => {
   it("enforces the Vietnam FX control rule (§3.6)", () => {
     // Two Vietnamese residents must transact in VND.
     expect(() =>
-      assertCurrencyAllowed({ counterpartyCountry: "VN", currency: "USD" }),
+      assertCurrencyAllowed({ counterpartyCountry: "VN", currency: "USD" })
     ).toThrow(/GS-INV-1001/);
     // A licensed exception passes, and writes an audit event at the call site.
     expect(() =>
@@ -285,14 +331,14 @@ describe("invoice issuance (§3.7, §3.6)", () => {
         counterpartyCountry: "VN",
         currency: "USD",
         residencyOverrideNote: "SBV licence 2026/041 — export settlement",
-      }),
+      })
     ).not.toThrow();
     // An export contract with a non-resident may be denominated in USD.
     expect(() =>
-      assertCurrencyAllowed({ counterpartyCountry: "US", currency: "USD" }),
+      assertCurrencyAllowed({ counterpartyCountry: "US", currency: "USD" })
     ).not.toThrow();
     expect(() =>
-      assertCurrencyAllowed({ counterpartyCountry: "VN", currency: "VND" }),
+      assertCurrencyAllowed({ counterpartyCountry: "VN", currency: "VND" })
     ).not.toThrow();
   });
 });
@@ -306,7 +352,7 @@ describe("idempotency fingerprints (§7.3, §14.9)", () => {
 
   it("differs when the body differs, which is what makes GS-PAY-1001 possible", () => {
     expect(fingerprint({ invoiceId: 1, amountMinor: "5000000" })).not.toBe(
-      fingerprint({ invoiceId: 1, amountMinor: "500000" }),
+      fingerprint({ invoiceId: 1, amountMinor: "500000" })
     );
   });
 
@@ -334,9 +380,11 @@ describe("PayOS signature (§7.2, ADR-03)", () => {
 
   it("signs the alphabetically sorted k=v&k=v canonical form", () => {
     const canonical = canonicalPayosPayload(data);
-    const keys = canonical.split("&").map((p) => p.split("=")[0]);
+    const keys = canonical.split("&").map(p => p.split("=")[0]);
     expect(keys).toEqual([...keys].sort());
-    expect(canonical.startsWith("accountNumber=0123456789&amount=5000000")).toBe(true);
+    expect(
+      canonical.startsWith("accountNumber=0123456789&amount=5000000")
+    ).toBe(true);
   });
 
   it("accepts a correctly signed body", () => {
@@ -347,18 +395,27 @@ describe("PayOS signature (§7.2, ADR-03)", () => {
   it("rejects a tampered amount — the forgery this check exists to stop", () => {
     const signature = signPayosPayload(data, key);
     const tampered = { ...data, amount: 50_000_000 };
-    expect(verifyPayosSignature({ data: tampered, signature }, key)).toBe(false);
+    expect(verifyPayosSignature({ data: tampered, signature }, key)).toBe(
+      false
+    );
   });
 
   it("rejects a body signed with the wrong key, a missing signature, and junk", () => {
-    expect(verifyPayosSignature({ data, signature: signPayosPayload(data, "other") }, key)).toBe(false);
+    expect(
+      verifyPayosSignature(
+        { data, signature: signPayosPayload(data, "other") },
+        key
+      )
+    ).toBe(false);
     expect(verifyPayosSignature({ data }, key)).toBe(false);
     expect(verifyPayosSignature({ data, signature: "short" }, key)).toBe(false);
     expect(verifyPayosSignature({}, key)).toBe(false);
   });
 
   it("serialises null and nested values the way the provider does", () => {
-    expect(canonicalPayosPayload({ a: null, b: undefined, c: [1, 2] })).toBe("a=&b=&c=[1,2]");
+    expect(canonicalPayosPayload({ a: null, b: undefined, c: [1, 2] })).toBe(
+      "a=&b=&c=[1,2]"
+    );
   });
 
   it("reads the awkward payload shapes from §11.3", () => {
@@ -369,14 +426,19 @@ describe("PayOS signature (§7.2, ADR-03)", () => {
     // A float amount is a misunderstanding, not something to round.
     expect(() => parseAmount(1000.5)).toThrow(/GS-PAY-1021/);
     // Missing counterAccountNumber must not throw.
-    const normalized = normalizePayos({ ...data, counterAccountNumber: undefined });
+    const normalized = normalizePayos({
+      ...data,
+      counterAccountNumber: undefined,
+    });
     expect(normalized.counterAccountNumber).toBeNull();
     expect(normalized.amountMinor).toBe(5_000_000n);
     expect(normalized.providerOrderCode).toBe(123);
   });
 
   it("does not multiply VND by 100 — its ISO exponent is 0", () => {
-    expect(normalizePayos({ ...data, amount: 5_000_000 }).amountMinor).toBe(5_000_000n);
+    expect(normalizePayos({ ...data, amount: 5_000_000 }).amountMinor).toBe(
+      5_000_000n
+    );
   });
 
   it("refuses a payload with nothing to key idempotency on", () => {
@@ -397,27 +459,41 @@ describe("Casso (§7.2, ADR-03)", () => {
   it("handles a date-only `when` (ACB) and a full timestamp (VietinBank)", () => {
     const batch = normalizeCassoBatch({
       data: [
-        { tid: "acb-1", amount: 1_000_000, description: "AUC00001Z", when: "2026-03-31" },
-        { tid: "vtb-1", amount: 2_000_000, description: "x", when: "2026-03-31 09:15:00" },
+        {
+          tid: "acb-1",
+          amount: 1_000_000,
+          description: "AUC00001Z",
+          when: "2026-03-31",
+        },
+        {
+          tid: "vtb-1",
+          amount: 2_000_000,
+          description: "x",
+          when: "2026-03-31 09:15:00",
+        },
       ],
     });
     expect(batch).toHaveLength(2);
     expect(batch[0].occurredAt?.toISOString().slice(0, 10)).toBe("2026-03-31");
     expect(batch[1].occurredAt?.toISOString()).toContain("09:15:00");
     // Idempotency keys on tid, never on `when`.
-    expect(batch.map((b) => b.providerTxnId)).toEqual(["acb-1", "vtb-1"]);
+    expect(batch.map(b => b.providerTxnId)).toEqual(["acb-1", "vtb-1"]);
   });
 
   it("survives an unparseable timestamp rather than dropping real money", () => {
     expect(parseProviderDate("not a date")).toBeNull();
     expect(parseProviderDate("")).toBeNull();
-    const [txn] = normalizeCassoBatch({ data: [{ tid: "x", amount: 1, when: "???" }] });
+    const [txn] = normalizeCassoBatch({
+      data: [{ tid: "x", amount: 1, when: "???" }],
+    });
     expect(txn.occurredAt).toBeNull();
     expect(txn.amountMinor).toBe(1n);
   });
 
   it("accepts a single object as well as an array", () => {
-    expect(normalizeCassoBatch({ data: { tid: "solo", amount: 5 } })).toHaveLength(1);
+    expect(
+      normalizeCassoBatch({ data: { tid: "solo", amount: 5 } })
+    ).toHaveLength(1);
     expect(normalizeCassoBatch({})).toHaveLength(0);
   });
 });
@@ -452,7 +528,10 @@ describe("VietQR payload (§8.3)", () => {
   });
 
   it("marks a QR without an amount as static so the payer types it", () => {
-    const payload = buildVietQrPayload({ bankBin: "970415", accountNumber: "1" });
+    const payload = buildVietQrPayload({
+      bankBin: "970415",
+      accountNumber: "1",
+    });
     expect(payload).toContain("010211"); // point of initiation = static
     expect(verifyVietQrPayload(payload)).toBe(true);
   });
@@ -463,9 +542,15 @@ describe("VietQR payload (§8.3)", () => {
 
   it("refuses input EMVCo cannot represent", () => {
     expect(() => tlv("00", "x".repeat(100))).toThrow(/99 characters/);
-    expect(() => buildVietQrPayload({ bankBin: "97041", accountNumber: "1" })).toThrow(/six digits/);
     expect(() =>
-      buildVietQrPayload({ bankBin: "970415", accountNumber: "1", currency: "GBP" }),
+      buildVietQrPayload({ bankBin: "97041", accountNumber: "1" })
+    ).toThrow(/six digits/);
+    expect(() =>
+      buildVietQrPayload({
+        bankBin: "970415",
+        accountNumber: "1",
+        currency: "GBP",
+      })
     ).toThrow(/GS-PAY-1023/);
   });
 
@@ -484,12 +569,21 @@ describe("VietQR payload (§8.3)", () => {
 describe("OCR confidence gating (§6.2, ADR-04)", () => {
   it("always requires human confirmation for a cup score, at any confidence", () => {
     for (const confidence of [0.5, 0.9, 0.99, 1]) {
-      expect(gateForField("cupScore", confidence).action).toBe("require_confirmation");
+      expect(gateForField("cupScore", confidence).action).toBe(
+        "require_confirmation"
+      );
     }
   });
 
   it("treats every money-bearing and quality field the same way", () => {
-    for (const field of ["moistureContent", "defectCount", "unitPrice", "totalAmount", "quantity", "bankAccountNumber"]) {
+    for (const field of [
+      "moistureContent",
+      "defectCount",
+      "unitPrice",
+      "totalAmount",
+      "quantity",
+      "bankAccountNumber",
+    ]) {
       expect(gateForField(field, 0.99).action).toBe("require_confirmation");
     }
   });
@@ -523,17 +617,23 @@ describe("outbox retry (§4.2)", () => {
   it("backs off 1s, 5s, 30s, 2m, 10m, 1h", () => {
     expect([...RETRY_BACKOFF_SECONDS]).toEqual([1, 5, 30, 120, 600, 3600]);
     const base = new Date("2026-03-31T00:00:00Z");
-    expect(nextAvailableAt(1, base).toISOString()).toBe("2026-03-31T00:00:01.000Z");
-    expect(nextAvailableAt(4, base).toISOString()).toBe("2026-03-31T00:02:00.000Z");
-    expect(nextAvailableAt(6, base).toISOString()).toBe("2026-03-31T01:00:00.000Z");
+    expect(nextAvailableAt(1, base).toISOString()).toBe(
+      "2026-03-31T00:00:01.000Z"
+    );
+    expect(nextAvailableAt(4, base).toISOString()).toBe(
+      "2026-03-31T00:02:00.000Z"
+    );
+    expect(nextAvailableAt(6, base).toISOString()).toBe(
+      "2026-03-31T01:00:00.000Z"
+    );
   });
 
   it("dead-letters after six attempts rather than retrying forever", () => {
     expect(shouldDeadLetter(5)).toBe(false);
     expect(shouldDeadLetter(6)).toBe(true);
     // An attempt count past the schedule clamps instead of indexing off the end.
-    expect(nextAvailableAt(99, new Date("2026-03-31T00:00:00Z")).toISOString()).toBe(
-      "2026-03-31T01:00:00.000Z",
-    );
+    expect(
+      nextAvailableAt(99, new Date("2026-03-31T00:00:00Z")).toISOString()
+    ).toBe("2026-03-31T01:00:00.000Z");
   });
 });

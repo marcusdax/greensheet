@@ -65,12 +65,12 @@ export const documentsRouter = createRouter({
         fileName: z.string().min(1).max(255),
         contentType: z.enum(ALLOWED_CONTENT_TYPES),
         sizeBytes: z.number().int().positive().max(MAX_UPLOAD_BYTES),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       await requireOcrEnabled();
       const db = getDb();
-      const storageKey = `documents/${input.entityType}/${Date.now()}-${input.fileName.replace(/[^\w.\-]/g, "_")}`;
+      const storageKey = `documents/${input.entityType}/${Date.now()}-${input.fileName.replace(/[^\w.-]/g, "_")}`;
 
       const [inserted] = await db.insert(documents).values({
         entityType: input.entityType,
@@ -101,7 +101,7 @@ export const documentsRouter = createRouter({
         documentId: z.number().int().positive(),
         sha256: z.string().regex(/^[a-f0-9]{64}$/),
         sizeBytes: z.number().int().positive().max(MAX_UPLOAD_BYTES),
-      }),
+      })
     )
     .mutation(async ({ input }) => {
       await requireOcrEnabled();
@@ -110,12 +110,20 @@ export const documentsRouter = createRouter({
       const document = await db.query.documents.findFirst({
         where: eq(documents.id, input.documentId),
       });
-      if (!document) throw new TRPCError({ code: "NOT_FOUND", message: "GS-DOC-1002 · not found" });
+      if (!document)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "GS-DOC-1002 · not found",
+        });
 
       try {
         await db
           .update(documents)
-          .set({ sha256: input.sha256, sizeBytes: input.sizeBytes, uploadStatus: "uploaded" })
+          .set({
+            sha256: input.sha256,
+            sizeBytes: input.sizeBytes,
+            uploadStatus: "uploaded",
+          })
           .where(eq(documents.id, input.documentId));
       } catch (err) {
         if (isDuplicateKeyError(err)) {
@@ -127,7 +135,8 @@ export const documentsRouter = createRouter({
           return {
             documentId: existing?.id ?? input.documentId,
             duplicate: true as const,
-            message: "this file has already been uploaded; reusing the existing document",
+            message:
+              "this file has already been uploaded; reusing the existing document",
           };
         }
         throw err;
@@ -152,11 +161,12 @@ export const documentsRouter = createRouter({
           entityId: z.number().int().positive().optional(),
           limit: z.number().int().min(1).max(100).default(50),
         })
-        .optional(),
+        .optional()
     )
     .query(async ({ input }) => {
       const conditions = [isNull(documents.deletedAt)];
-      if (input?.entityId) conditions.push(eq(documents.entityId, input.entityId));
+      if (input?.entityId)
+        conditions.push(eq(documents.entityId, input.entityId));
       return getDb()
         .select()
         .from(documents)
@@ -169,8 +179,14 @@ export const documentsRouter = createRouter({
     .input(z.object({ id: z.number().int().positive() }))
     .query(async ({ input }) => {
       const db = getDb();
-      const document = await db.query.documents.findFirst({ where: eq(documents.id, input.id) });
-      if (!document) throw new TRPCError({ code: "NOT_FOUND", message: "GS-DOC-1002 · not found" });
+      const document = await db.query.documents.findFirst({
+        where: eq(documents.id, input.id),
+      });
+      if (!document)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "GS-DOC-1002 · not found",
+        });
 
       const result = await db.query.ocrResults.findFirst({
         where: eq(ocrResults.documentId, document.id),
@@ -180,7 +196,10 @@ export const documentsRouter = createRouter({
       if (!result?.structuredData) return { document, extraction: null };
 
       const fields = result.structuredData as Record<string, unknown>;
-      const confidences = (result.confidenceScores ?? {}) as Record<string, number>;
+      const confidences = (result.confidenceScores ?? {}) as Record<
+        string,
+        number
+      >;
       const missing = assertConfidenceCoverage(fields, confidences);
 
       // The review panel is driven entirely by this per-field gating, so the
@@ -232,7 +251,7 @@ export const documentsRouter = createRouter({
       .orderBy(desc(documents.id))
       .limit(100);
 
-    return rows.filter((r) => r.reviewedAt == null);
+    return rows.filter(r => r.reviewedAt == null);
   }),
 
   /**
@@ -249,18 +268,24 @@ export const documentsRouter = createRouter({
         outcome: z.enum(["accepted", "edited", "rejected"]),
         /** Fields the reviewer explicitly touched — the ADR-04 gate. */
         confirmedFields: z.array(z.string()).default([]),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
       const result = await db.query.ocrResults.findFirst({
         where: eq(ocrResults.id, input.ocrResultId),
       });
-      if (!result) throw new TRPCError({ code: "NOT_FOUND", message: "GS-DOC-1003 · not found" });
+      if (!result)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "GS-DOC-1003 · not found",
+        });
 
       const fields = (result.structuredData ?? {}) as Record<string, unknown>;
       const mustConfirm = fieldsRequiringConfirmation(fields);
-      const unconfirmed = mustConfirm.filter((f) => !input.confirmedFields.includes(f));
+      const unconfirmed = mustConfirm.filter(
+        f => !input.confirmedFields.includes(f)
+      );
 
       if (input.outcome !== "rejected" && unconfirmed.length > 0) {
         throw new TRPCError({
@@ -278,13 +303,18 @@ export const documentsRouter = createRouter({
         })
         .where(eq(ocrResults.id, input.ocrResultId));
 
-      await emitEvent("document.review_recorded", "document", result.documentId, {
-        documentId: result.documentId,
-        ocrResultId: result.id,
-        outcome: input.outcome,
-        confirmedFields: input.confirmedFields,
-        byUserId: ctx.user.id,
-      });
+      await emitEvent(
+        "document.review_recorded",
+        "document",
+        result.documentId,
+        {
+          documentId: result.documentId,
+          ocrResultId: result.id,
+          outcome: input.outcome,
+          confirmedFields: input.confirmedFields,
+          byUserId: ctx.user.id,
+        }
+      );
 
       return { ocrResultId: result.id, outcome: input.outcome };
     }),

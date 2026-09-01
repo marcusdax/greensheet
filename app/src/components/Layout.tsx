@@ -6,6 +6,8 @@ import {
   Package,
   Megaphone,
   ShoppingCart,
+  Receipt,
+  Banknote,
   Compass,
   Warehouse as WarehouseIcon,
   FlaskConical,
@@ -38,6 +40,8 @@ const NAV_GROUPS: {
       { to: "/", label: "Dashboard", icon: LayoutDashboard, roles: READERS },
       { to: "/catalog", label: "Catalog", icon: Coffee, roles: ALL_ROLES },
       { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
+      { to: "/invoices", label: "Invoices", icon: Receipt, roles: [...READERS, "roaster_buyer"] },
+      { to: "/payments", label: "Payments & AR", icon: Banknote, roles: [...STAFF, "analyst"] },
     ],
   },
   {

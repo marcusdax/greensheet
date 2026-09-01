@@ -28,7 +28,9 @@ export function requestId(c: Context): string {
  * two deliveries of the same transfer across log lines; the full value lives in
  * provider_transactions.rawPayload behind role-gated access.
  */
-export function logWebhook(fields: Partial<WebhookLogFields> & { requestId: string }): void {
+export function logWebhook(
+  fields: Partial<WebhookLogFields> & { requestId: string }
+): void {
   const { description, amountMinor, ...rest } = fields;
   const line = {
     level: fields.error ? "error" : "info",
@@ -49,9 +51,15 @@ export function logWebhook(fields: Partial<WebhookLogFields> & { requestId: stri
  * drivers that wrap the error.
  */
 export function isDuplicateKeyError(err: unknown): boolean {
-  const e = err as { code?: string; errno?: number; message?: string; cause?: unknown };
+  const e = err as {
+    code?: string;
+    errno?: number;
+    message?: string;
+    cause?: unknown;
+  };
   if (e?.code === "ER_DUP_ENTRY" || e?.errno === 1062) return true;
-  if (typeof e?.message === "string" && /duplicate entry/i.test(e.message)) return true;
+  if (typeof e?.message === "string" && /duplicate entry/i.test(e.message))
+    return true;
   if (e?.cause) return isDuplicateKeyError(e.cause);
   return false;
 }

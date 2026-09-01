@@ -30,14 +30,22 @@ export type BatchOutcome = {
   deadLettered: number;
 };
 
-const EMPTY: BatchOutcome = { claimed: 0, handled: 0, skipped: 0, failed: 0, deadLettered: 0 };
+const EMPTY: BatchOutcome = {
+  claimed: 0,
+  handled: 0,
+  skipped: 0,
+  failed: 0,
+  deadLettered: 0,
+};
 
 /**
  * Claim a batch and dispatch it. Claiming and processing are separate
  * transactions on purpose: holding row locks across handler I/O is how a
  * consumer deadlocks against the webhook writes it is meant to be draining.
  */
-export async function processBatch(limit = CLAIM_BATCH_SIZE): Promise<BatchOutcome> {
+export async function processBatch(
+  limit = CLAIM_BATCH_SIZE
+): Promise<BatchOutcome> {
   const db = getDb();
   const claimedIds = await claim(limit);
   if (claimedIds.length === 0) return { ...EMPTY };
@@ -45,7 +53,9 @@ export async function processBatch(limit = CLAIM_BATCH_SIZE): Promise<BatchOutco
   const outcome: BatchOutcome = { ...EMPTY, claimed: claimedIds.length };
 
   for (const id of claimedIds) {
-    const row = await db.query.domainEvents.findFirst({ where: eq(domainEvents.id, id) });
+    const row = await db.query.domainEvents.findFirst({
+      where: eq(domainEvents.id, id),
+    });
     if (!row) continue;
 
     const event: OutboxEvent = {
@@ -108,17 +118,22 @@ export async function processBatch(limit = CLAIM_BATCH_SIZE): Promise<BatchOutco
  */
 async function claim(limit: number): Promise<number[]> {
   const db = getDb();
-  return db.transaction(async (tx) => {
+  return db.transaction(async tx => {
     const due = await tx
       .select({ id: domainEvents.id, attempts: domainEvents.attempts })
       .from(domainEvents)
-      .where(and(eq(domainEvents.processed, false), lte(domainEvents.availableAt, new Date())))
+      .where(
+        and(
+          eq(domainEvents.processed, false),
+          lte(domainEvents.availableAt, new Date())
+        )
+      )
       .orderBy(asc(domainEvents.id))
       .limit(limit)
       .for("update", { skipLocked: true });
 
     if (due.length === 0) return [];
-    const ids = due.map((r) => r.id);
+    const ids = due.map(r => r.id);
 
     // Visibility timeout: if this worker dies mid-batch the rows become
     // claimable again after the backoff rather than being lost (§11.4).
@@ -131,7 +146,10 @@ async function claim(limit: number): Promise<number[]> {
   });
 }
 
-async function markProcessed(id: number, skippedReason: string | null): Promise<void> {
+async function markProcessed(
+  id: number,
+  skippedReason: string | null
+): Promise<void> {
   await getDb()
     .update(domainEvents)
     .set({
@@ -143,9 +161,13 @@ async function markProcessed(id: number, skippedReason: string | null): Promise<
     .where(eq(domainEvents.id, id));
 }
 
-async function deadLetter(event: OutboxEvent, attempts: number, error: string): Promise<void> {
+async function deadLetter(
+  event: OutboxEvent,
+  attempts: number,
+  error: string
+): Promise<void> {
   const db = getDb();
-  await db.transaction(async (tx) => {
+  await db.transaction(async tx => {
     await tx.insert(domainEventsDead).values({
       eventId: event.id,
       eventType: event.eventType,
@@ -176,7 +198,7 @@ async function deadLetter(event: OutboxEvent, attempts: number, error: string): 
       eventType: event.eventType,
       attempts,
       error,
-    }),
+    })
   );
 }
 
@@ -189,7 +211,10 @@ export async function outboxLagSeconds(): Promise<number> {
     .orderBy(asc(domainEvents.id))
     .limit(1);
   if (rows.length === 0) return 0;
-  return Math.max(0, Math.round((Date.now() - rows[0].createdAt.getTime()) / 1000));
+  return Math.max(
+    0,
+    Math.round((Date.now() - rows[0].createdAt.getTime()) / 1000)
+  );
 }
 
 let timer: ReturnType<typeof setTimeout> | null = null;
@@ -208,11 +233,16 @@ export function startOutboxConsumer(): void {
       if (flags.outboxConsumer) {
         let outcome = await processBatch();
         // Drain a backlog rather than waiting a poll interval per batch.
-        while (outcome.claimed === CLAIM_BATCH_SIZE) outcome = await processBatch();
+        while (outcome.claimed === CLAIM_BATCH_SIZE)
+          outcome = await processBatch();
       }
     } catch (err) {
       console.error(
-        JSON.stringify({ level: "error", msg: "outbox.tick_failed", error: String(err) }),
+        JSON.stringify({
+          level: "error",
+          msg: "outbox.tick_failed",
+          error: String(err),
+        })
       );
     } finally {
       if (running) timer = setTimeout(tick, POLL_INTERVAL_MS);

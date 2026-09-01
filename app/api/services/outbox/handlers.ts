@@ -66,14 +66,23 @@ registerHandler("payment.transaction_received", {
       if (!verification.ok) {
         await db
           .update(providerTransactions)
-          .set({ verificationError: verification.reason.slice(0, 255), matchStatus: "unmatched" })
+          .set({
+            verificationError: verification.reason.slice(0, 255),
+            matchStatus: "unmatched",
+          })
           .where(eq(providerTransactions.id, txn.id));
-        await writeEvent(db, "payment.unmatched", "provider_transaction", txn.id, {
-          providerTransactionId: txn.id,
-          amountMinor: minorFromDb(txn.amountMinor).toString(),
-          description: txn.description,
-          reason: `casso_verification_failed: ${verification.reason}`,
-        });
+        await writeEvent(
+          db,
+          "payment.unmatched",
+          "provider_transaction",
+          txn.id,
+          {
+            providerTransactionId: txn.id,
+            amountMinor: minorFromDb(txn.amountMinor).toString(),
+            description: txn.description,
+            reason: `casso_verification_failed: ${verification.reason}`,
+          }
+        );
         // Handled, not failed: the money is real and now sits in the exception
         // queue for a human. Retrying a 404 forever helps nobody.
         return "handled";
@@ -89,7 +98,9 @@ registerHandler("payment.transaction_received", {
       amountMinor: minorFromDb(txn.amountMinor),
       currency: txn.currency,
       providerOrderCode:
-        event.payload.providerOrderCode == null ? null : Number(event.payload.providerOrderCode),
+        event.payload.providerOrderCode == null
+          ? null
+          : Number(event.payload.providerOrderCode),
       counterAccountNumber: txn.counterAccountNumber,
     });
 
@@ -103,12 +114,18 @@ registerHandler("payment.transaction_received", {
       .where(eq(providerTransactions.id, txn.id));
 
     if (decision.status !== "matched" || decision.invoiceId == null) {
-      await writeEvent(db, "payment.unmatched", "provider_transaction", txn.id, {
-        providerTransactionId: txn.id,
-        amountMinor: minorFromDb(txn.amountMinor).toString(),
-        description: txn.description,
-        reason: decision.reason,
-      });
+      await writeEvent(
+        db,
+        "payment.unmatched",
+        "provider_transaction",
+        txn.id,
+        {
+          providerTransactionId: txn.id,
+          amountMinor: minorFromDb(txn.amountMinor).toString(),
+          description: txn.description,
+          reason: decision.reason,
+        }
+      );
       return "handled";
     }
 

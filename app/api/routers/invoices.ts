@@ -14,7 +14,12 @@ import {
   paymentAllocations,
   providerTransactions,
 } from "@db/schema";
-import { issueInvoice, voidInvoice, writeOffInvoice, VN_VAT_RATES_BP } from "../services/payments/invoicing";
+import {
+  issueInvoice,
+  voidInvoice,
+  writeOffInvoice,
+  VN_VAT_RATES_BP,
+} from "../services/payments/invoicing";
 import { minorFromDb } from "@contracts/money";
 import { SUPPORTED_CURRENCIES } from "@contracts/money";
 
@@ -55,7 +60,7 @@ async function counterpartyIdsFor(roasterId: number): Promise<number[]> {
     .select({ id: counterparties.id })
     .from(counterparties)
     .where(eq(counterparties.roasterId, roasterId));
-  return rows.map((r) => r.id);
+  return rows.map(r => r.id);
 }
 
 // Roles come from contracts/rbac.ts so the table cannot drift from the router.
@@ -69,14 +74,16 @@ export const invoicesRouter = createRouter({
         currency: z.enum(SUPPORTED_CURRENCIES).optional(),
         /** Only invoices that still owe money — the operator's default view. */
         openOnly: z.boolean().default(false),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const db = getDb();
       const conditions = [isNull(invoices.deletedAt)];
 
       if (ctx.user.role === "roaster_buyer") {
-        const ids = ctx.user.roasterId ? await counterpartyIdsFor(ctx.user.roasterId) : [];
+        const ids = ctx.user.roasterId
+          ? await counterpartyIdsFor(ctx.user.roasterId)
+          : [];
         if (ids.length === 0) return { items: [], nextCursor: null };
         conditions.push(inArray(invoices.counterpartyId, ids));
       } else if (input.counterpartyId) {
@@ -84,9 +91,12 @@ export const invoicesRouter = createRouter({
       }
 
       if (input.status) conditions.push(eq(invoices.status, input.status));
-      if (input.currency) conditions.push(eq(invoices.currency, input.currency));
+      if (input.currency)
+        conditions.push(eq(invoices.currency, input.currency));
       if (input.openOnly) {
-        conditions.push(inArray(invoices.status, ["issued", "partially_paid", "overpaid"]));
+        conditions.push(
+          inArray(invoices.status, ["issued", "partially_paid", "overpaid"])
+        );
       }
 
       if (input.cursor) {
@@ -95,8 +105,11 @@ export const invoicesRouter = createRouter({
           conditions.push(
             or(
               lt(invoices.createdAt, decoded.createdAt),
-              and(eq(invoices.createdAt, decoded.createdAt), lt(invoices.id, decoded.id)),
-            )!,
+              and(
+                eq(invoices.createdAt, decoded.createdAt),
+                lt(invoices.id, decoded.id)
+              )
+            )!
           );
         }
       }
@@ -123,13 +136,16 @@ export const invoicesRouter = createRouter({
           createdAt: invoices.createdAt,
         })
         .from(invoices)
-        .leftJoin(counterparties, eq(counterparties.id, invoices.counterpartyId))
+        .leftJoin(
+          counterparties,
+          eq(counterparties.id, invoices.counterpartyId)
+        )
         .where(and(...conditions))
         .orderBy(desc(invoices.createdAt), desc(invoices.id))
         .limit(input.limit + 1);
 
       const hasMore = rows.length > input.limit;
-      const items = (hasMore ? rows.slice(0, input.limit) : rows).map((r) => ({
+      const items = (hasMore ? rows.slice(0, input.limit) : rows).map(r => ({
         ...r,
         subtotalMinor: minorFromDb(r.subtotalMinor),
         vatMinor: minorFromDb(r.vatMinor),
@@ -142,7 +158,8 @@ export const invoicesRouter = createRouter({
       const last = items[items.length - 1];
       return {
         items,
-        nextCursor: hasMore && last ? encodeCursor(last.createdAt, last.id) : null,
+        nextCursor:
+          hasMore && last ? encodeCursor(last.createdAt, last.id) : null,
       };
     }),
 
@@ -150,14 +167,25 @@ export const invoicesRouter = createRouter({
     .input(z.object({ id: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
       const db = getDb();
-      const invoice = await db.query.invoices.findFirst({ where: eq(invoices.id, input.id) });
-      if (!invoice) throw new TRPCError({ code: "NOT_FOUND", message: "GS-INV-1007 · not found" });
+      const invoice = await db.query.invoices.findFirst({
+        where: eq(invoices.id, input.id),
+      });
+      if (!invoice)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "GS-INV-1007 · not found",
+        });
 
       if (ctx.user.role === "roaster_buyer") {
-        const ids = ctx.user.roasterId ? await counterpartyIdsFor(ctx.user.roasterId) : [];
+        const ids = ctx.user.roasterId
+          ? await counterpartyIdsFor(ctx.user.roasterId)
+          : [];
         if (!ids.includes(invoice.counterpartyId)) {
           // 404, not 403: existence must not leak across tenants.
-          throw new TRPCError({ code: "NOT_FOUND", message: "GS-GEN-1005 · resource not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "GS-GEN-1005 · resource not found",
+          });
         }
       }
 
@@ -186,7 +214,7 @@ export const invoicesRouter = createRouter({
         .from(paymentAllocations)
         .innerJoin(
           providerTransactions,
-          eq(providerTransactions.id, paymentAllocations.providerTransactionId),
+          eq(providerTransactions.id, paymentAllocations.providerTransactionId)
         )
         .where(eq(paymentAllocations.invoiceId, invoice.id))
         .orderBy(asc(paymentAllocations.id));
@@ -198,11 +226,13 @@ export const invoicesRouter = createRouter({
         shippingMinor: minorFromDb(invoice.shippingMinor),
         totalMinor: minorFromDb(invoice.totalMinor),
         paidMinor: minorFromDb(invoice.paidMinor),
-        outstandingMinor: minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor),
-        counterpartyName: counterparty?.name ?? `Counterparty ${invoice.counterpartyId}`,
+        outstandingMinor:
+          minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor),
+        counterpartyName:
+          counterparty?.name ?? `Counterparty ${invoice.counterpartyId}`,
         counterpartyCountry: counterparty?.country ?? "",
         bankAccountLast4: counterparty?.bankAccountLast4 ?? null,
-        allocations: history.map((h) => ({
+        allocations: history.map(h => ({
           ...h,
           amountMinor: minorFromDb(h.amountMinor),
         })),
@@ -222,7 +252,7 @@ export const invoicesRouter = createRouter({
         vatRateBp: z
           .number()
           .int()
-          .refine((v) => (VN_VAT_RATES_BP as readonly number[]).includes(v), {
+          .refine(v => (VN_VAT_RATES_BP as readonly number[]).includes(v), {
             message: `vatRateBp must be one of ${VN_VAT_RATES_BP.join(", ")}`,
           }),
         shippingMinor: z.bigint().nonnegative().default(0n),
@@ -230,7 +260,7 @@ export const invoicesRouter = createRouter({
         dueAt: z.date(),
         notes: z.string().max(500).optional(),
         residencyOverrideNote: z.string().max(500).optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       // The FX-control override is an ops_manager decision, not a sales one.
@@ -244,12 +274,26 @@ export const invoicesRouter = createRouter({
     }),
 
   void: rbacProcedure("invoices.void")
-    .input(z.object({ id: z.number().int().positive(), reason: z.string().min(3).max(255) }))
-    .mutation(async ({ ctx, input }) => voidInvoice(input.id, input.reason, ctx.user.id)),
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+        reason: z.string().min(3).max(255),
+      })
+    )
+    .mutation(async ({ ctx, input }) =>
+      voidInvoice(input.id, input.reason, ctx.user.id)
+    ),
 
   writeOff: rbacProcedure("invoices.writeOff")
-    .input(z.object({ id: z.number().int().positive(), reason: z.string().min(3).max(255) }))
-    .mutation(async ({ ctx, input }) => writeOffInvoice(input.id, input.reason, ctx.user.id)),
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+        reason: z.string().min(3).max(255),
+      })
+    )
+    .mutation(async ({ ctx, input }) =>
+      writeOffInvoice(input.id, input.reason, ctx.user.id)
+    ),
 
   counterparties: rbacProcedure("invoices.counterparties")
     .input(z.object({ search: z.string().max(120).optional() }).optional())
@@ -257,7 +301,9 @@ export const invoicesRouter = createRouter({
       const db = getDb();
       const conditions = [isNull(counterparties.deletedAt)];
       if (input?.search) {
-        conditions.push(sql`${counterparties.name} LIKE ${`%${input.search}%`}`);
+        conditions.push(
+          sql`${counterparties.name} LIKE ${`%${input.search}%`}`
+        );
       }
       return db
         .select({

@@ -18,9 +18,17 @@ import {
 } from "@db/schema";
 import { writeEvent, emitEvent } from "../engine";
 import { minorFromDb, SUPPORTED_CURRENCIES } from "@contracts/money";
-import { agingReport, arSummary, ictToday, reconcile } from "../services/payments/aging";
+import {
+  agingReport,
+  arSummary,
+  ictToday,
+  reconcile,
+} from "../services/payments/aging";
 import { reverseAllocation } from "../services/payments/allocation";
-import { settleTransactionAgainstInvoice, unallocatedResidual } from "../services/payments/settlement";
+import {
+  settleTransactionAgainstInvoice,
+  unallocatedResidual,
+} from "../services/payments/settlement";
 import { fingerprint, withIdempotency } from "../services/payments/idempotency";
 import { buildVietQrPayload } from "../services/payments/vietqr";
 import { getFlags } from "../services/flags";
@@ -36,7 +44,9 @@ const INTENT_EXPIRY_MS = 24 * 60 * 60 * 1000;
  * one from a dedicated auto-increment table instead.
  */
 async function nextOrderCode(): Promise<number> {
-  const [res] = await getDb().insert(orderCodeSequence).values({ purpose: "payment_intent" });
+  const [res] = await getDb()
+    .insert(orderCodeSequence)
+    .values({ purpose: "payment_intent" });
   return Number(res.insertId);
 }
 
@@ -49,7 +59,11 @@ export const paymentsRouter = createRouter({
         const intent = await getDb().query.paymentIntents.findFirst({
           where: eq(paymentIntents.id, input.id),
         });
-        if (!intent) throw new TRPCError({ code: "NOT_FOUND", message: "GS-PAY-1003 · not found" });
+        if (!intent)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "GS-PAY-1003 · not found",
+          });
         return { ...intent, amountMinor: minorFromDb(intent.amountMinor) };
       }),
 
@@ -70,19 +84,24 @@ export const paymentsRouter = createRouter({
             ])
             .optional(),
           limit: z.number().int().min(1).max(100).default(25),
-        }),
+        })
       )
       .query(async ({ input }) => {
         const conditions = [];
-        if (input.invoiceId) conditions.push(eq(paymentIntents.invoiceId, input.invoiceId));
-        if (input.status) conditions.push(eq(paymentIntents.status, input.status));
+        if (input.invoiceId)
+          conditions.push(eq(paymentIntents.invoiceId, input.invoiceId));
+        if (input.status)
+          conditions.push(eq(paymentIntents.status, input.status));
         const rows = await getDb()
           .select()
           .from(paymentIntents)
           .where(conditions.length ? and(...conditions) : undefined)
           .orderBy(desc(paymentIntents.id))
           .limit(input.limit);
-        return rows.map((r) => ({ ...r, amountMinor: minorFromDb(r.amountMinor) }));
+        return rows.map(r => ({
+          ...r,
+          amountMinor: minorFromDb(r.amountMinor),
+        }));
       }),
 
     create: rbacProcedure("payments.intents.create")
@@ -93,7 +112,7 @@ export const paymentsRouter = createRouter({
           provider: z.enum(["payos", "manual"]).default("payos"),
           /** Defaults to the invoice's outstanding balance. */
           amountMinor: z.bigint().positive().optional(),
-        }),
+        })
       )
       .mutation(async ({ ctx, input }) => {
         const flags = await getFlags();
@@ -123,10 +142,14 @@ export const paymentsRouter = createRouter({
               where: eq(invoices.id, input.invoiceId),
             });
             if (!invoice) {
-              throw new TRPCError({ code: "NOT_FOUND", message: "GS-INV-1007 · invoice not found" });
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "GS-INV-1007 · invoice not found",
+              });
             }
 
-            const outstanding = minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
+            const outstanding =
+              minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
             const amountMinor = input.amountMinor ?? outstanding;
             if (amountMinor <= 0n) {
               throw new TRPCError({
@@ -146,7 +169,11 @@ export const paymentsRouter = createRouter({
             // the provider is unreachable, and so the memo token is guaranteed
             // to be the one we will match on (§7.1).
             let qrCodeData: string | null = null;
-            if (env.merchantBankBin && env.merchantAccountNumber && invoice.currency === "VND") {
+            if (
+              env.merchantBankBin &&
+              env.merchantAccountNumber &&
+              invoice.currency === "VND"
+            ) {
               qrCodeData = buildVietQrPayload({
                 bankBin: env.merchantBankBin,
                 accountNumber: env.merchantAccountNumber,
@@ -201,23 +228,33 @@ export const paymentsRouter = createRouter({
                 counterpartyName: counterparty?.name ?? "",
               },
             };
-          },
+          }
         );
       }),
 
     cancel: rbacProcedure("payments.intents.cancel")
-      .input(z.object({ id: z.number().int().positive(), reason: z.string().max(255).default("") }))
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          reason: z.string().max(255).default(""),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const db = getDb();
         await db
           .update(paymentIntents)
           .set({ status: "cancelled" })
           .where(eq(paymentIntents.id, input.id));
-        await emitEvent("payment.intent_cancelled", "payment_intent", input.id, {
-          paymentIntentId: input.id,
-          reason: input.reason,
-          byUserId: ctx.user.id,
-        });
+        await emitEvent(
+          "payment.intent_cancelled",
+          "payment_intent",
+          input.id,
+          {
+            paymentIntentId: input.id,
+            reason: input.reason,
+            byUserId: ctx.user.id,
+          }
+        );
         return { id: input.id, status: "cancelled" as const };
       }),
   }),
@@ -235,7 +272,7 @@ export const paymentsRouter = createRouter({
               .regex(/^\d{4}-\d{2}-\d{2}$/)
               .optional(),
           })
-          .optional(),
+          .optional()
       )
       .query(async ({ input }) => ({
         asOf: input?.asOf ?? ictToday(),
@@ -243,11 +280,22 @@ export const paymentsRouter = createRouter({
       })),
 
     summary: rbacProcedure("payments.ar.summary")
-      .input(z.object({ asOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }).optional())
+      .input(
+        z
+          .object({
+            asOf: z
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/)
+              .optional(),
+          })
+          .optional()
+      )
       .query(async ({ input }) => arSummary(input?.asOf)),
 
     /** §13.3 — the nightly control, also runnable on demand from the UI. */
-    reconcile: rbacProcedure("payments.ar.reconcile").query(async () => reconcile()),
+    reconcile: rbacProcedure("payments.ar.reconcile").query(async () =>
+      reconcile()
+    ),
   }),
 
   transactions: createRouter({
@@ -255,20 +303,29 @@ export const paymentsRouter = createRouter({
       .input(
         z.object({
           matchStatus: z
-            .enum(["unmatched", "matched", "ambiguous", "ignored", "manual_matched"])
+            .enum([
+              "unmatched",
+              "matched",
+              "ambiguous",
+              "ignored",
+              "manual_matched",
+            ])
             .optional(),
           cursor: z.string().optional(),
           limit: z.number().int().min(1).max(100).default(25),
-        }),
+        })
       )
       .query(async ({ input }) => {
         const conditions = [];
         if (input.matchStatus) {
-          conditions.push(eq(providerTransactions.matchStatus, input.matchStatus));
+          conditions.push(
+            eq(providerTransactions.matchStatus, input.matchStatus)
+          );
         }
         if (input.cursor) {
           const id = Number(input.cursor);
-          if (Number.isInteger(id)) conditions.push(lt(providerTransactions.id, id));
+          if (Number.isInteger(id))
+            conditions.push(lt(providerTransactions.id, id));
         }
 
         const rows = await getDb()
@@ -299,13 +356,17 @@ export const paymentsRouter = createRouter({
           .limit(input.limit + 1);
 
         const hasMore = rows.length > input.limit;
-        const items = (hasMore ? rows.slice(0, input.limit) : rows).map((r) => ({
+        const items = (hasMore ? rows.slice(0, input.limit) : rows).map(r => ({
           ...r,
           amountMinor: minorFromDb(r.amountMinor),
           allocatedMinor: minorFromDb(r.allocatedMinor ?? 0),
-          residualMinor: minorFromDb(r.amountMinor) - minorFromDb(r.allocatedMinor ?? 0),
+          residualMinor:
+            minorFromDb(r.amountMinor) - minorFromDb(r.allocatedMinor ?? 0),
         }));
-        return { items, nextCursor: hasMore ? String(items[items.length - 1]?.id) : null };
+        return {
+          items,
+          nextCursor: hasMore ? String(items[items.length - 1]?.id) : null,
+        };
       }),
 
     /**
@@ -313,56 +374,69 @@ export const paymentsRouter = createRouter({
      * Unmatched, ambiguous, unverified and residual money in one list, because
      * money that is invisible is money that is lost.
      */
-    unmatched: rbacProcedure("payments.transactions.unmatched").query(async () => {
-      const rows = await getDb()
-        .select({
-          id: providerTransactions.id,
-          provider: providerTransactions.provider,
-          providerTxnId: providerTransactions.providerTxnId,
-          signatureValid: providerTransactions.signatureValid,
-          amountMinor: providerTransactions.amountMinor,
-          currency: providerTransactions.currency,
-          description: providerTransactions.description,
-          counterAccountNumber: providerTransactions.counterAccountNumber,
-          counterAccountName: providerTransactions.counterAccountName,
-          occurredAt: providerTransactions.occurredAt,
-          receivedAt: providerTransactions.receivedAt,
-          matchStatus: providerTransactions.matchStatus,
-          matchMethod: providerTransactions.matchMethod,
-          matchedInvoiceId: providerTransactions.matchedInvoiceId,
-          verifiedAt: providerTransactions.verifiedAt,
-          verificationError: providerTransactions.verificationError,
-          allocatedMinor: sql<
-            string | null
-          >`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.providerTransactionId = ${providerTransactions.id} AND a.reversedAt IS NULL), 0)`,
-        })
-        .from(providerTransactions)
-        .where(inArray(providerTransactions.matchStatus, ["unmatched", "ambiguous", "matched"]))
-        .orderBy(desc(providerTransactions.id))
-        .limit(200);
+    unmatched: rbacProcedure("payments.transactions.unmatched").query(
+      async () => {
+        const rows = await getDb()
+          .select({
+            id: providerTransactions.id,
+            provider: providerTransactions.provider,
+            providerTxnId: providerTransactions.providerTxnId,
+            signatureValid: providerTransactions.signatureValid,
+            amountMinor: providerTransactions.amountMinor,
+            currency: providerTransactions.currency,
+            description: providerTransactions.description,
+            counterAccountNumber: providerTransactions.counterAccountNumber,
+            counterAccountName: providerTransactions.counterAccountName,
+            occurredAt: providerTransactions.occurredAt,
+            receivedAt: providerTransactions.receivedAt,
+            matchStatus: providerTransactions.matchStatus,
+            matchMethod: providerTransactions.matchMethod,
+            matchedInvoiceId: providerTransactions.matchedInvoiceId,
+            verifiedAt: providerTransactions.verifiedAt,
+            verificationError: providerTransactions.verificationError,
+            allocatedMinor: sql<
+              string | null
+            >`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.providerTransactionId = ${providerTransactions.id} AND a.reversedAt IS NULL), 0)`,
+          })
+          .from(providerTransactions)
+          .where(
+            inArray(providerTransactions.matchStatus, [
+              "unmatched",
+              "ambiguous",
+              "matched",
+            ])
+          )
+          .orderBy(desc(providerTransactions.id))
+          .limit(200);
 
-      return rows
-        .map((r) => {
-          const amountMinor = minorFromDb(r.amountMinor);
-          const allocatedMinor = minorFromDb(r.allocatedMinor ?? 0);
-          const residualMinor = amountMinor - allocatedMinor;
-          const reason =
-            r.matchStatus === "ambiguous"
-              ? "ambiguous"
-              : r.provider === "casso" && !r.verifiedAt
-                ? "awaiting_casso_verification"
-                : r.matchStatus === "unmatched"
-                  ? "unmatched"
-                  : allocatedMinor === 0n
-                    ? "matched_awaiting_allocation"
-                    : "residual";
-          return { ...r, amountMinor, allocatedMinor, residualMinor, reason };
-        })
-        .filter((r) => r.residualMinor > 0n);
-    }),
+        return rows
+          .map(r => {
+            const amountMinor = minorFromDb(r.amountMinor);
+            const allocatedMinor = minorFromDb(r.allocatedMinor ?? 0);
+            const residualMinor = amountMinor - allocatedMinor;
+            const reason =
+              r.matchStatus === "ambiguous"
+                ? "ambiguous"
+                : r.provider === "casso" && !r.verifiedAt
+                  ? "awaiting_casso_verification"
+                  : r.matchStatus === "unmatched"
+                    ? "unmatched"
+                    : allocatedMinor === 0n
+                      ? "matched_awaiting_allocation"
+                      : "residual";
+            return { ...r, amountMinor, allocatedMinor, residualMinor, reason };
+          })
+          .filter(r => r.residualMinor > 0n);
+      }
+    ),
 
     ignore: rbacProcedure("payments.transactions.ignore")
-      .input(z.object({ id: z.number().int().positive(), reason: z.string().min(3).max(255) }))
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          reason: z.string().min(3).max(255),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const db = getDb();
         const residual = await unallocatedResidual(input.id);
@@ -370,12 +444,17 @@ export const paymentsRouter = createRouter({
           .update(providerTransactions)
           .set({ matchStatus: "ignored", ignoredReason: input.reason })
           .where(eq(providerTransactions.id, input.id));
-        await emitEvent("payment.transaction_ignored", "provider_transaction", input.id, {
-          providerTransactionId: input.id,
-          residualMinor: residual.toString(),
-          reason: input.reason,
-          byUserId: ctx.user.id,
-        });
+        await emitEvent(
+          "payment.transaction_ignored",
+          "provider_transaction",
+          input.id,
+          {
+            providerTransactionId: input.id,
+            residualMinor: residual.toString(),
+            reason: input.reason,
+            byUserId: ctx.user.id,
+          }
+        );
         return { id: input.id, status: "ignored" as const };
       }),
 
@@ -394,15 +473,19 @@ export const paymentsRouter = createRouter({
           counterAccountNumber: z.string().max(60).optional(),
           counterAccountName: z.string().max(255).optional(),
           occurredAt: z.date().optional(),
-        }),
+        })
       )
       .mutation(async ({ ctx, input }) => {
         const db = getDb();
-        return db.transaction(async (tx) => {
+        return db.transaction(async tx => {
           const [res] = await tx.insert(providerTransactions).values({
             provider: "manual",
             providerTxnId: input.providerTxnId,
-            rawPayload: { recordedByUserId: ctx.user.id, ...input, amountMinor: input.amountMinor.toString() },
+            rawPayload: {
+              recordedByUserId: ctx.user.id,
+              ...input,
+              amountMinor: input.amountMinor.toString(),
+            },
             // An operator reading a bank statement is the verification.
             signatureValid: true,
             verifiedAt: new Date(),
@@ -415,15 +498,21 @@ export const paymentsRouter = createRouter({
             matchStatus: "unmatched",
           });
           const id = Number(res.insertId);
-          await writeEvent(tx, "payment.transaction_received", "provider_transaction", id, {
-            providerTransactionId: id,
-            provider: "manual",
-            providerTxnId: input.providerTxnId,
-            amountMinor: input.amountMinor.toString(),
-            currency: input.currency,
-            description: input.description,
-            signatureValid: true,
-          });
+          await writeEvent(
+            tx,
+            "payment.transaction_received",
+            "provider_transaction",
+            id,
+            {
+              providerTransactionId: id,
+              provider: "manual",
+              providerTxnId: input.providerTxnId,
+              amountMinor: input.amountMinor.toString(),
+              currency: input.currency,
+              description: input.description,
+              signatureValid: true,
+            }
+          );
           return { id, providerTxnId: input.providerTxnId };
         });
       }),
@@ -438,7 +527,10 @@ export const paymentsRouter = createRouter({
           .from(paymentAllocations)
           .where(eq(paymentAllocations.invoiceId, input.invoiceId))
           .orderBy(desc(paymentAllocations.id));
-        return rows.map((r) => ({ ...r, amountMinor: minorFromDb(r.amountMinor) }));
+        return rows.map(r => ({
+          ...r,
+          amountMinor: minorFromDb(r.amountMinor),
+        }));
       }),
 
     /** Manual match from the exception queue. ops_manager only (§5.3). */
@@ -453,7 +545,7 @@ export const paymentsRouter = createRouter({
             .string()
             .regex(/^\d+(\.\d{1,6})?$/, "fxRate must be a decimal string")
             .optional(),
-        }),
+        })
       )
       .mutation(async ({ ctx, input }) => {
         if (input.amountMinor === undefined) {
@@ -464,7 +556,10 @@ export const paymentsRouter = createRouter({
             fxRate: input.fxRate ?? null,
           });
           if (outcome.kind !== "allocated") {
-            throw new TRPCError({ code: "CONFLICT", message: `GS-PAY-1028 · ${outcome.reason}` });
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `GS-PAY-1028 · ${outcome.reason}`,
+            });
           }
           return {
             allocationId: outcome.allocation!.allocationId,
@@ -481,11 +576,12 @@ export const paymentsRouter = createRouter({
           providerTransactionId: input.providerTransactionId,
           invoiceId: input.invoiceId,
           amountMinor: input.amountMinor,
-          currency: (
-            await getDb().query.providerTransactions.findFirst({
-              where: eq(providerTransactions.id, input.providerTransactionId),
-            })
-          )?.currency ?? "VND",
+          currency:
+            (
+              await getDb().query.providerTransactions.findFirst({
+                where: eq(providerTransactions.id, input.providerTransactionId),
+              })
+            )?.currency ?? "VND",
           fxRate: input.fxRate ?? null,
           allocatedByUserId: ctx.user.id,
         });
@@ -504,26 +600,31 @@ export const paymentsRouter = createRouter({
         z.object({
           allocationId: z.number().int().positive(),
           reason: z.string().min(3).max(255),
-        }),
+        })
       )
       .mutation(async ({ ctx, input }) =>
         reverseAllocation({
           allocationId: input.allocationId,
           reason: input.reason,
           reversedByUserId: ctx.user.id,
-        }),
+        })
       ),
   }),
 
   /** Open invoices for the allocation dialog's picker. */
   openInvoices: rbacProcedure("payments.openInvoices")
-    .input(z.object({ counterpartyId: z.number().int().positive().optional() }).optional())
+    .input(
+      z
+        .object({ counterpartyId: z.number().int().positive().optional() })
+        .optional()
+    )
     .query(async ({ input }) => {
       const conditions = [
         inArray(invoices.status, ["issued", "partially_paid", "overpaid"]),
         isNull(invoices.deletedAt),
       ];
-      if (input?.counterpartyId) conditions.push(eq(invoices.counterpartyId, input.counterpartyId));
+      if (input?.counterpartyId)
+        conditions.push(eq(invoices.counterpartyId, input.counterpartyId));
 
       const rows = await getDb()
         .select({
@@ -538,12 +639,15 @@ export const paymentsRouter = createRouter({
           memoToken: invoices.memoToken,
         })
         .from(invoices)
-        .leftJoin(counterparties, eq(counterparties.id, invoices.counterpartyId))
+        .leftJoin(
+          counterparties,
+          eq(counterparties.id, invoices.counterpartyId)
+        )
         .where(and(...conditions))
         .orderBy(desc(invoices.id))
         .limit(200);
 
-      return rows.map((r) => ({
+      return rows.map(r => ({
         ...r,
         totalMinor: minorFromDb(r.totalMinor),
         paidMinor: minorFromDb(r.paidMinor),

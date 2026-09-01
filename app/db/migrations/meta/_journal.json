@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1788297395160,
+      "tag": "0000_vietnam_payment_manager",
+      "breakpoints": true
+    }
+  ]
+}

@@ -5,7 +5,7 @@
 // platform_admin only (contracts/rbac.ts).
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createRouter, protectedProcedure, rbacProcedure } from "../middleware";
+import { createRouter, rbacProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { featureFlags } from "@db/schema";
 import { getFlags, invalidateFlagCache } from "../services/flags";
@@ -17,7 +17,7 @@ export const configRouter = createRouter({
 
   flagDetail: rbacProcedure("config.flagDetail").query(async () => {
     const flags = await getFlags({ fresh: true });
-    return FLAG_KEYS.map((key) => ({
+    return FLAG_KEYS.map(key => ({
       key,
       enabled: flags[key],
       description: FEATURE_FLAGS[key].description,
@@ -31,7 +31,7 @@ export const configRouter = createRouter({
         key: z.string().refine(isFlagKey, "unknown flag"),
         enabled: z.boolean(),
         reason: z.string().min(3).max(255),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
@@ -48,7 +48,9 @@ export const configRouter = createRouter({
         await db.insert(featureFlags).values({
           flagKey: input.key,
           enabled: input.enabled,
-          description: isFlagKey(input.key) ? FEATURE_FLAGS[input.key].description : "",
+          description: isFlagKey(input.key)
+            ? FEATURE_FLAGS[input.key].description
+            : "",
           updatedByUserId: ctx.user.id,
         });
       }

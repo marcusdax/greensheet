@@ -33,11 +33,14 @@ export type OutboxHandler = {
 
 const registry = new Map<string, OutboxHandler[]>();
 
-export function registerHandler(eventType: string, handler: OutboxHandler): void {
+export function registerHandler(
+  eventType: string,
+  handler: OutboxHandler
+): void {
   const existing = registry.get(eventType) ?? [];
-  if (existing.some((h) => h.name === handler.name)) {
+  if (existing.some(h => h.name === handler.name)) {
     throw new Error(
-      `outbox handler "${handler.name}" is already registered for ${eventType}`,
+      `outbox handler "${handler.name}" is already registered for ${eventType}`
     );
   }
   registry.set(eventType, [...existing, handler]);

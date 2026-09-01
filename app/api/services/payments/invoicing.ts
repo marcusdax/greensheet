@@ -9,7 +9,12 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../../queries/connection";
 import { counterparties, invoices, numberSequences } from "@db/schema";
 import { writeEvent } from "../../engine";
-import { assertCurrency, assertFitsInt64, divRoundHalfUp, minorFromDb } from "@contracts/money";
+import {
+  assertCurrency,
+  assertFitsInt64,
+  divRoundHalfUp,
+  minorFromDb,
+} from "@contracts/money";
 import { memoTokenFor } from "./memo";
 
 /** VN VAT rates in basis points (R4 owns the rule that picks between them). */
@@ -54,7 +59,11 @@ export function assertCurrencyAllowed(args: {
   residencyOverrideNote?: string | null;
 }): void {
   const domestic = args.counterpartyCountry.trim().toUpperCase() === "VN";
-  if (domestic && args.currency !== "VND" && !args.residencyOverrideNote?.trim()) {
+  if (
+    domestic &&
+    args.currency !== "VND" &&
+    !args.residencyOverrideNote?.trim()
+  ) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message:
@@ -66,7 +75,7 @@ export function assertCurrencyAllowed(args: {
 /** Reserve the next number in a scope. Gapless, so the row is locked. */
 export async function nextSequenceValue(
   tx: Tx,
-  scope: string,
+  scope: string
 ): Promise<number> {
   const [existing] = await tx
     .select()
@@ -86,7 +95,8 @@ export async function nextSequenceValue(
         .from(numberSequences)
         .where(eq(numberSequences.scope, scope))
         .for("update");
-      if (!retry) throw new Error(`GS-INV-1004 · could not reserve sequence ${scope}`);
+      if (!retry)
+        throw new Error(`GS-INV-1004 · could not reserve sequence ${scope}`);
       await tx
         .update(numberSequences)
         .set({ nextValue: retry.nextValue + 1 })
@@ -109,7 +119,10 @@ export function formatInvoiceNumber(year: number, seq: number): string {
 export async function issueInvoice(input: IssueInvoiceInput) {
   const currency = assertCurrency(input.currency);
   if (input.subtotalMinor < 0n || input.shippingMinor < 0n) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "GS-INV-1002 · amounts must be >= 0" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "GS-INV-1002 · amounts must be >= 0",
+    });
   }
   if (input.dueAt < input.issuedAt) {
     throw new TRPCError({
@@ -121,15 +134,18 @@ export async function issueInvoice(input: IssueInvoiceInput) {
   const vatMinor = vatMinorFor(input.subtotalMinor, input.vatRateBp);
   const totalMinor = assertFitsInt64(
     input.subtotalMinor + vatMinor + input.shippingMinor,
-    "invoice total",
+    "invoice total"
   );
 
-  return getDb().transaction(async (tx) => {
+  return getDb().transaction(async tx => {
     const counterparty = await tx.query.counterparties.findFirst({
       where: eq(counterparties.id, input.counterpartyId),
     });
     if (!counterparty) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "GS-INV-1006 · counterparty not found" });
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "GS-INV-1006 · counterparty not found",
+      });
     }
     assertCurrencyAllowed({
       counterpartyCountry: counterparty.country,
@@ -164,7 +180,10 @@ export async function issueInvoice(input: IssueInvoiceInput) {
       // R1 — a compliant VN e-invoice is issued through an authorised provider,
       // not by this table. Domestic sales are flagged pending so the gap is
       // visible rather than assumed away.
-      eInvoiceStatus: counterparty.country.toUpperCase() === "VN" ? "pending" : "not_required",
+      eInvoiceStatus:
+        counterparty.country.toUpperCase() === "VN"
+          ? "pending"
+          : "not_required",
       memoToken: placeholder,
       notes: input.notes ?? "",
       createdByUserId: input.createdByUserId,
@@ -172,7 +191,10 @@ export async function issueInvoice(input: IssueInvoiceInput) {
 
     const invoiceId = Number(inserted.insertId);
     const memoToken = memoTokenFor(invoiceId);
-    await tx.update(invoices).set({ memoToken }).where(eq(invoices.id, invoiceId));
+    await tx
+      .update(invoices)
+      .set({ memoToken })
+      .where(eq(invoices.id, invoiceId));
 
     await writeEvent(tx, "invoice.issued", "invoice", invoiceId, {
       invoiceId,
@@ -206,14 +228,22 @@ export async function issueInvoice(input: IssueInvoiceInput) {
 }
 
 /** Void an unpaid invoice. A paid one is corrected by reversal, not voiding. */
-export async function voidInvoice(invoiceId: number, reason: string, userId: number) {
-  return getDb().transaction(async (tx) => {
+export async function voidInvoice(
+  invoiceId: number,
+  reason: string,
+  userId: number
+) {
+  return getDb().transaction(async tx => {
     const [invoice] = await tx
       .select()
       .from(invoices)
       .where(eq(invoices.id, invoiceId))
       .for("update");
-    if (!invoice) throw new TRPCError({ code: "NOT_FOUND", message: "GS-INV-1007 · not found" });
+    if (!invoice)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "GS-INV-1007 · not found",
+      });
     if (minorFromDb(invoice.paidMinor) > 0n) {
       throw new TRPCError({
         code: "CONFLICT",
@@ -223,7 +253,10 @@ export async function voidInvoice(invoiceId: number, reason: string, userId: num
     }
     await tx
       .update(invoices)
-      .set({ status: "void", notes: `${invoice.notes}\n[void] ${reason}`.trim().slice(0, 500) })
+      .set({
+        status: "void",
+        notes: `${invoice.notes}\n[void] ${reason}`.trim().slice(0, 500),
+      })
       .where(eq(invoices.id, invoiceId));
 
     await writeEvent(tx, "invoice.voided", "invoice", invoiceId, {
@@ -236,16 +269,25 @@ export async function voidInvoice(invoiceId: number, reason: string, userId: num
 }
 
 /** Write off a genuinely uncollectable balance. platform_admin only (§5.3). */
-export async function writeOffInvoice(invoiceId: number, reason: string, userId: number) {
-  return getDb().transaction(async (tx) => {
+export async function writeOffInvoice(
+  invoiceId: number,
+  reason: string,
+  userId: number
+) {
+  return getDb().transaction(async tx => {
     const [invoice] = await tx
       .select()
       .from(invoices)
       .where(eq(invoices.id, invoiceId))
       .for("update");
-    if (!invoice) throw new TRPCError({ code: "NOT_FOUND", message: "GS-INV-1007 · not found" });
+    if (!invoice)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "GS-INV-1007 · not found",
+      });
 
-    const outstanding = minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
+    const outstanding =
+      minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
     await tx
       .update(invoices)
       .set({
@@ -261,7 +303,11 @@ export async function writeOffInvoice(invoiceId: number, reason: string, userId:
       reason,
       byUserId: userId,
     });
-    return { invoiceId, status: "written_off" as const, writtenOffMinor: outstanding };
+    return {
+      invoiceId,
+      status: "written_off" as const,
+      writtenOffMinor: outstanding,
+    };
   });
 }
 

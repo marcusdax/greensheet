@@ -74,7 +74,10 @@ export function outstandingMinor(invoice: InvoiceCandidate): bigint {
  * candidates it always returns the same decision — which is what makes the
  * ambiguous cases reviewable rather than mysterious.
  */
-export function decideMatch(input: MatchInput, candidates: MatchCandidates): MatchDecision {
+export function decideMatch(
+  input: MatchInput,
+  candidates: MatchCandidates
+): MatchDecision {
   // ── 1 · memo token ────────────────────────────────────────────────────────
   const tokens = extractMemoTokens(input.description);
   if (candidates.byMemoToken.length === 1 && tokens.length >= 1) {
@@ -132,14 +135,17 @@ export function decideMatch(input: MatchInput, candidates: MatchCandidates): Mat
   // ── 3 · heuristic: one open invoice, exact amount, known bank account ──────
   if (input.counterAccountNumber && candidates.byCounterAccount.length > 0) {
     const exact = candidates.byCounterAccount.filter(
-      (i) => i.currency === input.currency && outstandingMinor(i) === input.amountMinor,
+      i =>
+        i.currency === input.currency &&
+        outstandingMinor(i) === input.amountMinor
     );
     if (exact.length === 1) {
       return {
         status: "matched",
         method: "heuristic",
         invoiceId: exact[0].id,
-        reason: "sole open invoice for this bank account, amount matches exactly",
+        reason:
+          "sole open invoice for this bank account, amount matches exactly",
         // Flagged for review: correct most of the time is not the same as
         // correct, and this path never runs without a human unless
         // autoAllocation is on.
@@ -178,7 +184,9 @@ export async function resolveMatch(input: MatchInput): Promise<MatchDecision> {
     ? await db
         .select(candidateColumns)
         .from(invoices)
-        .where(and(inArray(invoices.memoToken, tokens), isNull(invoices.deletedAt)))
+        .where(
+          and(inArray(invoices.memoToken, tokens), isNull(invoices.deletedAt))
+        )
     : [];
 
   let byOrderCode: InvoiceCandidate | null = null;
@@ -190,7 +198,9 @@ export async function resolveMatch(input: MatchInput): Promise<MatchDecision> {
       const rows = await db
         .select(candidateColumns)
         .from(invoices)
-        .where(and(eq(invoices.id, intent.invoiceId), isNull(invoices.deletedAt)))
+        .where(
+          and(eq(invoices.id, intent.invoiceId), isNull(invoices.deletedAt))
+        )
         .limit(1);
       byOrderCode = rows[0] ?? null;
     }
@@ -204,7 +214,12 @@ export async function resolveMatch(input: MatchInput): Promise<MatchDecision> {
     const parties = await db
       .select({ id: counterparties.id })
       .from(counterparties)
-      .where(and(eq(counterparties.bankAccountLast4, last4), isNull(counterparties.deletedAt)));
+      .where(
+        and(
+          eq(counterparties.bankAccountLast4, last4),
+          isNull(counterparties.deletedAt)
+        )
+      );
     if (parties.length === 1) {
       byCounterAccount = await db
         .select(candidateColumns)
@@ -213,8 +228,8 @@ export async function resolveMatch(input: MatchInput): Promise<MatchDecision> {
           and(
             eq(invoices.counterpartyId, parties[0].id),
             inArray(invoices.status, [...OPEN_STATUSES]),
-            isNull(invoices.deletedAt),
-          ),
+            isNull(invoices.deletedAt)
+          )
         );
     }
   }
@@ -246,7 +261,7 @@ export async function openInvoicesForCounterparty(counterpartyId: number) {
         eq(invoices.counterpartyId, counterpartyId),
         inArray(invoices.status, [...OPEN_STATUSES]),
         isNull(invoices.deletedAt),
-        ne(invoices.status, "void"),
-      ),
+        ne(invoices.status, "void")
+      )
     );
 }

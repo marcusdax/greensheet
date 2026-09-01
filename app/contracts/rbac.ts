@@ -17,9 +17,18 @@ export type ProcedureAccess = {
 
 export const PROCEDURE_RBAC = {
   // ── config ────────────────────────────────────────────────────────────────
-  "config.flags": { roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"], note: "read-only; the UI needs it before it can render" },
-  "config.setFlag": { roles: [], note: "kill switches are platform_admin only" },
-  "config.flagDetail": { roles: [], note: "shows who last flipped each switch; platform_admin only" },
+  "config.flags": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "read-only; the UI needs it before it can render",
+  },
+  "config.setFlag": {
+    roles: [],
+    note: "kill switches are platform_admin only",
+  },
+  "config.flagDetail": {
+    roles: [],
+    note: "shows who last flipped each switch; platform_admin only",
+  },
 
   // ── invoices ──────────────────────────────────────────────────────────────
   "invoices.list": {
@@ -36,7 +45,9 @@ export const PROCEDURE_RBAC = {
   "invoices.counterparties": { roles: ["ops_manager", "sales_csm", "analyst"] },
 
   // ── payments ──────────────────────────────────────────────────────────────
-  "payments.intents.byId": { roles: ["ops_manager", "sales_csm", "roaster_buyer"] },
+  "payments.intents.byId": {
+    roles: ["ops_manager", "sales_csm", "roaster_buyer"],
+  },
   "payments.intents.list": { roles: ["ops_manager", "sales_csm", "analyst"] },
   "payments.intents.create": { roles: ["ops_manager", "sales_csm"] },
   "payments.intents.cancel": { roles: ["ops_manager"] },
@@ -50,8 +61,14 @@ export const PROCEDURE_RBAC = {
     roles: ["ops_manager"],
     note: "Slice 1 runs receivables by hand: an operator records a bank transfer they can see in the statement",
   },
-  "payments.allocations.create": { roles: ["ops_manager"], note: "§5.3 — ops_manager or platform_admin" },
-  "payments.allocations.reverse": { roles: ["ops_manager"], note: "§5.3 — ops_manager or platform_admin" },
+  "payments.allocations.create": {
+    roles: ["ops_manager"],
+    note: "§5.3 — ops_manager or platform_admin",
+  },
+  "payments.allocations.reverse": {
+    roles: ["ops_manager"],
+    note: "§5.3 — ops_manager or platform_admin",
+  },
   "payments.allocations.byInvoice": {
     roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
     note: "read-only payment history; a buyer needs to see what we recorded against their invoice",
@@ -72,7 +89,9 @@ export const PROCEDURE_RBAC = {
 
 export type RbacProcedurePath = keyof typeof PROCEDURE_RBAC;
 
-export const RBAC_PROCEDURE_PATHS = Object.keys(PROCEDURE_RBAC) as RbacProcedurePath[];
+export const RBAC_PROCEDURE_PATHS = Object.keys(
+  PROCEDURE_RBAC
+) as RbacProcedurePath[];
 
 export function rolesFor(path: RbacProcedurePath): UserRole[] {
   return [...PROCEDURE_RBAC[path].roles];

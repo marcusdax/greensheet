@@ -51,7 +51,10 @@ export type FieldGate =
   | { action: "blank"; prefill: false; reason: string };
 
 /** The whole of §6.2, as a pure function. */
-export function gateForField(field: string, confidence: number | undefined): FieldGate {
+export function gateForField(
+  field: string,
+  confidence: number | undefined
+): FieldGate {
   const criticality = FIELD_CRITICALITY[field] ?? "standard";
 
   if (criticality === "financial") {
@@ -64,22 +67,40 @@ export function gateForField(field: string, confidence: number | undefined): Fie
   }
 
   if (criticality === "advisory") {
-    return { action: "accept", prefill: true, reason: "advisory: no gate at any confidence" };
+    return {
+      action: "accept",
+      prefill: true,
+      reason: "advisory: no gate at any confidence",
+    };
   }
 
   const c = confidence ?? 0;
   if (c >= STANDARD_ACCEPT_THRESHOLD) {
-    return { action: "accept", prefill: true, reason: `confidence ${c.toFixed(2)} ≥ 0.90` };
+    return {
+      action: "accept",
+      prefill: true,
+      reason: `confidence ${c.toFixed(2)} ≥ 0.90`,
+    };
   }
   if (c >= STANDARD_WARN_THRESHOLD) {
-    return { action: "warn", prefill: true, reason: `confidence ${c.toFixed(2)} is 0.70–0.89` };
+    return {
+      action: "warn",
+      prefill: true,
+      reason: `confidence ${c.toFixed(2)} is 0.70–0.89`,
+    };
   }
-  return { action: "blank", prefill: false, reason: `confidence ${c.toFixed(2)} < 0.70` };
+  return {
+    action: "blank",
+    prefill: false,
+    reason: `confidence ${c.toFixed(2)} < 0.70`,
+  };
 }
 
 /** Fields a human must explicitly touch before the draft can be accepted. */
-export function fieldsRequiringConfirmation(fields: Record<string, unknown>): string[] {
-  return Object.keys(fields).filter((f) => FIELD_CRITICALITY[f] === "financial");
+export function fieldsRequiringConfirmation(
+  fields: Record<string, unknown>
+): string[] {
+  return Object.keys(fields).filter(f => FIELD_CRITICALITY[f] === "financial");
 }
 
 // ─── Document type schemas (versioned) ───────────────────────────────────────
@@ -93,7 +114,15 @@ export type OcrExtraction = {
 export const OCR_SCHEMA_VERSION = 1;
 
 export const OCR_DOCUMENT_FIELDS: Record<string, string[]> = {
-  sca_lab_report: ["sampleId", "lotCode", "cupScore", "moistureContent", "defectCount", "sensory", "notes"],
+  sca_lab_report: [
+    "sampleId",
+    "lotCode",
+    "cupScore",
+    "moistureContent",
+    "defectCount",
+    "sensory",
+    "notes",
+  ],
   sales_contract: [
     "contractNumber",
     "counterpartyName",
@@ -124,9 +153,9 @@ export const OCR_DOCUMENT_FIELDS: Record<string, string[]> = {
  */
 export function assertConfidenceCoverage(
   fields: Record<string, unknown>,
-  confidences: Record<string, number>,
+  confidences: Record<string, number>
 ): string[] {
-  return Object.keys(fields).filter((f) => typeof confidences[f] !== "number");
+  return Object.keys(fields).filter(f => typeof confidences[f] !== "number");
 }
 
 // ─── Upload constraints (§12.3) ──────────────────────────────────────────────

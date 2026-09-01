@@ -44,8 +44,7 @@ export function canonicalJson(value: unknown): string {
 }
 
 export type IdempotencyOutcome<T> =
-  | { kind: "replay"; response: T }
-  | { kind: "proceed"; recordId: number };
+  { kind: "replay"; response: T } | { kind: "proceed"; recordId: number };
 
 /**
  * Claim an idempotency key. Returns either the recorded response for a genuine
@@ -70,8 +69,8 @@ export async function claimIdempotencyKey<T>(args: {
         eq(idempotencyRecords.principalId, args.principalId),
         eq(idempotencyRecords.idempotencyKey, args.key),
         eq(idempotencyRecords.scope, args.scope),
-        lt(idempotencyRecords.expiresAt, now),
-      ),
+        lt(idempotencyRecords.expiresAt, now)
+      )
     );
 
   try {
@@ -94,7 +93,7 @@ export async function claimIdempotencyKey<T>(args: {
     where: and(
       eq(idempotencyRecords.principalId, args.principalId),
       eq(idempotencyRecords.idempotencyKey, args.key),
-      eq(idempotencyRecords.scope, args.scope),
+      eq(idempotencyRecords.scope, args.scope)
     ),
   });
   if (!existing) {
@@ -126,13 +125,16 @@ export async function claimIdempotencyKey<T>(args: {
 /** Record the response so the next retry replays it instead of re-executing. */
 export async function completeIdempotencyKey(
   recordId: number,
-  response: unknown,
+  response: unknown
 ): Promise<void> {
   await getDb()
     .update(idempotencyRecords)
     .set({
       status: "completed",
-      responseSnapshot: JSON.parse(canonicalJson(response)) as Record<string, unknown>,
+      responseSnapshot: JSON.parse(canonicalJson(response)) as Record<
+        string,
+        unknown
+      >,
     })
     .where(eq(idempotencyRecords.id, recordId));
 }
@@ -142,13 +144,15 @@ export async function completeIdempotencyKey(
  * Without this a transient database error would poison the key for 24 hours.
  */
 export async function releaseIdempotencyKey(recordId: number): Promise<void> {
-  await getDb().delete(idempotencyRecords).where(eq(idempotencyRecords.id, recordId));
+  await getDb()
+    .delete(idempotencyRecords)
+    .where(eq(idempotencyRecords.id, recordId));
 }
 
 /** Wrap a unit of work in the full protocol. */
 export async function withIdempotency<T>(
   args: { principalId: number; key: string; scope: string; request: unknown },
-  work: () => Promise<T>,
+  work: () => Promise<T>
 ): Promise<T> {
   const claim = await claimIdempotencyKey<T>(args);
   if (claim.kind === "replay") return claim.response;

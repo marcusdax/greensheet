@@ -3,6 +3,7 @@
 // fact: VietQR is a *push* payment. The payer chooses the amount and types the
 // memo, so under-, over-, duplicate and unmatched payments are the normal case,
 // not the error case.
+import { sql } from "drizzle-orm";
 import {
   mysqlTable,
   serial,
@@ -39,13 +40,19 @@ export const invoices = mysqlTable(
     subtotalMinor: minor("subtotalMinor").notNull(),
     // Basis points. VN rates are 0 / 5% / 8% / 10% → 0 / 500 / 800 / 1000 (R4).
     vatRateBp: int("vatRateBp").notNull().default(0),
-    vatMinor: minor("vatMinor").notNull().default(0n),
-    shippingMinor: minor("shippingMinor").notNull().default(0n),
+    vatMinor: minor("vatMinor")
+      .notNull()
+      .default(sql`0`),
+    shippingMinor: minor("shippingMinor")
+      .notNull()
+      .default(sql`0`),
     // Invariant: totalMinor === subtotalMinor + vatMinor + shippingMinor.
     totalMinor: minor("totalMinor").notNull(),
     // Maintained by the allocation service inside its transaction, never
     // written directly. Reconciled nightly against the allocation sum (§13.3).
-    paidMinor: minor("paidMinor").notNull().default(0n),
+    paidMinor: minor("paidMinor")
+      .notNull()
+      .default(sql`0`),
     issuedAt: date("issuedAt", { mode: "string" }).notNull(),
     // This column is what makes aging buckets possible at all (G1).
     dueAt: date("dueAt", { mode: "string" }).notNull(),
@@ -62,7 +69,12 @@ export const invoices = mysqlTable(
       .default("draft"),
     // R1 — our invoices table is an internal AR record, not a compliant VN
     // e-invoice. This is the placeholder for the authorised-provider handoff.
-    eInvoiceStatus: mysqlEnum("eInvoiceStatus", ["not_required", "pending", "issued", "failed"])
+    eInvoiceStatus: mysqlEnum("eInvoiceStatus", [
+      "not_required",
+      "pending",
+      "issued",
+      "failed",
+    ])
       .notNull()
       .default("not_required"),
     eInvoiceRef: varchar("eInvoiceRef", { length: 80 }),
@@ -74,7 +86,7 @@ export const invoices = mysqlTable(
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     deletedAt: timestamp("deletedAt"),
   },
-  (t) => [
+  t => [
     // §3.14 — invoice numbers are deliberately NOT reusable after a soft
     // delete: regulators expect a gapless, non-reused sequence.
     uniqueIndex("invoices_number_idx").on(t.invoiceNumber),
@@ -82,7 +94,7 @@ export const invoices = mysqlTable(
     index("invoices_counterparty_status_idx").on(t.counterpartyId, t.status),
     index("invoices_due_idx").on(t.dueAt),
     index("invoices_payable_idx").on(t.payableType, t.payableId),
-  ],
+  ]
 );
 
 // PayOS orderCode must be a number unique per merchant, so it cannot be a UUID
@@ -91,7 +103,9 @@ export const invoices = mysqlTable(
 export const orderCodeSequence = mysqlTable("order_code_sequence", {
   id: serial("id").primaryKey(),
   claimedAt: timestamp("claimedAt").defaultNow().notNull(),
-  purpose: varchar("purpose", { length: 60 }).notNull().default("payment_intent"),
+  purpose: varchar("purpose", { length: 60 })
+    .notNull()
+    .default("payment_intent"),
 });
 
 // Gapless per-scope counters. Invoice numbers must not have gaps or reuse
@@ -100,7 +114,9 @@ export const orderCodeSequence = mysqlTable("order_code_sequence", {
 export const numberSequences = mysqlTable("number_sequences", {
   id: serial("id").primaryKey(),
   scope: varchar("scope", { length: 60 }).notNull().unique(), // e.g. "invoice:2026"
-  nextValue: bigint("nextValue", { mode: "number", unsigned: true }).notNull().default(1),
+  nextValue: bigint("nextValue", { mode: "number", unsigned: true })
+    .notNull()
+    .default(1),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
@@ -114,7 +130,9 @@ export const paymentIntents = mysqlTable(
     idempotencyKey: varchar("idempotencyKey", { length: 80 }).notNull(),
     requestFingerprint: char("requestFingerprint", { length: 64 }).notNull(),
     provider: mysqlEnum("provider", ["payos", "casso", "manual"]).notNull(),
-    providerOrderCode: bigint("providerOrderCode", { mode: "number" }).notNull(),
+    providerOrderCode: bigint("providerOrderCode", {
+      mode: "number",
+    }).notNull(),
     amountMinor: minor("amountMinor").notNull(),
     currency: char("currency", { length: 3 }).notNull(),
     status: mysqlEnum("status", [
@@ -135,13 +153,16 @@ export const paymentIntents = mysqlTable(
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
-  (t) => [
+  t => [
     // Idempotency is scoped per authenticated principal, not global (§3.8).
-    uniqueIndex("intents_principal_idem_idx").on(t.createdByUserId, t.idempotencyKey),
+    uniqueIndex("intents_principal_idem_idx").on(
+      t.createdByUserId,
+      t.idempotencyKey
+    ),
     uniqueIndex("intents_order_code_idx").on(t.providerOrderCode),
     index("intents_invoice_idx").on(t.invoiceId),
     index("intents_status_idx").on(t.status),
-  ],
+  ]
 );
 
 // ─── §7.3 idempotency_records ────────────────────────────────────────────────
@@ -156,16 +177,22 @@ export const idempotencyRecords = mysqlTable(
     idempotencyKey: varchar("idempotencyKey", { length: 80 }).notNull(),
     scope: varchar("scope", { length: 80 }).notNull(), // procedure path
     requestFingerprint: char("requestFingerprint", { length: 64 }).notNull(),
-    status: mysqlEnum("status", ["in_flight", "completed"]).notNull().default("in_flight"),
+    status: mysqlEnum("status", ["in_flight", "completed"])
+      .notNull()
+      .default("in_flight"),
     responseSnapshot: json("responseSnapshot").$type<Record<string, unknown>>(),
     lockedAt: timestamp("lockedAt").defaultNow().notNull(),
     expiresAt: timestamp("expiresAt").notNull(), // 24h
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex("idem_principal_key_idx").on(t.principalId, t.idempotencyKey, t.scope),
+  t => [
+    uniqueIndex("idem_principal_key_idx").on(
+      t.principalId,
+      t.idempotencyKey,
+      t.scope
+    ),
     index("idem_expiry_idx").on(t.expiresAt),
-  ],
+  ]
 );
 
 // ─── §3.9 provider_transactions ──────────────────────────────────────────────
@@ -198,7 +225,12 @@ export const providerTransactions = mysqlTable(
     ])
       .notNull()
       .default("unmatched"),
-    matchMethod: mysqlEnum("matchMethod", ["memo_token", "order_code", "heuristic", "manual"]),
+    matchMethod: mysqlEnum("matchMethod", [
+      "memo_token",
+      "order_code",
+      "heuristic",
+      "manual",
+    ]),
     matchedInvoiceId: fk("matchedInvoiceId"),
     // Set when re-fetched from the provider API. Only a verified Casso record
     // may move money (ADR-03).
@@ -206,14 +238,14 @@ export const providerTransactions = mysqlTable(
     verificationError: varchar("verificationError", { length: 255 }),
     ignoredReason: varchar("ignoredReason", { length: 255 }),
   },
-  (t) => [
+  t => [
     // THE idempotency guarantee for webhooks: a duplicate delivery hits this
     // index, returns 200, and has no side effects (§3.9, §14.2).
     uniqueIndex("provider_txn_unique_idx").on(t.provider, t.providerTxnId),
     index("provider_txn_match_idx").on(t.matchStatus),
     index("provider_txn_invoice_idx").on(t.matchedInvoiceId),
     index("provider_txn_received_idx").on(t.receivedAt),
-  ],
+  ]
 );
 
 // ─── §3.10 payment_allocations ───────────────────────────────────────────────
@@ -236,11 +268,11 @@ export const paymentAllocations = mysqlTable(
     reversalReason: varchar("reversalReason", { length: 255 }),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
-  (t) => [
+  t => [
     index("allocations_invoice_idx").on(t.invoiceId),
     index("allocations_txn_idx").on(t.providerTransactionId),
     index("allocations_reversed_idx").on(t.reversedAt),
-  ],
+  ]
 );
 
 // Dead letter for the outbox consumer (§4.2) — 6 failed attempts and the event

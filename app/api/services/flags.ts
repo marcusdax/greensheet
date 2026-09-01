@@ -23,7 +23,7 @@ let cache: { value: Flags; expiresAt: number } | null = null;
 /** `FLAG_AUTO_ALLOCATION=1` overrides `autoAllocation` outside production. */
 function envOverride(key: FlagKey): boolean | null {
   if (env.isProduction) return null;
-  const name = `FLAG_${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}`;
+  const name = `FLAG_${key.replace(/[A-Z]/g, c => `_${c}`).toUpperCase()}`;
   const raw = process.env[name];
   if (raw == null || raw === "") return null;
   return raw === "1" || raw.toLowerCase() === "true";

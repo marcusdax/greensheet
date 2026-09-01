@@ -11,11 +11,22 @@
 // for seven hours of every day.
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getDb } from "../../queries/connection";
-import { counterparties, invoices, providerTransactions, paymentAllocations } from "@db/schema";
+import {
+  counterparties,
+  invoices,
+  providerTransactions,
+  paymentAllocations,
+} from "@db/schema";
 import { minorFromDb } from "@contracts/money";
 
 export const ICT_TIMEZONE = "Asia/Ho_Chi_Minh";
-export const AGING_BUCKETS = ["current", "b30", "b60", "b90", "b90plus"] as const;
+export const AGING_BUCKETS = [
+  "current",
+  "b30",
+  "b60",
+  "b90",
+  "b90plus",
+] as const;
 export type AgingBucket = (typeof AGING_BUCKETS)[number];
 
 /** Statuses that still owe money. `paid`, `void` and `written_off` do not. */
@@ -39,7 +50,10 @@ export function daysOverdue(dueAt: string, asOf: string = ictToday()): number {
 }
 
 /** §3.11's bucket boundaries, as a pure function so the fixture test is exact. */
-export function bucketFor(dueAt: string, asOf: string = ictToday()): AgingBucket {
+export function bucketFor(
+  dueAt: string,
+  asOf: string = ictToday()
+): AgingBucket {
   const d = daysOverdue(dueAt, asOf);
   if (d <= 0) return "current";
   if (d <= 30) return "b30";
@@ -64,11 +78,13 @@ export type AgingRow = {
  * Aging by counterparty and currency. Grouping by currency is not decoration:
  * summing a VND balance with a USD one produces a number that means nothing.
  */
-export async function agingReport(opts: {
-  counterpartyId?: number;
-  currency?: string;
-  asOf?: string;
-} = {}): Promise<AgingRow[]> {
+export async function agingReport(
+  opts: {
+    counterpartyId?: number;
+    currency?: string;
+    asOf?: string;
+  } = {}
+): Promise<AgingRow[]> {
   const db = getDb();
   const asOf = opts.asOf ?? ictToday();
 
@@ -76,7 +92,8 @@ export async function agingReport(opts: {
     inArray(invoices.status, [...OPEN_STATUSES]),
     isNull(invoices.deletedAt),
   ];
-  if (opts.counterpartyId) conditions.push(eq(invoices.counterpartyId, opts.counterpartyId));
+  if (opts.counterpartyId)
+    conditions.push(eq(invoices.counterpartyId, opts.counterpartyId));
   if (opts.currency) conditions.push(eq(invoices.currency, opts.currency));
 
   const rows = await db
@@ -98,14 +115,16 @@ export async function agingReport(opts: {
   const grouped = new Map<string, AgingRow>();
   for (const row of rows) {
     const key = `${row.counterpartyId}:${row.currency}`;
-    const outstanding = minorFromDb(row.totalMinor) - minorFromDb(row.paidMinor);
+    const outstanding =
+      minorFromDb(row.totalMinor) - minorFromDb(row.paidMinor);
     if (outstanding <= 0n) continue;
 
     const entry =
       grouped.get(key) ??
       ({
         counterpartyId: row.counterpartyId,
-        counterpartyName: row.counterpartyName ?? `Counterparty ${row.counterpartyId}`,
+        counterpartyName:
+          row.counterpartyName ?? `Counterparty ${row.counterpartyId}`,
         currency: row.currency,
         current: 0n,
         b30: 0n,
@@ -152,7 +171,12 @@ export async function arSummary(asOf: string = ictToday()): Promise<ArSummary> {
       paidMinor: invoices.paidMinor,
     })
     .from(invoices)
-    .where(and(inArray(invoices.status, [...OPEN_STATUSES]), isNull(invoices.deletedAt)));
+    .where(
+      and(
+        inArray(invoices.status, [...OPEN_STATUSES]),
+        isNull(invoices.deletedAt)
+      )
+    );
 
   // Suspense = received money minus what live allocations claim, for every
   // transaction not deliberately ignored.
@@ -184,17 +208,20 @@ export async function arSummary(asOf: string = ictToday()): Promise<ArSummary> {
   };
 
   for (const row of openRows) {
-    const outstanding = minorFromDb(row.totalMinor) - minorFromDb(row.paidMinor);
+    const outstanding =
+      minorFromDb(row.totalMinor) - minorFromDb(row.paidMinor);
     if (outstanding <= 0n) continue;
     const entry = bucketOf(row.currency);
     entry.outstandingMinor += outstanding;
     entry.openInvoices += 1;
-    if (bucketFor(String(row.dueAt), asOf) !== "current") entry.overdueMinor += outstanding;
+    if (bucketFor(String(row.dueAt), asOf) !== "current")
+      entry.overdueMinor += outstanding;
   }
 
   for (const row of suspenseRows) {
     if (row.matchStatus === "ignored") continue;
-    const residual = minorFromDb(row.amountMinor) - minorFromDb(row.allocatedMinor ?? 0);
+    const residual =
+      minorFromDb(row.amountMinor) - minorFromDb(row.allocatedMinor ?? 0);
     if (residual <= 0n) continue;
     const entry = bucketOf(row.currency);
     entry.suspenseMinor += residual;
@@ -218,7 +245,10 @@ export type ReconciliationFinding = {
   detail: string;
 };
 
-export async function reconcile(): Promise<{ ok: boolean; findings: ReconciliationFinding[] }> {
+export async function reconcile(): Promise<{
+  ok: boolean;
+  findings: ReconciliationFinding[];
+}> {
   const db = getDb();
   const findings: ReconciliationFinding[] = [];
 
@@ -277,11 +307,15 @@ export async function reconcile(): Promise<{ ok: boolean; findings: Reconciliati
       });
     }
     // 3 · every matched transaction has at least one allocation.
-    if ((row.matchStatus === "matched" || row.matchStatus === "manual_matched") && allocated === 0n) {
+    if (
+      (row.matchStatus === "matched" || row.matchStatus === "manual_matched") &&
+      allocated === 0n
+    ) {
       findings.push({
         check: "matched_transaction_has_allocation",
         providerTransactionId: row.id,
-        detail: "transaction is marked matched but nothing is allocated against it",
+        detail:
+          "transaction is marked matched but nothing is allocated against it",
       });
     }
   }

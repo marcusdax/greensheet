@@ -20,7 +20,10 @@ import { providerTransactions } from "@db/schema";
 import { writeEvent } from "../engine";
 import { env } from "../lib/env";
 import { getFlags } from "../services/flags";
-import { normalizeCassoBatch, verifyCassoToken } from "../services/payments/casso";
+import {
+  normalizeCassoBatch,
+  verifyCassoToken,
+} from "../services/payments/casso";
 import { isDuplicateKeyError, logWebhook, requestId } from "./shared";
 
 export async function cassoWebhook(c: Context) {
@@ -42,8 +45,12 @@ export async function cassoWebhook(c: Context) {
     return c.json({ error: "settlement disabled" }, 503);
   }
 
-  const token = c.req.header("secure-token") ?? c.req.header("Secure-Token") ?? null;
-  if (!env.cassoWebhookSecret || !verifyCassoToken(token, env.cassoWebhookSecret)) {
+  const token =
+    c.req.header("secure-token") ?? c.req.header("Secure-Token") ?? null;
+  if (
+    !env.cassoWebhookSecret ||
+    !verifyCassoToken(token, env.cassoWebhookSecret)
+  ) {
     log({ outcome: "invalid_token", signatureValid: false });
     return c.json({ error: "unauthorized" }, 401);
   }
@@ -77,7 +84,7 @@ export async function cassoWebhook(c: Context) {
   for (const normalized of batch) {
     try {
       const db = getDb();
-      const id = await db.transaction(async (tx) => {
+      const id = await db.transaction(async tx => {
         const [res] = await tx.insert(providerTransactions).values({
           provider: "casso",
           providerTxnId: normalized.providerTxnId,
@@ -97,15 +104,21 @@ export async function cassoWebhook(c: Context) {
         });
         const insertedId = Number(res.insertId);
 
-        await writeEvent(tx, "payment.transaction_received", "provider_transaction", insertedId, {
-          providerTransactionId: insertedId,
-          provider: "casso",
-          providerTxnId: normalized.providerTxnId,
-          amountMinor: normalized.amountMinor.toString(),
-          currency: normalized.currency,
-          description: normalized.description,
-          signatureValid: false,
-        });
+        await writeEvent(
+          tx,
+          "payment.transaction_received",
+          "provider_transaction",
+          insertedId,
+          {
+            providerTransactionId: insertedId,
+            provider: "casso",
+            providerTxnId: normalized.providerTxnId,
+            amountMinor: normalized.amountMinor.toString(),
+            currency: normalized.currency,
+            description: normalized.description,
+            signatureValid: false,
+          }
+        );
         return insertedId;
       });
 
@@ -125,7 +138,11 @@ export async function cassoWebhook(c: Context) {
         log({ outcome: "duplicate", providerTxnId: normalized.providerTxnId });
         continue;
       }
-      log({ outcome: "error", error: String(err), providerTxnId: normalized.providerTxnId });
+      log({
+        outcome: "error",
+        error: String(err),
+        providerTxnId: normalized.providerTxnId,
+      });
       return c.json({ error: "internal error" }, 500);
     }
   }

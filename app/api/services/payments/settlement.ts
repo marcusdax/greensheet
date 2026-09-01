@@ -47,16 +47,29 @@ export async function settleTransactionAgainstInvoice(args: {
     where: eq(providerTransactions.id, args.providerTransactionId),
   });
   if (!txn) {
-    return { kind: "blocked", residualMinor: 0n, overpaid: false, reason: "transaction not found" };
+    return {
+      kind: "blocked",
+      residualMinor: 0n,
+      overpaid: false,
+      reason: "transaction not found",
+    };
   }
 
-  const invoice = await db.query.invoices.findFirst({ where: eq(invoices.id, args.invoiceId) });
+  const invoice = await db.query.invoices.findFirst({
+    where: eq(invoices.id, args.invoiceId),
+  });
   if (!invoice) {
-    return { kind: "blocked", residualMinor: 0n, overpaid: false, reason: "invoice not found" };
+    return {
+      kind: "blocked",
+      residualMinor: 0n,
+      overpaid: false,
+      reason: "invoice not found",
+    };
   }
 
   const unassigned = await unallocatedResidual(txn.id);
-  const outstanding = minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
+  const outstanding =
+    minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
 
   if (outstanding <= 0n) {
     // The duplicate-transfer case. The money stays unassigned and visible.
@@ -111,15 +124,17 @@ export async function settleTransactionAgainstInvoice(args: {
 }
 
 /** Sum of live (non-reversed) allocations against a transaction. */
-export async function allocatedMinor(providerTransactionId: number): Promise<bigint> {
+export async function allocatedMinor(
+  providerTransactionId: number
+): Promise<bigint> {
   const rows = await getDb()
     .select({ amountMinor: paymentAllocations.amountMinor })
     .from(paymentAllocations)
     .where(
       and(
         eq(paymentAllocations.providerTransactionId, providerTransactionId),
-        isNull(paymentAllocations.reversedAt),
-      ),
+        isNull(paymentAllocations.reversedAt)
+      )
     );
   return rows.reduce((sum, r) => sum + minorFromDb(r.amountMinor), 0n);
 }
@@ -128,10 +143,14 @@ export async function allocatedMinor(providerTransactionId: number): Promise<big
  * Money on a transaction that no live allocation claims — the suspense balance
  * that §7.4 insists must never render as zero.
  */
-export async function unallocatedResidual(providerTransactionId: number): Promise<bigint> {
+export async function unallocatedResidual(
+  providerTransactionId: number
+): Promise<bigint> {
   const txn = await getDb().query.providerTransactions.findFirst({
     where: eq(providerTransactions.id, providerTransactionId),
   });
   if (!txn) return 0n;
-  return minorFromDb(txn.amountMinor) - (await allocatedMinor(providerTransactionId));
+  return (
+    minorFromDb(txn.amountMinor) - (await allocatedMinor(providerTransactionId))
+  );
 }

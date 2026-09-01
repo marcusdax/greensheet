@@ -38,7 +38,10 @@ export type AllocateResult = {
   transactionResidualMinor: bigint;
 };
 
-function fail(code: "BAD_REQUEST" | "NOT_FOUND" | "CONFLICT", message: string): never {
+function fail(
+  code: "BAD_REQUEST" | "NOT_FOUND" | "CONFLICT",
+  message: string
+): never {
   throw new TRPCError({ code, message });
 }
 
@@ -53,10 +56,11 @@ function fail(code: "BAD_REQUEST" | "NOT_FOUND" | "CONFLICT", message: string): 
  *   · the invoice is not void, written off or soft-deleted
  */
 export async function allocate(input: AllocateInput): Promise<AllocateResult> {
-  if (input.amountMinor <= 0n) fail("BAD_REQUEST", "GS-PAY-1002 · allocation amount must be > 0");
+  if (input.amountMinor <= 0n)
+    fail("BAD_REQUEST", "GS-PAY-1002 · allocation amount must be > 0");
   assertFitsInt64(input.amountMinor, "allocation amount");
 
-  return getDb().transaction(async (tx) => {
+  return getDb().transaction(async tx => {
     const [txn] = await tx
       .select()
       .from(providerTransactions)
@@ -71,7 +75,10 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
       .for("update");
     if (!invoice) fail("NOT_FOUND", "GS-PAY-1004 · invoice not found");
     if (invoice.status === "void" || invoice.status === "written_off") {
-      fail("CONFLICT", `GS-PAY-1005 · invoice ${invoice.invoiceNumber} is ${invoice.status}`);
+      fail(
+        "CONFLICT",
+        `GS-PAY-1005 · invoice ${invoice.invoiceNumber} is ${invoice.status}`
+      );
     }
 
     // ADR-03: a Casso record that has not been re-fetched from the provider API
@@ -79,14 +86,14 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
     if (txn.provider === "casso" && !txn.verifiedAt) {
       fail(
         "CONFLICT",
-        "GS-PAY-1006 · Casso transaction is unverified — re-fetch from the provider API before allocating",
+        "GS-PAY-1006 · Casso transaction is unverified — re-fetch from the provider API before allocating"
       );
     }
 
     if (input.currency !== invoice.currency && !input.fxRate) {
       fail(
         "BAD_REQUEST",
-        `GS-PAY-1007 · allocating ${input.currency} to a ${invoice.currency} invoice requires an explicit fxRate`,
+        `GS-PAY-1007 · allocating ${input.currency} to a ${invoice.currency} invoice requires an explicit fxRate`
       );
     }
 
@@ -96,7 +103,7 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
     if (allocatedSoFar + input.amountMinor > txnAmount) {
       fail(
         "CONFLICT",
-        `GS-PAY-1008 · over-allocation: ${allocatedSoFar + input.amountMinor} exceeds the ${txnAmount} received`,
+        `GS-PAY-1008 · over-allocation: ${allocatedSoFar + input.amountMinor} exceeds the ${txnAmount} received`
       );
     }
 
@@ -104,11 +111,12 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
     // on the transaction as a visible residual for allocation elsewhere or
     // refund; it is never quietly parked inside a settled invoice.
     if (!input.allowOverAllocation) {
-      const outstanding = minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
+      const outstanding =
+        minorFromDb(invoice.totalMinor) - minorFromDb(invoice.paidMinor);
       if (input.amountMinor > outstanding) {
         fail(
           "CONFLICT",
-          `GS-PAY-1018 · allocating ${input.amountMinor} to invoice ${invoice.invoiceNumber} exceeds its ${outstanding} outstanding — split the transfer`,
+          `GS-PAY-1018 · allocating ${input.amountMinor} to invoice ${invoice.invoiceNumber} exceeds its ${outstanding} outstanding — split the transfer`
         );
       }
     }
@@ -130,7 +138,8 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
       .update(providerTransactions)
       .set({
         matchedInvoiceId: invoice.id,
-        matchStatus: input.allocatedByUserId == null ? "matched" : "manual_matched",
+        matchStatus:
+          input.allocatedByUserId == null ? "matched" : "manual_matched",
         matchMethod: input.allocatedByUserId == null ? undefined : "manual",
       })
       .where(eq(providerTransactions.id, txn.id));
@@ -176,7 +185,7 @@ export async function reverseAllocation(input: ReverseInput) {
     fail("BAD_REQUEST", "GS-PAY-1009 · a reversal requires a reason");
   }
 
-  return getDb().transaction(async (tx) => {
+  return getDb().transaction(async tx => {
     const [allocation] = await tx
       .select()
       .from(paymentAllocations)
@@ -196,7 +205,10 @@ export async function reverseAllocation(input: ReverseInput) {
       })
       .where(eq(paymentAllocations.id, allocation.id));
 
-    const { paidMinor, status } = await recomputeInvoice(tx, allocation.invoiceId);
+    const { paidMinor, status } = await recomputeInvoice(
+      tx,
+      allocation.invoiceId
+    );
 
     // The money is real and is now unassigned again: the transaction returns to
     // the exception queue rather than disappearing (§7.4).
@@ -212,21 +224,33 @@ export async function reverseAllocation(input: ReverseInput) {
       reason: input.reason,
     });
 
-    return { allocationId: allocation.id, invoiceId: allocation.invoiceId, paidMinor, status };
+    return {
+      allocationId: allocation.id,
+      invoiceId: allocation.invoiceId,
+      paidMinor,
+      status,
+    };
   });
 }
 
 type Tx = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
 
-async function sumAllocationsForTransaction(tx: Tx, providerTransactionId: number): Promise<bigint> {
+async function sumAllocationsForTransaction(
+  tx: Tx,
+  providerTransactionId: number
+): Promise<bigint> {
   const [row] = await tx
-    .select({ total: sql<string | null>`COALESCE(SUM(${paymentAllocations.amountMinor}), 0)` })
+    .select({
+      total: sql<
+        string | null
+      >`COALESCE(SUM(${paymentAllocations.amountMinor}), 0)`,
+    })
     .from(paymentAllocations)
     .where(
       and(
         eq(paymentAllocations.providerTransactionId, providerTransactionId),
-        isNull(paymentAllocations.reversedAt),
-      ),
+        isNull(paymentAllocations.reversedAt)
+      )
     );
   return minorFromDb(row?.total ?? 0);
 }
@@ -238,21 +262,34 @@ async function sumAllocationsForTransaction(tx: Tx, providerTransactionId: numbe
  */
 export async function recomputeInvoice(
   tx: Tx,
-  invoiceId: number,
+  invoiceId: number
 ): Promise<{ paidMinor: bigint; status: string }> {
   const [sumRow] = await tx
-    .select({ total: sql<string | null>`COALESCE(SUM(${paymentAllocations.amountMinor}), 0)` })
+    .select({
+      total: sql<
+        string | null
+      >`COALESCE(SUM(${paymentAllocations.amountMinor}), 0)`,
+    })
     .from(paymentAllocations)
     .where(
-      and(eq(paymentAllocations.invoiceId, invoiceId), isNull(paymentAllocations.reversedAt)),
+      and(
+        eq(paymentAllocations.invoiceId, invoiceId),
+        isNull(paymentAllocations.reversedAt)
+      )
     );
   const paidMinor = minorFromDb(sumRow?.total ?? 0);
 
-  const [invoice] = await tx.select().from(invoices).where(eq(invoices.id, invoiceId));
+  const [invoice] = await tx
+    .select()
+    .from(invoices)
+    .where(eq(invoices.id, invoiceId));
   const total = minorFromDb(invoice.totalMinor);
   const status = statusFor(invoice.status, paidMinor, total);
 
-  await tx.update(invoices).set({ paidMinor, status }).where(eq(invoices.id, invoiceId));
+  await tx
+    .update(invoices)
+    .set({ paidMinor, status })
+    .where(eq(invoices.id, invoiceId));
   return { paidMinor, status };
 }
 
@@ -264,9 +301,20 @@ export async function recomputeInvoice(
 export function statusFor(
   currentStatus: string,
   paidMinor: bigint,
-  totalMinor: bigint,
-): "draft" | "issued" | "partially_paid" | "paid" | "overpaid" | "void" | "written_off" {
-  if (currentStatus === "void" || currentStatus === "written_off" || currentStatus === "draft") {
+  totalMinor: bigint
+):
+  | "draft"
+  | "issued"
+  | "partially_paid"
+  | "paid"
+  | "overpaid"
+  | "void"
+  | "written_off" {
+  if (
+    currentStatus === "void" ||
+    currentStatus === "written_off" ||
+    currentStatus === "draft"
+  ) {
     return currentStatus;
   }
   if (paidMinor <= 0n) return "issued";
