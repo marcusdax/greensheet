@@ -6,6 +6,8 @@ import {
   Package,
   Megaphone,
   ShoppingCart,
+  Receipt,
+  Banknote,
   Compass,
   Warehouse as WarehouseIcon,
   FlaskConical,
@@ -14,6 +16,8 @@ import {
   GraduationCap,
   Rocket,
   LogOut,
+  BarChart3,
+  ScanLine,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -36,7 +40,13 @@ const NAV_GROUPS: {
       { to: "/", label: "Dashboard", icon: LayoutDashboard, roles: READERS },
       { to: "/catalog", label: "Catalog", icon: Coffee, roles: ALL_ROLES },
       { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
+      { to: "/invoices", label: "Invoices", icon: Receipt, roles: [...READERS, "roaster_buyer"] },
+      { to: "/payments", label: "Payments & AR", icon: Banknote, roles: [...STAFF, "analyst"] },
     ],
+  },
+  {
+    label: "Intelligence",
+    items: [{ to: "/analytics", label: "Analytics", icon: BarChart3, roles: READERS }],
   },
   {
     label: "Relationships",
@@ -52,6 +62,7 @@ const NAV_GROUPS: {
     label: "Operations",
     items: [
       { to: "/warehouse", label: "Warehouse", icon: WarehouseIcon, roles: STAFF },
+      { to: "/intake", label: "Doc Intake", icon: ScanLine, roles: STAFF },
       { to: "/qc", label: "QC Lab", icon: FlaskConical, roles: STAFF },
       { to: "/partners", label: "Partners", icon: Handshake, roles: STAFF },
       { to: "/education", label: "Education", icon: GraduationCap, roles: ALL_ROLES },
@@ -79,11 +90,11 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 w-60 border-r border-border bg-[#16382a] text-[#eaf2ec] flex flex-col">
+       <aside className="fixed inset-y-0 left-0 w-60 border-r border-white/10 bg-[#16323E] text-[#F6F1E7] flex flex-col">
         <div className="flex items-center gap-2.5 px-5 h-16 border-b border-white/10 shrink-0">
-          <Compass className="h-6 w-6 text-[#d9a441]" />
+          <Compass className="h-6 w-6 text-[#C9A34A]" />
           <div>
-            <div className="font-bold tracking-tight leading-none">Greensheet</div>
+            <div className="font-bold tracking-tight leading-none font-display">Greensheet</div>
             <div className="text-[10px] uppercase tracking-widest text-[#9fc0ab] mt-1">
               ODASI Technologies
             </div>
@@ -103,7 +114,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     className={cn(
                       "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                       pathname === to
-                        ? "bg-[#d9a441] text-[#16382a] font-semibold"
+                        ? "bg-[#C9A34A] text-[#16323E] font-semibold"
                         : "text-[#c4d8cb] hover:bg-white/10",
                     )}
                   >
@@ -120,13 +131,13 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="flex gap-2">
               <Link
                 to="/foundry"
-                className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
+                className="flex-1 text-center rounded-md border border-[#C9A34A]/40 px-2 py-1.5 text-[11px] text-[#C9A34A] hover:bg-[#C9A34A]/10 transition-colors"
               >
                 Flavor Foundry
               </Link>
               <Link
                 to="/lotspace"
-                className="flex-1 text-center rounded-md border border-[#d9a441]/40 px-2 py-1.5 text-[11px] text-[#d9a441] hover:bg-[#d9a441]/10 transition-colors"
+                className="flex-1 text-center rounded-md border border-[#C9A34A]/40 px-2 py-1.5 text-[11px] text-[#C9A34A] hover:bg-[#C9A34A]/10 transition-colors"
               >
                 Lotspace
               </Link>

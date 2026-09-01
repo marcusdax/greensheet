@@ -1,8 +1,18 @@
 // Domain event engine: transactional outbox + COF-001…005 rule evaluation.
-// Every aggregate mutation emits exactly one primary domain event; policies
-// (reactive rules) are evaluated synchronously after the event is logged.
+//
+// Sprint spec §4.1 rewrites this file. emitEvent() used to insert the event and
+// then call evaluateRules() in the same function, outside any transaction (B6):
+// a payment could be recorded but never applied, or applied twice. It is now a
+// real outbox write — it takes the caller's transaction, inserts one row, and
+// returns the outbox id. Nothing else.
+//
+// Rule evaluation moved to api/services/outbox/handlers.ts. Per §4.1's
+// migration-safety clause the legacy inline path still runs while the
+// `outboxConsumer` flag is off, so the fourteen verified flows in README.md
+// keep passing unchanged during the cutover release.
 import { eq, desc } from "drizzle-orm";
 import { getDb } from "./queries/connection";
+import { getFlags } from "./services/flags";
 import {
   automationRules,
   campaigns,
@@ -16,30 +26,105 @@ import { CHURN_HAZARD_THRESHOLD, formatCentsPerLb } from "@contracts/constants";
 
 type Payload = Record<string, unknown>;
 
-/** Write to the outbox, then fire reactive policies. */
+/**
+ * The caller's transaction. Drizzle's `db` and a `tx` handle are structurally
+ * identical for an insert, so a call site that is not yet transactional passes
+ * `getDb()` and one that is passes its `tx` — the event then commits or rolls
+ * back atomically with the money it describes.
+ */
+export type EventWriter = Pick<ReturnType<typeof getDb>, "insert">;
+
+/**
+ * Append one row to the outbox and return its id. No side effects: dispatch is
+ * the consumer's job (§4.2).
+ */
+export async function writeEvent(
+  tx: EventWriter,
+  eventType: string,
+  aggregateType: string,
+  aggregateId: string | number,
+  payload: Payload,
+  opts: { version?: number } = {},
+): Promise<number> {
+  const [res] = await tx.insert(domainEvents).values({
+    eventType,
+    aggregateType,
+    aggregateId: String(aggregateId),
+    payload,
+    eventVersion: opts.version ?? 1,
+  });
+  return Number(res.insertId);
+}
+
+/**
+ * Emit a domain event.
+ *
+ * Transaction-aware overload — `emitEvent(tx, type, …)` — is what new money
+ * paths use. The legacy shape `emitEvent(type, aggregateType, id, payload)` is
+ * still accepted so the existing nine routers keep working during the §4.1
+ * cutover; it writes on the pooled connection and, while `outboxConsumer` is
+ * off, fires the reactive policies inline exactly as before.
+ */
+export async function emitEvent(
+  tx: EventWriter,
+  eventType: string,
+  aggregateType: string,
+  aggregateId: string | number,
+  payload: Payload,
+  opts?: { version?: number },
+): Promise<number>;
 export async function emitEvent(
   eventType: string,
   aggregateType: string,
   aggregateId: string | number,
   payload: Payload,
-): Promise<void> {
-  const db = getDb();
-  await db.insert(domainEvents).values({
-    eventType,
-    aggregateType,
-    aggregateId: String(aggregateId),
-    payload: JSON.stringify(payload),
-  });
-  await evaluateRules(eventType, payload);
+): Promise<number>;
+export async function emitEvent(
+  ...args:
+    | [EventWriter, string, string, string | number, Payload, { version?: number }?]
+    | [string, string, string | number, Payload]
+): Promise<number> {
+  const transactional = typeof args[0] !== "string";
+  let tx: EventWriter;
+  let eventType: string;
+  let aggregateType: string;
+  let aggregateId: string | number;
+  let payload: Payload;
+  let opts: { version?: number } | undefined;
+
+  if (transactional) {
+    [tx, eventType, aggregateType, aggregateId, payload, opts] = args as [
+      EventWriter,
+      string,
+      string,
+      string | number,
+      Payload,
+      { version?: number }?,
+    ];
+  } else {
+    [eventType, aggregateType, aggregateId, payload] = args as [
+      string,
+      string,
+      string | number,
+      Payload,
+    ];
+    tx = getDb();
+  }
+
+  const eventId = await writeEvent(tx, eventType, aggregateType, aggregateId, payload, opts ?? {});
+
+  // §4.1 migration safety: run the legacy inline path and the consumer side by
+  // side for one release. Inside a caller's transaction we never fire rules —
+  // side effects belong to the consumer, after the commit.
+  if (!transactional) {
+    const flags = await getFlags();
+    if (!flags.outboxConsumer) await evaluateRules(eventType, payload);
+  }
+  return eventId;
 }
 
 async function logEvent(eventType: string, aggregateType: string, aggregateId: string | number, payload: Payload) {
-  await getDb().insert(domainEvents).values({
-    eventType,
-    aggregateType,
-    aggregateId: String(aggregateId),
-    payload: JSON.stringify(payload),
-  });
+  await writeEvent(getDb(), eventType, aggregateType, aggregateId, payload);
 }
 
 /** Replace merge tags — byte-identical tag names per the canonical conventions. */
@@ -76,7 +161,7 @@ async function recordDispatch(input: {
 }
 
 /** Policy engine: whenever E, then C (policy matrix P-04…P-07). */
-async function evaluateRules(eventType: string, payload: Payload): Promise<void> {
+export async function evaluateRules(eventType: string, payload: Payload): Promise<void> {
   const db = getDb();
 
   // ── P-04 · COF-001: sample_kit.delivered → Touch-1 email ──────────────────
