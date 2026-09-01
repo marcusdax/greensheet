@@ -33,30 +33,30 @@ import {
 } from "recharts";
 
 const EVENT_COLORS: Record<string, string> = {
-  catalog: "bg-emerald-100 text-emerald-800",
-  crm: "bg-sky-100 text-sky-800",
-  samples: "bg-amber-100 text-amber-800",
-  sample_kit: "bg-amber-100 text-amber-800",
-  feedback: "bg-amber-100 text-amber-800",
-  campaigns: "bg-violet-100 text-violet-800",
-  order: "bg-green-100 text-green-800",
-  warehouse: "bg-orange-100 text-orange-800",
-  qc: "bg-teal-100 text-teal-800",
-  partners: "bg-yellow-100 text-yellow-800",
-  comms: "bg-blue-100 text-blue-800",
-  growth: "bg-pink-100 text-pink-800",
-  education: "bg-indigo-100 text-indigo-800",
+  catalog: "bg-[#3E6B50] text-white",
+  crm: "bg-[#2A6E73] text-white",
+  samples: "bg-[#C9A34A] text-[#16323E]",
+  sample_kit: "bg-[#C9A34A] text-[#16323E]",
+  feedback: "bg-[#C9A34A] text-[#16323E]",
+  campaigns: "bg-[#8C3B34] text-white",
+  order: "bg-[#16323E] text-[#F6F1E7]",
+  warehouse: "bg-[#4A3527] text-white",
+  qc: "bg-[#3E6B50]/80 text-white",
+  partners: "bg-[#C9A34A]/80 text-[#16323E]",
+  comms: "bg-[#2A6E73]/80 text-white",
+  growth: "bg-[#8C3B34]/80 text-white",
+  education: "bg-[#4A3527]/80 text-white",
 };
 
 const CHANNEL_COLORS: Record<string, string> = {
-  email: "#16382a",
+  email: "#16323E",
   whatsapp: "#25D366",
-  sms: "#d9a441",
-  crm: "#5B6A5F",
+  sms: "#C9A34A",
+  crm: "#4F6958",
   system: "#94a3b8",
 };
 
-const TIER_COLORS: Record<string, string> = { "1": "#f59e0b", "2": "#f97316", "3": "#dc2626" };
+const TIER_COLORS: Record<string, string> = { "1": "#d9a441", "2": "#f97316", "3": "#dc2626" };
 
 const usd = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
@@ -141,26 +141,26 @@ export default function Dashboard() {
           <CardContent className="h-64">
             {revenueSeries.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenueSeries} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#16382a" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#16382a" stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" />
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis yAxisId="rev" tickFormatter={(v: number) => usd(v)} tick={{ fontSize: 11 }} width={70} />
-                  <YAxis yAxisId="ord" orientation="right" allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
-                  <Tooltip
-                    formatter={(value: number | string, name: string) =>
-                      name === "Revenue" ? [usd(Number(value)), name] : [value, name]
-                    }
-                  />
-                  <Legend />
-                  <Area yAxisId="rev" type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16382a" fill="url(#rev)" strokeWidth={2} />
-                  <Bar yAxisId="ord" dataKey="orders" name="Orders" fill="#d9a441" radius={[3, 3, 0, 0]} />
-                </AreaChart>
+<AreaChart data={revenueSeries} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                   <defs>
+                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="0%" stopColor="#16323E" stopOpacity={0.35} />
+                       <stop offset="100%" stopColor="#16323E" stopOpacity={0.02} />
+                     </linearGradient>
+                   </defs>
+                   <CartesianGrid strokeDasharray="3 3" stroke="#D9D3C9" />
+                   <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                   <YAxis yAxisId="rev" tickFormatter={(v: number) => usd(v)} tick={{ fontSize: 11 }} width={70} />
+                   <YAxis yAxisId="ord" orientation="right" allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
+                   <Tooltip
+                     formatter={(value: number | string, name: string) =>
+                       name === "Revenue" ? [usd(Number(value)), name] : [value, name]
+                     }
+                   />
+                   <Legend />
+                   <Area yAxisId="rev" type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16323E" fill="url(#rev)" strokeWidth={2} />
+                   <Bar yAxisId="ord" dataKey="orders" name="Orders" fill="#C9A341" radius={[3, 3, 0, 0]} />
+                 </AreaChart>
               </ResponsiveContainer>
             ) : (
               <EmptyChart label="No orders yet — revenue appears here as orders are placed." />
@@ -201,11 +201,11 @@ export default function Dashboard() {
             {lotPerformance.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={lotPerformance} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" horizontal={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#D9D3C9" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10 }} />
                   <Tooltip formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
-                  <Bar dataKey="lbs" fill="#16382a" radius={[0, 3, 3, 0]} />
+                  <Bar dataKey="lbs" fill="#16323E" radius={[0, 3, 3, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
