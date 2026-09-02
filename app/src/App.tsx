@@ -20,6 +20,9 @@ import Analytics from "./pages/Analytics";
 import DocIntake from "./pages/DocIntake";
 import Invoices from "./pages/Invoices";
 import Payments from "./pages/Payments";
+import Collections from "./pages/Collections";
+import Subscriptions from "./pages/Subscriptions";
+import Trust from "./pages/Trust";
 import Login from "./pages/Login";
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -60,6 +63,9 @@ export default function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/payments" element={<Payments />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path="/subscriptions" element={<Subscriptions />} />
+              <Route path="/trust" element={<Trust />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/intake" element={<DocIntake />} />
               <Route path="/qc" element={<QcLab />} />

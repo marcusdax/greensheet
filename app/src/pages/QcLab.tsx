@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FlaskConical, Archive, Plus, Skull } from "lucide-react";
+import { FlaskConical, Archive, Plus, ScanLine, Skull } from "lucide-react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 const SAMPLE_STATUS: Record<string, string> = {
@@ -51,6 +52,7 @@ const ATTRIBUTES = [
 ] as const;
 
 export default function QcLab() {
+  const navigate = useNavigate();
   const utils = trpc.useUtils();
   const { data: samples } = trpc.qc.samples.useQuery();
   const { data: cuppings } = trpc.qc.cuppings.useQuery();
@@ -67,6 +69,13 @@ export default function QcLab() {
         sub="Retained samples & CQI cupping standards — integrity trail from pull to destruction"
         actions={
           <div className="flex gap-2">
+            {/* §4.1 — the QC workspace is the primary capture surface for SCA
+                and Q reports. The scan sits alongside manual entry, not behind
+                a menu: at origin, photographing the sheet IS the entry method. */}
+            <Button variant="outline" onClick={() => navigate("/intake")}>
+              <ScanLine className="mr-2 h-4 w-4" />
+              Scan lab report
+            </Button>
             <PullSampleDialog onDone={invalidate} />
             <CuppingDialog onDone={invalidate} />
           </div>

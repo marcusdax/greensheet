@@ -39,7 +39,7 @@ import { Money } from "@/components/Money";
 import { VietQRCode } from "@/components/VietQRCode";
 import { useFlags } from "@/hooks/useFlags";
 import { parseMinor, SUPPORTED_CURRENCIES } from "@contracts/money";
-import { FileText, Plus, QrCode } from "lucide-react";
+import { FileText, Plus, QrCode, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -424,8 +424,12 @@ function InvoiceDetailDialog({
     };
   } | null>(null);
 
+  const [intentId, setIntentId] = useState<number | null>(null);
   const createIntent = trpc.payments.intents.create.useMutation({
-    onSuccess: res => setIntent(res),
+    onSuccess: res => {
+      setIntent(res);
+      setIntentId(res.id);
+    },
     onError: e => toast.error(e.message),
   });
 
@@ -482,13 +486,11 @@ function InvoiceDetailDialog({
               />
             </div>
 
-            {invoice.eInvoiceStatus === "pending" && (
-              <p className="rounded-md border border-[#947642]/40 bg-[#F0E6CC]/30 px-3 py-2 text-xs">
-                This is an internal receivable, not yet a compliant Vietnamese
-                e-invoice. It must still be issued through an authorised
-                provider and registered with the tax authority.
-              </p>
-            )}
+            <EInvoicePanel
+              invoiceId={invoice.id}
+              status={invoice.eInvoiceStatus}
+              onDone={onDone}
+            />
 
             {flags.vietqrPayments && invoice.outstandingMinor > 0n && (
               <div className="rounded-md border p-4">
@@ -510,6 +512,9 @@ function InvoiceDetailDialog({
                     <QrCode className="mr-2 h-4 w-4" />
                     {createIntent.isPending ? "Generating…" : "Show VietQR"}
                   </Button>
+                )}
+                {flags.eWalletPayments && intentId !== null && (
+                  <WalletCheckout intentId={intentId} />
                 )}
               </div>
             )}
@@ -629,6 +634,137 @@ function Figure({
         emphasis={emphasis}
         className="text-base"
       />
+    </div>
+  );
+}
+
+/**
+ * E-invoice status and submission — §3.5, closing risk R1.
+ *
+ * The distinction this panel exists to make visible: our invoice number is an
+ * internal receivable reference, and the authority's number is the legal
+ * document. A "pending" invoice is not yet a compliant Vietnamese e-invoice, no
+ * matter how finished it looks on screen.
+ */
+function EInvoicePanel({
+  invoiceId,
+  status,
+  onDone,
+}: {
+  invoiceId: number;
+  status: string;
+  onDone: () => void;
+}) {
+  const { flags } = useFlags();
+  const utils = trpc.useUtils();
+  const submissions = trpc.invoices.einvoice.byInvoice.useQuery({ invoiceId });
+  const submit = trpc.invoices.einvoice.submit.useMutation({
+    onSuccess: res => {
+      if (res.ok) toast.success(`E-invoice issued: ${res.authorityInvoiceNumber}`);
+      else toast.error(res.reason);
+      utils.invoices.einvoice.byInvoice.invalidate();
+      utils.invoices.byId.invalidate();
+      onDone();
+    },
+    onError: e => toast.error(e.message),
+  });
+
+  const issued = submissions.data?.find(s => s.status === "issued");
+
+  if (issued) {
+    return (
+      <div className="rounded-md border border-[#3F6B4A]/40 bg-[#E7F0E8]/40 px-3 py-2 text-xs">
+        <span className="font-semibold">E-invoice issued</span> ·{" "}
+        {issued.provider} · authority number{" "}
+        <span className="font-mono">{issued.authorityInvoiceNumber}</span>
+        {issued.lookupUrl && (
+          <>
+            {" · "}
+            <a
+              className="underline"
+              href={issued.lookupUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              tra cứu
+            </a>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  if (status !== "pending") return null;
+
+  const lastError = submissions.data?.find(s => s.status === "failed");
+
+  return (
+    <div className="space-y-2 rounded-md border border-[#947642]/40 bg-[#F0E6CC]/30 px-3 py-2 text-xs">
+      <p>
+        This is an internal receivable, not yet a compliant Vietnamese
+        e-invoice. It must still be issued through an authorised provider and
+        registered with the tax authority (TT 78/2021).
+      </p>
+      {lastError?.errorMessage && (
+        <p className="text-[#8C2F22]">
+          Last attempt was rejected: {lastError.errorMessage}
+        </p>
+      )}
+      {flags.eInvoice && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => submit.mutate({ invoiceId })}
+          disabled={submit.isPending}
+        >
+          {submit.isPending ? "Submitting…" : "Submit to provider"}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * E-wallet checkout — §2.2.
+ *
+ * Creating a checkout hands the payer a deep-link; it never credits AR. Money
+ * moves only when the signed callback arrives, which is why this button is safe
+ * to press twice.
+ */
+function WalletCheckout({ intentId }: { intentId: number }) {
+  const [link, setLink] = useState<{ provider: string; url: string } | null>(
+    null
+  );
+  const charge = trpc.payments.wallets.charge.useMutation({
+    onSuccess: res => setLink({ provider: res.provider, url: res.checkoutUrl }),
+    onError: e => toast.error(e.message),
+  });
+
+  if (link) {
+    return (
+      <p className="mt-3 text-xs">
+        {link.provider} checkout ready ·{" "}
+        <a className="underline" href={link.url} target="_blank" rel="noreferrer">
+          open payment link
+        </a>
+      </p>
+    );
+  }
+
+  return (
+    <div className="mt-3 flex gap-2">
+      {(["momo", "zalopay"] as const).map(provider => (
+        <Button
+          key={provider}
+          size="sm"
+          variant="outline"
+          onClick={() => charge.mutate({ intentId, provider })}
+          disabled={charge.isPending}
+        >
+          <Wallet className="mr-2 h-4 w-4" />
+          {provider === "momo" ? "MoMo" : "ZaloPay"}
+        </Button>
+      ))}
     </div>
   );
 }

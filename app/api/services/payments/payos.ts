@@ -12,6 +12,7 @@
 // JSON; null and undefined become the empty string, which is what the provider
 // does and is the detail that silently breaks a naive implementation.
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { PaymentProvider } from "@contracts/providers";
 
 export type PayosWebhookBody = {
   code?: string;
@@ -70,7 +71,9 @@ export function verifyPayosSignature(
 }
 
 export type NormalizedProviderTransaction = {
-  provider: "payos" | "casso";
+  // Widened for the e-wallets (§2.2): every rail normalises to this one shape,
+  // so the matching engine and settlement path stay rail-agnostic.
+  provider: PaymentProvider;
   providerTxnId: string;
   amountMinor: bigint;
   currency: string;

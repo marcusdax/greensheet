@@ -23,6 +23,41 @@ export const FEATURE_FLAGS = {
     description:
       "Kill switch: allocate a matched transaction to its invoice without a human click",
   },
+  eWalletPayments: {
+    default: false,
+    description:
+      "MoMo and ZaloPay charges and callbacks (§2.2, Phase C)",
+  },
+  dunning: {
+    default: false,
+    description:
+      "Automated overdue-invoice ladder: reminders, call tasks, installment offers (§3.4)",
+  },
+  eInvoice: {
+    default: false,
+    description:
+      "Submit issued invoices to an authorised Vietnamese e-invoice provider (§3.5, R1)",
+  },
+  standingOrders: {
+    default: false,
+    description:
+      "Recurring B2B subscriptions: auto-generate invoices on a cadence (§3.6)",
+  },
+  autoCharge: {
+    default: false,
+    description:
+      "Kill switch: charge a saved e-wallet token without the payer present (§3.6)",
+  },
+  trustScore: {
+    default: false,
+    description:
+      "Compute Trust Scores from evidence and surface badges and panels (§2)",
+  },
+  trustGates: {
+    default: false,
+    description:
+      "Kill switch: let a low Trust Score hold an automatic settlement until more evidence arrives (§7)",
+  },
   outboxConsumer: {
     default: false,
     description:

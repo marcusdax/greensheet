@@ -21,6 +21,8 @@ import {
 // contexts are re-exported here for drizzle-kit to pick them up (spec §2).
 export * from "./manager-schema";
 export * from "./payments-schema";
+export * from "./wallet-schema";
+export * from "./trust-schema";
 
 // ─── Catalog Context ─────────────────────────────────────────────────────────
 // Money is always integer cents at rest (canonical convention).

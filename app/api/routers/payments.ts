@@ -33,6 +33,11 @@ import { fingerprint, withIdempotency } from "../services/payments/idempotency";
 import { buildVietQrPayload } from "../services/payments/vietqr";
 import { getFlags } from "../services/flags";
 import { env } from "../lib/env";
+import { walletsRouter } from "./wallets";
+import { paymentMethodsRouter } from "./payment-methods";
+import { fxRouter } from "./fx";
+import { dunningRouter } from "./dunning";
+import { provenanceRouter } from "./provenance";
 
 // Roles come from contracts/rbac.ts so the table cannot drift from the router.
 
@@ -51,6 +56,15 @@ async function nextOrderCode(): Promise<number> {
 }
 
 export const paymentsRouter = createRouter({
+  // Phase C/E surfaces live in their own files so this one stays about the
+  // receivables spine. They are nested, not mounted at the root, because
+  // "payments.*" is the RBAC prefix reviewers already watch.
+  wallets: walletsRouter,
+  methods: paymentMethodsRouter,
+  fx: fxRouter,
+  dunning: dunningRouter,
+  provenance: provenanceRouter,
+
   // ── Queries ───────────────────────────────────────────────────────────────
   intents: createRouter({
     byId: rbacProcedure("payments.intents.byId")

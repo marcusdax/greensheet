@@ -1,7 +1,11 @@
-interface RequestConfig extends RequestInit {
+// `body` is deliberately widened off RequestInit: request() JSON.stringifies
+// whatever it is given, so the honest type at this boundary is `unknown`, not
+// BodyInit. Without the Omit, post()'s `body?: unknown` fails to assign here.
+interface RequestConfig extends Omit<RequestInit, "body"> {
   baseUrl?: string;
   params?: Record<string, string | number>;
   timeout?: number;
+  body?: unknown;
 }
 
 export class HttpClient {

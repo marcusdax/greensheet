@@ -25,6 +25,13 @@ import {
 const fk = (name: string) => bigint(name, { mode: "number", unsigned: true });
 const minor = (name: string) => bigint(name, { mode: "bigint" });
 
+/**
+ * Kept in sync with contracts/providers.ts PAYMENT_PROVIDERS. The e-wallets
+ * (§2.2) settle through the same provider_transactions and payment_intents
+ * tables as VietQR — a rail is a column value here, not a parallel pipeline.
+ */
+const PROVIDERS = ["payos", "casso", "momo", "zalopay", "manual"] as const;
+
 // ─── §3.7 invoices — the single payable aggregate (ADR-02, fixes B8/G1/G3) ───
 // A payment settles an invoice; an invoice is raised against an order or a
 // contract. One FK target, one home for dueAt, VAT and FX.
@@ -129,7 +136,7 @@ export const paymentIntents = mysqlTable(
     createdByUserId: fk("createdByUserId").notNull(),
     idempotencyKey: varchar("idempotencyKey", { length: 80 }).notNull(),
     requestFingerprint: char("requestFingerprint", { length: 64 }).notNull(),
-    provider: mysqlEnum("provider", ["payos", "casso", "manual"]).notNull(),
+    provider: mysqlEnum("provider", PROVIDERS).notNull(),
     providerOrderCode: bigint("providerOrderCode", {
       mode: "number",
     }).notNull(),
@@ -202,7 +209,7 @@ export const providerTransactions = mysqlTable(
   "provider_transactions",
   {
     id: serial("id").primaryKey(),
-    provider: mysqlEnum("provider", ["payos", "casso", "manual"]).notNull(),
+    provider: mysqlEnum("provider", PROVIDERS).notNull(),
     providerTxnId: varchar("providerTxnId", { length: 120 }).notNull(),
     rawPayload: json("rawPayload").$type<Record<string, unknown>>().notNull(), // verbatim body, for audit and replay
     signatureValid: boolean("signatureValid").notNull().default(false),

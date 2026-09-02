@@ -67,6 +67,39 @@
     /* Semantic colors */
     --success: 152 40% 35%;
     --warning: 40 55% 52%;
+
+    /* ── Museum Folio palette ─────────────────────────────────────────────
+     * Named scales for the Trust and Scanner surfaces. These already existed
+     * as --chart-* one-offs; they are promoted to a real scale here because
+     * the Trust spec assigns policy meaning to specific shades (brass is an
+     * earned band, danger is a warning) and a component cannot express that
+     * with an arbitrary hex. Registered in tailwind.config.js, so every one of
+     * them is reachable as a utility class and the token test can prove no
+     * component reached past them. */
+    --ink-900: 14 14% 11%;
+    --ink-700: 14 12% 22%;
+
+    --paper-50: 40 32% 96%;
+    --paper-100: 40 32% 92%;
+
+    --brass-300: 40 44% 66%;
+    --brass-500: 40 36% 45%;
+    --brass-700: 40 38% 30%;
+
+    --sage-100: 152 22% 90%;
+    --sage-600: 152 22% 38%;
+    --sage-800: 152 26% 22%;
+
+    --oxblood-100: 7 38% 92%;
+    --oxblood-500: 7 38% 43%;
+    --oxblood-700: 7 40% 32%;
+
+    --neutral-200: 40 10% 88%;
+    --neutral-500: 32 8% 46%;
+    --neutral-700: 30 8% 28%;
+
+    --danger: 4 64% 44%;
+    --danger-tint: 4 60% 94%;
   }
 
   .dark {
@@ -89,6 +122,24 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 42 55% 52%;
+
+    /* Museum Folio in the dark: paper and ink swap roles, the accents lift
+     * enough to stay legible on a dark ground. Band meaning never changes —
+     * brass is still the earned one. */
+    --ink-900: 40 32% 96%;
+    --ink-700: 40 20% 82%;
+    --paper-50: 14 10% 12%;
+    --paper-100: 14 10% 16%;
+    --brass-300: 40 44% 58%;
+    --sage-100: 152 18% 20%;
+    --sage-600: 152 26% 46%;
+    --oxblood-100: 7 24% 22%;
+    --oxblood-500: 7 46% 54%;
+    --oxblood-700: 7 44% 72%;
+    --neutral-200: 30 6% 24%;
+    --neutral-700: 30 6% 36%;
+    --danger: 4 70% 62%;
+    --danger-tint: 4 30% 20%;
   }
 
   @font-face {

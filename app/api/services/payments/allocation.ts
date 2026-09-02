@@ -11,9 +11,16 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../../queries/connection";
-import { invoices, paymentAllocations, providerTransactions } from "@db/schema";
+import {
+  commercialContracts,
+  fxAdjustments,
+  invoices,
+  paymentAllocations,
+  providerTransactions,
+} from "@db/schema";
 import { writeEvent } from "../../engine";
 import { minorFromDb, assertFitsInt64 } from "@contracts/money";
+import { realizedDifferenceMinor } from "./fx";
 
 export type AllocateInput = {
   providerTransactionId: number;
@@ -24,6 +31,8 @@ export type AllocateInput = {
   fxRate?: string | null;
   /** null = allocated automatically by the matching consumer. */
   allocatedByUserId: number | null;
+  /** Where fxRate came from — operator, a live feed, or a contract lock. */
+  fxRateSource?: string | null;
   /** Escape hatch for a deliberate credit note; never set by the auto path. */
   allowOverAllocation?: boolean;
 };
@@ -143,6 +152,53 @@ export async function allocate(input: AllocateInput): Promise<AllocateResult> {
         matchMethod: input.allocatedByUserId == null ? undefined : "manual",
       })
       .where(eq(providerTransactions.id, txn.id));
+
+    // §3.3 — a cross-currency allocation realizes a gain or loss against the
+    // rate the deal was priced on. Post it here, inside the same transaction as
+    // the allocation, so the ledger cannot disagree with the money that moved.
+    if (input.currency !== invoice.currency && input.fxRate) {
+      // The contract's locked rate is the honest baseline: it is the number the
+      // deal was priced on. With no locked rate there is no expectation, so the
+      // difference is nil — recorded anyway, because "checked and nil" and
+      // "never looked" are different statements to an auditor.
+      let expectedRate: string | null = null;
+      if (invoice.payableType === "contract") {
+        const [contract] = await tx
+          .select({ fxRateLocked: commercialContracts.fxRateLocked })
+          .from(commercialContracts)
+          .where(eq(commercialContracts.id, invoice.payableId));
+        expectedRate = contract?.fxRateLocked ?? null;
+      }
+
+      const realizedMinor = realizedDifferenceMinor({
+        paymentAmountMinor: input.amountMinor,
+        paymentCurrency: input.currency,
+        invoiceCurrency: invoice.currency,
+        appliedRate: input.fxRate,
+        expectedRate,
+      });
+
+      await tx.insert(fxAdjustments).values({
+        invoiceId: invoice.id,
+        allocationId,
+        invoiceCurrency: invoice.currency,
+        paymentCurrency: input.currency,
+        appliedRate: input.fxRate,
+        expectedRate,
+        realizedMinor,
+        rateSource: input.fxRateSource ?? "operator",
+      });
+
+      await writeEvent(tx, "fx.realized", "invoice", invoice.id, {
+        invoiceId: invoice.id,
+        allocationId,
+        invoiceCurrency: invoice.currency,
+        paymentCurrency: input.currency,
+        appliedRate: input.fxRate,
+        expectedRate,
+        realizedMinor: realizedMinor.toString(),
+      });
+    }
 
     await writeEvent(tx, "payment.allocated", "invoice", invoice.id, {
       invoiceId: invoice.id,

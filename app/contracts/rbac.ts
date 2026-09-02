@@ -44,6 +44,18 @@ export const PROCEDURE_RBAC = {
   "invoices.writeOff": { roles: [], note: "§5.3 — platform_admin only" },
   "invoices.counterparties": { roles: ["ops_manager", "sales_csm", "analyst"] },
 
+  // ── e-invoice, TT 78/2021 (§3.5) ──────────────────────────────────────────
+  "invoices.einvoice.byInvoice": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "a buyer needs the authority lookup URL for their own tax filing",
+  },
+  "invoices.einvoice.preview": { roles: ["ops_manager", "analyst"] },
+  "invoices.einvoice.submit": {
+    roles: ["ops_manager"],
+    note: "issuance is irreversible — a wrong e-invoice is corrected by an adjustment, never an edit",
+  },
+  "invoices.einvoice.pending": { roles: ["ops_manager", "analyst"] },
+
   // ── payments ──────────────────────────────────────────────────────────────
   "payments.intents.byId": {
     roles: ["ops_manager", "sales_csm", "roaster_buyer"],
@@ -76,6 +88,104 @@ export const PROCEDURE_RBAC = {
   "payments.openInvoices": {
     roles: ["ops_manager", "analyst"],
     note: "feeds the allocation dialog's invoice picker in the exception queue",
+  },
+
+  // ── e-wallets (§2.2) ──────────────────────────────────────────────────────
+  "payments.wallets.charge": {
+    roles: ["ops_manager", "sales_csm"],
+    note: "creates a checkout deep-link; it cannot move money on its own — only a signed callback can",
+  },
+
+  // ── saved payment methods (§3.6) ──────────────────────────────────────────
+  "payments.methods.list": { roles: ["ops_manager", "sales_csm"] },
+  "payments.methods.register": {
+    roles: ["ops_manager"],
+    note: "storing a token is storing a standing authority to take money",
+  },
+  "payments.methods.revoke": {
+    roles: ["ops_manager", "sales_csm"],
+    note: "deliberately wider than register: withdrawing consent must never be the harder path",
+  },
+
+  // ── multi-currency (§3.3) ─────────────────────────────────────────────────
+  "payments.fx.latest": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "read-only reference rate; the payment screen shows it to a buyer paying in another currency",
+  },
+  "payments.fx.history": { roles: ["ops_manager", "analyst"] },
+  "payments.fx.convert": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "payments.fx.refresh": { roles: ["ops_manager", "analyst"] },
+  "payments.fx.quote": {
+    roles: ["ops_manager"],
+    note: "an operator-set rate decides a realized gain or loss, so it is as sensitive as an allocation",
+  },
+  "payments.fx.position": { roles: ["ops_manager", "analyst"] },
+
+  // ── dunning (§3.4) ────────────────────────────────────────────────────────
+  "payments.dunning.candidates": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "payments.dunning.plan": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "payments.dunning.run": {
+    roles: ["ops_manager"],
+    note: "this contacts customers; a dry run is open to sales_csm through .plan",
+  },
+  "payments.dunning.effectiveness": { roles: ["ops_manager", "sales_csm", "analyst"] },
+
+  // ── traceability tied to payment (§3.8) ───────────────────────────────────
+  "payments.provenance.byAllocation": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "the point of §3.8 is that a buyer can see what their money bought",
+  },
+  "payments.provenance.byContract": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "same read as byAllocation, keyed by contract",
+  },
+  "payments.provenance.contractsForLot": { roles: ["ops_manager", "analyst"] },
+
+  // ── recurring B2B subscriptions (§3.6) ────────────────────────────────────
+  "standingOrders.list": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "standingOrders.byId": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "standingOrders.create": { roles: ["ops_manager", "sales_csm"] },
+  "standingOrders.setStatus": { roles: ["ops_manager", "sales_csm"] },
+  "standingOrders.generate": {
+    roles: ["ops_manager"],
+    note: "issues real invoices on a cadence; ops_manager or platform_admin only",
+  },
+
+  // ── trust score (honesty layer) ───────────────────────────────────────────
+  "trust.byEntity": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "the whole point of a Trust score is that a buyer can see it before they commit",
+  },
+  "trust.evidence": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "§7 — a gate must always be explicable, so whoever sees the score sees what is behind it",
+  },
+  "trust.history": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "trust.model": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "weights and band edges are public by design — a score nobody can interrogate is a rating, not evidence",
+  },
+  "trust.forLots": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "batch read behind the lot-card badges; same access as trust.byEntity",
+  },
+  "trust.bandFor": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "pure lookup over a public model; needed to render a badge",
+  },
+  "trust.settlementGate": { roles: ["ops_manager", "analyst"] },
+  "trust.recalculate": {
+    roles: ["ops_manager", "analyst"],
+    note: "deterministic rebuild from evidence — it cannot invent a score, only re-derive one",
+  },
+  "trust.verifyIdentity": {
+    roles: ["ops_manager"],
+    note: "the only writer of Identity & Longevity; asserting someone is who they say they are",
+  },
+  "trust.recordPeerFeedback": { roles: ["ops_manager", "sales_csm"] },
+  "trust.override": {
+    roles: [],
+    note: "platform_admin only, and still an audited evidence row — never a direct score edit",
   },
 
   // ── documents / OCR (Slice 3) ─────────────────────────────────────────────

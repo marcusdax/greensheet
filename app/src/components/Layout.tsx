@@ -18,6 +18,9 @@ import {
   LogOut,
   BarChart3,
   ScanLine,
+  HandCoins,
+  CalendarClock,
+  ShieldCheck,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -42,6 +45,9 @@ const NAV_GROUPS: {
       { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
       { to: "/invoices", label: "Invoices", icon: Receipt, roles: [...READERS, "roaster_buyer"] },
       { to: "/payments", label: "Payments & AR", icon: Banknote, roles: [...STAFF, "analyst"] },
+      { to: "/collections", label: "Collections & FX", icon: HandCoins, roles: [...STAFF, "sales_csm", "analyst"] },
+      { to: "/trust", label: "Trust", icon: ShieldCheck, roles: [...READERS, "roaster_buyer"] },
+      { to: "/subscriptions", label: "Standing Orders", icon: CalendarClock, roles: [...STAFF, "sales_csm", "analyst"] },
     ],
   },
   {
@@ -173,10 +179,31 @@ export default function Layout({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageHeader({ title, sub, actions }: { title: string; sub?: string; actions?: ReactNode }) {
+/**
+ * `kicker` is the folio overline — the small caps line above a title, and the
+ * same typographic role the Trust panel uses for its band label. Partners and
+ * QC Lab were already passing one; it was being dropped on the floor, so their
+ * authored text never appeared. Rendering it is the fix, not removing it.
+ */
+export function PageHeader({
+  kicker,
+  title,
+  sub,
+  actions,
+}: {
+  kicker?: string;
+  title: string;
+  sub?: string;
+  actions?: ReactNode;
+}) {
   return (
     <div className="flex items-start justify-between mb-6">
       <div>
+        {kicker && (
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {kicker}
+          </p>
+        )}
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {sub && <p className="text-sm text-muted-foreground mt-1">{sub}</p>}
       </div>

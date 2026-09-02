@@ -15,7 +15,14 @@ import {
 import { USER_ROLES } from "@contracts/constants";
 
 /** Routers covered by the sprint's RBAC table. */
-const GOVERNED_ROOTS = ["config", "invoices", "payments", "documents"] as const;
+const GOVERNED_ROOTS = [
+  "config",
+  "invoices",
+  "payments",
+  "documents",
+  "standingOrders",
+  "trust",
+] as const;
 
 function proceduresUnder(root: string): string[] {
   // tRPC 11 flattens nested routers into dotted keys on _def.procedures.
