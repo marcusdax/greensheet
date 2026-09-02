@@ -15,6 +15,7 @@ someone has to *do* — the reasoning lives in the spec and in the code comments
 | 3 | Document intake, OCR proposal, per-field confidence gating | `ocrUpload` |
 | C | MoMo + ZaloPay charges and callbacks | `eWalletPayments` |
 | E | Multi-currency FX, dunning ladder, e-invoice, standing orders, provenance | `dunning`, `eInvoice`, `standingOrders`, `autoCharge` |
+| Trust | Trust Score honesty layer, OCR evidence pipeline, Museum Folio scanner UI | `trustScore`, `trustGates` |
 
 Slice 1 works with **no provider integration at all**. An operator can read a
 bank statement, record each transfer through `payments.transactions.recordManual`,
@@ -50,12 +51,14 @@ pair instead:
 3. Run `db/migrations/manual/0002_wallet_fx_dunning_einvoice.sql` for the
    Phase C/E tables. It is expand-only: the two `ALTER`s at the end only *add*
    values to the provider enum, so `payos` and `casso` keep their positions and
-   no stored row changes meaning.
+   no stored row changes meaning. Then
+   `db/migrations/manual/0003_trust_score.sql`, which is purely additive.
 4. `npm run db:push` to create anything still missing (a no-op for existing
    tables), then `npm run db:seed:dunning`.
 5. Turn flags on one at a time — see §4 below.
 
-Rollback: `…/0002_wallet_fx_dunning_einvoice.down.sql` then
+Rollback: `…/0003_trust_score.down.sql`, then
+`…/0002_wallet_fx_dunning_einvoice.down.sql`, then
 `…/0001_expand_existing.down.sql`, but read their headers first — 0002 drops
 `fx_adjustments`, `einvoice_submissions` and `dunning_runs`, none of which can
 be reconstructed. Feature flags are the first line of rollback; migrations are the
@@ -86,7 +89,8 @@ Provided by the secret manager, never from a committed `.env` outside local dev
 Local-dev flag overrides (ignored in production): `FLAG_VIETQR_PAYMENTS=1`,
 `FLAG_AUTO_ALLOCATION=1`, `FLAG_OCR_UPLOAD=1`, `FLAG_OUTBOX_CONSUMER=1`,
 `FLAG_E_WALLET_PAYMENTS=1`, `FLAG_DUNNING=1`, `FLAG_E_INVOICE=1`,
-`FLAG_STANDING_ORDERS=1`, `FLAG_AUTO_CHARGE=1`.
+`FLAG_STANDING_ORDERS=1`, `FLAG_AUTO_CHARGE=1`, `FLAG_TRUST_SCORE=1`,
+`FLAG_TRUST_GATES=1`.
 
 ---
 
@@ -190,6 +194,48 @@ returns every reason at once rather than the first.
 Monthly anchors are clamped to 28. An anchor of 31 has no February successor and
 the subscription would silently stop billing.
 
+### 4.7 Trust Score (`trustScore`, `trustGates`)
+
+Two switches, deliberately. `trustScore` starts recording evidence and shows
+badges and panels. `trustGates` is what lets a low score actually **hold an
+automatic settlement** (§7). Scoring is safe to observe long before it is safe
+to enforce, so turn the first on, watch for a fortnight, and only then consider
+the second.
+
+There is **no backfill**, and that is the point. Scores are derived from
+evidence, and there is no evidence for anything that happened before the
+migration. A counterparty with ten years of clean settlements starts at neutral
+(50) and earns upward from the next accepted document. Inventing evidence rows
+for past events would defeat the audit trail the whole model rests on — if you
+want history to count, record it as `admin_override` rows with a reason, which
+is auditable and honestly labelled.
+
+Before turning `trustGates` on, read `payments.dunning`-style: run
+`trust.settlementGate` against your largest open invoices and check the answers
+are ones you would defend to the counterparty. The gate only ever holds the
+**automatic** allocation path — a human clicking allocate in the exception queue
+is the review the gate exists to force, so operators are never blocked by it.
+
+What moves a score, and what does not:
+
+- An OCR document moves Document Verification **only once a human accepts it**.
+  Uploading a blurry photo that never gets accepted moves nothing — that is a
+  bad camera, not dishonesty.
+- Re-accepting the same document does nothing the second time. The unique index
+  on `trust_evidence (entityType, entityId, kind, sourceType, sourceId)` is the
+  guarantee, not a check-then-insert.
+- A cupping that contradicts a claimed cup score by more than 1.5 points is a
+  negative signal against both the lot and the supplier who made the claim.
+  Cupping *higher* than claimed is not penalised.
+- Peer feedback is weighted by the rater's own Trust, and the weights are summed
+  rather than averaged — so a ring of at-risk accounts rating each other 100
+  accumulates influence very slowly instead of instantly.
+
+A weights change is a recomputation, not a migration: bump `MODEL_VERSION` in
+`contracts/trust.ts` and run `trust.recalculate` per entity. Old snapshots keep
+the version that produced them, so a historical trend line still renders as it
+did.
+
 ---
 
 ## 5. What to watch
@@ -202,6 +248,9 @@ the subscription would silently stop billing.
 | Dunning sends per sweep | `dunning_runs` inserted today | matches the plan | a sudden jump means a data change, not a policy change |
 | Realized FX | `payments.fx.position` | explainable against locked contract rates | any single adjustment over 1% of the invoice |
 | Standing-order failures | `standing_order_cycles.status = 'charge_failed'` | 0 | any row |
+| Trust updates without evidence | `trust_score_snapshots` rows with an empty `evidenceIds` | only manual recalculations | any unexplained move (§9) |
+| Settlements held by a Trust gate | `blocked` outcomes carrying a "Trust" reason | rare and defensible | a spike means the gate is miscalibrated, not that suppliers got worse |
+| Lots with no accepted document | `trust_scores` where `entityType='lot'` and `acceptedDocumentCount = 0` | falling | §9's 7-day target |
 | Outbox lag | `outboxLagSeconds()` | < 60s | > 5 min |
 | Dead-lettered events | `domain_events_dead` | 0 | any — page on-call |
 | Unmatched value | AR summary, suspense line | < 2% of daily inbound | > 5% for 24h |
@@ -292,6 +341,20 @@ These are tracked in §15 of the spec and are **not** oversights:
   document itself defers) are **not** built. Neither are parallel sales/purchase
   order entities in the manager context — invoices still hang off contracts and
   existing orders.
+- **Trust: no Navigator integration.** §4.2 and §7 ask for a "Needs
+  verification" chip in Navigator results and Trust as a ranking signal in the
+  Navigator composite. There is no Navigator screen in this codebase, so the
+  data is exposed (`trust.forLots` returns score, band and document count per
+  lot) and the ranking itself is not built.
+- **Trust: the review pane cannot always show the original.** §5.4 wants the
+  page image beside the fields. That works during a live capture, when the file
+  is in the browser. Reviewing a document uploaded earlier shows an honest
+  "original not available" note instead, because object storage is still not
+  wired (see below) — there is nothing to fetch.
+- **Trust: JetBrains Mono.** §2.1 and §5.1 specify it. This repo loads IBM Plex
+  Mono, and the Trust components use the existing `font-mono` token rather than
+  pulling a second mono family. Swap the `@font-face` import if the brand
+  requires the exact face.
 - **Object storage.** `documents.storageKey` is the contract for a storage
   adapter that is not yet implemented; uploads reserve a row and a key. §12.3
   requires files are never served from the application origin when they are.

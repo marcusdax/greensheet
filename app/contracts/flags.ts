@@ -48,6 +48,16 @@ export const FEATURE_FLAGS = {
     description:
       "Kill switch: charge a saved e-wallet token without the payer present (§3.6)",
   },
+  trustScore: {
+    default: false,
+    description:
+      "Compute Trust Scores from evidence and surface badges and panels (§2)",
+  },
+  trustGates: {
+    default: false,
+    description:
+      "Kill switch: let a low Trust Score hold an automatic settlement until more evidence arrives (§7)",
+  },
   outboxConsumer: {
     default: false,
     description:

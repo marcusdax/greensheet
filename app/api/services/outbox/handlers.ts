@@ -21,6 +21,9 @@ import { minorFromDb } from "@contracts/money";
 import { markPaidAfter } from "../payments/dunning";
 import { issueEinvoice } from "../payments/einvoice";
 import { registerHandler, type OutboxEvent } from "./registry";
+// Side-effect import: the Trust handlers register themselves, and they must be
+// loaded wherever this file is (the consumer imports only this one).
+import "../trust/handlers";
 
 // ─── Campaign rules (P-04…P-08) ──────────────────────────────────────────────
 // The rule engine matches on the canonical event strings, which must stay

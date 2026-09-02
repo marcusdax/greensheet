@@ -20,6 +20,8 @@ import { invoices, paymentAllocations, providerTransactions } from "@db/schema";
 import { writeEvent } from "../../engine";
 import { minorFromDb } from "@contracts/money";
 import { allocate, type AllocateResult } from "./allocation";
+import { getFlags } from "../flags";
+import { settlementGateFor } from "../trust";
 
 export type SettlementOutcome = {
   kind: "allocated" | "nothing_outstanding" | "blocked";
@@ -87,6 +89,28 @@ export async function settleTransactionAgainstInvoice(args: {
       overpaid: false,
       reason: "transaction is fully allocated",
     };
+  }
+
+  // §7 — Trust gates the AUTOMATIC path only. A human clicking allocate in the
+  // exception queue is the review the gate exists to force, so blocking them
+  // would be circular. The reason travels with the refusal: §7 is explicit that
+  // Trust never gates access without saying why.
+  if (args.allocatedByUserId === null) {
+    const flags = await getFlags();
+    if (flags.trustGates) {
+      const gate = await settlementGateFor({
+        counterpartyId: invoice.counterpartyId,
+        amountMinor: unassigned < outstanding ? unassigned : outstanding,
+      });
+      if (!gate.allowed) {
+        return {
+          kind: "blocked",
+          residualMinor: unassigned,
+          overpaid: false,
+          reason: gate.reason,
+        };
+      }
+    }
   }
 
   const amountMinor = unassigned < outstanding ? unassigned : outstanding;

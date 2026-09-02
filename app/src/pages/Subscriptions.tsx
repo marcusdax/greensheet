@@ -65,10 +65,14 @@ export default function Subscriptions() {
       }
       setPreview(
         res.details
-          .map(
-            d =>
-              `${d.reference}: ${d.outcome}${d.reason ? ` — ${d.reason}` : ""}`
-          )
+          .map(d => {
+            // The outcome is implied by which fields came back: an invoiceId
+            // means it was issued, a reason means it was not.
+            const outcome = d.invoiceId
+              ? `invoiced #${d.invoiceId}`
+              : (d.reason ?? "skipped");
+            return `${d.reference} · ${d.periodStart}: ${outcome}`;
+          })
           .join("\n") || null
       );
       refresh();
@@ -82,7 +86,7 @@ export default function Subscriptions() {
     <Layout>
       <PageHeader
         title="Standing orders"
-        description="Recurring B2B deliveries and the invoices they generate."
+        sub="Recurring B2B deliveries and the invoices they generate."
       />
 
       <Card>

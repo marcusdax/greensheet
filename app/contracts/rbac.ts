@@ -151,6 +151,43 @@ export const PROCEDURE_RBAC = {
     note: "issues real invoices on a cadence; ops_manager or platform_admin only",
   },
 
+  // ── trust score (honesty layer) ───────────────────────────────────────────
+  "trust.byEntity": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "the whole point of a Trust score is that a buyer can see it before they commit",
+  },
+  "trust.evidence": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "§7 — a gate must always be explicable, so whoever sees the score sees what is behind it",
+  },
+  "trust.history": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "trust.model": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "weights and band edges are public by design — a score nobody can interrogate is a rating, not evidence",
+  },
+  "trust.forLots": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "batch read behind the lot-card badges; same access as trust.byEntity",
+  },
+  "trust.bandFor": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "pure lookup over a public model; needed to render a badge",
+  },
+  "trust.settlementGate": { roles: ["ops_manager", "analyst"] },
+  "trust.recalculate": {
+    roles: ["ops_manager", "analyst"],
+    note: "deterministic rebuild from evidence — it cannot invent a score, only re-derive one",
+  },
+  "trust.verifyIdentity": {
+    roles: ["ops_manager"],
+    note: "the only writer of Identity & Longevity; asserting someone is who they say they are",
+  },
+  "trust.recordPeerFeedback": { roles: ["ops_manager", "sales_csm"] },
+  "trust.override": {
+    roles: [],
+    note: "platform_admin only, and still an audited evidence row — never a direct score edit",
+  },
+
   // ── documents / OCR (Slice 3) ─────────────────────────────────────────────
   "documents.upload": { roles: ["ops_manager", "sales_csm"] },
   "documents.confirmUpload": { roles: ["ops_manager", "sales_csm"] },

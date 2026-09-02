@@ -17,6 +17,7 @@ import { invoicesRouter } from "./routers/invoices";
 import { paymentsRouter } from "./routers/payments";
 import { documentsRouter } from "./routers/documents";
 import { standingOrdersRouter } from "./routers/standing-orders";
+import { trustRouter } from "./routers/trust";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -40,6 +41,8 @@ export const appRouter = createRouter({
   documents: documentsRouter,
   // §3.6 recurring B2B subscriptions.
   standingOrders: standingOrdersRouter,
+  // Trust Score — the honesty layer.
+  trust: trustRouter,
 });
 
 export type AppRouter = typeof appRouter;

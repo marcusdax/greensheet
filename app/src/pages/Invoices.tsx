@@ -696,7 +696,7 @@ function EInvoicePanel({
 
   if (status !== "pending") return null;
 
-  const lastError = submissions.data?.find(s => s.status === "rejected");
+  const lastError = submissions.data?.find(s => s.status === "failed");
 
   return (
     <div className="space-y-2 rounded-md border border-[#947642]/40 bg-[#F0E6CC]/30 px-3 py-2 text-xs">

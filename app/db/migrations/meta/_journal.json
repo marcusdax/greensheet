@@ -15,6 +15,13 @@
       "when": 1788388341022,
       "tag": "0001_wallet_fx_dunning_einvoice_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1788390662097,
+      "tag": "0002_trust_score",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatCentsPerLb } from "@contracts/constants";
 import { Plus, Archive, DollarSign } from "lucide-react";
+import { TrustBadge } from "@/components/TrustBadge";
+import { useFlags } from "@/hooks/useFlags";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 function cupScoreBadge(score: number) {
@@ -20,7 +23,17 @@ function cupScoreBadge(score: number) {
 
 export default function Catalog() {
   const utils = trpc.useUtils();
+  const navigate = useNavigate();
+  const { flags } = useFlags();
   const { data: lots } = trpc.catalog.list.useQuery();
+
+  // §5.5 — one batched read behind every badge on the page, not one per card.
+  const lotIds = (lots ?? []).map((l) => l.id);
+  const { data: trust } = trpc.trust.forLots.useQuery(
+    { lotIds },
+    { enabled: flags.trustScore && lotIds.length > 0 },
+  );
+  const trustFor = (id: number) => trust?.find((t) => t.lotId === id);
   const [open, setOpen] = useState(false);
   const [priceLot, setPriceLot] = useState<{ id: number; price: number; name: string } | null>(null);
 
@@ -107,7 +120,20 @@ export default function Catalog() {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-base leading-snug">{lot.name}</CardTitle>
-                <Badge className={cupScoreBadge(lot.cupScore)}>{lot.cupScore.toFixed(1)} SCA</Badge>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <Badge className={cupScoreBadge(lot.cupScore)}>{lot.cupScore.toFixed(1)} SCA</Badge>
+                  {/* §5.5 — Trust sits after cup score, in the same metrics row.
+                      With no evidence it is a quiet link to add some, never a zero. */}
+                  {flags.trustScore && (
+                    <TrustBadge
+                      score={trustFor(lot.id)?.score ?? null}
+                      unscored={trustFor(lot.id)?.unscored ?? true}
+                      evidenceCount={trustFor(lot.id)?.acceptedDocumentCount}
+                      modelVersion={trustFor(lot.id)?.modelVersion}
+                      onAddEvidence={() => navigate("/intake")}
+                    />
+                  )}
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 {lot.region} · {lot.origin} · {lot.elevationMeters} m

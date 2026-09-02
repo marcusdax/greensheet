@@ -72,7 +72,7 @@ export default function Collections() {
     <Layout>
       <PageHeader
         title="Collections & FX"
-        description="Who the ladder would contact today, and what the currency movement has cost."
+        sub="Who the ladder would contact today, and what the currency movement has cost."
       />
 
       <Card>
