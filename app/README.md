@@ -26,7 +26,13 @@ A runnable full-stack implementation of the Greensheet expansion-pack specs (`..
 | VietQR settlement: PayOS (HMAC-signed, credits directly) and Casso (untrusted notification, requires an API re-fetch before it can move money), matching on memo token → order code → flagged single-account heuristic, never on amount alone | `…Sprintv2` §7, ADR-03 |
 | Transactional outbox: claim-based dispatch with `FOR UPDATE SKIP LOCKED`, exponential backoff, dead-letter after six attempts; rule evaluation moved out of `emitEvent` behind a cutover flag | `…Sprintv2` §4 |
 | Document intake: sha256 dedupe, per-field confidence gating by criticality — a cup score is always human-confirmed regardless of confidence — and `qc.proposeCuppingFromDocument`, which creates a draft and never an approved record | `…Sprintv2` §6, ADR-04 |
-| Runtime feature flags served from the API (`ocrUpload`, `vietqrPayments`, `autoAllocation`, `outboxConsumer`); `autoAllocation` is a kill switch that takes effect in under a minute with no deploy | `…Sprintv2` ADR-05 |
+| E-wallets: MoMo and ZaloPay charges and signed callbacks, normalised onto the same transaction shape as the bank rails so the matcher and settlement path stay rail-agnostic. MoMo signs a fixed field list including a key it never sends; ZaloPay MACs the raw `data` string as received | `Auctum Ledger Vietnam Payment Integration` §2.2 |
+| Multi-currency: append-only rate history with source and observation time, realized gain/loss posted inside the allocation transaction against the contract's locked rate — the rate must be captured then or the difference is unrecoverable later | `…Integration` §3.3 |
+| Automated dunning: day 0/3/7/14 ladder held as data, plan/send separated so an operator sees who would be contacted before anyone is, idempotent on `(invoiceId, stepId)`, per-channel conversion reporting | `…Integration` §3.4 |
+| Vietnamese e-invoice (TT 78/2021): payload validation (MST format, VND-only, subtotal + VAT = total, defined VAT rates), pluggable authorised-provider adapters, authority invoice number stored separately from ours, issuance one-way by construction | `…Integration` §3.5 |
+| Recurring B2B standing orders: weekly/biweekly/monthly cadences with monthly anchors clamped to 28, cycle claimed before the invoice is issued so a re-run cannot double-bill, consent modelled as data (`autoChargeBlockers`) rather than as contract prose | `…Integration` §3.6 |
+| Traceability tied to payment: allocation → invoice → contract → lots → partner, reporting `traceable: false` rather than throwing when an invoice is order-backed | `…Integration` §3.8 |
+| Runtime feature flags served from the API (`ocrUpload`, `vietqrPayments`, `autoAllocation`, `outboxConsumer`, `eWalletPayments`, `dunning`, `eInvoice`, `standingOrders`, `autoCharge`); `autoAllocation` and `autoCharge` are kill switches that take effect in under a minute with no deploy | `…Sprintv2` ADR-05 |
 
 ## Canonical conventions preserved
 
@@ -35,9 +41,10 @@ A runnable full-stack implementation of the Greensheet expansion-pack specs (`..
 - Cup score is a financial input, not a quality note: it sets the Revenue Share tier, so every tier comparison goes through `roundScore()` before comparing.
 - Event strings are byte-identical to the marketing schema contract (`sample_kit.delivered`, `feedback.submitted`).
 - Automation actions: `SEND_EMAIL`, `SEND_SMS`, `UPDATE_CRM_LIFECYCLE`, `EXECUTE_CAMPAIGN_HALT`.
-- Merge tags rendered by the rule engine: `{roaster_name}`, `{origin}`, `{varietal}`, `{process_method}`, `{sca_cup_score}`, `{price_per_lb}`.
+- Merge tags rendered by the rule engine: `{roaster_name}`, `{origin}`, `{varietal}`, `{process_method}`, `{sca_cup_score}`, `{price_per_lb}`. The dunning ladder uses the same convention (`{counterparty_name}`, `{invoice_number}`, `{outstanding}`, `{due_date}`, `{days_overdue}`, `{memo_token}`) and a test asserts every seeded template only uses tags the renderer supplies.
 - Economics: blended CAC $378 (referral CAC $196 via `GIVEKIT-`), churn hazard threshold 0.70.
-- Error model: `GS-CAT-1001 InsufficientInventory`, `GS-SMP-1001/1003/1004/1005`, `GS-ORD-1001`, etc.
+- Error model: `GS-CAT-1001 InsufficientInventory`, `GS-SMP-1001/1003/1004/1005`, `GS-ORD-1001`, `GS-PAY-*`, `GS-FX-*`, `GS-DUN-*`, `GS-EIN-*`, `GS-SUB-*`.
+- **Trust is a property of the rail, not of the payload** (`contracts/providers.ts`). PayOS, MoMo and ZaloPay sign what they send, so a verified callback may credit AR. Casso proves only that the caller knows a shared secret, so it requires an API re-fetch stamping `verifiedAt` before allocation. Adding a rail is a row in `PROVIDER_SPECS`, not a parallel pipeline.
 
 ## Run
 

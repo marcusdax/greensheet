@@ -22,6 +22,7 @@ import {
 } from "../services/payments/invoicing";
 import { minorFromDb } from "@contracts/money";
 import { SUPPORTED_CURRENCIES } from "@contracts/money";
+import { einvoiceRouter } from "./einvoice";
 
 const INVOICE_STATUSES = [
   "draft",
@@ -66,6 +67,10 @@ async function counterpartyIdsFor(roasterId: number): Promise<number[]> {
 // Roles come from contracts/rbac.ts so the table cannot drift from the router.
 
 export const invoicesRouter = createRouter({
+  // §3.5 — submission to the tax authority is an invoice concern, so it hangs
+  // off this router rather than payments.
+  einvoice: einvoiceRouter,
+
   list: rbacProcedure("invoices.list")
     .input(
       cursorInput.extend({

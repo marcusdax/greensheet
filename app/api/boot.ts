@@ -8,6 +8,8 @@ import { env } from "./lib/env";
 import { docintakeProxy } from "./lib/docintake";
 import { payosWebhook } from "./webhooks/payos";
 import { cassoWebhook } from "./webhooks/casso";
+import { momoWebhook } from "./webhooks/momo";
+import { zalopayWebhook } from "./webhooks/zalopay";
 import { startOutboxConsumer } from "./services/outbox/consumer";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
@@ -21,6 +23,8 @@ app.post("/api/docintake/extract", docintakeProxy);
 // would 400 on every real callback.
 app.post("/webhooks/payos", payosWebhook);
 app.post("/webhooks/casso", cassoWebhook);
+app.post("/webhooks/momo", momoWebhook);
+app.post("/webhooks/zalopay", zalopayWebhook);
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",

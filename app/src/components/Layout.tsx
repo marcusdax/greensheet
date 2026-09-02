@@ -18,6 +18,8 @@ import {
   LogOut,
   BarChart3,
   ScanLine,
+  HandCoins,
+  CalendarClock,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -42,6 +44,8 @@ const NAV_GROUPS: {
       { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
       { to: "/invoices", label: "Invoices", icon: Receipt, roles: [...READERS, "roaster_buyer"] },
       { to: "/payments", label: "Payments & AR", icon: Banknote, roles: [...STAFF, "analyst"] },
+      { to: "/collections", label: "Collections & FX", icon: HandCoins, roles: [...STAFF, "sales_csm", "analyst"] },
+      { to: "/subscriptions", label: "Standing Orders", icon: CalendarClock, roles: [...STAFF, "sales_csm", "analyst"] },
     ],
   },
   {

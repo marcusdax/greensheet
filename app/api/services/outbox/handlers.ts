@@ -10,7 +10,7 @@
 // Every handler is idempotent, because delivery is at-least-once.
 import { eq } from "drizzle-orm";
 import { getDb } from "../../queries/connection";
-import { providerTransactions } from "@db/schema";
+import { invoices, providerTransactions } from "@db/schema";
 import { evaluateRules } from "../../engine";
 import { writeEvent } from "../../engine";
 import { getFlags } from "../flags";
@@ -18,6 +18,8 @@ import { verifyWithCassoApi } from "../payments/casso";
 import { resolveMatch } from "../payments/matching";
 import { settleTransactionAgainstInvoice } from "../payments/settlement";
 import { minorFromDb } from "@contracts/money";
+import { markPaidAfter } from "../payments/dunning";
+import { issueEinvoice } from "../payments/einvoice";
 import { registerHandler, type OutboxEvent } from "./registry";
 
 // ─── Campaign rules (P-04…P-08) ──────────────────────────────────────────────
@@ -166,5 +168,48 @@ registerHandler("payment.matched", {
       allocatedByUserId: null,
     });
     return outcome.kind === "allocated" ? "handled" : "skip";
+  },
+});
+
+// ─── §3.4 · dunning effectiveness ────────────────────────────────────────────
+// A settlement is the outcome the ladder exists to produce, so it is stamped
+// back onto every step that preceded it. Without this, channel effectiveness is
+// unmeasurable and §3.4's "adjusts templates accordingly" is aspiration.
+registerHandler("invoice.settled", {
+  name: "dunning:mark-paid-after",
+  async handle(event: OutboxEvent) {
+    const invoiceId = Number(event.payload.invoiceId);
+    if (!Number.isInteger(invoiceId)) return "skip";
+    const stamped = await markPaidAfter(invoiceId);
+    // No steps had gone out — the customer simply paid on time, which is the
+    // outcome we want and nothing to record.
+    return stamped > 0 ? "handled" : "skip";
+  },
+});
+
+// ─── §3.5 · e-invoice issuance ───────────────────────────────────────────────
+// Submitted from the outbox rather than inline at issuance, because the
+// authority's provider is a third party that can be slow or down, and an
+// invoice must not fail to exist in our own books because VNPT is unreachable.
+registerHandler("invoice.issued", {
+  name: "einvoice:submit",
+  async handle(event: OutboxEvent) {
+    const flags = await getFlags();
+    if (!flags.eInvoice) return "skip";
+
+    const invoiceId = Number(event.payload.invoiceId);
+    if (!Number.isInteger(invoiceId)) return "skip";
+
+    const invoice = await getDb().query.invoices.findFirst({
+      where: eq(invoices.id, invoiceId),
+    });
+    // Only domestic sales need issuing; an export invoice is not_required.
+    if (!invoice || invoice.eInvoiceStatus !== "pending") return "skip";
+
+    const outcome = await issueEinvoice(invoiceId);
+    // A provider rejection is recorded on the submission row and surfaced in
+    // the pending report. Throwing would retry a payload the authority has
+    // already refused, which never succeeds and only burns attempts.
+    return outcome.ok ? "handled" : "handled";
   },
 });

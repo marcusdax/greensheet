@@ -1,10 +1,11 @@
 // Shared webhook plumbing — structured logging (§13.2) and duplicate detection.
 import { createHash, randomUUID } from "node:crypto";
 import type { Context } from "hono";
+import type { PaymentProvider } from "@contracts/providers";
 
 export type WebhookLogFields = {
   requestId: string;
-  provider: "payos" | "casso";
+  provider: PaymentProvider;
   outcome: string;
   latencyMs: number;
   signatureValid?: boolean;
