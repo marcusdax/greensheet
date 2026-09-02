@@ -3,7 +3,7 @@
 // (Exhibit B schedule), True Price Receipts, and collector pass-through (Exhibit C).
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   partners,
@@ -47,7 +47,7 @@ async function receiptFor(addendumId: number) {
 }
 
 export const partnersRouter = createRouter({
-  overview: publicQuery.query(async () => {
+  overview: staffProcedure.query(async () => {
     const db = getDb();
     const allPartners = await db.select().from(partners).orderBy(desc(partners.id));
     return Promise.all(
@@ -76,7 +76,7 @@ export const partnersRouter = createRouter({
     );
   }),
 
-  registerPartner: publicQuery
+  registerPartner: staffProcedure
     .input(
       z.object({
         partnerName: z.string().min(1),
@@ -98,7 +98,7 @@ export const partnersRouter = createRouter({
       return { id };
     }),
 
-  createAddendum: publicQuery
+  createAddendum: staffProcedure
     .input(
       z.object({
         partnerId: z.number().int().positive(),
@@ -127,7 +127,7 @@ export const partnersRouter = createRouter({
    * Floor = True-Cost Floor Price × verified net weight; never clawed back
    * except confirmed Tier 3 fraud (Section 5.6).
    */
-  verifyAndAccrueFloor: publicQuery
+  verifyAndAccrueFloor: staffProcedure
     .input(
       z.object({
         addendumId: z.number().int().positive(),
@@ -187,14 +187,14 @@ export const partnersRouter = createRouter({
    * Net Sale Proceeds = Final Sale − Floor Payment − documented costs;
    * Revenue Share = tier share % of Net Sale Proceeds.
    */
-  accrueRevenueShareForOrder: publicQuery
+  accrueRevenueShareForOrder: staffProcedure
     .input(z.object({ orderId: z.number().int().positive() }))
     .mutation(async ({ input }) => {
       const results = await accrueRevenueShareForOrder(input.orderId);
       return { accrued: results };
     }),
 
-  markPaymentPaid: publicQuery
+  markPaymentPaid: staffProcedure
     .input(z.object({ paymentId: z.number().int().positive() }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -206,7 +206,7 @@ export const partnersRouter = createRouter({
     }),
 
   /** Exhibit C — record a collector's pass-through schedule line. */
-  addPassThrough: publicQuery
+  addPassThrough: staffProcedure
     .input(
       z.object({
         partnerId: z.number().int().positive(),
@@ -228,7 +228,7 @@ export const partnersRouter = createRouter({
       return { id, floorOwedCents };
     }),
 
-  markPassThroughPaid: publicQuery
+  markPassThroughPaid: staffProcedure
     .input(
       z.object({
         passThroughId: z.number().int().positive(),

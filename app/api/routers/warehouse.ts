@@ -3,13 +3,15 @@
 // anomaly, partial compromise, equipment failure, customs, escalation).
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import {
   warehouseExceptions,
   exceptionEvents,
   coffeeLots,
+  shipmentIntakes,
 } from "@db/schema";
+import { TRPCError } from "@trpc/server";
 import { emitEvent } from "../engine";
 import {
   TIER_SLA_HOURS,
@@ -84,7 +86,69 @@ const createInput = z.object({
 });
 
 export const warehouseRouter = createRouter({
-  list: publicQuery.query(async () => {
+  // ── Shipment intake (doc-intake commit target for CMR documents) ──────────
+  intakes: staffProcedure.query(async () => {
+    const db = getDb();
+    const rows = await db.select().from(shipmentIntakes).orderBy(desc(shipmentIntakes.id)).limit(100);
+    return Promise.all(
+      rows.map(async (r) => {
+        const lot = r.lotId
+          ? await db.query.coffeeLots.findFirst({ where: eq(coffeeLots.id, r.lotId) })
+          : null;
+        return { ...r, lotName: lot?.name ?? null };
+      }),
+    );
+  }),
+
+  recordIntake: staffProcedure
+    .input(
+      z.object({
+        lotId: z.number().int().positive().nullable().default(null),
+        consignor: z.string().default(""),
+        consignee: z.string().default(""),
+        containerNumber: z.string().default(""),
+        sealNumber: z.string().default(""),
+        grossWeightLbs: z.number().int().nonnegative().default(0),
+        shippedAt: z.string().nullable().default(null), // ISO date
+        arrivedAt: z.string().nullable().default(null),
+        source: z.enum(["manual", "docintake"]).default("manual"),
+        extractionJson: z.string().nullable().default(null),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      if (input.lotId != null) {
+        const lot = await db.query.coffeeLots.findFirst({ where: eq(coffeeLots.id, input.lotId) });
+        if (!lot) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "GS-WHS-1002 · linked lot not found" });
+        }
+      }
+      const [{ id }] = await db
+        .insert(shipmentIntakes)
+        .values({
+          lotId: input.lotId,
+          consignor: input.consignor,
+          consignee: input.consignee,
+          containerNumber: input.containerNumber,
+          sealNumber: input.sealNumber,
+          grossWeightLbs: input.grossWeightLbs,
+          shippedAt: input.shippedAt ? new Date(input.shippedAt) : null,
+          arrivedAt: input.arrivedAt ? new Date(input.arrivedAt) : null,
+          source: input.source,
+          extractionJson: input.extractionJson,
+        })
+        .$returningId();
+      await emitEvent("warehouse.intake_recorded", "shipment_intake", id, {
+        intakeId: id,
+        containerNumber: input.containerNumber,
+        sealNumber: input.sealNumber,
+        grossWeightLbs: input.grossWeightLbs,
+        source: input.source,
+      });
+      return { ok: true, id };
+    }),
+
+  list: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db
       .select()
@@ -109,7 +173,7 @@ export const warehouseRouter = createRouter({
   }),
 
   /** Classify a receiving measurement without persisting (wizard preview). */
-  classify: publicQuery
+  classify: staffProcedure
     .input(
       z.object({
         kind: z.enum(["seal", "weight_moisture"]),
@@ -135,7 +199,7 @@ export const warehouseRouter = createRouter({
       });
     }),
 
-  create: publicQuery.input(createInput).mutation(async ({ input }) => {
+  create: staffProcedure.input(createInput).mutation(async ({ input }) => {
     const db = getDb();
     const slaDueAt = new Date(Date.now() + TIER_SLA_HOURS[input.tier] * 3600 * 1000);
     // Tier 3 and most Tier 2 start as hard hold (Runbook: containment first).
@@ -158,7 +222,7 @@ export const warehouseRouter = createRouter({
     return { id, status, slaDueAt };
   }),
 
-  advance: publicQuery
+  advance: staffProcedure
     .input(
       z.object({
         exceptionId: z.number().int().positive(),
@@ -182,7 +246,7 @@ export const warehouseRouter = createRouter({
     }),
 
   /** Close with one of the four dispositions (supplier agreement Section B.1). */
-  resolve: publicQuery
+  resolve: staffProcedure
     .input(
       z.object({
         exceptionId: z.number().int().positive(),
@@ -224,7 +288,7 @@ export const warehouseRouter = createRouter({
     }),
 
   /** End-of-day warehouse report data (runbook template). */
-  dailyReport: publicQuery.query(async () => {
+  dailyReport: staffProcedure.query(async () => {
     const db = getDb();
     const all = await db.select().from(warehouseExceptions).orderBy(desc(warehouseExceptions.id));
     const today = new Date().toDateString();

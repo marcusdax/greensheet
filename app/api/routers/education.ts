@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, protectedProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { sopAcknowledgments, sopDocuments } from "@db/schema";
 import { emitEvent } from "../engine";
@@ -11,7 +11,7 @@ import { emitEvent } from "../engine";
 // retained-sample procedures, and the partnership agreement.
 export const educationRouter = createRouter({
   // Library overview: every document with its acknowledgment count.
-  library: publicQuery.query(async () => {
+  library: protectedProcedure.query(async () => {
     const db = getDb();
     const docs = await db.select().from(sopDocuments).orderBy(sopDocuments.code);
     const acks = await db.select().from(sopAcknowledgments);
@@ -21,7 +21,7 @@ export const educationRouter = createRouter({
     }));
   }),
 
-  document: publicQuery
+  document: protectedProcedure
     .input(z.object({ code: z.string() }))
     .query(async ({ input }) => {
       const db = getDb();
@@ -40,7 +40,7 @@ export const educationRouter = createRouter({
     }),
 
   // Training sign-off — a team member attests they read and understood the SOP.
-  acknowledge: publicQuery
+  acknowledge: protectedProcedure
     .input(
       z.object({
         documentId: z.number(),

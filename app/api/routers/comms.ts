@@ -5,7 +5,7 @@
 //   every send is logged to the dispatch ledger like any other channel.
 import { z } from "zod";
 import { desc } from "drizzle-orm";
-import { createRouter, publicQuery } from "../middleware";
+import { createRouter, staffProcedure } from "../middleware";
 import { getDb } from "../queries/connection";
 import { dispatches, roasters, campaigns } from "@db/schema";
 import { eq } from "drizzle-orm";
@@ -86,7 +86,7 @@ export const MESSAGE_TEMPLATES = [
 
 export const commsRouter = createRouter({
   /** Honest channel capability report for the UI. */
-  channelStatus: publicQuery.query(() => {
+  channelStatus: staffProcedure.query(() => {
     return {
       email: {
         configured: smtpConfigured(),
@@ -104,9 +104,9 @@ export const commsRouter = createRouter({
     };
   }),
 
-  templates: publicQuery.query(() => MESSAGE_TEMPLATES),
+  templates: staffProcedure.query(() => MESSAGE_TEMPLATES),
 
-  sendEmail: publicQuery
+  sendEmail: staffProcedure
     .input(
       z.object({
         roasterId: z.number().int().positive(),
@@ -150,7 +150,7 @@ export const commsRouter = createRouter({
       return { status, note };
     }),
 
-  sendWhatsApp: publicQuery
+  sendWhatsApp: staffProcedure
     .input(
       z.object({
         roasterId: z.number().int().positive(),
@@ -184,7 +184,7 @@ export const commsRouter = createRouter({
       return { link, status: "queued" as const };
     }),
 
-  ledger: publicQuery.query(async () => {
+  ledger: staffProcedure.query(async () => {
     const db = getDb();
     const rows = await db.select().from(dispatches).orderBy(desc(dispatches.id)).limit(150);
     return Promise.all(

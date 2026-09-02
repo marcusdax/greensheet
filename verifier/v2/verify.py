@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Verifier v1 for Greensheet expansion deliverables."""
+"""Verifier v2 for Auctum Ledger expansion deliverables (CLDR-plural-aware locale parity)."""
 import json, os, re, sys
 
-ROOT = "/mnt/agents/output/greensheet-expansion"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))  # repo root (Auctum Ledger)
 REQUIRED_MD = {
  "engineering": ["01-domain-model-event-storming.md","02-openapi-contract.md","03-event-driven-pipeline.md","04-database-evolution.md","05-state-management-zustand.md","06-testing-chaos-ci.md","07-security-compliance.md"],
  "design-system": ["01-brand-identity.md","02-design-tokens.md","03-component-library.md","04-email-campaign-visual-system.md","05-ui-implementation-prompt.md"],

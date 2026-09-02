@@ -6,7 +6,7 @@
 
 ## 1. Authentication (AuthN) — OIDC
 
-Greensheet runs an **OIDC Provider** (Keycloak or AWS Cognito; issuer `https://auth.greensheet.io`) with two grant patterns:
+The Auctum Ledger (formerly Greensheet) runs an **OIDC Provider** (Keycloak or AWS Cognito; issuer `https://auth.auctumledger.io`) with two grant patterns:
 
 - **Humans (roaster portal + internal ops):** Authorization Code + **PKCE** (S256), short-lived access tokens (15 min) + rotating refresh tokens (8 h absolute, reuse detection on).
 - **Machines (saga participants, CI, partners):** `client_credentials` with **private_key_jwt** client assertion; internal service calls additionally bound to **mTLS** at the ALB/NLB (certificate SAN allow-list) — the `serviceAccount` security scheme in the OpenAPI contract.
@@ -17,7 +17,7 @@ sequenceDiagram
     participant U as Roaster (browser)
     participant SPA as Portal (React)
     participant IdP as OIDC Provider
-    participant API as greensheet-api
+    participant API as auctum-ledger-api
     participant ACL as Auth ACL (Identity context)
 
     U->>SPA: Click "Sign in"
@@ -38,9 +38,9 @@ sequenceDiagram
 
 ```json
 {
-  "iss": "https://auth.greensheet.io",
+  "iss": "https://auth.auctumledger.io",
   "sub": "usr_01H…",
-  "aud": "greensheet-api",
+  "aud": "auctum-ledger-api",
   "exp": 1739200000,
   "iat": 1739199100,
   "jti": "01J…",
@@ -57,7 +57,7 @@ sequenceDiagram
 // src/lib/authn.ts
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 
-const JWKS = createRemoteJWKSet(new URL('https://auth.greensheet.io/.well-known/jwks.json'), {
+const JWKS = createRemoteJWKSet(new URL('https://auth.auctumledger.io/.well-known/jwks.json'), {
   cacheMaxAge: 600_000,
 });
 
@@ -73,8 +73,8 @@ export interface Principal {
 export async function authenticate(authHeader?: string): Promise<Principal> {
   if (!authHeader?.startsWith('Bearer ')) throw problem(401, 'GS-GEN-1001', 'Unauthenticated');
   const { payload } = await jwtVerify(authHeader.slice(7), JWKS, {
-    issuer: 'https://auth.greensheet.io',
-    audience: 'greensheet-api',
+    issuer: 'https://auth.auctumledger.io',
+    audience: 'auctum-ledger-api',
     clockTolerance: 30,
   });
   return toPrincipal(payload);
@@ -159,7 +159,7 @@ export function scopedToAccount(param = 'roasterId') {
 
 ## 3. SOC 2 Type II Control Mapping
 
-| TSC criterion | Control | Greensheet implementation | Evidence artifact |
+| TSC criterion | Control | Auctum Ledger implementation | Evidence artifact |
 |---|---|---|---|
 | **CC6.1** Logical access | Least-privilege RBAC, SSO+MFA, quarterly access review | §1–2; DB roles (`04 §10`); IdP group→role mapping | Access review tickets; IdP audit log export |
 | **CC6.2** Provisioning | Joiner/mover/leaver via HRIS → IdP SCIM; machine creds via Terraform | SCIM deprovisioning < 1h; no shared accounts | Terraform plan history |
@@ -435,7 +435,7 @@ SELECT count(*) AS verified FROM chain;    -- must equal max(seq)
 
 ### 9.2 Security testing
 
-- **DAST:** OWASP ZAP baseline scan against staging nightly (`zap-baseline.py -t https://api.staging.greensheet.io`), findings filed as issues.
+- **DAST:** OWASP ZAP baseline scan against staging nightly (`zap-baseline.py -t https://api.staging.auctumledger.io`), findings filed as issues.
 - **SAST:** CodeQL (JS/TS) on every PR; custom query pack flags `dangerouslySetInnerHTML`, raw SQL string concatenation outside the query builder, and missing `requireScope` on new routes.
 - **Pen test:** annual third-party (scope: API + portal + webhook signature bypass), plus a self-serve HackerOne disclosure policy.
 

@@ -29,7 +29,7 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 
 ```json
 {
-  "type": "https://api.greensheet.io/problems/GS-CAT-1001",
+  "type": "https://api.auctumledger.io/problems/GS-CAT-1001",
   "title": "Insufficient inventory",
   "status": 409,
   "code": "GS-CAT-1001",
@@ -42,7 +42,7 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 }
 ```
 
-**Error code catalogue (namespace: `GS-<CONTEXT>-<NNNN>`):**
+**Error code catalogue — the Auctum Ledger (formerly Greensheet) error model (namespace: `GS-<CONTEXT>-<NNNN>`; GS-* codes are a byte-identical integration contract and are retained unchanged across the rebrand):**
 
 | Code | HTTP | Meaning |
 |---|---|---|
@@ -80,24 +80,24 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 ```yaml
 openapi: 3.1.0
 info:
-  title: Greensheet Platform API
+  title: Auctum Ledger API
   version: 1.4.0
-  summary: Public REST API for the Greensheet specialty green-coffee distribution platform.
+  summary: Public REST API for the Auctum Ledger specialty green-coffee distribution platform.
   description: |
     Covers the CRM (roasters), Catalog (coffee lots), Campaigns (COF-001–005 nurture
     automation), Samples (kit fulfilment), and Webhook subscription surfaces.
     Domain model: see engineering/01-domain-model-event-storming.md.
     Event transport: see engineering/03-event-driven-pipeline.md.
   contact:
-    name: Greensheet Platform Engineering
-    url: https://developers.greensheet.io
+    name: Auctum Ledger Engineering
+    url: https://developers.auctumledger.io
   license:
     name: Proprietary
   x-audiences: [roaster-portal, internal-ops, integration-partners]
 servers:
-  - url: https://api.greensheet.io
+  - url: https://api.auctumledger.io
     description: Production
-  - url: https://api.staging.greensheet.io
+  - url: https://api.staging.auctumledger.io
     description: Staging (canary target, see 06-testing-chaos-ci.md)
 tags:
   - name: roasters
@@ -196,7 +196,7 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
               example:
-                type: https://api.greensheet.io/problems/GS-CRM-1001
+                type: https://api.auctumledger.io/problems/GS-CRM-1001
                 title: Roaster already exists
                 status: 409
                 code: GS-CRM-1001
@@ -978,9 +978,9 @@ components:
       description: OIDC authorization-code + PKCE (see 07-security-compliance.md §1).
       flows:
         authorizationCode:
-          authorizationUrl: https://auth.greensheet.io/oauth2/authorize
-          tokenUrl: https://auth.greensheet.io/oauth2/token
-          refreshUrl: https://auth.greensheet.io/oauth2/token
+          authorizationUrl: https://auth.auctumledger.io/oauth2/authorize
+          tokenUrl: https://auth.auctumledger.io/oauth2/token
+          refreshUrl: https://auth.auctumledger.io/oauth2/token
           scopes:
             roasters:read: Read roaster accounts
             roasters:write: Create/update roasters
@@ -1040,7 +1040,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1000
+            type: https://api.auctumledger.io/problems/GS-GEN-1000
             title: Validation failed
             status: 400
             code: GS-GEN-1000
@@ -1052,7 +1052,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1001
+            type: https://api.auctumledger.io/problems/GS-GEN-1001
             title: Unauthenticated
             status: 401
             code: GS-GEN-1001
@@ -1062,7 +1062,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1005
+            type: https://api.auctumledger.io/problems/GS-GEN-1005
             title: Resource not found
             status: 404
             code: GS-GEN-1005
@@ -1072,7 +1072,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1006
+            type: https://api.auctumledger.io/problems/GS-GEN-1006
             title: Version conflict
             status: 409
             code: GS-GEN-1006
@@ -1084,7 +1084,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1007
+            type: https://api.auctumledger.io/problems/GS-GEN-1007
             title: Rate limited
             status: 429
             code: GS-GEN-1007
@@ -1571,7 +1571,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/orders' }
+                source: { const: '//auctum-ledger/orders' }
                 type: { const: order.created }
                 subject: { type: string, example: /orders/6d2f… }
                 time: { type: string, format: date-time }
@@ -1603,7 +1603,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/samples' }
+                source: { const: '//auctum-ledger/samples' }
                 type: { const: sample_kit.delivered }
                 subject: { type: string, example: /sample-kits/91ab… }
                 time: { type: string, format: date-time }
@@ -1630,7 +1630,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/campaigns' }
+                source: { const: '//auctum-ledger/campaigns' }
                 type: { const: campaigns.converted }
                 data:
                   type: object
@@ -1653,7 +1653,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/crm' }
+                source: { const: '//auctum-ledger/crm' }
                 type: { const: crm.churn_risk_detected }
                 data:
                   type: object
@@ -1669,7 +1669,7 @@ webhooks:
 
 ## 8. Contract Governance
 
-1. **Source of truth:** this YAML lives at `api/openapi/greensheet-v1.yaml`; docs and SDKs are generated artifacts.
-2. **Breaking-change gate:** CI runs `oasdiff breaking openapi-prev.yaml greensheet-v1.yaml`; a breaking diff requires a `/v2` bump (see `06-testing-chaos-ci.md` §7).
-3. **Mock server:** `prism mock greensheet-v1.yaml` backs consumer-driven contract tests and partner sandboxes.
+1. **Source of truth:** this YAML lives at `api/openapi/auctum-ledger-v1.yaml`; docs and SDKs are generated artifacts.
+2. **Breaking-change gate:** CI runs `oasdiff breaking openapi-prev.yaml auctum-ledger-v1.yaml`; a breaking diff requires a `/v2` bump (see `06-testing-chaos-ci.md` §7).
+3. **Mock server:** `prism mock auctum-ledger-v1.yaml` backs consumer-driven contract tests and partner sandboxes.
 4. **Consistency checks:** CI asserts every `triggerEvent` enum value exists in the Kafka event catalogue (`03-event-driven-pipeline.md` §2) and every error `code` is registered in the error catalogue above.

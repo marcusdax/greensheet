@@ -46,13 +46,14 @@ export default function Orders() {
     onSuccess: (r) => {
       invalidate();
       setIdemKey(crypto.randomUUID());
+      const orderNumber = r.order?.orderNumber ?? "order";
       if (r.replayed) {
-        toast.info(`Idempotent replay — returned existing ${r.order.orderNumber}`);
+        toast.info(`Idempotent replay — returned existing ${orderNumber}`);
       } else {
         toast.success(
-          r.order.firstOrder
-            ? `${r.order.orderNumber} created — first order: COF-005 halted nurture + logged conversion`
-            : `${r.order.orderNumber} created — inventory reserved`,
+          r.order?.firstOrder
+            ? `${orderNumber} created — first order: COF-005 halted nurture + logged conversion`
+            : `${orderNumber} created — inventory reserved`,
         );
         setOpen(false);
       }
@@ -143,7 +144,8 @@ export default function Orders() {
                   onClick={() =>
                     create.mutate({
                       roasterId: Number(roasterId),
-                      lines: [{ lotId: Number(lotId), quantityLbs: qtyNum }],
+                      lotId: Number(lotId),
+                      quantityLbs: qtyNum,
                       idempotencyKey: idemKey,
                     })
                   }
@@ -187,7 +189,7 @@ export default function Orders() {
                   <TableCell className="text-sm">{o.roasterName}</TableCell>
                   <TableCell className="text-xs">
                     {o.lines.map((l) => (
-                      <div key={l.id}>{l.quantityLbs} lbs · {l.lotName} @ {formatCentsPerLb(l.pricePerLbCentsSnapshot)}</div>
+                      <div key={l.id}>{l.quantityLbs} lbs · {l.lotName} @ {formatCentsPerLb(l.unitPriceCents)}</div>
                     ))}
                   </TableCell>
                   <TableCell className="text-sm font-medium">{formatCents(o.totalCents)}</TableCell>
@@ -202,7 +204,7 @@ export default function Orders() {
                           size="sm"
                           variant={t === "cancelled" ? "destructive" : "outline"}
                           className="h-7 text-xs"
-                          onClick={() => advance.mutate({ orderId: o.id, target: t as "processing" })}
+                          onClick={() => advance.mutate({ orderId: o.id, target: t as "shipped" | "delivered" | "cancelled" })}
                         >
                           → {t}
                         </Button>

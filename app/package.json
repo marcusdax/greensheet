@@ -16,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx db/seed.ts",
-    "db:seed:expansion": "tsx db/seed-expansion.ts"
+    "db:seed:expansion": "tsx db/seed-expansion.ts",
+    "db:seed:auth": "tsx db/seed-auth.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
