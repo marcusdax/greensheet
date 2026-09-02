@@ -1,5 +1,7 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
+
 RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
 FROM base AS builder
@@ -13,11 +15,17 @@ RUN pnpm run build
 
 FROM base AS runner
 WORKDIR /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 RUN corepack enable pnpm && corepack prepare pnpm@8.15.0 --activate
 COPY --from=builder /app/app/package.json ./app/package.json
 COPY --from=builder /app/app/node_modules ./app/node_modules
 COPY --from=builder /app/app/dist ./dist
 COPY --from=builder /app/app/app ./app
+
+RUN chown -R nextjs:nodejs /app
+USER nextjs:nodejs
+
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "dist/boot.js"]
