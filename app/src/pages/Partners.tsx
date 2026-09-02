@@ -64,6 +64,7 @@ export default function Partners() {
   return (
     <Layout>
       <PageHeader
+        kicker="Folio 03 — The Proof"
         title="Partnership Agreements"
         sub="Revenue Share White-Glove — floor payments, revenue share, collector pass-through, True Price Receipts"
         actions={
