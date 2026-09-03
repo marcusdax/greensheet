@@ -19,6 +19,7 @@ import {
   TRUST_ENTITY_TYPES,
   bandFor,
 } from "@contracts/trust";
+import { getFlags } from "../services/flags";
 import {
   currentScore,
   historyFor,
@@ -31,6 +32,22 @@ import {
 
 const entityType = z.enum(TRUST_ENTITY_TYPES);
 const entityId = z.number().int().positive();
+
+/**
+ * Reads stay open when the feature is off — an existing score is still true and
+ * still explicable — but nothing may WRITE one. The outbox handlers already
+ * refuse on this flag; without the same check here the router would be a way to
+ * move a score while the feature that produces evidence is switched off, which
+ * is exactly the state §9 says must not exist.
+ */
+async function assertTrustEnabled(): Promise<void> {
+  if (!(await getFlags()).trustScore) {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "GS-TRU-1006 · Trust scoring is disabled",
+    });
+  }
+}
 
 export const trustRouter = createRouter({
   /**
@@ -95,11 +112,12 @@ export const trustRouter = createRouter({
    */
   recalculate: rbacProcedure("trust.recalculate")
     .input(z.object({ entityType, entityId }))
-    .mutation(async ({ input }) =>
-      recalculate(input.entityType, input.entityId, {
+    .mutation(async ({ input }) => {
+      await assertTrustEnabled();
+      return recalculate(input.entityType, input.entityId, {
         reason: "Manual recalculation",
-      })
-    ),
+      });
+    }),
 
   /**
    * Mark a counterparty's identity verified. This is the only writer of the
@@ -115,6 +133,7 @@ export const trustRouter = createRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await assertTrustEnabled();
       const db = getDb();
       const cp = await db.query.counterparties.findFirst({
         where: eq(counterparties.id, input.counterpartyId),
@@ -137,6 +156,22 @@ export const trustRouter = createRouter({
         .set({ kycStatus: "verified" })
         .where(eq(counterparties.id, input.counterpartyId));
 
+      // The evidence row is written HERE, not left to the outbox handler.
+      // Recalculating without it would move a score with nothing behind it —
+      // the one thing §9 forbids — and the handler legitimately skips while the
+      // feature is off. The unique index makes the handler's later attempt a
+      // safe no-op rather than a double count.
+      const recorded = await recordEvidence({
+        entityType: "counterparty",
+        entityId: input.counterpartyId,
+        kind: "identity_verified",
+        sourceType: "counterparty",
+        sourceId: input.counterpartyId,
+        weight: 5,
+        note: input.note,
+        recordedByUserId: ctx.user.id,
+      });
+
       await emitEvent(
         "counterparty.kyc_verified",
         "counterparty",
@@ -150,6 +185,7 @@ export const trustRouter = createRouter({
 
       return recalculate("counterparty", input.counterpartyId, {
         reason: "Identity verified",
+        evidenceIds: recorded.recorded ? [recorded.evidenceId] : [],
       });
     }),
 
@@ -168,6 +204,7 @@ export const trustRouter = createRouter({
       })
     )
     .mutation(async ({ input }) => {
+      await assertTrustEnabled();
       if (input.subjectCounterpartyId === input.raterCounterpartyId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -223,6 +260,7 @@ export const trustRouter = createRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await assertTrustEnabled();
       const recorded = await recordEvidence({
         entityType: input.entityType,
         entityId: input.entityId,

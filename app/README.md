@@ -1,6 +1,11 @@
-# Greensheet Platform — Working Application
+# Auctum Ledger — Working Application
 
 A runnable full-stack implementation of the Greensheet expansion-pack specs (`../engineering/*.md`), built with React 19 + TypeScript + Vite + Tailwind + shadcn/ui on the front end, and Hono + tRPC 11 + Drizzle ORM (MySQL) on the back end.
+
+Greensheet is the platform the specs were written against; Auctum Ledger is what
+it ships as. The database, event strings and error codes keep the original
+names — renaming them would have been a migration, not a rebrand — so both
+appear throughout and `GS-` error prefixes are expected.
 
 ## Feature ↔ Spec Mapping
 
@@ -58,12 +63,73 @@ npm install
 npm run db:push               # sync schema (requires DATABASE_URL in .env)
 npm run db:seed               # 8 lots, 5 roasters, campaign cof-nurture-2025 + COF-001…005
 npm run db:seed:expansion     # SOP library, partners + addenda, marketing calendar, COF-004
+npm run db:seed:auth          # login accounts, one per role
+npm run db:seed:payments      # counterparties, invoices across every aging bucket, sample transfers
+npm run db:seed:dunning       # the day 0/3/7/14 ladder and two reference FX rates
 npm run dev                   # http://localhost:3000
 ```
+
+`db:push` is for a fresh database. An **existing** one takes the hand-written
+expand migrations in order — `db/migrations/manual/0001_expand_existing.sql`,
+`0002_wallet_fx_dunning_einvoice.sql`, `0003_trust_score.sql` — and the first of
+those begins with a `SELECT` that must return zero rows before you continue.
+See `docs/payments-runbook.md` §2.
+
+### Checks
+
+```bash
+npm run check                 # tsc -b across app, node and server projects
+npm run test                  # vitest, 175 tests
+npm run build                 # vite + esbuild
+npm run lint                  # eslint
+```
+
+`npm run check` is the real typecheck. `tsc -p tsconfig.json` silently passes
+because that file is a solution file with `"files": []`, and `npm run build`
+uses esbuild, which strips types without checking them — so neither one will
+tell you about a type error. There is no CI in this repository; these four
+commands are the gate.
+
+### Everything new ships off
+
+Eleven runtime flags, all defaulting to false and failing closed
+(`contracts/flags.ts`). Nothing below changes behaviour until a `platform_admin`
+turns it on, and each one takes effect in under a minute with no deploy:
+
+| Flag | Turns on |
+|---|---|
+| `ocrUpload` | Document intake and the OCR proposal pipeline |
+| `vietqrPayments` | VietQR intents, QR rendering, PayOS/Casso webhooks |
+| `autoAllocation` | Allocating a matched transfer without a human click |
+| `eWalletPayments` | MoMo and ZaloPay charges and callbacks |
+| `dunning` | The overdue ladder actually sending |
+| `eInvoice` | Submission to an authorised e-invoice provider |
+| `standingOrders` | Recurring invoice generation |
+| `autoCharge` | Charging a saved token without the payer present |
+| `trustScore` | Recording Trust evidence, badges and panels |
+| `trustGates` | Letting a low Trust score hold an automatic settlement |
+| `outboxConsumer` | Dispatching events from the consumer instead of inline |
+
+Local-dev overrides (ignored in production) are `FLAG_<SCREAMING_SNAKE>=1`.
+
+### Environment
 
 Optional env for live email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`,
 `SMTP_SECURE`, `SMTP_FROM`. Without it, sends are honestly recorded as `queued`
 in the dispatch ledger. WhatsApp uses wa.me deep links (no Business API needed).
+
+Payment, e-invoice and FX credentials come from the secret manager and are
+deliberately not `required()`: a missing key disables that one rail rather than
+refusing to boot the platform. `APP_BASE_URL` must be set wherever the e-wallets
+are enabled — MoMo and ZaloPay refuse a localhost callback in production. Full
+table in `docs/payments-runbook.md` §3.
+
+**Two things are not ready for real data.** The KMS adapter for
+`bankAccountNumberEnc` and `payment_methods.tokenEnc` is not wired, so do not
+store a real bank account number or recurring token yet — only
+`bankAccountLast4` — and keep `autoCharge` off. And the e-invoice mock adapter
+issues `MOCK-` numbers that are **not** legal documents; real issuance needs
+`EINVOICE_PROVIDER` pointed at an authorised provider.
 
 ## Verified flows (e2e)
 
@@ -92,6 +158,25 @@ in the dispatch ledger. WhatsApp uses wa.me deep links (no Business API needed).
 20. `intents.create` with the same key and body replays the recorded response; the same key with a different body returns `GS-PAY-1001 IdempotencyKeyReuse` rather than the wrong answer.
 21. Reversing an allocation recomputes `paidMinor` from the surviving rows, returns the transfer to the exception queue, and leaves both the allocation and its reason visible in the invoice history.
 22. Reconciliation asserts `paidMinor` equals the sum of live allocations for every invoice, and reports rather than repairs.
+
+### E-wallet, FX, dunning, e-invoice and subscription flows
+
+23. A MoMo callback signed over its fixed field list is accepted; the same body with the amount edited is refused. The signed material includes `accessKey`, which the callback never sends, and excludes `signature`, which it always does — deriving the field list from the received body produces a wrong MAC.
+24. A ZaloPay callback is MACed over the **raw `data` string as received**; parsing it and re-serialising reorders the keys and fails verification. Both wallets dedupe on the provider's own transaction id (`transId`, `zp_trans_id`), never on the order id we generated, because a retried order reuses ours.
+25. A USD payment allocated against a VND invoice posts the realized difference against the contract's locked rate inside the same transaction as the allocation. With no locked rate, nothing is realized — booking against a rate we never promised would invent income.
+26. Running the dunning sweep twice on the same day records duplicates rather than contacting anyone twice (`dunning_runs` is unique on `(invoiceId, stepId)`), and a missed day catches up rather than skipping, because every step *reached* is sent.
+27. An issued invoice submits to the e-invoice provider from the outbox; a provider rejection is recorded on the submission row and surfaced in `invoices.einvoice.pending` rather than retried, because retrying a payload the authority already refused never succeeds. The authority's invoice number never overwrites ours.
+28. Generating standing-order invoices twice cannot bill a café twice: the cycle row is claimed *before* the invoice is issued and is unique on `(standingOrderId, periodStart)`. A monthly anchor of 31 is refused at creation — it has no February successor and the subscription would silently stop billing.
+
+### Trust Score flows
+
+29. Upload → a human accepts the extraction → Document Verification rises and a `trust.evidence_recorded` event fires. Accepting the **same** document again changes nothing: the unique index on `(entityType, entityId, kind, sourceType, sourceId)` absorbs it, and with no new evidence there is nothing to recompute.
+30. A document nobody accepts moves nothing at all. A blurry photo is a bad camera, not dishonesty, so there is no negative signal for uploading one.
+31. An accepted lab report cupping more than 1.5 points below a lot's claimed score writes a negative `quality_contradicted` row against **both** the lot and the supplier who made the claim. Cupping *higher* than claimed is not penalised.
+32. Eight at-risk accounts rating each other 95 do not manufacture a Verified band. Confidence comes from the summed rater weight, not the count — in a plain weighted average the rater weighting cancels out entirely when every rater carries the same weight.
+33. Every score lands in exactly one band across the whole 0–100 range, with no gap at an edge, after rounding to one decimal — so a counterparty never sits one band below the figure on their own screen.
+34. `settlementGate` returns its reason on every call, including when it allows. It holds the automatic allocation path only: a human clicking allocate in the exception queue is the review the gate exists to force.
+35. `src/design-tokens.test.ts` fails on a raw hex or a Tailwind arbitrary value in any Trust or Scanner component, and on any Museum Folio token missing a dark-mode value.
 
 See `docs/payments-runbook.md` for deployment order, flag rollout, alert thresholds and the operator playbooks.
 
