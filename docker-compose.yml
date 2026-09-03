@@ -1,22 +1,13 @@
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: runner
-    container_name: auctum-ledger-app
-    depends_on:
-      mysql:
-        condition: service_healthy
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: mysql://auctum:auctum123@mysql:3306/auctum_ledger
-      APP_SECRET: ${APP_SECRET:-dev-secret-change-me}
-      APP_ID: auctum-ledger
-      NODE_ENV: production
-    restart: unless-stopped
+# Auctum Ledger — local stack.
+#
+#   docker compose up --build
+#
+# Brings up MySQL, waits for it to be healthy, pushes the schema and seeds it,
+# and only then starts the app. Without the `migrate` step the app boots against
+# an empty database: no tables, no login accounts, and every screen renders
+# blank — which looks like a broken build rather than an unseeded one.
 
+services:
   mysql:
     image: mysql:8.0
     container_name: auctum-ledger-mysql
@@ -34,6 +25,56 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./app/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  # Runs once and exits. Every seed guards on its own data, so bringing the
+  # stack up again re-checks rather than duplicating; the volume keeps the
+  # database between runs.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrate
+    container_name: auctum-ledger-migrate
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql://auctum:auctum123@mysql:3306/auctum_ledger
+      APP_ID: auctum-ledger
+      APP_SECRET: ${APP_SECRET:-dev-secret-change-me}
+      # Deliberately not production: this job only needs a database URL, and
+      # the production guard in api/lib/env.ts refuses to start without every
+      # secret set. A seeding job should not need payment credentials.
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: auctum-ledger-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://auctum:auctum123@mysql:3306/auctum_ledger
+      APP_SECRET: ${APP_SECRET:-dev-secret-change-me}
+      APP_ID: auctum-ledger
+      NODE_ENV: production
+      # Wallet callbacks and redirects are built from this. Fine for local use;
+      # MoMo and ZaloPay both refuse a localhost callback in production.
+      APP_BASE_URL: http://localhost:3000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/trpc/ping?batch=1&input=%7B%7D"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
     restart: unless-stopped
 
 volumes:

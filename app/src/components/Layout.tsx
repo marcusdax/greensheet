@@ -100,7 +100,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2.5 px-5 h-16 border-b border-white/10 shrink-0">
           <Compass className="h-6 w-6 text-[#C9A34A]" />
           <div>
-            <div className="font-bold tracking-tight leading-none font-display">Greensheet</div>
+            <div className="font-bold tracking-tight leading-none font-display">Auctum Ledger</div>
             <div className="text-[10px] uppercase tracking-widest text-[#9fc0ab] mt-1">
               ODASI Technologies
             </div>
