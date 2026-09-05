@@ -23,6 +23,8 @@ export * from "./manager-schema";
 export * from "./payments-schema";
 export * from "./wallet-schema";
 export * from "./trust-schema";
+export * from "./education-schema";
+export * from "./partners-schema";
 
 // ─── Catalog Context ─────────────────────────────────────────────────────────
 // Money is always integer cents at rest (canonical convention).

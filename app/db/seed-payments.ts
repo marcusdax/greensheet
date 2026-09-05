@@ -18,7 +18,7 @@ import {
   roasters,
 } from "./schema";
 import { memoTokenFor } from "../api/services/payments/memo";
-import { FEATURE_FLAGS, FLAG_KEYS } from "../contracts/flags";
+import { FEATURE_FLAGS, FLAG_KEYS, type FlagKey } from "../contracts/flags";
 
 /** A date `days` before today, as the YYYY-MM-DD a MySQL date column takes. */
 function daysAgo(days: number): string {
@@ -29,20 +29,45 @@ async function seed() {
   const db = getDb();
   console.log("Seeding payments context…");
 
+  // Flag rows are reconciled BEFORE the populated-database guard below.
+  //
+  // They used to be inserted once, behind that guard, which meant a flag added
+  // to the registry after the first seed never got a row on an existing
+  // database. `getFlags()` falls back to the registry default there, so the
+  // feature stayed off — fail-closed, and therefore silent — while the
+  // description column drifted away from the code. Reconciling on every run
+  // keeps the registry and the table in step; `enabled` is deliberately never
+  // touched, because that column is an operator's decision, not the seed's.
+  const flagRows = await db.select().from(featureFlags);
+  const known = new Set(flagRows.map(r => r.flagKey));
+  const missing = FLAG_KEYS.filter(key => !known.has(key));
+  if (missing.length > 0) {
+    await db.insert(featureFlags).values(
+      missing.map(key => ({
+        flagKey: key,
+        enabled: false,
+        description: FEATURE_FLAGS[key].description,
+      }))
+    );
+    console.log(`  Added ${missing.length} flag row(s): ${missing.join(", ")}.`);
+  }
+  for (const row of flagRows) {
+    const spec = FLAG_KEYS.includes(row.flagKey as FlagKey)
+      ? FEATURE_FLAGS[row.flagKey as FlagKey]
+      : null;
+    if (spec && spec.description !== row.description) {
+      await db
+        .update(featureFlags)
+        .set({ description: spec.description })
+        .where(eq(featureFlags.id, row.id));
+    }
+  }
+
   const existing = await db.select().from(counterparties).limit(1);
   if (existing.length > 0) {
     console.log("Counterparties already populated — skipping.");
     process.exit(0);
   }
-
-  // Flags default off in code; the rows exist so an admin can toggle them.
-  await db.insert(featureFlags).values(
-    FLAG_KEYS.map(key => ({
-      flagKey: key,
-      enabled: false,
-      description: FEATURE_FLAGS[key].description,
-    }))
-  );
 
   const [firstPartner] = await db.select().from(partners).limit(1);
   const [firstRoaster] = await db.select().from(roasters).limit(1);
@@ -247,7 +272,7 @@ async function seed() {
   ]);
 
   console.log(
-    `Seeded: ${parties.length} counterparties, ${issued.length} invoices across every aging bucket, 3 bank transfers (exact, partial, unmatched), ${FLAG_KEYS.length} feature flags (all off).`
+    `Seeded: ${parties.length} counterparties, ${issued.length} invoices across every aging bucket, 3 bank transfers (exact, partial, unmatched), ${FLAG_KEYS.length} feature flags.`
   );
   process.exit(0);
 }

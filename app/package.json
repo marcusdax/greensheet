@@ -19,7 +19,10 @@
     "db:seed:expansion": "tsx db/seed-expansion.ts",
     "db:seed:auth": "tsx db/seed-auth.ts",
     "db:seed:payments": "tsx db/seed-payments.ts",
-    "db:seed:dunning": "tsx db/seed-dunning.ts"
+    "db:seed:dunning": "tsx db/seed-dunning.ts",
+    "db:seed:education": "tsx db/seed-education.ts",
+    "db:seed:demo": "tsx db/seed-demo.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
@@ -96,6 +99,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "fast-check": "^4.9.0",
     "globals": "^16.5.0",
     "kimi-plugin-inspect-react": "^1.0.3",
     "postcss": "^8.5.6",

@@ -81,6 +81,12 @@ export default function Payments() {
   const summary = trpc.payments.ar.summary.useQuery();
   const aging = trpc.payments.ar.aging.useQuery({});
   const queue = trpc.payments.transactions.unmatched.useQuery();
+  // §13.4 roster. Only fetched when the flag is on: with auto-allocation off
+  // the allowlist decides nothing, and an analyst-only query firing for every
+  // role that can open this page is a 403 in the console for no benefit.
+  const pilot = trpc.payments.pilot.roster.useQuery(undefined, {
+    enabled: flags.autoAllocation,
+  });
   const reconciliation = trpc.payments.ar.reconcile.useQuery(undefined, {
     enabled: false,
   });
@@ -113,11 +119,42 @@ export default function Payments() {
         }
       />
 
-      {!flags.autoAllocation && (
+      {!flags.autoAllocation ? (
         <div className="mb-6 rounded-md border border-[#947642]/40 bg-[#F0E6CC]/40 px-4 py-3 text-sm">
           <strong className="font-semibold">Auto-allocation is off.</strong>{" "}
           Every matched transfer waits for a person to confirm it. This is the
           intended posture for the first two weeks in production.
+        </div>
+      ) : (
+        // §13.4 · with the flag on, the allowlist is what actually decides.
+        // An operator who flips the flag and sees nothing move needs to be told
+        // that the second control is the empty roster, not a broken matcher.
+        <div className="mb-6 rounded-md border border-[#947642]/40 bg-[#F0E6CC]/40 px-4 py-3 text-sm">
+          <strong className="font-semibold">
+            Auto-allocation is on for {pilot.data?.length ?? 0} pilot
+            counterpart{(pilot.data?.length ?? 0) === 1 ? "y" : "ies"}.
+          </strong>{" "}
+          {(pilot.data?.length ?? 0) === 0 ? (
+            <>
+              Nobody is enrolled, so every match still waits for a person. Enrol
+              a counterparty to let their matched transfers settle themselves.
+            </>
+          ) : (
+            <>
+              Everyone else still waits for a person.{" "}
+              {pilot.data?.filter(m => m.readyToGraduate).length ?? 0} of{" "}
+              {pilot.data?.length ?? 0} have cleared the §13.4 fourteen-day
+              window:{" "}
+              {pilot.data
+                ?.map(m =>
+                  m.readyToGraduate
+                    ? `${m.name} (ready)`
+                    : `${m.name} — ${m.blocker}`
+                )
+                .join(" · ")}
+              .
+            </>
+          )}
         </div>
       )}
 

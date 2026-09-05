@@ -112,7 +112,8 @@ export default function Dashboard() {
   return (
     <Layout>
       <PageHeader
-        title="Greensheet Operations Dashboard"
+        kicker="The Auctum Ledger"
+        title="Operations Dashboard"
         sub="Trade, comms, warehouse & partner telemetry · live domain event stream"
       />
 

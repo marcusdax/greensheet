@@ -66,6 +66,13 @@ export const PROCEDURE_RBAC = {
   "payments.ar.aging": { roles: ["ops_manager", "sales_csm", "analyst"] },
   "payments.ar.summary": { roles: ["ops_manager", "sales_csm", "analyst"] },
   "payments.ar.reconcile": { roles: ["ops_manager", "analyst"] },
+  // §13.4 — who may see and change the auto-allocation pilot allowlist.
+  // Reading the roster is a rollout question an analyst is expected to answer;
+  // enrolling a counterparty authorises automatic movement of their money and
+  // stays with ops.
+  "payments.pilot.roster": { roles: ["ops_manager", "analyst"] },
+  "payments.pilot.enrol": { roles: ["ops_manager"] },
+  "payments.pilot.withdraw": { roles: ["ops_manager"] },
   "payments.transactions.list": { roles: ["ops_manager", "analyst"] },
   "payments.transactions.unmatched": { roles: ["ops_manager", "analyst"] },
   "payments.transactions.ignore": { roles: ["ops_manager"] },
@@ -187,6 +194,81 @@ export const PROCEDURE_RBAC = {
     roles: [],
     note: "platform_admin only, and still an audited evidence row — never a direct score edit",
   },
+
+  // ── education · SOP library, curriculum and cupper qualification ──────────
+  // The cupping SOP's §1 is a financial control, not training admin: a cup
+  // score sets the Revenue Share tier and therefore a farmer's payment, so who
+  // may produce one is scoped as tightly as who may allocate money.
+  "education.library": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "SOPs are reference material; a buyer auditing our standards should be able to read them",
+  },
+  "education.document": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "same reasoning as education.library",
+  },
+  "education.acknowledge": {
+    roles: ["ops_manager", "sales_csm", "analyst"],
+    note: "signs as the authenticated user; a buyer has no SOP to attest to",
+  },
+  "education.curriculum": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "the tier and threshold model is public by design — a buyer should be able to check what our cuppers are held to",
+  },
+  "education.cuppers": { roles: ["ops_manager", "analyst"] },
+  "education.cupper": { roles: ["ops_manager", "analyst"] },
+  "education.performance": {
+    roles: ["ops_manager"],
+    note: "§1.3 variance data is close to health information about a named person",
+  },
+  "education.enrolCupper": {
+    roles: ["ops_manager"],
+    note: "creating a Tier 1 profile grants authority over arbitration cupping",
+  },
+  "education.recordPhase": { roles: ["ops_manager", "analyst"] },
+  "education.recertify": {
+    roles: ["ops_manager"],
+    note: "§1.3 — recertifying or suspending decides who may cup at all",
+  },
+
+  // ── partners · dispositions, claims, tiers and §9 protections ─────────────
+  "partners.overview": { roles: ["ops_manager", "analyst"] },
+  "partners.registerPartner": { roles: ["ops_manager"] },
+  "partners.createAddendum": { roles: ["ops_manager"] },
+  "partners.verifyAndAccrueFloor": {
+    roles: ["ops_manager"],
+    note: "accrues a floor payment that §5.6 forbids reducing afterwards",
+  },
+  "partners.accrueRevenueShareForOrder": { roles: ["ops_manager"] },
+  "partners.markPaymentPaid": { roles: ["ops_manager"] },
+  "partners.addPassThrough": { roles: ["ops_manager"] },
+  "partners.markPassThroughPaid": { roles: ["ops_manager"] },
+  "partners.dispositionModel": {
+    roles: ["ops_manager", "sales_csm", "analyst", "roaster_buyer"],
+    note: "the clause library itself; a supplier held to these terms may read them",
+  },
+  "partners.dispositions": { roles: ["ops_manager", "analyst"] },
+  "partners.claims": { roles: ["ops_manager", "analyst"] },
+  "partners.priceDisposition": {
+    roles: ["ops_manager", "analyst"],
+    note: "read-only quote; records nothing",
+  },
+  "partners.recordDisposition": {
+    roles: ["ops_manager"],
+    note: "§B.1 — closing an exception moves money and sets fault",
+  },
+  "partners.raiseClaim": {
+    roles: ["ops_manager"],
+    note: "§C.2 — a claim for the full purchase price plus costs",
+  },
+  "partners.claimWindow": { roles: ["ops_manager", "analyst"] },
+  "partners.classify": { roles: ["ops_manager", "analyst"] },
+  "partners.floorSla": { roles: ["ops_manager", "sales_csm", "analyst"] },
+  "partners.raiseProtection": {
+    roles: ["ops_manager", "sales_csm"],
+    note: "§9 rights belong to the partner; the widest staff access that can log one on their behalf",
+  },
+  "partners.retaliationCheck": { roles: ["ops_manager"] },
 
   // ── documents / OCR (Slice 3) ─────────────────────────────────────────────
   "documents.upload": { roles: ["ops_manager", "sales_csm"] },

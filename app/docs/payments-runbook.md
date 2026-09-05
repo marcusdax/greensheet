@@ -16,6 +16,7 @@ someone has to *do* — the reasoning lives in the spec and in the code comments
 | C | MoMo + ZaloPay charges and callbacks | `eWalletPayments` |
 | E | Multi-currency FX, dunning ladder, e-invoice, standing orders, provenance | `dunning`, `eInvoice`, `standingOrders`, `autoCharge` |
 | Trust | Trust Score honesty layer, OCR evidence pipeline, Museum Folio scanner UI | `trustScore`, `trustGates` |
+| Education & Partners | Cupper qualification and curriculum (SOP §1); exception dispositions, claims and §9 protections | `cupperAuthority` |
 
 Slice 1 works with **no provider integration at all**. An operator can read a
 bank statement, record each transfer through `payments.transactions.recordManual`,
@@ -35,6 +36,7 @@ npm run db:seed:expansion
 npm run db:seed:auth
 npm run db:seed:payments   # counterparties, invoices across every aging bucket, sample transfers
 npm run db:seed:dunning    # the day 0/3/7/14 ladder and two reference FX rates
+npm run db:seed:education  # cupping curriculum, wider tracks, and a starting cupper roster
 ```
 
 ### Existing database
@@ -52,12 +54,15 @@ pair instead:
    Phase C/E tables. It is expand-only: the two `ALTER`s at the end only *add*
    values to the provider enum, so `payos` and `casso` keep their positions and
    no stored row changes meaning. Then
-   `db/migrations/manual/0003_trust_score.sql`, which is purely additive.
+   `db/migrations/manual/0003_trust_score.sql`,
+   `db/migrations/manual/0004_education_partners.sql` and
+   `db/migrations/manual/0005_pilot_allowlist.sql`, all purely additive.
 4. `npm run db:push` to create anything still missing (a no-op for existing
    tables), then `npm run db:seed:dunning`.
 5. Turn flags on one at a time — see §4 below.
 
-Rollback: `…/0003_trust_score.down.sql`, then
+Rollback: `…/0005_pilot_allowlist.down.sql`, then
+`…/0004_education_partners.down.sql`, then `…/0003_trust_score.down.sql`, then
 `…/0002_wallet_fx_dunning_einvoice.down.sql`, then
 `…/0001_expand_existing.down.sql`, but read their headers first — 0002 drops
 `fx_adjustments`, `einvoice_submissions` and `dunning_runs`, none of which can
@@ -90,7 +95,7 @@ Local-dev flag overrides (ignored in production): `FLAG_VIETQR_PAYMENTS=1`,
 `FLAG_AUTO_ALLOCATION=1`, `FLAG_OCR_UPLOAD=1`, `FLAG_OUTBOX_CONSUMER=1`,
 `FLAG_E_WALLET_PAYMENTS=1`, `FLAG_DUNNING=1`, `FLAG_E_INVOICE=1`,
 `FLAG_STANDING_ORDERS=1`, `FLAG_AUTO_CHARGE=1`, `FLAG_TRUST_SCORE=1`,
-`FLAG_TRUST_GATES=1`.
+`FLAG_TRUST_GATES=1`, `FLAG_CUPPER_AUTHORITY=1`.
 
 ---
 
@@ -129,8 +134,37 @@ registration probe (a body with no `data`) with 200 so the handshake completes.
 For Casso, additionally restrict `/webhooks/casso` by source IP where the
 provider publishes a range, and rotate `CASSO_WEBHOOK_SECRET` quarterly.
 
-Graduate to `autoAllocation: true` only after **14 consecutive days with zero
-reconciliation failures and zero manual reversals**.
+#### The pilot allowlist
+
+`autoAllocation` is the master switch; the allowlist decides whose money it
+applies to. Both must say yes. `counterparties.autoAllocationPilotAt` is NULL
+for everyone after the migration, so turning the flag on moves nothing until
+you name the pilot counterparties — this is deliberate, and the Payments banner
+says so rather than leaving an operator to wonder why the queue stopped
+draining.
+
+Enrol exactly two, one at a time, through `payments.pilot.enrol` (ops_manager)
+or directly:
+
+```sql
+UPDATE counterparties SET autoAllocationPilotAt = NOW() WHERE id = ?;
+```
+
+`payments.pilot.roster` is the artefact the graduation decision is made from.
+It reports, per counterparty, the days on the clock, any reversals since
+enrolment, and the blocker in words.
+
+Withdrawing is the same statement with `NULL`. It takes effect on the next
+matched transaction and reverses nothing already allocated — an allocation is
+undone by writing a reversal, never by removing the permission that produced
+it.
+
+Graduate to `autoAllocation: true` for everyone only after **14 consecutive
+days with zero reconciliation failures and zero manual reversals**. Consecutive
+is enforced, not advisory: a manual reversal restarts a counterparty's clock at
+zero rather than pausing it, so `readyToGraduate` cannot come back true the day
+after a reversal. Days are counted in ICT calendar days, the same unit the
+aging buckets use.
 
 ### 4.3 E-wallets (`eWalletPayments`)
 
@@ -236,6 +270,69 @@ A weights change is a recomputation, not a migration: bump `MODEL_VERSION` in
 the version that produced them, so a historical trend line still renders as it
 did.
 
+### 4.8 Cupper authority (`cupperAuthority`)
+
+**Seed before you flip this.** `npm run db:seed:education` installs the four SOP
+§1.2 phases, the wider curriculum, and a starting roster. Turning the flag on
+first would block every cupping session, because §1.1's Tier 0 covers anyone
+without a profile and Tier 0 may not cup at all.
+
+The order that works:
+
+1. `npm run db:seed:education`
+2. Open **Education → Cupper roster** and check the header strip. §1.1 requires
+   **two** Q-Graders in good standing so one can verify the other's cups; below
+   two, arbitration cupping has no second opinion and the strip says so.
+3. Fix anything red — a lapsed licence, a missed annual recertification — while
+   the flag is still off and nothing is being refused.
+4. Flip `cupperAuthority`. QC now returns `GS-QC-1006 CupperNotAuthorized` with
+   the specific reason rather than accepting three names typed into a box.
+
+What the gate actually enforces, and the distinctions that matter:
+
+- A **Tier 2** may cup alone for routine checks and Tier 1 exceptions, and is
+  barred from Tier 2/3 resolution and arbitration. That boundary is where the
+  money is largest.
+- A **trainee** below 100 supervised cups loses independent authority but keeps
+  their panel seat — §1.2 requires those cups be performed *under a Q-Grader*,
+  which is panel work. Blocking the panel would bar them from the only activity
+  that lets them finish training.
+- A **disqualified** cupper (licence unrenewed past six months, missed
+  recertification, variance over ±3, suspended) loses *everything*, including
+  the panel. §1.3's triggers are about integrity and sensory acuity, and a
+  cupper whose scores have drifted is not a reliable panellist either.
+- A name with **no profile** is refused, not waved through.
+
+Variance is a mean *absolute* deviation over a rolling 12 months, and needs at
+least three data points before it reports at all — a cupper three points high on
+one lot and three low on the next averages to zero, and one bad morning is not a
+trend.
+
+### 4.9 Dispositions and claims (no flag)
+
+Read-only until someone records one, so there is nothing to gate. Two things to
+know before the first disposition:
+
+- **§B.2 defaults to the supplier.** An investigator claiming a logistics or
+  in-transit origin without filing proof resolves to `supplier`, because the
+  clause puts the burden of proof on them. Both the claimed and the resolved
+  origin are stored; a report showing the two diverging is a report of cases
+  where nobody produced evidence.
+- **Both caps bite silently unless you read the explanation.** §C.1 holds a
+  downgrade at 50% of the original price and §C.2 holds a claim at 110% of the
+  purchase price with holding charged for at most 30 days. `priceDisposition`
+  returns the quote and the explanation without recording anything — use it
+  before committing to a number the supplier can contest under §C.3.
+
+**One unresolved contract defect, for counsel rather than engineering.** §C.1
+defines the operational cost adjustment as a total ("USD $300–$1,000 depending
+on lot size") and its own worked example then adds that total to a per-pound
+price, printing $3.70/lb where the definition gives $3.21/lb. On the clause's
+own 40,000 lb example that is a **$19,600 difference in the credit owed back to
+the supplier**, understated as written. The implementation follows the
+definition; both readings are pinned in the tests. The agreement text should be
+corrected whichever way it is settled.
+
 ---
 
 ## 5. What to watch
@@ -250,6 +347,11 @@ did.
 | Standing-order failures | `standing_order_cycles.status = 'charge_failed'` | 0 | any row |
 | Trust updates without evidence | `trust_score_snapshots` rows with an empty `evidenceIds` | only manual recalculations | any unexplained move (§9) |
 | Settlements held by a Trust gate | `blocked` outcomes carrying a "Trust" reason | rare and defensible | a spike means the gate is miscalibrated, not that suppliers got worse |
+| Q-Graders in good standing | Education → Cupper roster | ≥ 2 (§1.1 redundancy) | drops to 1 |
+| Cuppers on watch or disqualified | `education.performance` | 0 disqualified | any cupper over ±3 variance |
+| Dispositions where claimed ≠ resolved fault | `lot_dispositions` | rare | a pattern means proof is not being gathered |
+| Claims approaching a §D.4 window | `supplier_claims` | none inside 7 days of the limit | any |
+| Floor payments past their tier SLA | `partners.floorSla` | 0 past the 5-day grace | any §9.1 release triggered |
 | Lots with no accepted document | `trust_scores` where `entityType='lot'` and `acceptedDocumentCount = 0` | falling | §9's 7-day target |
 | Outbox lag | `outboxLagSeconds()` | < 60s | > 5 min |
 | Dead-lettered events | `domain_events_dead` | 0 | any — page on-call |
@@ -326,8 +428,28 @@ These are tracked in §15 of the spec and are **not** oversights:
   so every comparison goes through `roundScore()`. Migrating the column to
   `decimal(5,2)` is scheduled, not done.
 - **R6 · provider contracts drift.** Re-read the PayOS and Casso docs and record
-  a fresh fixture before touching either adapter. The tests encode the shapes as
-  of this sprint, not as of today.
+  a fresh fixture before touching either adapter. The fixtures in
+  `api/services/payments/fixtures/` are hand-built from the shapes the spec
+  names (§11.3) — **no sandbox capture from either provider has been recorded
+  yet**, which §11.3 explicitly asks for. They encode the shapes as of this
+  sprint, not as of today.
+- **§11 test tiers: three of six are not built.** §11.1 (property-based, via
+  fast-check), §11.2 (integration against a real MySQL) and §11.3 (provider
+  contract) now run, the first two in CI. Not built:
+  - **§11.4 chaos.** Killing the outbox consumer mid-batch, dropping the
+    database connection during allocation, and delivering a webhook while the
+    matching consumer is down are all untested. Handler-level idempotency is
+    asserted by construction (a claimed unique index before any side effect)
+    and by the §11.2 duplicate-delivery tests, but nothing yet proves the
+    *recovery* path.
+  - **§11.5 end-to-end (Playwright).** No Playwright harness exists. The full
+    lot → invoice → QR → 90% webhook → remainder → settled journey is covered
+    piecewise by §11.2 and by the manual flows in the README, not end to end.
+  - **§11.6 load.** 100 webhooks/second for 60 seconds against the matching
+    path, asserting p99 < 2s and zero duplicate allocations, has not been run.
+    This is the one whose absence should worry you most before a busy Friday:
+    the correctness of the matching engine is tested, its behaviour under a
+    settlement burst is not.
 - **Bank account encryption.** `bankAccountNumberEnc` is `varbinary` and the
   access-log table exists, but the KMS-backed AES-256-GCM adapter is not wired.
   Until it is, do not store real account numbers — only `bankAccountLast4`.

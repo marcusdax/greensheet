@@ -72,6 +72,16 @@ export const counterparties = mysqlTable(
     consentVersion: varchar("consentVersion", { length: 20 })
       .notNull()
       .default(""),
+    // §13.4 — the auto-allocation pilot allowlist.
+    //
+    // A timestamp rather than a boolean, because the rollout gate is a
+    // DURATION: "graduate to auto-allocation only after 14 consecutive days
+    // with zero reconciliation failures and zero manual reversals". A boolean
+    // records that someone was admitted; it cannot answer when, so it cannot
+    // answer whether the fourteen days have elapsed. NULL means not enrolled,
+    // and not enrolled means every match on this counterparty waits for a
+    // human — the flag alone is not enough to move their money.
+    autoAllocationPilotAt: timestamp("autoAllocationPilotAt"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     deletedAt: timestamp("deletedAt"),
@@ -81,6 +91,7 @@ export const counterparties = mysqlTable(
     index("counterparties_name_idx").on(t.name),
     index("counterparties_partner_idx").on(t.partnerId),
     index("counterparties_roaster_idx").on(t.roasterId),
+    index("counterparties_pilot_idx").on(t.autoAllocationPilotAt),
   ]
 );
 

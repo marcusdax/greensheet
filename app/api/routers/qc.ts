@@ -17,6 +17,8 @@ import { emitEvent } from "../engine";
 import { CUPPING_TOLERANCE, CUPPING_RED_FLAGS, roundScore } from "@contracts/constants";
 import { gateForField, fieldsRequiringConfirmation } from "@contracts/ocr-schemas";
 import { TRPCError } from "@trpc/server";
+import { getFlags } from "../services/flags";
+import { checkSessionAuthority } from "../services/education/cuppers";
 
 // Retention windows in days (Retained Sample SOP §4.1)
 const RETENTION_DAYS = {
@@ -275,6 +277,30 @@ export const qcRouter = createRouter({
       // Panel cupping mandatory for Tier 2/3 exception resolution (SOP §4.4)
       if (input.exceptionTier && input.exceptionTier >= 2 && !input.isPanel)
         throw new Error("GS-QC-1005 PanelRequired — Tier 2/3 exception cupping requires a 3-cupper panel");
+
+      // SOP §1.1 — WHO is cupping, not just how many.
+      //
+      // The panel rule above counts heads; on its own it accepts three names
+      // typed into a box. A cup score sets the Revenue Share tier and therefore
+      // a farmer's payment, so §1.1 restricts who may produce one: a Tier 3
+      // barista may sit on a panel but never cup alone, a Tier 2 is barred from
+      // Tier 2/3 exception resolution, and a Tier 0 may not cup at all.
+      //
+      // Behind a flag because turning it on before cupper profiles exist would
+      // block every session. Off, this behaves exactly as it did before.
+      if ((await getFlags()).cupperAuthority) {
+        const check = await checkSessionAuthority({
+          cupperNames: input.cuppers.split(",").map((c) => c.trim()),
+          isPanel: input.isPanel,
+          exceptionTier: input.exceptionTier,
+        });
+        if (!check.ok) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `GS-QC-1006 CupperNotAuthorized — ${check.problems.join(" ")}`,
+          });
+        }
+      }
 
       const [{ id }] = await db
         .insert(cuppingSessions)
