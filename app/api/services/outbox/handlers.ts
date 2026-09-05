@@ -17,6 +17,7 @@ import { getFlags } from "../flags";
 import { verifyWithCassoApi } from "../payments/casso";
 import { resolveMatch } from "../payments/matching";
 import { settleTransactionAgainstInvoice } from "../payments/settlement";
+import { pilotGateFor } from "../payments/pilot";
 import { minorFromDb } from "@contracts/money";
 import { markPaidAfter } from "../payments/dunning";
 import { issueEinvoice } from "../payments/einvoice";
@@ -164,6 +165,30 @@ registerHandler("payment.matched", {
     // A heuristic match is a proposal, not a credit. It waits for a person
     // regardless of the flag (§7.1 matching order, step 3).
     if (txn.matchMethod === "heuristic") return "skip";
+
+    // §13.4 · the second control. The flag says automatic allocation is on at
+    // all; the allowlist says whose money it may touch. Nobody is enrolled by
+    // default, so the first two weeks in production are a human confirming
+    // every match even if someone flips the flag early.
+    const gate = await pilotGateFor(invoiceId);
+    if (!gate.allowed) {
+      // Recorded rather than dropped: a match that stalls with no explanation
+      // is indistinguishable from a matching engine that has stopped working,
+      // and the exception queue is where an operator goes to find out which.
+      await writeEvent(
+        getDb(),
+        "payment.auto_allocation_withheld",
+        "provider_transaction",
+        providerTransactionId,
+        {
+          providerTransactionId,
+          invoiceId,
+          counterpartyId: gate.counterpartyId,
+          reason: gate.reason,
+        }
+      );
+      return "skip";
+    }
 
     const outcome = await settleTransactionAgainstInvoice({
       providerTransactionId,

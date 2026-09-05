@@ -69,12 +69,23 @@ npm run db:seed:auth          # login accounts, one per role
 npm run db:seed:payments      # counterparties, invoices across every aging bucket, sample transfers
 npm run db:seed:dunning       # the day 0/3/7/14 ladder and two reference FX rates
 npm run db:seed:education     # cupping curriculum and a starting cupper roster
+npm run db:seed:demo          # settled payments, warehouse exceptions, a closed
+                              # downgrade, a served claim and waitlist signups
 npm run dev                   # http://localhost:3000
 ```
 
+The first six seeds establish reference data. `db:seed:demo` adds the *history*
+none of them produce — without it the AR aging, exception-queue, disposition
+and claim screens correctly render their empty states, which demonstrates
+nothing. It routes money through the allocation service rather than inserting
+allocation rows, so `payments.ar.reconcile` still passes afterwards, and it
+takes its disposition and claim figures from `contracts/dispositions.ts` rather
+than hard-coding plausible totals.
+
 `db:push` is for a fresh database. An **existing** one takes the hand-written
 expand migrations in order — `db/migrations/manual/0001_expand_existing.sql`,
-`0002_wallet_fx_dunning_einvoice.sql`, `0003_trust_score.sql` — and the first of
+`0002_wallet_fx_dunning_einvoice.sql`, `0003_trust_score.sql`,
+`0004_education_partners.sql`, `0005_pilot_allowlist.sql` — and the first of
 those begins with a `SELECT` that must return zero rows before you continue.
 See `docs/payments-runbook.md` §2.
 
@@ -82,20 +93,42 @@ See `docs/payments-runbook.md` §2.
 
 ```bash
 npm run check                 # tsc -b across app, node and server projects
-npm run test                  # vitest, 175 tests
+npm run test                  # vitest — unit, property (§11.1), provider contract (§11.3)
 npm run build                 # vite + esbuild
 npm run lint                  # eslint
+npm run test:integration      # §11.2, needs INTEGRATION_DATABASE_URL (see below)
 ```
 
 `npm run check` is the real typecheck. `tsc -p tsconfig.json` silently passes
 because that file is a solution file with `"files": []`, and `npm run build`
 uses esbuild, which strips types without checking them — so neither one will
-tell you about a type error. There is no CI in this repository; these four
-commands are the gate.
+tell you about a type error.
+
+These now run in CI (`.github/workflows/ci.yml`) on every push and pull
+request, alongside a second workflow that scans each diff for provider key
+shapes (§12.4). Run them locally anyway: CI tells you after the push.
+
+#### The integration tier
+
+`npm run test:integration` runs `api/integration/**` against a **real MySQL** —
+the assertions that a mock cannot make: 20 concurrent duplicate intent creates
+producing exactly one row, the same webhook delivered five times crediting
+once, a Casso callback whose API re-fetch fails allocating nothing, and
+`ar.reconcile` staying clean once allocations actually exist.
+
+It TRUNCATEs tables, so it refuses to run unless `INTEGRATION_DATABASE_URL`
+names a throwaway schema — `DATABASE_URL` is deliberately *not* accepted as a
+fallback, and the default `npm run test` excludes these files entirely:
+
+```bash
+mysql -e "CREATE DATABASE auctum_test"
+DATABASE_URL=mysql://user:pass@127.0.0.1:3306/auctum_test npx drizzle-kit push --force
+INTEGRATION_DATABASE_URL=mysql://user:pass@127.0.0.1:3306/auctum_test npm run test:integration
+```
 
 ### Everything new ships off
 
-Eleven runtime flags, all defaulting to false and failing closed
+Twelve runtime flags, all defaulting to false and failing closed
 (`contracts/flags.ts`). Nothing below changes behaviour until a `platform_admin`
 turns it on, and each one takes effect in under a minute with no deploy:
 

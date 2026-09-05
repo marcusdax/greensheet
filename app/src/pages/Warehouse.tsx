@@ -341,6 +341,14 @@ export default function Warehouse() {
   );
 }
 
+const FAULT_PARTY_LABELS: ReadonlyArray<readonly [string, string]> = [
+  ["supplier", "Supplier"],
+  ["carrier", "Carrier"],
+  ["customs", "Customs"],
+  ["greensheet", "Auctum"],
+  ["indeterminate", "Indeterminate"],
+];
+
 function ResolveDialog({
   ex,
   onResolve,
@@ -395,9 +403,9 @@ function ResolveDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {["supplier", "carrier", "customs", "greensheet", "indeterminate"].map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
+                {FAULT_PARTY_LABELS.map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>

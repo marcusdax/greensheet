@@ -17,6 +17,11 @@ import {
   providerTransactions,
 } from "@db/schema";
 import { writeEvent, emitEvent } from "../engine";
+import {
+  enrolInPilot,
+  pilotRoster,
+  withdrawFromPilot,
+} from "../services/payments/pilot";
 import { minorFromDb, SUPPORTED_CURRENCIES } from "@contracts/money";
 import {
   agingReport,
@@ -310,6 +315,47 @@ export const paymentsRouter = createRouter({
     reconcile: rbacProcedure("payments.ar.reconcile").query(async () =>
       reconcile()
     ),
+  }),
+
+  /**
+   * §13.4 — the auto-allocation pilot allowlist.
+   *
+   * The roster is the artefact the graduation decision is made from, so it
+   * reports the blocker rather than a bare yes/no: "3 more clean days" and
+   * "reversed yesterday, clock restarted" lead to different conversations.
+   */
+  pilot: createRouter({
+    roster: rbacProcedure("payments.pilot.roster").query(async () =>
+      pilotRoster()
+    ),
+
+    enrol: rbacProcedure("payments.pilot.enrol")
+      .input(z.object({ counterpartyId: z.number().int().positive() }))
+      .mutation(async ({ input, ctx }) => {
+        await enrolInPilot(input.counterpartyId);
+        await writeEvent(
+          getDb(),
+          "payments.pilot_enrolled",
+          "counterparty",
+          input.counterpartyId,
+          { counterpartyId: input.counterpartyId, byUserId: ctx.user.id }
+        );
+        return { ok: true };
+      }),
+
+    withdraw: rbacProcedure("payments.pilot.withdraw")
+      .input(z.object({ counterpartyId: z.number().int().positive() }))
+      .mutation(async ({ input, ctx }) => {
+        await withdrawFromPilot(input.counterpartyId);
+        await writeEvent(
+          getDb(),
+          "payments.pilot_withdrawn",
+          "counterparty",
+          input.counterpartyId,
+          { counterpartyId: input.counterpartyId, byUserId: ctx.user.id }
+        );
+        return { ok: true };
+      }),
   }),
 
   transactions: createRouter({

@@ -24,5 +24,11 @@ export default defineConfig({
       // no test: it sits in the tree looking like coverage and enforces nothing.
       "src/**/*.test.ts",
     ],
+    // The §11.2 tier TRUNCATES tables. It lives behind its own config and its
+    // own DATABASE URL, but the include pattern above would still match it —
+    // and it would then run against whatever DATABASE_URL happens to be
+    // exported in a developer's shell. Excluding it here is the difference
+    // between "opt-in" and "opt-in unless you have a .env sourced".
+    exclude: ["**/node_modules/**", "**/dist/**", "**/*.integration.test.ts"],
   },
 });

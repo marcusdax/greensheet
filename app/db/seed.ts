@@ -1,4 +1,4 @@
-// Greensheet seed — realistic specialty green-coffee catalog, CRM accounts,
+// Auctum Ledger seed — realistic specialty green-coffee catalog, CRM accounts,
 // the COF nurture campaign and its COF-001…005 automation rules.
 // Idempotent: skips seeding when the catalog is already populated.
 import { getDb } from "../api/queries/connection";
@@ -11,7 +11,7 @@ import {
 
 async function seed() {
   const db = getDb();
-  console.log("Seeding Greensheet database...");
+  console.log("Seeding Auctum Ledger database...");
 
   const existing = await db.select().from(coffeeLots).limit(1);
   if (existing.length > 0) {

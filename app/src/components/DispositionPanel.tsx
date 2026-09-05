@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { FAULT_SPECS, type FaultOrigin } from "@contracts/dispositions";
 import { AlertTriangle, Scale, ShieldQuestion } from "lucide-react";
 
 function usd(cents: number): string {
@@ -97,7 +98,10 @@ export function DispositionLedger({ partnerId }: { partnerId?: number }) {
                     </span>
                     {r.claimedFaultOrigin !== r.faultOrigin && (
                       <span className="block text-[11px] text-oxblood-700">
-                        claimed {r.claimedFaultOrigin}, no proof filed
+                        claimed{" "}
+                        {FAULT_SPECS[r.claimedFaultOrigin as FaultOrigin]
+                          ?.atFault ?? r.claimedFaultOrigin}
+                        , no proof filed
                       </span>
                     )}
                   </TableCell>

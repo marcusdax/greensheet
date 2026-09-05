@@ -1,0 +1,99 @@
+# The repository's first CI.
+#
+# Four gates, in the order they fail fastest:
+#
+#   check   `tsc -b`, and ONLY `tsc -b`. `tsc -p tsconfig.json` passes on this
+#           repo without checking anything — the root config is a solution file
+#           with `"files": []` — and `npm run build` uses esbuild, which strips
+#           types without reading them. Two of the three obvious commands are
+#           therefore silent. This one is not.
+#   lint    eslint. Errors fail; the fast-refresh advisories are warnings.
+#   test    the hermetic unit + property + provider-contract tiers (§11.1, §11.3).
+#   build   the thing that actually ships.
+#
+# The §11.2 integration tier lives in its own job because it needs a database.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  verify:
+    name: typecheck · lint · test · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Ordered so a type error is reported in ~30s rather than after a build.
+      - name: Typecheck
+        run: npm run check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit, property and provider-contract tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  integration:
+    name: integration (§11.2, real MySQL)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        # Pinned to the major the application runs against. MariaDB is NOT a
+        # substitute here: it rejects Drizzle's `serial` (SERIAL already implies
+        # AUTO_INCREMENT), so the schema will not even push.
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: auctum_test
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      # A throwaway schema, named explicitly. The suite TRUNCATEs tables and
+      # refuses to run without this variable precisely so that it can never
+      # reach a database somebody cares about.
+      INTEGRATION_DATABASE_URL: mysql://root:root@127.0.0.1:3306/auctum_test
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/auctum_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Create the schema
+        run: npx drizzle-kit push --force
+
+      - name: Integration tests
+        run: npm run test:integration

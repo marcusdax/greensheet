@@ -467,7 +467,7 @@ describe("reject and claim (§C.2)", () => {
   it("caps holding at 30 days and absorbs the rest", () => {
     const r = calculateClaim({ ...base, daysHeld: 90 });
     expect(r.holdingDaysCharged).toBe(MAX_HOLDING_DAYS);
-    expect(r.explanation).toContain("absorbed by Greensheet");
+    expect(r.explanation).toContain("absorbed by Auctum");
   });
 
   it("caps the total claim at 110% of the purchase price", () => {

@@ -238,6 +238,29 @@ export async function arSummary(asOf: string = ictToday()): Promise<ArSummary> {
  * tests missed, so it asserts rather than repairs: any failure pages on-call
  * with the offending ids.
  */
+/**
+ * Correlated sums for the §13.3 checks — with the outer column written out.
+ *
+ * These read as one-liners but the table qualification is load-bearing.
+ * Interpolating a Drizzle column (`${invoices.id}`) into a raw subquery emits a
+ * BARE `` `id` ``, because the outer query has a single table and Drizzle sees
+ * no ambiguity to resolve. Inside the subquery there is: `payment_allocations
+ * a` has an `id` of its own, so MySQL binds the innermost scope and the
+ * predicate silently becomes `a.invoiceId = a.id`. The subquery stops being
+ * correlated, every row gets the same total, and the job reports drift on every
+ * invoice in the database.
+ *
+ * It passed for as long as it did because the table was empty: SUM over no rows
+ * is 0, 0 == 0, and a reconciliation job that has never seen an allocation
+ * cannot tell you it is broken. The first real allocation would have paged
+ * on-call for every open invoice at once — and a control that cries wolf on a
+ * healthy database gets muted, which is how the drift it exists to catch gets
+ * through.
+ */
+const LIVE_ALLOCATIONS_FOR_INVOICE = sql<string | null>`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.invoiceId = \`invoices\`.\`id\` AND a.reversedAt IS NULL), 0)`;
+
+const LIVE_ALLOCATIONS_FOR_TRANSACTION = sql<string | null>`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.providerTransactionId = \`provider_transactions\`.\`id\` AND a.reversedAt IS NULL), 0)`;
+
 export type ReconciliationFinding = {
   check: string;
   invoiceId?: number;
@@ -258,9 +281,7 @@ export async function reconcile(): Promise<{
       id: invoices.id,
       invoiceNumber: invoices.invoiceNumber,
       paidMinor: invoices.paidMinor,
-      allocated: sql<
-        string | null
-      >`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.invoiceId = ${invoices.id} AND a.reversedAt IS NULL), 0)`,
+      allocated: LIVE_ALLOCATIONS_FOR_INVOICE,
     })
     .from(invoices)
     .where(isNull(invoices.deletedAt));
@@ -290,9 +311,7 @@ export async function reconcile(): Promise<{
       id: providerTransactions.id,
       amountMinor: providerTransactions.amountMinor,
       matchStatus: providerTransactions.matchStatus,
-      allocated: sql<
-        string | null
-      >`COALESCE((SELECT SUM(a.amountMinor) FROM payment_allocations a WHERE a.providerTransactionId = ${providerTransactions.id} AND a.reversedAt IS NULL), 0)`,
+      allocated: LIVE_ALLOCATIONS_FOR_TRANSACTION,
     })
     .from(providerTransactions);
 

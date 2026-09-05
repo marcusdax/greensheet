@@ -48,10 +48,10 @@ export const DISPOSITION_SPECS: Record<Disposition, DispositionSpec> = {
     trigger:
       "Authentic and unblended, but degraded — moisture drift, defect increase, cup-score decline against the retained sample — within a range that still permits sale.",
     outcome:
-      "Re-priced per §C.1 and relabelled with full traceability. Greensheet nets the revised invoice against the original purchase price.",
+      "Re-priced per §C.1 and relabelled with full traceability. Auctum nets the revised invoice against the original purchase price.",
     timelineDays: 5,
     supplierObligation:
-      "Accept the revised price unless able to document that the degradation occurred in Greensheet's custody after warehouse receipt.",
+      "Accept the revised price unless able to document that the degradation occurred in Auctum's custody after warehouse receipt.",
     costCapCents: null,
   },
   reject_claim: {
@@ -109,14 +109,14 @@ export const FAULT_SPECS: Record<FaultOrigin, FaultSpec> = {
     label: "In transit",
     atFault: "Logistics provider or carrier",
     consequence:
-      "Greensheet pursues the carrier's cargo insurance. The supplier is held harmless only on proof of in-transit compromise.",
+      "Auctum pursues the carrier's cargo insurance. The supplier is held harmless only on proof of in-transit compromise.",
     supplierShareBp: 0,
   },
   greensheet: {
-    label: "Greensheet's operation",
-    atFault: "Greensheet",
+    label: "Auctum's operation",
+    atFault: "Auctum",
     consequence:
-      "Greensheet absorbs the cost and pursues its own insurance. No re-pricing to the supplier.",
+      "Auctum absorbs the cost and pursues its own insurance. No re-pricing to the supplier.",
     supplierShareBp: 0,
   },
   indeterminate: {
@@ -151,7 +151,7 @@ export function attributeFault(args: {
     // Nobody needs to prove a case against themselves.
     return {
       origin: "greensheet",
-      reason: "Attributed to Greensheet's own operation; cost absorbed here.",
+      reason: "Attributed to Auctum's own operation; cost absorbed here.",
     };
   }
   if (!args.proofFiled) {
@@ -348,7 +348,7 @@ export function calculateClaim(input: ClaimInput): ClaimResult {
   const notes: string[] = [];
   if (input.daysHeld > MAX_HOLDING_DAYS) {
     notes.push(
-      `Holding charged for ${MAX_HOLDING_DAYS} of ${input.daysHeld} days; the remainder is absorbed by Greensheet (§C.2).`
+      `Holding charged for ${MAX_HOLDING_DAYS} of ${input.daysHeld} days; the remainder is absorbed by Auctum (§C.2).`
     );
   }
   if (capApplied) {

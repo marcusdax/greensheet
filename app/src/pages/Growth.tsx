@@ -63,7 +63,7 @@ function WaitlistsSection() {
           <Card key={product}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                {product === "foundry" ? "Flavor Foundry" : "Lotspace"} waitlist
+                {product === "foundry" ? "Flavor Foundry" : "LotSpace"} by Auctum waitlist
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -128,8 +128,8 @@ function ManualWaitlistAdd() {
         <Select value={product} onValueChange={(v) => setProduct(v as typeof product)}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="foundry">Flavor Foundry</SelectItem>
-            <SelectItem value="lotspace">Lotspace</SelectItem>
+            <SelectItem value="foundry">Flavor Foundry by Auctum</SelectItem>
+            <SelectItem value="lotspace">LotSpace by Auctum</SelectItem>
           </SelectContent>
         </Select>
       </div>

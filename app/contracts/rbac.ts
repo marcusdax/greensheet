@@ -66,6 +66,13 @@ export const PROCEDURE_RBAC = {
   "payments.ar.aging": { roles: ["ops_manager", "sales_csm", "analyst"] },
   "payments.ar.summary": { roles: ["ops_manager", "sales_csm", "analyst"] },
   "payments.ar.reconcile": { roles: ["ops_manager", "analyst"] },
+  // §13.4 — who may see and change the auto-allocation pilot allowlist.
+  // Reading the roster is a rollout question an analyst is expected to answer;
+  // enrolling a counterparty authorises automatic movement of their money and
+  // stays with ops.
+  "payments.pilot.roster": { roles: ["ops_manager", "analyst"] },
+  "payments.pilot.enrol": { roles: ["ops_manager"] },
+  "payments.pilot.withdraw": { roles: ["ops_manager"] },
   "payments.transactions.list": { roles: ["ops_manager", "analyst"] },
   "payments.transactions.unmatched": { roles: ["ops_manager", "analyst"] },
   "payments.transactions.ignore": { roles: ["ops_manager"] },

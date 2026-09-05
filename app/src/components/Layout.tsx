@@ -145,7 +145,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 to="/lotspace"
                 className="flex-1 text-center rounded-md border border-[#C9A34A]/40 px-2 py-1.5 text-[11px] text-[#C9A34A] hover:bg-[#C9A34A]/10 transition-colors"
               >
-                Lotspace
+                LotSpace
               </Link>
             </div>
           )}
@@ -188,11 +188,20 @@ export default function Layout({ children }: { children: ReactNode }) {
 export function PageHeader({
   kicker,
   title,
+  endorsement,
   sub,
   actions,
 }: {
   kicker?: string;
   title: string;
+  /**
+   * Endorsement line for a product label sitting under the master brand
+   * (master plan §06). Rendered at half the title's optical size, inside the
+   * same heading, because "Flavor Foundry" is not a brand on its own — it is a
+   * label endorsed by Auctum, and setting it at the same weight as the master
+   * mark is exactly the house-of-brands drift the rebrand retired.
+   */
+  endorsement?: string;
   sub?: string;
   actions?: ReactNode;
 }) {
@@ -204,7 +213,14 @@ export function PageHeader({
             {kicker}
           </p>
         )}
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {title}
+          {endorsement && (
+            <span className="ml-2 align-baseline text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              {endorsement}
+            </span>
+          )}
+        </h1>
         {sub && <p className="text-sm text-muted-foreground mt-1">{sub}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
