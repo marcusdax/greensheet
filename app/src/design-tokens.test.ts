@@ -23,12 +23,26 @@ const GOVERNED_FILES = [
   "src/components/TrustPanel.tsx",
   "src/components/ScannerSurface.tsx",
   "src/components/ReviewPane.tsx",
+  // Education & Partners (cupping SOP §1, supplier clauses §B–§E).
+  "contracts/cupping-authority.ts",
+  "src/components/CupperCard.tsx",
+  "src/components/DispositionPanel.tsx",
 ];
 
-/** Hex literals, and the Tailwind arbitrary-value escape hatch. */
+/** Hex literals anywhere in the file. */
 const HEX = /#[0-9a-fA-F]{3,8}\b/g;
+
+/**
+ * The Tailwind arbitrary-value escape hatch, restricted to COLOUR values.
+ *
+ * §9 asks for "zero arbitrary colors", not zero arbitrary values. `text-[11px]`
+ * is a font size on a utility that also takes colours, and flagging it would
+ * push people to disable the check rather than fix a colour — so this matches
+ * only what actually looks like a colour: a hex literal or an rgb/hsl/oklch
+ * function. A dimension with a unit is left alone.
+ */
 const ARBITRARY =
-  /\b(?:bg|text|border|fill|stroke|ring|from|to|via)-\[[^\]]*\]/g;
+  /\b(?:bg|text|border|fill|stroke|ring|from|to|via|decoration|outline|shadow|accent|caret|divide)-\[\s*(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?|color|oklch|lab)\()[^\]]*\]/g;
 
 function read(file: string): string | null {
   const path = join(ROOT, file);

@@ -58,6 +58,11 @@ export const FEATURE_FLAGS = {
     description:
       "Kill switch: let a low Trust Score hold an automatic settlement until more evidence arrives (§7)",
   },
+  cupperAuthority: {
+    default: false,
+    description:
+      "Refuse a cupping session from an uncertified, lapsed or suspended cupper (SOP §1.1)",
+  },
   outboxConsumer: {
     default: false,
     description:

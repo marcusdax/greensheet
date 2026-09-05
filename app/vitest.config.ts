@@ -19,6 +19,10 @@ export default defineConfig({
       "api/**/*.test.ts",
       "api/**/*.spec.ts",
       "contracts/**/*.test.ts",
+      // src/ was missing, so src/design-tokens.test.ts — the §9 CI token check
+      // — silently never ran. A test outside the include pattern is worse than
+      // no test: it sits in the tree looking like coverage and enforces nothing.
+      "src/**/*.test.ts",
     ],
   },
 });

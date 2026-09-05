@@ -6,13 +6,46 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Handshake, Plus, Receipt, FileSignature, Banknote } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DispositionLedger,
+  PartnerProtections,
+} from "@/components/DispositionPanel";
+import {
+  Handshake,
+  Plus,
+  Receipt,
+  FileSignature,
+  Banknote,
+} from "lucide-react";
 import { toast } from "sonner";
 
-const TIER_LABEL: Record<string, string> = { tier_a: "Tier A", tier_b: "Tier B", tier_c: "Tier C" };
+const TIER_LABEL: Record<string, string> = {
+  tier_a: "Tier A",
+  tier_b: "Tier B",
+  tier_c: "Tier C",
+};
 const TIER_STYLE: Record<string, string> = {
   tier_a: "bg-[#16382a] text-white",
   tier_b: "bg-[#d9a441] text-[#16382a]",
@@ -50,7 +83,7 @@ export default function Partners() {
       invalidate();
       toast.success("Payment marked paid");
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   const markPtPaid = trpc.partners.markPassThroughPaid.useMutation({
@@ -58,7 +91,7 @@ export default function Partners() {
       invalidate();
       toast.success("Pass-through marked paid");
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   return (
@@ -66,7 +99,7 @@ export default function Partners() {
       <PageHeader
         kicker="Folio 03 — The Proof"
         title="Partnership Agreements"
-        sub="Revenue Share White-Glove — floor payments, revenue share, collector pass-through, True Price Receipts"
+        sub="Revenue Share White-Glove — floor payments, revenue share, collector pass-through, dispositions and the §9 protections that run the other way"
         actions={
           <div className="flex gap-2">
             <RegisterPartnerDialog onDone={invalidate} />
@@ -75,17 +108,36 @@ export default function Partners() {
         }
       />
 
+      {/* §B–§E and §9. Placed above the payment ledgers because a disposition
+          changes what is owed, and reading the ledger without it shows a number
+          whose reason lives on another screen. */}
+      <div className="mb-6 grid gap-4 lg:grid-cols-[2fr_1fr] items-start">
+        <DispositionLedger />
+        {overview?.[0] ? (
+          <PartnerProtections partnerId={overview[0].id} />
+        ) : null}
+      </div>
+
       <div className="space-y-6">
-        {(overview ?? []).map((p) => (
+        {(overview ?? []).map(p => (
           <Card key={p.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-3 text-base">
                   <Handshake className="h-4 w-4" />
                   {p.partnerName}
-                  <Badge className={TIER_STYLE[p.partnerTier]}>{TIER_LABEL[p.partnerTier]}</Badge>
+                  <Badge className={TIER_STYLE[p.partnerTier]}>
+                    {TIER_LABEL[p.partnerTier]}
+                  </Badge>
                   <Badge variant="outline">{p.partnerType}</Badge>
-                  <Badge variant="outline" className={p.agreementStatus === "active" ? "border-emerald-500 text-emerald-700" : ""}>
+                  <Badge
+                    variant="outline"
+                    className={
+                      p.agreementStatus === "active"
+                        ? "border-emerald-500 text-emerald-700"
+                        : ""
+                    }
+                  >
                     {p.agreementStatus}
                   </Badge>
                 </CardTitle>
@@ -112,25 +164,41 @@ export default function Partners() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {p.addenda.map((a) => (
+                    {p.addenda.map(a => (
                       <TableRow key={a.id}>
-                        <TableCell className="font-mono text-xs">{a.lotCode}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {a.lotCode}
+                        </TableCell>
                         <TableCell>{money(a.floorPricePerLbCents)}</TableCell>
-                        <TableCell>{a.expectedQtyLbs.toLocaleString()}</TableCell>
-                        <TableCell className="text-xs">{a.deliveryWindow || "—"}</TableCell>
                         <TableCell>
-                          <Badge className={ADDENDUM_STATUS[a.status]}>{a.status}</Badge>
+                          {a.expectedQtyLbs.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {a.deliveryWindow || "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={ADDENDUM_STATUS[a.status]}>
+                            {a.status}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {(a.status === "delivered" || a.status === "pending") && (
-                            <VerifyFloorDialog addendumId={a.id} lotCode={a.lotCode} onDone={invalidate} />
+                          {(a.status === "delivered" ||
+                            a.status === "pending") && (
+                            <VerifyFloorDialog
+                              addendumId={a.id}
+                              lotCode={a.lotCode}
+                              onDone={invalidate}
+                            />
                           )}
                         </TableCell>
                       </TableRow>
                     ))}
                     {p.addenda.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-4">
+                        <TableCell
+                          colSpan={6}
+                          className="text-center text-sm text-muted-foreground py-4"
+                        >
                           No addenda yet.
                         </TableCell>
                       </TableRow>
@@ -156,26 +224,55 @@ export default function Partners() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {p.payments.map((pay) => (
+                      {p.payments.map(pay => (
                         <TableRow key={pay.id}>
                           <TableCell>
-                            <Badge variant="outline" className={pay.paymentType === "floor" ? "border-[#16382a] text-[#16382a]" : "border-[#d9a441] text-[#8a6420]"}>
-                              {pay.paymentType === "floor" ? "Floor" : "Revenue share"}
+                            <Badge
+                              variant="outline"
+                              className={
+                                pay.paymentType === "floor"
+                                  ? "border-[#16382a] text-[#16382a]"
+                                  : "border-[#d9a441] text-[#8a6420]"
+                              }
+                            >
+                              {pay.paymentType === "floor"
+                                ? "Floor"
+                                : "Revenue share"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-semibold">{money(pay.amountCents)}</TableCell>
+                          <TableCell className="font-semibold">
+                            {money(pay.amountCents)}
+                          </TableCell>
                           <TableCell>
-                            <Badge className={pay.status === "paid" ? "bg-emerald-100 text-emerald-800" : pay.status === "held" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}>
+                            <Badge
+                              className={
+                                pay.status === "paid"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : pay.status === "held"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-amber-100 text-amber-800"
+                              }
+                            >
                               {pay.status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-xs">{new Date(pay.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell className="text-xs">
+                            {new Date(pay.createdAt).toLocaleDateString()}
+                          </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
                               <ReceiptDialog receipt={pay.receipt} />
                               {pay.status === "accrued" && (
-                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markPaid.mutate({ paymentId: pay.id })}>
-                                  <Banknote className="h-3 w-3 mr-1" /> Mark paid
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs"
+                                  onClick={() =>
+                                    markPaid.mutate({ paymentId: pay.id })
+                                  }
+                                >
+                                  <Banknote className="h-3 w-3 mr-1" /> Mark
+                                  paid
                                 </Button>
                               )}
                             </div>
@@ -204,27 +301,57 @@ export default function Partners() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {p.passThroughs.map((pt) => (
+                      {p.passThroughs.map(pt => (
                         <TableRow key={pt.id}>
-                          <TableCell className="text-sm">{pt.farmerName}</TableCell>
+                          <TableCell className="text-sm">
+                            {pt.farmerName}
+                          </TableCell>
                           <TableCell>{pt.pctOfLot}%</TableCell>
                           <TableCell>
                             {money(pt.floorOwedCents)}
-                            {pt.floorPaidAt && <span className="text-xs text-emerald-600 ml-1">paid</span>}
+                            {pt.floorPaidAt && (
+                              <span className="text-xs text-emerald-600 ml-1">
+                                paid
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {money(pt.rsOwedCents)}
-                            {pt.rsPaidAt && <span className="text-xs text-emerald-600 ml-1">paid</span>}
+                            {pt.rsPaidAt && (
+                              <span className="text-xs text-emerald-600 ml-1">
+                                paid
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
                               {!pt.floorPaidAt && (
-                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markPtPaid.mutate({ passThroughId: pt.id, kind: "floor" })}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs"
+                                  onClick={() =>
+                                    markPtPaid.mutate({
+                                      passThroughId: pt.id,
+                                      kind: "floor",
+                                    })
+                                  }
+                                >
                                   Floor paid
                                 </Button>
                               )}
                               {!pt.rsPaidAt && pt.rsOwedCents > 0 && (
-                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markPtPaid.mutate({ passThroughId: pt.id, kind: "revenue_share" })}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs"
+                                  onClick={() =>
+                                    markPtPaid.mutate({
+                                      passThroughId: pt.id,
+                                      kind: "revenue_share",
+                                    })
+                                  }
+                                >
                                   RS paid
                                 </Button>
                               )}
@@ -254,9 +381,13 @@ export default function Partners() {
 function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
   const [open, setOpen] = useState(false);
   const [partnerName, setPartnerName] = useState("");
-  const [partnerType, setPartnerType] = useState<"farmer" | "collector">("farmer");
+  const [partnerType, setPartnerType] = useState<"farmer" | "collector">(
+    "farmer"
+  );
   const [originRegion, setOriginRegion] = useState("");
-  const [partnerTier, setPartnerTier] = useState<"tier_a" | "tier_b" | "tier_c">("tier_b");
+  const [partnerTier, setPartnerTier] = useState<
+    "tier_a" | "tier_b" | "tier_c"
+  >("tier_b");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
@@ -266,7 +397,7 @@ function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
       setOpen(false);
       onDone();
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   return (
@@ -283,12 +414,18 @@ function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
         <div className="space-y-3">
           <div>
             <Label>Partner name</Label>
-            <Input value={partnerName} onChange={(e) => setPartnerName(e.target.value)} />
+            <Input
+              value={partnerName}
+              onChange={e => setPartnerName(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Type</Label>
-              <Select value={partnerType} onValueChange={(v) => setPartnerType(v as typeof partnerType)}>
+              <Select
+                value={partnerType}
+                onValueChange={v => setPartnerType(v as typeof partnerType)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -300,36 +437,59 @@ function RegisterPartnerDialog({ onDone }: { onDone: () => void }) {
             </div>
             <div>
               <Label>Partner tier (floor SLA)</Label>
-              <Select value={partnerTier} onValueChange={(v) => setPartnerTier(v as typeof partnerTier)}>
+              <Select
+                value={partnerTier}
+                onValueChange={v => setPartnerTier(v as typeof partnerTier)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="tier_a">Tier A — 3 business days</SelectItem>
-                  <SelectItem value="tier_b">Tier B — 5 business days</SelectItem>
-                  <SelectItem value="tier_c">Tier C — 7 business days</SelectItem>
+                  <SelectItem value="tier_a">
+                    Tier A — 3 business days
+                  </SelectItem>
+                  <SelectItem value="tier_b">
+                    Tier B — 5 business days
+                  </SelectItem>
+                  <SelectItem value="tier_c">
+                    Tier C — 7 business days
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div>
             <Label>Origin region</Label>
-            <Input value={originRegion} onChange={(e) => setOriginRegion(e.target.value)} />
+            <Input
+              value={originRegion}
+              onChange={e => setOriginRegion(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Email</Label>
-              <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input value={email} onChange={e => setEmail(e.target.value)} />
             </div>
             <div>
               <Label>Phone</Label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input value={phone} onChange={e => setPhone(e.target.value)} />
             </div>
           </div>
           <Button
             className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
-            disabled={register.isPending || !partnerName.trim() || !originRegion.trim()}
-            onClick={() => register.mutate({ partnerName, partnerType, originRegion, partnerTier, email, phone })}
+            disabled={
+              register.isPending || !partnerName.trim() || !originRegion.trim()
+            }
+            onClick={() =>
+              register.mutate({
+                partnerName,
+                partnerType,
+                originRegion,
+                partnerTier,
+                email,
+                phone,
+              })
+            }
           >
             Sign & register
           </Button>
@@ -362,7 +522,7 @@ function AddendumDialog({
       setOpen(false);
       onDone();
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   return (
@@ -384,7 +544,7 @@ function AddendumDialog({
                 <SelectValue placeholder="Select partner" />
               </SelectTrigger>
               <SelectContent>
-                {partners.map((p) => (
+                {partners.map(p => (
                   <SelectItem key={p.id} value={String(p.id)}>
                     {p.partnerName}
                   </SelectItem>
@@ -399,7 +559,7 @@ function AddendumDialog({
                 <SelectValue placeholder="Link lot for revenue-share accrual" />
               </SelectTrigger>
               <SelectContent>
-                {(lots ?? []).map((l) => (
+                {(lots ?? []).map(l => (
                   <SelectItem key={l.id} value={String(l.id)}>
                     {l.name}
                   </SelectItem>
@@ -410,30 +570,56 @@ function AddendumDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Lot code</Label>
-              <Input value={lotCode} onChange={(e) => setLotCode(e.target.value)} placeholder="ADD-HUILA-2025-02" />
+              <Input
+                value={lotCode}
+                onChange={e => setLotCode(e.target.value)}
+                placeholder="ADD-HUILA-2025-02"
+              />
             </div>
             <div>
               <Label>Floor price ($/lb)</Label>
-              <Input type="number" step="0.01" value={floor} onChange={(e) => setFloor(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={floor}
+                onChange={e => setFloor(e.target.value)}
+              />
             </div>
           </div>
           <div>
             <Label>Processing protocol</Label>
-            <Input value={protocol} onChange={(e) => setProtocol(e.target.value)} />
+            <Input
+              value={protocol}
+              onChange={e => setProtocol(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Expected qty (lbs)</Label>
-              <Input type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
+              <Input
+                type="number"
+                value={qty}
+                onChange={e => setQty(e.target.value)}
+              />
             </div>
             <div>
               <Label>Delivery window</Label>
-              <Input value={window_} onChange={(e) => setWindow(e.target.value)} placeholder="2025-11-01 → 2025-12-15" />
+              <Input
+                value={window_}
+                onChange={e => setWindow(e.target.value)}
+                placeholder="2025-11-01 → 2025-12-15"
+              />
             </div>
           </div>
           <Button
             className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
-            disabled={create.isPending || !partnerId || !lotCode.trim() || !floor || !qty}
+            disabled={
+              create.isPending ||
+              !partnerId ||
+              !lotCode.trim() ||
+              !floor ||
+              !qty
+            }
             onClick={() =>
               create.mutate({
                 partnerId: Number(partnerId),
@@ -454,18 +640,28 @@ function AddendumDialog({
   );
 }
 
-function VerifyFloorDialog({ addendumId, lotCode, onDone }: { addendumId: number; lotCode: string; onDone: () => void }) {
+function VerifyFloorDialog({
+  addendumId,
+  lotCode,
+  onDone,
+}: {
+  addendumId: number;
+  lotCode: string;
+  onDone: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [qty, setQty] = useState("");
   const [cupScore, setCupScore] = useState("");
 
   const verify = trpc.partners.verifyAndAccrueFloor.useMutation({
-    onSuccess: (r) => {
-      toast.success(`Floor accrued: ${money(r.floorPaymentCents)} · quality tier ${r.qualityTier} (${r.sharePct}% share)`);
+    onSuccess: r => {
+      toast.success(
+        `Floor accrued: ${money(r.floorPaymentCents)} · quality tier ${r.qualityTier} (${r.sharePct}% share)`
+      );
       setOpen(false);
       onDone();
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   return (
@@ -481,21 +677,39 @@ function VerifyFloorDialog({ addendumId, lotCode, onDone }: { addendumId: number
         </DialogHeader>
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Floor Payment = True-Cost Floor Price × verified net weight. Accrues on Tier-1 verification and is
-            never clawed back except confirmed fraud.
+            Floor Payment = True-Cost Floor Price × verified net weight. Accrues
+            on Tier-1 verification and is never clawed back except confirmed
+            fraud.
           </p>
           <div>
             <Label>Verified net weight (lbs)</Label>
-            <Input type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
+            <Input
+              type="number"
+              value={qty}
+              onChange={e => setQty(e.target.value)}
+            />
           </div>
           <div>
             <Label>Verified cup score</Label>
-            <Input type="number" step="0.25" min={0} max={100} value={cupScore} onChange={(e) => setCupScore(e.target.value)} />
+            <Input
+              type="number"
+              step="0.25"
+              min={0}
+              max={100}
+              value={cupScore}
+              onChange={e => setCupScore(e.target.value)}
+            />
           </div>
           <Button
             className="w-full bg-[#16382a] hover:bg-[#1f4a38]"
             disabled={verify.isPending || !qty || !cupScore}
-            onClick={() => verify.mutate({ addendumId, verifiedQtyLbs: Number(qty), cupScore: Number(cupScore) })}
+            onClick={() =>
+              verify.mutate({
+                addendumId,
+                verifiedQtyLbs: Number(qty),
+                cupScore: Number(cupScore),
+              })
+            }
           >
             Accrue floor payment
           </Button>
@@ -529,25 +743,53 @@ function ReceiptDialog({ receipt }: { receipt: string }) {
             {(
               [
                 ["Net weight", `${data.netWeightLbs.toLocaleString()} lbs`],
-                ["Cup score", data.cupScore != null ? String(data.cupScore) : "—"],
+                [
+                  "Cup score",
+                  data.cupScore != null ? String(data.cupScore) : "—",
+                ],
                 ["Quality tier", data.qualityTier],
                 ["Floor price", `${money(data.floorPricePerLbCents)}/lb`],
                 ["Floor payment", money(data.floorPaymentCents)],
-                ["Final sale price", data.finalSalePriceCents != null ? money(data.finalSalePriceCents) : "pending sale"],
+                [
+                  "Final sale price",
+                  data.finalSalePriceCents != null
+                    ? money(data.finalSalePriceCents)
+                    : "pending sale",
+                ],
                 ["Documented costs", money(data.documentedCostsCents)],
-                ["Net sale proceeds", data.netSaleProceedsCents != null ? money(data.netSaleProceedsCents) : "—"],
-                ["Revenue share %", data.revenueSharePct != null ? `${data.revenueSharePct}%` : "—"],
-                ["Revenue share", data.revenueShareCents != null ? money(data.revenueShareCents) : "—"],
+                [
+                  "Net sale proceeds",
+                  data.netSaleProceedsCents != null
+                    ? money(data.netSaleProceedsCents)
+                    : "—",
+                ],
+                [
+                  "Revenue share %",
+                  data.revenueSharePct != null
+                    ? `${data.revenueSharePct}%`
+                    : "—",
+                ],
+                [
+                  "Revenue share",
+                  data.revenueShareCents != null
+                    ? money(data.revenueShareCents)
+                    : "—",
+                ],
               ] as const
             ).map(([k, v]) => (
-              <div key={k} className="flex justify-between border-b border-border/50 pb-1">
+              <div
+                key={k}
+                className="flex justify-between border-b border-border/50 pb-1"
+              >
                 <span className="text-muted-foreground">{k}</span>
                 <span className="font-medium">{v}</span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Receipt data unavailable.</p>
+          <p className="text-sm text-muted-foreground">
+            Receipt data unavailable.
+          </p>
         )}
       </DialogContent>
     </Dialog>

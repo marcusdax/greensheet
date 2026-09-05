@@ -23,7 +23,8 @@ appear throughout and `GS-` error prefixes are expected.
 | Partners: Revenue Share White-Glove agreement — floor payment on Tier-1 verification (never clawed back), revenue share by cup-quality tier (50/35/20/10/0%), $0.30/lb documented costs, True Price Receipts, collector pass-through ≥80%, partner tiers A/B/C floor SLAs | `../engineering/Revenue_Share_White_Glove_Farmer_Collector_Agreement.docx` |
 | Comms: email via SMTP when configured (honest "queued" ledger entry otherwise), WhatsApp via wa.me deep links with pre-filled templates, full dispatch ledger | `../marketing/02-cof-campaign-expansion.md` |
 | COF-004: pricing-link click (`campaigns.link_clicked`, `clickedPricingPage: true`) → Touch-3 volume-discount email + queued WhatsApp, suppressed when nurture halted | `../marketing/02-cof-campaign-expansion.md` |
-| Education: SOP library (warehouse runbooks, cupping standards, retained samples, partnership agreement, marketing playbook) with training acknowledgments | `../engineering/*sop*.md` |
+| Education: SOP library plus the cupping curriculum as data — four tiers with distinct authority scopes, the §1.2 four-phase training programme with its own pass thresholds, annual recertification, and a §1.3 variance dashboard. A cup score sets the Revenue Share tier and therefore a farmer's payment, so **the QC screen refuses a session from an uncertified, lapsed or suspended cupper** rather than counting heads | `cuppingstandardssop.md` §1, §4.4, §6 |
+| Partners: exception dispositions with the money attached — the four §B.1 outcomes, §B.2 fault attribution that defaults to the supplier when no proof is filed, the §C.1 downgrade formula with its 50% floor and the §C.2 claim with its 110% ceiling, §D.4 limitation windows, and §9's protections running the other way (non-retaliation, and the missed-SLA release that lets a partner sell elsewhere) | `supplieragreementclauses.md` §B–§E, `Revenue_Share…` §9–§10 |
 | Growth: "Give a Kit, Get a Bag" referral engine (signed_up → kit_sent → rewarded), POS-01…04 marketing calendar (4-week rollout), pricing-click telemetry | `../marketing/greensheet_social_series.md` |
 | Teasers: Flavor Foundry (13 process families / 110 processes × 14 sensory families, HOUSE/SEMI/DE NOVO tiers) + Lotspace coming-soon pages with deduplicated waitlists | `../marketing/flavor-foundry-menu.md` |
 | Invoices: single payable aggregate (order or contract), VAT in basis points, gapless per-year numbering, VietQR memo token, void / write-off, per-invoice payment history with reversals | `VietnamPaymentCoffeeManagerSprintv2` §3.7, §5.1 |
@@ -52,6 +53,7 @@ appear throughout and `GS-` error prefixes are expected.
 - Merge tags rendered by the rule engine: `{roaster_name}`, `{origin}`, `{varietal}`, `{process_method}`, `{sca_cup_score}`, `{price_per_lb}`. The dunning ladder uses the same convention (`{counterparty_name}`, `{invoice_number}`, `{outstanding}`, `{due_date}`, `{days_overdue}`, `{memo_token}`) and a test asserts every seeded template only uses tags the renderer supplies.
 - Economics: blended CAC $378 (referral CAC $196 via `GIVEKIT-`), churn hazard threshold 0.70.
 - Error model: `GS-CAT-1001 InsufficientInventory`, `GS-SMP-1001/1003/1004/1005`, `GS-ORD-1001`, `GS-PAY-*`, `GS-FX-*`, `GS-DUN-*`, `GS-EIN-*`, `GS-SUB-*`.
+- **A cupping authority is a financial control, not training admin.** `contracts/cupping-authority.ts` holds the §1.1 tier matrix, and the authorities are separate booleans rather than one ordered level — a Tier 3 may sit on a panel but never cup alone, while a Tier 2 may cup alone yet is barred from arbitration, and collapsing that into a number loses exactly the distinction that matters. Disqualification drops a cupper to *no* authority rather than down a tier: §1.3's triggers are about integrity and sensory acuity, and neither is repaired by demotion.
 - **A Trust score is derived, never set.** There is no `setScore` procedure. The only ways to move one are to record a fact (an accepted document, a settled invoice, a verified identity) or to file an audited `admin_override` evidence row carrying a user id and a mandatory reason. Weights live in `contracts/trust.ts` with a `MODEL_VERSION` stamped onto every snapshot, so changing them is a recomputation rather than a data migration and a historical trend line still renders as it did.
 - **Museum Folio tokens are the only colours allowed** on Trust and Scanner surfaces (`ink`, `paper`, `brass`, `sage`, `oxblood`, `neutral`, `danger`, defined in `src/index.css` and registered in `tailwind.config.js`). `src/design-tokens.test.ts` fails the build on a raw hex or a Tailwind arbitrary value in those files, and asserts every token has a dark-mode value — one defined only in `:root` paints transparent in dark mode, which is a badge with no background at all.
 - **Trust is a property of the rail, not of the payload** (`contracts/providers.ts`). PayOS, MoMo and ZaloPay sign what they send, so a verified callback may credit AR. Casso proves only that the caller knows a shared secret, so it requires an API re-fetch stamping `verifiedAt` before allocation. Adding a rail is a row in `PROVIDER_SPECS`, not a parallel pipeline.
@@ -66,6 +68,7 @@ npm run db:seed:expansion     # SOP library, partners + addenda, marketing calen
 npm run db:seed:auth          # login accounts, one per role
 npm run db:seed:payments      # counterparties, invoices across every aging bucket, sample transfers
 npm run db:seed:dunning       # the day 0/3/7/14 ladder and two reference FX rates
+npm run db:seed:education     # cupping curriculum and a starting cupper roster
 npm run dev                   # http://localhost:3000
 ```
 
@@ -176,7 +179,17 @@ issues `MOCK-` numbers that are **not** legal documents; real issuance needs
 32. Eight at-risk accounts rating each other 95 do not manufacture a Verified band. Confidence comes from the summed rater weight, not the count — in a plain weighted average the rater weighting cancels out entirely when every rater carries the same weight.
 33. Every score lands in exactly one band across the whole 0–100 range, with no gap at an edge, after rounding to one decimal — so a counterparty never sits one band below the figure on their own screen.
 34. `settlementGate` returns its reason on every call, including when it allows. It holds the automatic allocation path only: a human clicking allocate in the exception queue is the review the gate exists to force.
-35. `src/design-tokens.test.ts` fails on a raw hex or a Tailwind arbitrary value in any Trust or Scanner component, and on any Museum Folio token missing a dark-mode value.
+### Education & Partners flows
+
+36. A cupper with 64 of the required 100 supervised cups is refused independent cupping — and still accepted onto a panel, because §1.2 requires those cups be performed *under a Q-Grader*, which is panel work. Treating an unmet cup count as total disqualification would bar a trainee from the only activity that lets them finish training.
+37. Three Tier 3 baristas satisfy the §4.4 head-count for a Tier 2 exception and are still refused: §6.2 requires a Q-Grader in good standing, and counting heads was never the point.
+38. A name with no cupper profile is refused rather than waved through. §1.1's Tier 0 exists so that "not on the list" has a defined answer.
+39. Signing off an SOP records the authenticated user, never a typed name, and a second sign-off on the same version is a no-op — re-reading is good practice, not a second attestation.
+40. A downgrade priced below half the original price is held at the 50% floor (§C.1); a claim inflated by holding costs is held at 110% of the purchase price with holding charged for at most 30 days (§C.2). Both caps report themselves in the returned explanation.
+41. A logistics fault with no proof filed resolves to the supplier — §B.2 puts the burden of proof on them, and the claimed and resolved origins are both stored so the gap is auditable.
+42. A fraud claim survives to day 365 and is forfeited at 366, while a standard claim closes at 60 days and a latent defect at 90 (§D.4).
+43. A floor payment more than five business days past its tier SLA triggers §9.1's release — computed from our own timestamps rather than waiting for the partner to claim it.
+44. `src/design-tokens.test.ts` fails on a raw hex or a Tailwind arbitrary value in any Trust or Scanner component, and on any Museum Folio token missing a dark-mode value.
 
 See `docs/payments-runbook.md` for deployment order, flag rollout, alert thresholds and the operator playbooks.
 

@@ -22,6 +22,8 @@ const GOVERNED_ROOTS = [
   "documents",
   "standingOrders",
   "trust",
+  "education",
+  "partners",
 ] as const;
 
 function proceduresUnder(root: string): string[] {

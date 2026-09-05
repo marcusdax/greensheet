@@ -19,7 +19,8 @@
     "db:seed:expansion": "tsx db/seed-expansion.ts",
     "db:seed:auth": "tsx db/seed-auth.ts",
     "db:seed:payments": "tsx db/seed-payments.ts",
-    "db:seed:dunning": "tsx db/seed-dunning.ts"
+    "db:seed:dunning": "tsx db/seed-dunning.ts",
+    "db:seed:education": "tsx db/seed-education.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
