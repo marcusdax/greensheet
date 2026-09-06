@@ -1,0 +1,73 @@
+{
+  "batch_two_rows": {
+    "error": 0,
+    "data": [
+      {
+        "id": 4471023,
+        "tid": "FT24230987654321",
+        "description": "CK AUCTUM A7K2M9",
+        "amount": 918000000,
+        "cusum_balance": 12400000000,
+        "when": "2026-08-17 09:41:12",
+        "bank_sub_acc_id": "0071000123456",
+        "subAccId": "0071000123456",
+        "bankName": "Vietcombank"
+      },
+      {
+        "id": 4471024,
+        "tid": "FT24230987654999",
+        "description": "AUCTUM E2T7U4 TT DON HANG",
+        "amount": "75000000",
+        "when": "2026-08-17",
+        "subAccId": "0071000123456",
+        "bankName": "Vietcombank"
+      }
+    ]
+  },
+  "date_only_when_no_sub_account": {
+    "error": 0,
+    "data": [
+      {
+        "id": 4471030,
+        "tid": "ACB20260817X01",
+        "description": "AUCTUM F5V1W8",
+        "amount": 103680000,
+        "when": "2026-08-17",
+        "bankName": "ACB"
+      }
+    ]
+  },
+  "single_object_not_array": {
+    "error": 0,
+    "data": {
+      "id": 4471031,
+      "tid": "TCB20260817Y02",
+      "description": "AUCTUM G8X4Y2",
+      "amount": 4820000,
+      "when": "2026-08-17T04:15:00.000Z",
+      "subAccId": "19036123456",
+      "bankName": "Techcombank"
+    }
+  },
+  "no_tid": {
+    "error": 0,
+    "data": [
+      {
+        "description": "AUCTUM H1Z6A9",
+        "amount": 500000,
+        "when": "2026-08-17"
+      }
+    ]
+  },
+  "decimal_amount": {
+    "error": 0,
+    "data": [
+      {
+        "tid": "VTB20260817Z03",
+        "description": "AUCTUM J3B7C1",
+        "amount": "1000.5",
+        "when": "2026-08-17"
+      }
+    ]
+  }
+}

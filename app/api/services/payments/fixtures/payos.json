@@ -1,0 +1,56 @@
+{
+  "exact_number_amount": {
+    "code": "00",
+    "desc": "success",
+    "data": {
+      "orderCode": 240817001,
+      "amount": 918000000,
+      "description": "AUCTUM A7K2M9",
+      "accountNumber": "0071000123456",
+      "reference": "FT24230987654321",
+      "transactionDateTime": "2026-08-17 09:41:12",
+      "currency": "VND",
+      "paymentLinkId": "3f8b1c92a7d4",
+      "counterAccountNumber": "1903812345678",
+      "counterAccountName": "NGUYEN VAN AN"
+    },
+    "signature": "placeholder"
+  },
+  "string_amount_iso_timestamp": {
+    "code": "00",
+    "desc": "success",
+    "data": {
+      "orderCode": "240817002",
+      "amount": "1296000000",
+      "description": "CK AUCTUM B4N8P1 THANH TOAN",
+      "reference": "FT24230987654322",
+      "transactionDateTime": "2026-08-17T02:41:12.000Z",
+      "currency": "VND",
+      "paymentLinkId": "9c2e5f71b8a3"
+    },
+    "signature": "placeholder"
+  },
+  "truncated_description_no_counter_account": {
+    "code": "00",
+    "desc": "success",
+    "data": {
+      "orderCode": 240817003,
+      "amount": 451500000,
+      "description": "CHUYEN KHOAN QUA MB TU NGUYEN THI BINH NOI DUNG AUCTUM C6",
+      "reference": "FT24230987654323",
+      "transactionDateTime": "2026-08-17 11:02:44",
+      "paymentLinkId": "51ad7e0c4b96"
+    },
+    "signature": "placeholder"
+  },
+  "no_reference_at_all": {
+    "code": "00",
+    "desc": "success",
+    "data": {
+      "amount": 100000,
+      "description": "AUCTUM D9Q3R5",
+      "transactionDateTime": "2026-08-17 11:30:00"
+    },
+    "signature": "placeholder"
+  }
+}

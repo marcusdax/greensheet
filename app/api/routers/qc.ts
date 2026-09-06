@@ -10,9 +10,15 @@ import {
   cuppingSessions,
   warehouseExceptions,
   coffeeLots,
+  documents,
+  ocrResults,
 } from "@db/schema";
 import { emitEvent } from "../engine";
-import { CUPPING_TOLERANCE, CUPPING_RED_FLAGS } from "@contracts/constants";
+import { CUPPING_TOLERANCE, CUPPING_RED_FLAGS, roundScore } from "@contracts/constants";
+import { gateForField, fieldsRequiringConfirmation } from "@contracts/ocr-schemas";
+import { TRPCError } from "@trpc/server";
+import { getFlags } from "../services/flags";
+import { checkSessionAuthority } from "../services/education/cuppers";
 
 // Retention windows in days (Retained Sample SOP §4.1)
 const RETENTION_DAYS = {
@@ -158,6 +164,78 @@ export const qcRouter = createRouter({
     return getDb().select().from(cuppingSessions).orderBy(desc(cuppingSessions.id)).limit(100);
   }),
 
+  /**
+   * ADR-04 — OCR may PRE-FILL a cupping form; it may not finalise one.
+   *
+   * This returns a draft for the operator to edit and submit through
+   * recordCupping, where the existing panel rule (GS-QC-1005) applies
+   * unchanged. It writes no cuppingSessions row, so a lab report extracted at
+   * 0.99 confidence still cannot move a farmer between a 35% and a 50%
+   * revenue-share tier without a qualified person (§14.8).
+   */
+  proposeCuppingFromDocument: staffProcedure
+    .input(z.object({ documentId: z.number().int().positive() }))
+    .query(async ({ input }) => {
+      const db = getDb();
+      const document = await db.query.documents.findFirst({
+        where: eq(documents.id, input.documentId),
+      });
+      if (!document) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "GS-DOC-1002 · document not found" });
+      }
+      if (document.scanStatus === "infected") {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "GS-DOC-1005 · document is quarantined",
+        });
+      }
+
+      const result = await db.query.ocrResults.findFirst({
+        where: eq(ocrResults.documentId, document.id),
+        orderBy: (t, { desc: d }) => [d(t.id)],
+      });
+      if (!result || result.status !== "completed") {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "GS-DOC-1006 · no completed extraction for this document",
+        });
+      }
+
+      const fields = (result.structuredData ?? {}) as Record<string, unknown>;
+      const confidences = (result.confidenceScores ?? {}) as Record<string, number>;
+      const num = (key: string) =>
+        typeof fields[key] === "number" ? (fields[key] as number) : null;
+
+      // The cup score is carried through roundScore because tier boundaries are
+      // compared with >= against a double (B4).
+      const cupScore = num("cupScore");
+
+      return {
+        draft: {
+          sourceDocumentId: document.id,
+          ocrResultId: result.id,
+          lotCode: typeof fields.lotCode === "string" ? fields.lotCode : "",
+          sampleId: typeof fields.sampleId === "string" ? fields.sampleId : null,
+          cupScore: cupScore == null ? null : roundScore(cupScore),
+          moistureContent: num("moistureContent"),
+          defectCount: num("defectCount"),
+          sensory: Array.isArray(fields.sensory) ? (fields.sensory as string[]) : [],
+          notes: typeof fields.notes === "string" ? fields.notes : "",
+        },
+        // Per-field gating drives the review panel; the critical fields are
+        // pre-filled, highlighted, and must be touched before submit.
+        gates: Object.keys(fields).map((field) => ({
+          field,
+          confidence: confidences[field] ?? null,
+          gate: gateForField(field, confidences[field]),
+        })),
+        mustConfirm: fieldsRequiringConfirmation(fields),
+        // Stated so the caller cannot mistake this for an approved record.
+        isDraft: true as const,
+        approvedRecordCreated: false as const,
+      };
+    }),
+
   recordCupping: staffProcedure
     .input(
       z.object({
@@ -199,6 +277,30 @@ export const qcRouter = createRouter({
       // Panel cupping mandatory for Tier 2/3 exception resolution (SOP §4.4)
       if (input.exceptionTier && input.exceptionTier >= 2 && !input.isPanel)
         throw new Error("GS-QC-1005 PanelRequired — Tier 2/3 exception cupping requires a 3-cupper panel");
+
+      // SOP §1.1 — WHO is cupping, not just how many.
+      //
+      // The panel rule above counts heads; on its own it accepts three names
+      // typed into a box. A cup score sets the Revenue Share tier and therefore
+      // a farmer's payment, so §1.1 restricts who may produce one: a Tier 3
+      // barista may sit on a panel but never cup alone, a Tier 2 is barred from
+      // Tier 2/3 exception resolution, and a Tier 0 may not cup at all.
+      //
+      // Behind a flag because turning it on before cupper profiles exist would
+      // block every session. Off, this behaves exactly as it did before.
+      if ((await getFlags()).cupperAuthority) {
+        const check = await checkSessionAuthority({
+          cupperNames: input.cuppers.split(",").map((c) => c.trim()),
+          isPanel: input.isPanel,
+          exceptionTier: input.exceptionTier,
+        });
+        if (!check.ok) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `GS-QC-1006 CupperNotAuthorized — ${check.problems.join(" ")}`,
+          });
+        }
+      }
 
       const [{ id }] = await db
         .insert(cuppingSessions)

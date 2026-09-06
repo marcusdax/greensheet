@@ -7,6 +7,12 @@ import {
   Package,
   Megaphone,
   ShoppingCart,
+<<<<<<< HEAD
+=======
+  Receipt,
+  Banknote,
+  Compass,
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
   Warehouse as WarehouseIcon,
   FlaskConical,
   Handshake,
@@ -16,6 +22,7 @@ import {
   LogOut,
   BarChart3,
   ScanLine,
+<<<<<<< HEAD
   Compass,
   Search,
   Bell,
@@ -23,6 +30,11 @@ import {
   Moon,
   PanelLeft,
   Menu,
+=======
+  HandCoins,
+  CalendarClock,
+  ShieldCheck,
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
@@ -44,6 +56,7 @@ const NAV_GROUPS: {
     items: [
       { to: "/navigator", label: "Navigator", icon: Compass, roles: ALL_ROLES },
       { to: "/catalog", label: "Catalog", icon: Coffee, roles: ALL_ROLES },
+<<<<<<< HEAD
       { to: "/samples", label: "Sample Kits", icon: Package, roles: [...STAFF, "sales_csm", "roaster_buyer"] },
     ],
   },
@@ -60,6 +73,14 @@ const NAV_GROUPS: {
     items: [
       { to: "/crm", label: "Roasters", icon: Users, roles: READERS },
       { to: "/education", label: "Education", icon: GraduationCap, roles: ALL_ROLES },
+=======
+      { to: "/orders", label: "Orders", icon: ShoppingCart, roles: ALL_ROLES },
+      { to: "/invoices", label: "Invoices", icon: Receipt, roles: [...READERS, "roaster_buyer"] },
+      { to: "/payments", label: "Payments & AR", icon: Banknote, roles: [...STAFF, "analyst"] },
+      { to: "/collections", label: "Collections & FX", icon: HandCoins, roles: [...STAFF, "sales_csm", "analyst"] },
+      { to: "/trust", label: "Trust", icon: ShieldCheck, roles: [...READERS, "roaster_buyer"] },
+      { to: "/subscriptions", label: "Standing Orders", icon: CalendarClock, roles: [...STAFF, "sales_csm", "analyst"] },
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
     ],
   },
   {
@@ -162,6 +183,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     items: g.items.filter((item) => role != null && item.roles.includes(role)),
   })).filter((g) => g.items.length > 0);
 
+<<<<<<< HEAD
   const crumb = pathLabel(pathname);
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -182,6 +204,18 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="min-w-0">
             <div className="font-display text-lg leading-none text-paper-50">Auctum Ledger</div>
             <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#A9A08C]">By Auctum</div>
+=======
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+       <aside className="fixed inset-y-0 left-0 w-60 border-r border-white/10 bg-[#16323E] text-[#F6F1E7] flex flex-col">
+        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-white/10 shrink-0">
+          <Compass className="h-6 w-6 text-[#C9A34A]" />
+          <div>
+            <div className="font-bold tracking-tight leading-none font-display">Auctum Ledger</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#9fc0ab] mt-1">
+              ODASI Technologies
+            </div>
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
           </div>
         )}
       </div>
@@ -203,11 +237,18 @@ export default function Layout({ children }: { children: ReactNode }) {
                     aria-current={active ? "page" : undefined}
                     title={collapsed ? label : undefined}
                     className={cn(
+<<<<<<< HEAD
                       "relative flex items-center gap-3 rounded-md text-sm font-medium transition-colors duration-fast",
                       collapsed ? "justify-center h-10 w-10 mx-auto" : "h-10 px-3",
                       active
                         ? "bg-oxblood text-paper-50"
                         : "text-paper-50/70 hover:bg-white/10 hover:text-paper-50",
+=======
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                      pathname === to
+                        ? "bg-[#C9A34A] text-[#16323E] font-semibold"
+                        : "text-[#c4d8cb] hover:bg-white/10",
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
                     )}
                   >
                     {active && <span className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-sm bg-brass" aria-hidden="true" />}
@@ -217,6 +258,49 @@ export default function Layout({ children }: { children: ReactNode }) {
                 );
               })}
             </div>
+<<<<<<< HEAD
+=======
+          ))}
+        </nav>
+        <div className="p-4 space-y-3 border-t border-white/10 shrink-0">
+          {role != null && STAFF.includes(role) && (
+            <div className="flex gap-2">
+              <Link
+                to="/foundry"
+                className="flex-1 text-center rounded-md border border-[#C9A34A]/40 px-2 py-1.5 text-[11px] text-[#C9A34A] hover:bg-[#C9A34A]/10 transition-colors"
+              >
+                Flavor Foundry
+              </Link>
+              <Link
+                to="/lotspace"
+                className="flex-1 text-center rounded-md border border-[#C9A34A]/40 px-2 py-1.5 text-[11px] text-[#C9A34A] hover:bg-[#C9A34A]/10 transition-colors"
+              >
+                LotSpace
+              </Link>
+            </div>
+          )}
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium truncate">{user.name}</div>
+                <div className="text-[10px] uppercase tracking-widest text-[#7fa48e]">
+                  {ROLE_LABELS[user.role]}
+                </div>
+              </div>
+              <button
+                onClick={() => logout.mutate()}
+                title="Sign out"
+                className="rounded-md p-2 text-[#c4d8cb] hover:bg-white/10 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          <div className="text-[10px] text-[#7fa48e] leading-relaxed">
+            Navigate Your Reality.
+            <br />
+            Own Your Journey.
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
           </div>
         ))}
       </nav>
@@ -375,6 +459,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   );
 }
 
+<<<<<<< HEAD
 export function PageHeader({
   title,
   sub,
@@ -392,6 +477,51 @@ export function PageHeader({
         {overline && <div className="folio mb-1.5">{overline}</div>}
         <h1 className="font-display text-3xl tracking-[-0.015em] text-ink">{title}</h1>
         {sub && <p className="text-sm text-muted-foreground mt-1.5">{sub}</p>}
+=======
+/**
+ * `kicker` is the folio overline — the small caps line above a title, and the
+ * same typographic role the Trust panel uses for its band label. Partners and
+ * QC Lab were already passing one; it was being dropped on the floor, so their
+ * authored text never appeared. Rendering it is the fix, not removing it.
+ */
+export function PageHeader({
+  kicker,
+  title,
+  endorsement,
+  sub,
+  actions,
+}: {
+  kicker?: string;
+  title: string;
+  /**
+   * Endorsement line for a product label sitting under the master brand
+   * (master plan §06). Rendered at half the title's optical size, inside the
+   * same heading, because "Flavor Foundry" is not a brand on its own — it is a
+   * label endorsed by Auctum, and setting it at the same weight as the master
+   * mark is exactly the house-of-brands drift the rebrand retired.
+   */
+  endorsement?: string;
+  sub?: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between mb-6">
+      <div>
+        {kicker && (
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {kicker}
+          </p>
+        )}
+        <h1 className="text-2xl font-bold tracking-tight">
+          {title}
+          {endorsement && (
+            <span className="ml-2 align-baseline text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              {endorsement}
+            </span>
+          )}
+        </h1>
+        {sub && <p className="text-sm text-muted-foreground mt-1">{sub}</p>}
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,6 +9,7 @@
    Theme flip is a single attribute: [data-theme="dark"] on <html> (boot script sets it). */
 @layer base {
   :root {
+<<<<<<< HEAD
     --background: 245 242 235;          /* bg-canvas — paper #F5F2EB */
     --foreground: 34 30 27;             /* text-primary — ink #221E1B */
     --card: 250 249 244;                /* bg-surface — paper-raised #FAF9F4 */
@@ -65,13 +68,153 @@
     --sidebar-accent-foreground: 242 237 227;
     --sidebar-border: 58 50 38;
     --sidebar-ring: 148 118 66;
-  }
-}
+=======
+    /* ── Greensheet Design Tokens (02-design-tokens.md) ── */
+    /* Compass Navy — primary brand color */
+    --background: 199 27% 96%;
+    --foreground: 152 30% 12%;
 
-@layer base {
+    /* Cards and surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 152 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 152 30% 12%;
+
+    /* Primary: Greensheet Green / Compass Navy */
+    --primary: 198 34% 22%;
+    --primary-foreground: 42 32% 96%;
+
+    /* Secondary: Parchment / muted surfaces */
+    --secondary: 40 24% 90%;
+    --secondary-foreground: 152 30% 16%;
+
+    /* Muted: subtle backgrounds */
+    --muted: 42 24% 90%;
+    --muted-foreground: 32 8% 40%;
+
+    /* Accent: Core Gold — earned value, CTAs */
+    --accent: 40 55% 52%;
+    --accent-foreground: 152 30% 12%;
+
+    /* Destructive: Coffee Cherry */
+    --destructive: 4 55% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs */
+    --border: 40 16% 84%;
+    --input: 40 16% 84%;
+    --ring: 198 34% 22%;
+
+    /* Radius: small precise (2-8px max) */
+    --radius: 0.5rem;
+
+    /* Sidebar: dark Compass Navy */
+    --sidebar-background: 198 34% 10%;
+    --sidebar-foreground: 42 32% 96%;
+    --sidebar-primary: 42 32% 96%;
+    --sidebar-primary-foreground: 198 34% 10%;
+    --sidebar-accent: 198 34% 18%;
+    --sidebar-accent-foreground: 42 32% 96%;
+    --sidebar-border: 198 34% 18%;
+    --sidebar-ring: 42 55% 52%;
+
+    /* Chart tokens */
+    --chart-ink: 14 14% 11%;
+    --chart-oxblood: 7 38% 43%;
+    --chart-brass: 40 36% 45%;
+    --chart-sage: 152 22% 38%;
+    --chart-paper: 40 32% 92%;
+    --chart-danger: 4 64% 56%;
+
+    /* Semantic colors */
+    --success: 152 40% 35%;
+    --warning: 40 55% 52%;
+
+    /* ── Museum Folio palette ─────────────────────────────────────────────
+     * Named scales for the Trust and Scanner surfaces. These already existed
+     * as --chart-* one-offs; they are promoted to a real scale here because
+     * the Trust spec assigns policy meaning to specific shades (brass is an
+     * earned band, danger is a warning) and a component cannot express that
+     * with an arbitrary hex. Registered in tailwind.config.js, so every one of
+     * them is reachable as a utility class and the token test can prove no
+     * component reached past them. */
+    --ink-900: 14 14% 11%;
+    --ink-700: 14 12% 22%;
+
+    --paper-50: 40 32% 96%;
+    --paper-100: 40 32% 92%;
+
+    --brass-300: 40 44% 66%;
+    --brass-500: 40 36% 45%;
+    --brass-700: 40 38% 30%;
+
+    --sage-100: 152 22% 90%;
+    --sage-600: 152 22% 38%;
+    --sage-800: 152 26% 22%;
+
+    --oxblood-100: 7 38% 92%;
+    --oxblood-500: 7 38% 43%;
+    --oxblood-700: 7 40% 32%;
+
+    --neutral-200: 40 10% 88%;
+    --neutral-500: 32 8% 46%;
+    --neutral-700: 30 8% 28%;
+
+    --danger: 4 64% 44%;
+    --danger-tint: 4 60% 94%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 42 32% 96%;
+    --primary-foreground: 198 34% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 40 55% 52%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 42 55% 52%;
+
+    /* Museum Folio in the dark: paper and ink swap roles, the accents lift
+     * enough to stay legible on a dark ground. Band meaning never changes —
+     * brass is still the earned one. */
+    --ink-900: 40 32% 96%;
+    --ink-700: 40 20% 82%;
+    --paper-50: 14 10% 12%;
+    --paper-100: 14 10% 16%;
+    --brass-300: 40 44% 58%;
+    --sage-100: 152 18% 20%;
+    --sage-600: 152 26% 46%;
+    --oxblood-100: 7 24% 22%;
+    --oxblood-500: 7 46% 54%;
+    --oxblood-700: 7 44% 72%;
+    --neutral-200: 30 6% 24%;
+    --neutral-700: 30 6% 36%;
+    --danger: 4 70% 62%;
+    --danger-tint: 4 30% 20%;
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
+  }
+
+  @font-face {
+    font-family: 'Fraunces';
+    font-display: swap;
+  }
+
   * {
     @apply border-border;
   }
+<<<<<<< HEAD
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -131,5 +274,68 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+=======
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
   }
+
+  /* Fraunces for display/titles */
+  h1, h2, h3, .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  /* IBM Plex Mono for all figures */
+  .font-mono, [data-figure], .tabular-nums {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: hsl(var(--accent) / 0.2);
+    color: hsl(var(--foreground));
+  }
+}
+
+/* ── Scrollbar styling ── */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* ── Focus ring (design-system: 2px teal + 2px offset) ── */
+.focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  --tw-ring-color: hsl(var(--ring));
+  --tw-ring-offset-color: hsl(var(--background));
+}
+
+/* ── Recharts tooltip override ── */
+.recharts-tooltip-wrapper {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
 }

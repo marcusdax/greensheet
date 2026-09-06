@@ -17,11 +17,28 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatCentsPerLb } from "@contracts/constants";
+<<<<<<< HEAD
+=======
+import { Plus, Archive, DollarSign } from "lucide-react";
+import { TrustBadge } from "@/components/TrustBadge";
+import { useFlags } from "@/hooks/useFlags";
+import { useNavigate } from "react-router";
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 import { toast } from "sonner";
 
 export default function Catalog() {
   const utils = trpc.useUtils();
+  const navigate = useNavigate();
+  const { flags } = useFlags();
   const { data: lots } = trpc.catalog.list.useQuery();
+
+  // §5.5 — one batched read behind every badge on the page, not one per card.
+  const lotIds = (lots ?? []).map((l) => l.id);
+  const { data: trust } = trpc.trust.forLots.useQuery(
+    { lotIds },
+    { enabled: flags.trustScore && lotIds.length > 0 },
+  );
+  const trustFor = (id: number) => trust?.find((t) => t.lotId === id);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [process, setProcess] = useState("all");
@@ -149,6 +166,7 @@ export default function Catalog() {
         }
       />
 
+<<<<<<< HEAD
       <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-3">
         <div className="relative min-w-56 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -248,6 +266,69 @@ export default function Catalog() {
             })}
           </TableBody>
         </Table>
+=======
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {lots?.map((lot) => (
+          <Card key={lot.id} className={lot.status === "retired" ? "opacity-55" : ""}>
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-base leading-snug">{lot.name}</CardTitle>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <Badge className={cupScoreBadge(lot.cupScore)}>{lot.cupScore.toFixed(1)} SCA</Badge>
+                  {/* §5.5 — Trust sits after cup score, in the same metrics row.
+                      With no evidence it is a quiet link to add some, never a zero. */}
+                  {flags.trustScore && (
+                    <TrustBadge
+                      score={trustFor(lot.id)?.score ?? null}
+                      unscored={trustFor(lot.id)?.unscored ?? true}
+                      evidenceCount={trustFor(lot.id)?.acceptedDocumentCount}
+                      modelVersion={trustFor(lot.id)?.modelVersion}
+                      onAddEvidence={() => navigate("/intake")}
+                    />
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {lot.region} · {lot.origin} · {lot.elevationMeters} m
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                <Badge variant="outline">{lot.processMethod}</Badge>
+                <Badge variant="outline">{lot.varietal}</Badge>
+                {lot.status === "retired" && <Badge variant="destructive">retired</Badge>}
+              </div>
+              <p className="text-xs italic text-muted-foreground">{lot.flavorNotes}</p>
+              <div className="flex justify-between text-sm">
+                <span className="font-semibold text-primary">{formatCentsPerLb(lot.pricePerLbCents)}</span>
+                <span className={lot.availableLbs < 500 ? "text-destructive font-medium" : ""}>
+                  {lot.availableLbs.toLocaleString()} lbs spot
+                </span>
+              </div>
+              <div className="h-1.5 rounded bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary"
+                  style={{ width: `${Math.min(100, (lot.availableLbs / Math.max(1, lot.totalProductionLbs)) * 100)}%` }}
+                />
+              </div>
+              {lot.status === "active" && (
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPriceLot({ id: lot.id, price: lot.pricePerLbCents / 100, name: lot.name })}
+                  >
+                    <DollarSign className="h-3.5 w-3.5 mr-1" /> Price
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => retire.mutate({ lotId: lot.id })}>
+                    <Archive className="h-3.5 w-3.5 mr-1" /> Retire
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
       </div>
 
       <Dialog open={!!priceLot} onOpenChange={(o) => !o && setPriceLot(null)}>

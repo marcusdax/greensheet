@@ -33,6 +33,7 @@ import {
 
 // Domain chips on the event stream — brand tint surfaces (tokens §status + brand tints).
 const EVENT_COLORS: Record<string, string> = {
+<<<<<<< HEAD
   catalog: "bg-success-soft text-success",
   crm: "bg-info-soft text-info",
   samples: "bg-gold-100 text-gold-600",
@@ -46,6 +47,21 @@ const EVENT_COLORS: Record<string, string> = {
   comms: "bg-info-soft text-info",
   growth: "bg-cherry-100 text-cherry",
   education: "bg-muted text-muted-foreground",
+=======
+  catalog: "bg-[#3E6B50] text-white",
+  crm: "bg-[#2A6E73] text-white",
+  samples: "bg-[#C9A34A] text-[#16323E]",
+  sample_kit: "bg-[#C9A34A] text-[#16323E]",
+  feedback: "bg-[#C9A34A] text-[#16323E]",
+  campaigns: "bg-[#8C3B34] text-white",
+  order: "bg-[#16323E] text-[#F6F1E7]",
+  warehouse: "bg-[#4A3527] text-white",
+  qc: "bg-[#3E6B50]/80 text-white",
+  partners: "bg-[#C9A34A]/80 text-[#16323E]",
+  comms: "bg-[#2A6E73]/80 text-white",
+  growth: "bg-[#8C3B34]/80 text-white",
+  education: "bg-[#4A3527]/80 text-white",
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 };
 
 // Categorical channel palette — validated with the dataviz six-checks script
@@ -53,6 +69,7 @@ const EVENT_COLORS: Record<string, string> = {
 // neutral Other slot. Donut renders in this fixed order with direct labels.
 const CHANNEL_ORDER = ["email", "sms", "whatsapp", "crm", "system"] as const;
 const CHANNEL_COLORS: Record<string, string> = {
+<<<<<<< HEAD
   email: "#128A78",
   sms: "#C9A34A",
   whatsapp: "#3468C0",
@@ -74,6 +91,16 @@ const TOOLTIP_STYLE = {
   fontSize: 12,
   color: "#221D16",
 } as const;
+=======
+  email: "#16323E",
+  whatsapp: "#25D366",
+  sms: "#C9A34A",
+  crm: "#4F6958",
+  system: "#94a3b8",
+};
+
+const TIER_COLORS: Record<string, string> = { "1": "#d9a441", "2": "#f97316", "3": "#dc2626" };
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 
 const usd = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
@@ -131,6 +158,10 @@ export default function Dashboard() {
   return (
     <Layout>
       <PageHeader
+<<<<<<< HEAD
+=======
+        kicker="The Auctum Ledger"
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
         title="Operations Dashboard"
         sub="Trade, comms, warehouse & partner telemetry · live domain event stream"
       />
@@ -159,6 +190,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="h-80">
             {revenueSeries.length > 0 ? (
+<<<<<<< HEAD
               /* Two synced panels sharing one x-domain — never a dual-axis chart. */
               <div className="h-full flex flex-col">
                 <div className="overline-label mb-1">Revenue</div>
@@ -195,6 +227,30 @@ export default function Dashboard() {
                   </ResponsiveContainer>
                 </div>
               </div>
+=======
+              <ResponsiveContainer width="100%" height="100%">
+<AreaChart data={revenueSeries} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                   <defs>
+                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="0%" stopColor="#16323E" stopOpacity={0.35} />
+                       <stop offset="100%" stopColor="#16323E" stopOpacity={0.02} />
+                     </linearGradient>
+                   </defs>
+                   <CartesianGrid strokeDasharray="3 3" stroke="#D9D3C9" />
+                   <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                   <YAxis yAxisId="rev" tickFormatter={(v: number) => usd(v)} tick={{ fontSize: 11 }} width={70} />
+                   <YAxis yAxisId="ord" orientation="right" allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
+                   <Tooltip
+                     formatter={(value: number | string, name: string) =>
+                       name === "Revenue" ? [usd(Number(value)), name] : [value, name]
+                     }
+                   />
+                   <Legend />
+                   <Area yAxisId="rev" type="monotone" dataKey="revenueCents" name="Revenue" stroke="#16323E" fill="url(#rev)" strokeWidth={2} />
+                   <Bar yAxisId="ord" dataKey="orders" name="Orders" fill="#C9A341" radius={[3, 3, 0, 0]} />
+                 </AreaChart>
+              </ResponsiveContainer>
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
             ) : (
               <EmptyChart label="No orders yet — revenue appears here as orders are placed." />
             )}
@@ -245,11 +301,19 @@ export default function Dashboard() {
             {lotPerformance.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={lotPerformance} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
+<<<<<<< HEAD
                   <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} horizontal={false} />
                   <XAxis type="number" tick={TICK} axisLine={false} tickLine={false} />
                   <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10, fill: "#5C5546" }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
                   <Bar dataKey="lbs" fill="#128A78" radius={[0, 3, 3, 0]} maxBarSize={18} />
+=======
+                  <CartesianGrid strokeDasharray="3 3" stroke="#D9D3C9" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="lotName" width={110} tick={{ fontSize: 10 }} />
+                  <Tooltip formatter={(v: number | string) => [`${Number(v).toLocaleString()} lbs`, "Sold"]} />
+                  <Bar dataKey="lbs" fill="#16323E" radius={[0, 3, 3, 0]} />
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
                 </BarChart>
               </ResponsiveContainer>
             ) : (

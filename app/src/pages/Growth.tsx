@@ -30,6 +30,125 @@ const PILLAR_LABEL: Record<string, string> = {
 };
 
 export default function Growth() {
+<<<<<<< HEAD
+=======
+  const [section, setSection] = useState<Section>("Waitlists");
+
+  return (
+    <Layout>
+      <PageHeader
+        title="Growth"
+        sub="Teaser waitlists, the referral engine, the POS-01…04 calendar, and COF-004 pricing clicks"
+        actions={
+          <div className="flex rounded-md border border-border overflow-hidden">
+            {SECTIONS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setSection(s)}
+                className={`px-3 py-1.5 text-sm transition-colors ${
+                  section === s ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        }
+      />
+      {section === "Waitlists" && <WaitlistsSection />}
+      {section === "Referrals" && <ReferralsSection />}
+      {section === "Calendar" && <CalendarSection />}
+      {section === "Pricing clicks" && <PricingClicksSection />}
+    </Layout>
+  );
+}
+
+function WaitlistsSection() {
+  const { data } = trpc.growth.waitlist.useQuery();
+  return (
+    <div className="space-y-5">
+      <div className="grid sm:grid-cols-2 gap-4">
+        {(["foundry", "lotspace"] as const).map((product) => (
+          <Card key={product}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                {product === "foundry" ? "Flavor Foundry" : "LotSpace"} by Auctum waitlist
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{data?.counts[product] ?? "—"}</div>
+              <p className="text-xs text-muted-foreground mt-1">signups</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">Signups</CardTitle>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" /> Manual add</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader><DialogTitle>JoinWaitlist — manual entry</DialogTitle></DialogHeader>
+              <ManualWaitlistAdd />
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          {data?.signups.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No signups yet.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Interest</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data?.signups.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell><Badge variant="outline">{s.product}</Badge></TableCell>
+                    <TableCell className="font-medium">{s.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{s.email}</TableCell>
+                    <TableCell className="text-muted-foreground">{s.company || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground max-w-[240px] truncate">{s.interest || "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ManualWaitlistAdd() {
+  const [product, setProduct] = useState<"foundry" | "lotspace">("foundry");
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label>Product</Label>
+        <Select value={product} onValueChange={(v) => setProduct(v as typeof product)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="foundry">Flavor Foundry by Auctum</SelectItem>
+            <SelectItem value="lotspace">LotSpace by Auctum</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <WaitlistForm product={product} dark={false} />
+    </div>
+  );
+}
+
+function ReferralsSection() {
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
   const utils = trpc.useUtils();
   const { data: roasters } = trpc.crm.list.useQuery();
   const { data: referrals } = trpc.growth.referrals.useQuery();

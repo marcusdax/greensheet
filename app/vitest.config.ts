@@ -9,11 +9,26 @@ export default defineConfig({
     alias: {
       "@": path.resolve(templateRoot, "src"),
       "@contracts": path.resolve(templateRoot, "contracts"),
+      "@db": path.resolve(templateRoot, "db"),
       "@assets": path.resolve(templateRoot, "attached_assets"),
     },
   },
   test: {
     environment: "node",
-    include: ["api/**/*.test.ts", "api/**/*.spec.ts"],
+    include: [
+      "api/**/*.test.ts",
+      "api/**/*.spec.ts",
+      "contracts/**/*.test.ts",
+      // src/ was missing, so src/design-tokens.test.ts — the §9 CI token check
+      // — silently never ran. A test outside the include pattern is worse than
+      // no test: it sits in the tree looking like coverage and enforces nothing.
+      "src/**/*.test.ts",
+    ],
+    // The §11.2 tier TRUNCATES tables. It lives behind its own config and its
+    // own DATABASE URL, but the include pattern above would still match it —
+    // and it would then run against whatever DATABASE_URL happens to be
+    // exported in a developer's shell. Excluding it here is the difference
+    // between "opt-in" and "opt-in unless you have a .env sourced".
+    exclude: ["**/node_modules/**", "**/dist/**", "**/*.integration.test.ts"],
   },
 });

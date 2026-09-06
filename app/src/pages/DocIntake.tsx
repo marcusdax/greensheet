@@ -1,14 +1,15 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { trpc } from "@/providers/trpc";
 import Layout, { PageHeader } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScanLine, Upload, Undo2 } from "lucide-react";
+import { ScannerSurface } from "@/components/ScannerSurface";
+import { ReviewPane, type ReviewField } from "@/components/ReviewPane";
 import { toast } from "sonner";
 
 type ExtractField = { value: string | number | null; confidence: number };
@@ -19,47 +20,62 @@ type ExtractResponse = {
   model: string;
 };
 
-function confidenceChip(confidence: number) {
-  const pct = `${Math.round(confidence * 100)}%`;
-  if (confidence >= 0.9) return <span className="font-mono text-[11px] rounded px-1.5 py-0.5 bg-[#4F6958] text-white">{pct}</span>;
-  if (confidence >= 0.7) return <span className="font-mono text-[11px] rounded px-1.5 py-0.5 bg-[#947642] text-white">{pct}</span>;
-  return <span className="font-mono text-[11px] rounded px-1.5 py-0.5 bg-[#B3261E] text-white">{pct}</span>;
-}
 
-function FieldInput({
-  label,
-  field,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  field: ExtractField | undefined;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  const confidence = field?.confidence ?? 0;
-  const low = confidence < 0.7;
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <Label>{label}</Label>
-        {field && confidenceChip(confidence)}
-      </div>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={low ? "border-[#B3261E] focus-visible:ring-[#B3261E]" : ""}
-      />
-    </div>
-  );
+
+
+/**
+ * The review form, per document type.
+ *
+ * `name` must match what the extractor returns AND what FIELD_CRITICALITY in
+ * contracts/ocr-schemas.ts keys on — that is how a cup score ends up requiring
+ * an explicit human touch here without this file knowing anything about ADR-04.
+ */
+const LOT_OFFER_FIELDS: { name: string; label: string; type?: string }[] = [
+  { name: "name", label: "Lot name" },
+  { name: "origin", label: "Origin" },
+  { name: "region", label: "Region" },
+  { name: "varietal", label: "Varietal" },
+  { name: "processMethod", label: "Process" },
+  { name: "elevation_meters", label: "Elevation (m)", type: "number" },
+  { name: "cupScore", label: "Cup score", type: "number" },
+  { name: "unitPrice", label: "Price $/lb", type: "number" },
+  { name: "cost_per_lb_usd", label: "Cost $/lb", type: "number" },
+  { name: "quantity", label: "Available (lbs)", type: "number" },
+  { name: "total_production_lbs", label: "Total production (lbs)", type: "number" },
+  { name: "notes", label: "Flavor notes" },
+];
+
+const CMR_FIELDS: { name: string; label: string; type?: string }[] = [
+  { name: "counterpartyName", label: "Consignor" },
+  { name: "consignee", label: "Consignee" },
+  { name: "container_number", label: "Container #" },
+  { name: "seal_number", label: "Seal #" },
+  { name: "quantity", label: "Gross weight (lbs)", type: "number" },
+  { name: "shipped_date", label: "Shipped (YYYY-MM-DD)" },
+  { name: "arrival_date", label: "Arrived (YYYY-MM-DD)" },
+];
+
+/**
+ * The extractor speaks snake_case; FIELD_CRITICALITY is keyed on the camelCase
+ * domain names. Mapping here rather than renaming either side keeps the OCR
+ * service's contract and the gating contract independently versionable.
+ */
+const EXTRACTOR_ALIAS: Record<string, string> = {
+  processMethod: "process_method",
+  cupScore: "cup_score",
+  unitPrice: "price_per_lb_usd",
+  quantity: "available_lbs",
+  counterpartyName: "consignor",
+  notes: "flavor_notes",
+};
+
+function extractorKey(name: string): string {
+  return EXTRACTOR_ALIAS[name] ?? name;
 }
 
 export default function DocIntake() {
   const utils = trpc.useUtils();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [docType, setDocType] = useState<"lot_offer" | "cmr_shipping">("lot_offer");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [extracting, setExtracting] = useState(false);
@@ -91,7 +107,7 @@ export default function DocIntake() {
     setResult(null);
     setForm({});
     setPreviewUrl(null);
-    if (fileRef.current) fileRef.current.value = "";
+    setFile(null);
   }
 
   function str(field: ExtractField | undefined): string {
@@ -99,7 +115,6 @@ export default function DocIntake() {
   }
 
   async function onExtract() {
-    const file = fileRef.current?.files?.[0];
     if (!file) {
       toast.error("Choose a photo first");
       return;
@@ -166,8 +181,19 @@ export default function DocIntake() {
     });
   }
 
-  const set = (name: string) => (v: string) => setForm((f) => ({ ...f, [name]: v }));
-  const field = (name: string) => result?.fields[name];
+  const set = (name: string) => (v: string) =>
+    setForm((f) => ({ ...f, [extractorKey(name)]: v }));
+
+  const reviewFields: ReviewField[] = (
+    result?.doc_type === "cmr_shipping" ? CMR_FIELDS : LOT_OFFER_FIELDS
+  ).map((f) => {
+    const key = extractorKey(f.name);
+    return {
+      ...f,
+      value: form[key] ?? "",
+      confidence: result?.fields[key]?.confidence,
+    };
+  });
 
   return (
     <Layout>
@@ -198,27 +224,17 @@ export default function DocIntake() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Photo (JPEG/PNG/WebP, ≤10 MB — resize phone shots to ≤2000px)</Label>
-              <Input
-                ref={fileRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  setPreviewUrl(f ? URL.createObjectURL(f) : null);
-                  setResult(null);
-                }}
-              />
-            </div>
-            {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="document preview"
-                className="max-h-72 rounded-md border border-border object-contain"
-              />
-            )}
-            <Button onClick={onExtract} disabled={extracting}>
+            <ScannerSurface
+              busy={extracting}
+              onFile={(f) => {
+                setFile(f);
+                setPreviewUrl(f.type === "application/pdf" ? null : URL.createObjectURL(f));
+                setResult(null);
+              }}
+              onClear={reset}
+              prompt="Photograph or drop the offer sheet or CMR note"
+            />
+            <Button onClick={onExtract} disabled={extracting || !file}>
               <Upload className="h-4 w-4 mr-1" />
               {extracting ? "Extracting…" : "Extract fields"}
             </Button>
@@ -244,45 +260,21 @@ export default function DocIntake() {
                 <ScanLine className="h-8 w-8 mx-auto text-muted-foreground/50" />
                 <p className="mt-2 text-sm text-muted-foreground">Extracted fields appear here for review.</p>
               </div>
-            ) : result.doc_type === "lot_offer" ? (
-              <div className="space-y-3">
-                <FieldInput label="Lot name" field={field("name")} value={form.name ?? ""} onChange={set("name")} />
-                <div className="grid grid-cols-2 gap-3">
-                  <FieldInput label="Origin" field={field("origin")} value={form.origin ?? ""} onChange={set("origin")} />
-                  <FieldInput label="Region" field={field("region")} value={form.region ?? ""} onChange={set("region")} />
-                  <FieldInput label="Varietal" field={field("varietal")} value={form.varietal ?? ""} onChange={set("varietal")} />
-                  <FieldInput label="Process" field={field("process_method")} value={form.process_method ?? ""} onChange={set("process_method")} />
-                  <FieldInput label="Elevation (m)" type="number" field={field("elevation_meters")} value={form.elevation_meters ?? ""} onChange={set("elevation_meters")} />
-                  <FieldInput label="Cup score" type="number" field={field("cup_score")} value={form.cup_score ?? ""} onChange={set("cup_score")} />
-                  <FieldInput label="Price $/lb" type="number" field={field("price_per_lb_usd")} value={form.price_per_lb_usd ?? ""} onChange={set("price_per_lb_usd")} />
-                  <FieldInput label="Cost $/lb" type="number" field={field("cost_per_lb_usd")} value={form.cost_per_lb_usd ?? ""} onChange={set("cost_per_lb_usd")} />
-                  <FieldInput label="Available (lbs)" type="number" field={field("available_lbs")} value={form.available_lbs ?? ""} onChange={set("available_lbs")} />
-                  <FieldInput label="Total production (lbs)" type="number" field={field("total_production_lbs")} value={form.total_production_lbs ?? ""} onChange={set("total_production_lbs")} />
-                </div>
-                <FieldInput label="Flavor notes" field={field("flavor_notes")} value={form.flavor_notes ?? ""} onChange={set("flavor_notes")} />
-                <Button className="w-full" onClick={commitLotOffer} disabled={registerLot.isPending}>
-                  {registerLot.isPending ? "Registering…" : "Confirm & register lot"}
-                </Button>
-              </div>
             ) : (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <FieldInput label="Consignor" field={field("consignor")} value={form.consignor ?? ""} onChange={set("consignor")} />
-                  <FieldInput label="Consignee" field={field("consignee")} value={form.consignee ?? ""} onChange={set("consignee")} />
-                  <FieldInput label="Container #" field={field("container_number")} value={form.container_number ?? ""} onChange={set("container_number")} />
-                  <FieldInput label="Seal #" field={field("seal_number")} value={form.seal_number ?? ""} onChange={set("seal_number")} />
-                  <FieldInput label="Gross weight (lbs)" type="number" field={field("gross_weight_lbs")} value={form.gross_weight_lbs ?? ""} onChange={set("gross_weight_lbs")} />
-                  <FieldInput label="Shipped (YYYY-MM-DD)" field={field("shipped_date")} value={form.shipped_date ?? ""} onChange={set("shipped_date")} />
-                  <FieldInput label="Arrived (YYYY-MM-DD)" field={field("arrival_date")} value={form.arrival_date ?? ""} onChange={set("arrival_date")} />
-                </div>
-                <Button className="w-full" onClick={commitCmr} disabled={recordIntake.isPending}>
-                  {recordIntake.isPending ? "Recording…" : "Confirm & record intake"}
-                </Button>
-                <p className="text-[11px] text-muted-foreground">
-                  Weight variance against expectations? Open the Warehouse receiving wizard after
-                  recording — Runbook 2 classification lives there.
-                </p>
-              </div>
+              <ReviewPane
+                imageUrl={previewUrl}
+                fields={reviewFields}
+                onChange={(name, value) => set(name)(value)}
+                onAccept={result.doc_type === "lot_offer" ? commitLotOffer : commitCmr}
+                onReject={reset}
+                onReprocess={onExtract}
+                acceptLabel={
+                  result.doc_type === "lot_offer"
+                    ? "Accept & register lot"
+                    : "Accept & record intake"
+                }
+                busy={registerLot.isPending || recordIntake.isPending || extracting}
+              />
             )}
           </CardContent>
         </Card>

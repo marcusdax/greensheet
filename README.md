@@ -2,9 +2,20 @@
 
 The Auctum Ledger is the verified B2B distribution platform of the Auctum ecosystem (formerly Greensheet): the marketing, CRM, and transaction layer for specialty green coffee, connecting importers/exporters with roasters around verified, lot-level data. This repository contains the comprehensive expansion layer produced by a four-expert swarm (engineering, design, growth, localization), extending the base implementation architecture into a production-grade ecosystem.
 
+## What's New
+
+- Rebranded from "Greensheet" to "Auctum Ledger" and consolidated brand guidance.
+- Expanded the repository with production-grade engineering docs: OpenAPI contracts, event-driven pipeline (Kafka/CloudEvents/Avro), outbox pattern, and telemetry/database evolution.
+- Added security & compliance guidance (OIDC/RBAC, SOC 2, GDPR/CCPA) and a testing/chaos CI strategy.
+- Introduced a full design system: design tokens, component library, and production-ready email templates.
+- Published marketing playbooks, referral & churn playbooks, and a video/content production bible.
+- Internationalization support added for en-US, zh-CN, es-MX, pt-BR with locale validation scripts and an i18n audit CI.
+
+These highlights align README with the new architecture, operational, and localization work now present in the repo.
+
 ## Structure
 
-```
+```text
 engineering/        Systems & software architecture expansion
   01-domain-model-event-storming.md   Bounded contexts, domain events, policies (Mermaid)
   02-openapi-contract.md              OpenAPI 3.1 public API, webhooks, idempotency, GS-* error model

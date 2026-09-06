@@ -12,7 +12,16 @@ import { partnersRouter } from "./routers/partners";
 import { commsRouter } from "./routers/comms";
 import { educationRouter } from "./routers/education";
 import { growthRouter } from "./routers/growth";
+<<<<<<< HEAD
 import { managerRouter } from "./routers/manager";
+=======
+import { configRouter } from "./routers/config";
+import { invoicesRouter } from "./routers/invoices";
+import { paymentsRouter } from "./routers/payments";
+import { documentsRouter } from "./routers/documents";
+import { standingOrdersRouter } from "./routers/standing-orders";
+import { trustRouter } from "./routers/trust";
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -29,7 +38,19 @@ export const appRouter = createRouter({
   comms: commsRouter,
   education: educationRouter,
   growth: growthRouter,
+<<<<<<< HEAD
   manager: managerRouter,
+=======
+  // Vietnam Payment & Coffee Business Manager sprint (slices 0–3).
+  config: configRouter,
+  invoices: invoicesRouter,
+  payments: paymentsRouter,
+  documents: documentsRouter,
+  // §3.6 recurring B2B subscriptions.
+  standingOrders: standingOrdersRouter,
+  // Trust Score — the honesty layer.
+  trust: trustRouter,
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 });
 
 export type AppRouter = typeof appRouter;

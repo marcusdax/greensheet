@@ -173,8 +173,33 @@ export const QUALITY_TIERS = [
   { name: "Below Commercial", min: 0, max: 69.99, sharePct: 0 },
 ] as const;
 
+/**
+ * Cup score is a financial input: it sets the Revenue Share tier (B4). The
+ * column is `double`, which cannot represent 82.75 or 85.995 exactly, so every
+ * tier comparison rounds to 2dp first — write it once, use it everywhere.
+ */
+export const roundScore = (s: number) => Math.round(s * 100) / 100;
+
+/**
+ * Tier lookup by lower bound only, so the function is monotonic by construction
+ * and has no gap between one tier's `max` and the next tier's `min`. Scoring
+ * 85.995 rounds to 86.00 and pays 50%, not the 0% the old range test returned.
+ */
 export function qualityTierForScore(score: number) {
-  return QUALITY_TIERS.find((t) => score >= t.min && score <= t.max) ?? QUALITY_TIERS[4];
+  const s = roundScore(score);
+  return QUALITY_TIERS.find((t) => s >= t.min) ?? QUALITY_TIERS[QUALITY_TIERS.length - 1];
+}
+
+// ─── Units — the catalog trades in pounds, the warehouse in grams (§3.4) ─────
+// One rounding rule (half-up to the nearest gram), one place, never at a call site.
+export const GRAMS_PER_LB = 453.59237;
+
+export function lbsToGrams(lbs: number): number {
+  return Math.round(lbs * GRAMS_PER_LB);
+}
+
+export function gramsToLbs(grams: number): number {
+  return grams / GRAMS_PER_LB;
 }
 
 // Floor Payment SLA in business days by partner tier (Section 10.1)
@@ -217,3 +242,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   analyst: "Analyst",
   roaster_buyer: "Roaster Buyer",
 };
+
+// Money primitives live in their own module for size, but §9 names constants.ts
+// as the single import site for money/units/score — re-export so callers have one.
+export * from "./money";

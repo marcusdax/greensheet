@@ -1,4 +1,4 @@
-// Greensheet expansion seed — SOP education library, revenue-share partners,
+// Auctum Ledger expansion seed — SOP education library, revenue-share partners,
 // the POS-01…04 marketing calendar, and the COF-004 pricing-link rule.
 // Idempotent: each domain is guarded independently.
 import { eq } from "drizzle-orm";
@@ -52,7 +52,7 @@ released by disposition.
 - **reverify_partition** — re-weigh/re-test sub-lots; partition good from bad.
 
 ## Fault Parties
-supplier · carrier · customs · greensheet · indeterminate.
+supplier · carrier · customs · greensheet (Auctum's own operation) · indeterminate.
 Root cause and at-fault party are mandatory fields on every Tier 2/3 resolution.
 `;
 
@@ -189,7 +189,7 @@ parties receive a free 5lb bag. Tracked per referral code.
 
 async function seedExpansion() {
   const db = getDb();
-  console.log("Seeding Greensheet expansion domains...");
+  console.log("Seeding Auctum Ledger expansion domains...");
 
   // ─── SOP education library ───────────────────────────────────────────────
   const existingDocs = await db.select().from(sopDocuments).limit(1);
@@ -288,7 +288,7 @@ async function seedExpansion() {
       // Week 1 — POS-01 Value Before Tasting
       { pillar: "POS-01", channel: "linkedin", week: 1, status: "published", title: "The cupping table is the last place value is created", body: "Value is built at origin — varietal selection, picking discipline, drying curves. The cupping table only measures it. Here's how we price the work, not just the score. #ValueBeforeTasting" },
       { pillar: "POS-01", channel: "instagram", week: 1, status: "published", title: "Anatomy of a lot: 14 decisions before export", body: "Carousel: from cherry selection to moisture stabilization — the 14 decisions that determine what's in your hopper before you ever taste it." },
-      { pillar: "POS-01", channel: "newsletter", week: 1, status: "scheduled", title: "Why we publish cost structure with every lot", body: "Floor price, documented costs, revenue-share tier — every Greensheet lot ships with a True Price Receipt. This week's deep dive." },
+      { pillar: "POS-01", channel: "newsletter", week: 1, status: "scheduled", title: "Why we publish cost structure with every lot", body: "Floor price, documented costs, revenue-share tier — every Auctum lot ships with a True Price Receipt. This week's deep dive." },
       // Week 2 — POS-02 Price Is Signal
       { pillar: "POS-02", channel: "linkedin", week: 2, status: "draft", title: "Cheap coffee is expensive", body: "A $3.20/lb lot with a 9% defect rate costs more per usable pound than a $5.80 lot at 1.5%. Price is signal — learn to read it. #PriceIsSignal" },
       { pillar: "POS-02", channel: "twitter", week: 2, status: "draft", title: "Thread: what a True Price Receipt actually shows", body: "1/ Every payment we make to a producing partner generates a receipt: floor price, cup score, share %, documented costs. Here's why that changes buying…" },

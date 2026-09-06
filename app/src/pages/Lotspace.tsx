@@ -17,6 +17,7 @@ export default function Lotspace() {
     <Layout>
       <PageHeader
         title="LotSpace"
+<<<<<<< HEAD
         sub="Internal preview of the public teaser page â€” the social layer of the verified ledger"
       />
 
@@ -58,6 +59,23 @@ export default function Lotspace() {
           <div className="max-w-md">
             <WaitlistForm product="lotspace" dark />
           </div>
+=======
+        endorsement="by Auctum"
+        sub="Shared verified-lot marketplace — coming soon"
+      />
+      <div className="rounded-xl bg-[#16382a] text-[#eaf2ec] p-10 max-w-2xl">
+        <Boxes className="h-10 w-10 text-[#d9a441]" />
+        <h2 className="mt-4 text-2xl font-bold tracking-tight">
+          Split verified lots with roasters you trust.
+        </h2>
+        <p className="mt-3 text-sm text-[#c4d8cb] leading-relaxed max-w-prose">
+          LotSpace by Auctum lets smaller roasters pool demand on full-container verified lots —
+          shared freight, transparent splits, and the same ledger-backed lot record for
+          every participant. Early access opens to the waitlist first.
+        </p>
+        <div className="mt-8 max-w-md">
+          <WaitlistForm product="lotspace" />
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
         </div>
       </div>
 

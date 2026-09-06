@@ -18,7 +18,15 @@ import Lotspace from "./pages/Lotspace";
 import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
 import DocIntake from "./pages/DocIntake";
+<<<<<<< HEAD
 import Navigator from "./pages/Navigator";
+=======
+import Invoices from "./pages/Invoices";
+import Payments from "./pages/Payments";
+import Collections from "./pages/Collections";
+import Subscriptions from "./pages/Subscriptions";
+import Trust from "./pages/Trust";
+>>>>>>> 527c1b18d311003ed07956b97c9b37ef58a1c88c
 import Login from "./pages/Login";
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -58,6 +66,11 @@ export default function App() {
               <Route path="/samples" element={<Samples />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/payments" element={<Payments />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path="/subscriptions" element={<Subscriptions />} />
+              <Route path="/trust" element={<Trust />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/intake" element={<DocIntake />} />
               <Route path="/qc" element={<QcLab />} />
