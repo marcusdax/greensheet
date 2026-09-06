@@ -10,7 +10,7 @@ appear throughout and `GS-` error prefixes are expected.
 ## Feature ↔ Spec Mapping
 
 | Feature (working) | Spec source |
-|---|---|
+| --- | --- |
 | Catalog: lots, SCA cup-score badges, spot inventory, price changes, retire | `01-domain-model` §4.1, `02-openapi-contract` `/v1/catalog/lots` |
 | CRM: roaster accounts, lifecycle stages, LTV/CAC, churn hazard (0.70 threshold), interventions | `01-domain-model` §4.2, `04-database-evolution` |
 | Sample kits: state machine (requested→assembling→shipped→delivered→feedback), max 2 active kits, lot snapshots locked at assembly | `01-domain-model` §4.4 |
@@ -133,7 +133,7 @@ Twelve runtime flags, all defaulting to false and failing closed
 turns it on, and each one takes effect in under a minute with no deploy:
 
 | Flag | Turns on |
-|---|---|
+| --- | --- |
 | `ocrUpload` | Document intake and the OCR proposal pipeline |
 | `vietqrPayments` | VietQR intents, QR rendering, PayOS/Casso webhooks |
 | `autoAllocation` | Allocating a matched transfer without a human click |
