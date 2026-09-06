@@ -199,7 +199,7 @@ async function seed() {
     email: "admin@greensheet.local",
     name: "Admin User",
     passwordHash: "greensheet_admin_2025",
-    role: "admin",
+    role: "platform_admin",
     active: true,
   });
 

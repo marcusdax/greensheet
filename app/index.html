@@ -3,22 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<<<<<<< HEAD
-    <title>Auctum Ledger · Greensheet</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2316323E'/%3E%3Cellipse cx='16' cy='16' rx='9' ry='6' transform='rotate(30 16 16)' fill='%23C9A34A'/%3E%3Cpath d='M11 19.5 Q16 14.5 21 12.5' stroke='%2316323E' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <title>Auctum Ledger · Verified, From Origin</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23221E1B'/%3E%3Cpath d='M9 12h14M9 20h14M16 12v8' stroke='%23FAF9F4' stroke-width='1' fill='none'/%3E%3Cpath d='M10 16h12' stroke='%23C9A86A' stroke-width='1.2' fill='none'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,480;9..144,560;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-=======
-    <title>Auctum Ledger — Verified, From Origin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
->>>>>>> 74655d4a8597236534be742336bb3a80b4bbd80f
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,560;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Theme boot — apply Museum Folio dark mode before first paint.
+      (function () {
+        try {
+          var stored = localStorage.getItem("auctum-theme");
+          var dark =
+            stored === "dark" ||
+            (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.setAttribute("data-theme", "dark");
+          } else {
+            document.documentElement.setAttribute("data-theme", "light");
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

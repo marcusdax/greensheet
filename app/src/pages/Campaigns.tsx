@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { Mail, MessageSquare, Users, OctagonX, Zap } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,12 +15,37 @@ const ACTION_ICON: Record<string, typeof Mail> = {
   EXECUTE_CAMPAIGN_HALT: OctagonX,
 };
 
-const STATUS_STYLE: Record<string, string> = {
-  sent: "bg-success-soft text-success",
-  halted: "bg-muted text-muted-foreground",
-  lifecycle_updated: "bg-danger-soft text-danger",
-  converted: "bg-warning-soft text-warning",
+const STATUS_VARIANT: Record<string, "success" | "warning" | "danger" | "outline" | "brass"> = {
+  sent: "success",
+  halted: "danger",
+  lifecycle_updated: "warning",
+  converted: "brass",
 };
+
+function Medallion({
+  done,
+  children,
+  label,
+}: {
+  done: boolean;
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span
+        className={cn(
+          "flex h-9 w-9 items-center justify-center rounded-full border-2 border-neutral-600 transition-colors duration-fast",
+          done ? "bg-oxblood text-paper-50 border-oxblood shadow-e1" : "bg-surface text-muted",
+        )}
+        aria-label={label}
+      >
+        {children}
+      </span>
+      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted">{label}</span>
+    </div>
+  );
+}
 
 export default function Campaigns() {
   const utils = trpc.useUtils();
@@ -47,33 +73,48 @@ export default function Campaigns() {
           <Card key={c.id}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{c.name}</CardTitle>
-                <Badge className={c.status === "active" ? "bg-success-soft text-success" : ""}>{c.status}</Badge>
+                <CardTitle className="font-display text-lg">{c.name}</CardTitle>
+                <Badge variant={c.status === "active" ? "success" : "outline"}>{c.status}</Badge>
               </div>
               <p className="text-xs text-muted-foreground font-mono">{c.code}</p>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div className="grid md:grid-cols-2 gap-3">
                 {c.rules.map((r) => {
                   const Icon = ACTION_ICON[r.action] ?? Zap;
+                  const fired = r.dispatchCount > 0;
                   return (
-                    <div key={r.id} className="rounded-lg border p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-sm font-semibold">{r.ruleCode}</span>
+                    <div key={r.id} className="rounded-lg border border-border/80 bg-surface p-4 shadow-e1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-sm font-bold text-ink">{r.ruleCode}</span>
                         <Switch
                           checked={r.active}
+                          aria-label={`${r.ruleCode} armed`}
                           onCheckedChange={(active) => toggle.mutate({ ruleCode: r.ruleCode, active })}
                         />
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Icon className="h-3.5 w-3.5" />
-                        <span className="font-mono">{r.triggerEvent}</span>
-                        <span>→</span>
-                        <span>{r.action}</span>
+                      <div className="mt-4 flex items-start justify-between gap-3">
+                        <Medallion done label="Trigger">
+                          <Zap className="h-4 w-4" aria-hidden="true" />
+                        </Medallion>
+                        <span className="mt-4 h-[3px] flex-1 rounded-full bg-recessed" aria-hidden="true" />
+                        <Medallion done={fired} label="Condition">
+                          <Users className="h-4 w-4" aria-hidden="true" />
+                        </Medallion>
+                        <span className="mt-4 h-[3px] flex-1 rounded-full bg-recessed" aria-hidden="true" />
+                        <Medallion done={r.active} label="Action">
+                          <Icon className="h-4 w-4" aria-hidden="true" />
+                        </Medallion>
                       </div>
-                      <p className="text-xs text-muted-foreground">{r.conditionSummary}</p>
-                      <p className="text-xs">
-                        <span className="font-semibold">{r.dispatchCount}</span>{" "}
+                      <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="font-mono">{r.triggerEvent}</span>
+                        <span aria-hidden="true">→</span>
+                        <span>{r.conditionSummary}</span>
+                        <span aria-hidden="true">→</span>
+                        <span className="font-mono">{r.action}</span>
+                      </div>
+                      <p className="mt-3 border-t border-border/70 pt-3 text-xs">
+                        <span className="font-mono text-sm font-bold tabular-nums text-ink">{r.dispatchCount}</span>{" "}
                         <span className="text-muted-foreground">dispatches</span>
                       </p>
                     </div>
@@ -86,7 +127,7 @@ export default function Campaigns() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Dispatch Ledger</CardTitle>
+            <CardTitle className="font-display text-lg">Dispatch Ledger</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -111,7 +152,7 @@ export default function Campaigns() {
                     <TableCell className="text-xs">{d.roasterName}</TableCell>
                     <TableCell className="text-xs max-w-xs truncate" title={d.subject}>{d.subject}</TableCell>
                     <TableCell>
-                      <Badge className={`text-[10px] ${STATUS_STYLE[d.status] ?? ""}`}>{d.status}</Badge>
+                      <Badge variant={STATUS_VARIANT[d.status] ?? "outline"}>{d.status}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}

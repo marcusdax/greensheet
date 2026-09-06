@@ -11,15 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCents, LIFECYCLE_STAGES } from "@contracts/constants";
+import { riskChipColor } from "@/lib/chartTokens";
 import { Plus, RefreshCw, PhoneCall, CheckCircle2, XCircle, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const STAGE_STYLE: Record<string, string> = {
-  trial: "bg-warning-soft text-warning",
-  active: "bg-success-soft text-success",
-  dormant: "bg-muted text-muted-foreground",
-  needs_attention: "bg-danger-soft text-danger",
-  churned: "bg-roast text-parchment-50",
+  trial: "bg-warning-bg text-warning",
+  active: "bg-success-bg text-sage",
+  dormant: "bg-recessed text-muted",
+  needs_attention: "bg-danger-bg text-danger",
+  churned: "bg-ink text-paper-50",
 };
 
 export default function Crm() {
@@ -78,8 +79,8 @@ export default function Crm() {
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1" /> Register roaster</Button></DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader><DialogTitle>RegisterRoaster</DialogTitle></DialogHeader>
+              <DialogContent className="max-w-md border-border/80">
+                <DialogHeader><DialogTitle className="font-display text-xl">Register a roaster</DialogTitle></DialogHeader>
                 <form onSubmit={onRegister} className="space-y-3">
                   <div><Label>Roastery name</Label><Input name="roasterName" required placeholder="Blue Lantern Coffee Roasters" /></div>
                   <div><Label>Contact person</Label><Input name="contactName" required /></div>
@@ -165,13 +166,21 @@ export default function Crm() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Progress value={r.churnRiskScore * 100} className={`h-2 flex-1 ${r.churnRiskScore >= 0.7 ? "[&>div]:bg-destructive" : ""}`} />
-                      <span className="text-xs w-8">{r.churnRiskScore.toFixed(2)}</span>
+                      <span
+                        className="inline-block min-w-10 rounded-full px-2 py-0.5 text-center font-mono text-[11px] font-semibold tabular-nums"
+                        style={{
+                          backgroundColor: riskChipColor(r.churnRiskScore).bg,
+                          color: riskChipColor(r.churnRiskScore).fg,
+                        }}
+                      >
+                        {r.churnRiskScore.toFixed(2)}
+                      </span>
+                      <Progress value={r.churnRiskScore * 100} className={`h-[6px] flex-1 ${r.churnRiskScore >= 0.7 ? "[&>div]:bg-danger" : ""}`} />
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">{formatCents(r.ltvCents)}</TableCell>
-                  <TableCell className="text-sm">{formatCents(r.cacCents)}</TableCell>
-                  <TableCell className="text-sm">{r.orderCount}</TableCell>
+                  <TableCell className="font-mono text-sm tabular-nums">{formatCents(r.ltvCents)}</TableCell>
+                  <TableCell className="font-mono text-sm tabular-nums">{formatCents(r.cacCents)}</TableCell>
+                  <TableCell className="font-mono text-sm tabular-nums">{r.orderCount}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button

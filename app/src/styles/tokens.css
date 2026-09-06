@@ -1,0 +1,79 @@
+/* Auctum Ledger — Museum Folio design tokens (emitted from design-system/02-design-tokens.md).
+   RGB triplets; components consume via the Tailwind mapping in tailwind.config.js.
+   No new variables without an entry in the token traceability ledger. */
+
+:root {
+  /* surfaces */
+  --auctum-bg-canvas: 245 242 235;   /* paper #F5F2EB */
+  --auctum-bg-surface: 250 249 244;  /* paper-raised #FAF9F4 */
+  --auctum-bg-recessed: 237 231 218; /* #EDE7DA */
+  --auctum-bg-hover: 228 222 206;    /* #E4DECE */
+  /* text */
+  --auctum-text-primary: 34 30 27;   /* ink #221E1B */
+  --auctum-text-muted: 88 81 75;     /* ink-soft #58514B */
+  --auctum-text-subtle: 138 130 114; /* #8A8272 */
+  /* borders (triplets for rgb(var(--x))) */
+  --auctum-border-decorative: 217 211 201;   /* hairline #D9D3C9 */
+  --auctum-border-strong: 185 174 151;       /* #B9AE97 */
+  --auctum-border-interactive: 138 130 114;  /* #8A8272 */
+  /* brand statics (reference; also in tailwind config) */
+  --auctum-ink: #221E1B;
+  --auctum-ink-soft: #58514B;
+  --auctum-oxblood: #74362F;
+  --auctum-oxblood-hover: #5E2B25;
+  --auctum-brass: #947642;
+  --auctum-brass-text: #6E572C;
+  --auctum-sage: #4F6958;
+  --auctum-danger: #962C2C;
+  --auctum-border: #D9D3C9;
+  --auctum-border-strong: #B9AE97;
+  --auctum-border-interactive: #8A8272;
+  --auctum-success: #4F6958;
+  --auctum-success-bg: #E4EBE4;
+  --auctum-warning: #A36A29;
+  --auctum-warning-bg: #F6EBD8;
+  --auctum-danger-bg: #F5E0DE;
+  --auctum-info: #6E572C;
+  --auctum-info-bg: #F0E6CC;
+  /* elevation (ink-tinted) */
+  --auctum-e1: 0 1px 2px 0 rgb(34 30 27 / 0.07);
+  --auctum-e2: 0 2px 4px -1px rgb(34 30 27 / 0.08), 0 4px 8px -2px rgb(34 30 27 / 0.06);
+  --auctum-e3: 0 4px 8px -2px rgb(34 30 27 / 0.09), 0 10px 20px -4px rgb(34 30 27 / 0.08);
+  --auctum-e4: 0 8px 16px -4px rgb(34 30 27 / 0.1), 0 20px 32px -8px rgb(34 30 27 / 0.1);
+}
+
+[data-theme="dark"] {
+  --auctum-bg-canvas: 22 18 14;      /* #16120E */
+  --auctum-bg-surface: 33 27 20;     /* #211B14 */
+  --auctum-bg-recessed: 42 35 24;    /* #2A2318 */
+  --auctum-bg-hover: 54 44 30;       /* #362C1E */
+  --auctum-text-primary: 242 237 227;/* #F2EDE3 */
+  --auctum-text-muted: 179 169 150;  /* #B3A996 */
+  --auctum-text-subtle: 138 130 114;
+  /* borders (triplets) */
+  --auctum-border-decorative: 58 50 38;    /* #3A3226 */
+  --auctum-border-strong: 74 63 46;        /* #4A3F2E */
+  --auctum-border-interactive: 122 111 92; /* #7A6F5C */
+  --auctum-ink: #221E1B;
+  --auctum-ink-soft: #58514B;
+  --auctum-oxblood: #C9978F;
+  --auctum-oxblood-hover: #D8B0A8;
+  --auctum-brass: #C9A86A;
+  --auctum-brass-text: #C9A86A;
+  --auctum-sage: #8FAF9B;
+  --auctum-danger: #E08A80;
+  --auctum-border: #3A3226;
+  --auctum-border-strong: #4A3F2E;
+  --auctum-border-interactive: #7A6F5C;
+  --auctum-success: #8FAF9B;
+  --auctum-success-bg: #1E2A20;
+  --auctum-warning: #D9A45C;
+  --auctum-warning-bg: #332713;
+  --auctum-danger-bg: #331A16;
+  --auctum-info: #C9A86A;
+  --auctum-info-bg: #2A2210;
+  --auctum-e1: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --auctum-e2: 0 2px 4px -1px rgb(0 0 0 / 0.45), 0 4px 8px -2px rgb(0 0 0 / 0.4);
+  --auctum-e3: 0 4px 8px -2px rgb(0 0 0 / 0.5), 0 10px 20px -4px rgb(0 0 0 / 0.45);
+  --auctum-e4: 0 8px 16px -4px rgb(0 0 0 / 0.55), 0 20px 32px -8px rgb(0 0 0 / 0.5);
+}

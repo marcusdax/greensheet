@@ -38,24 +38,6 @@ export const coffeeLots = mysqlTable(
 );
 
 // ─── CRM Context ─────────────────────────────────────────────────────────────
-export const users = mysqlTable(
-  "users",
-  {
-    id: serial("id").primaryKey(),
-    email: varchar("email", { length: 320 }).notNull(),
-    name: varchar("name", { length: 255 }).notNull(),
-    passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
-    role: mysqlEnum("role", ["admin", "user", "operator"]).notNull().default("user"),
-    roasterId: bigint("roasterId", { mode: "number", unsigned: true }),
-    active: boolean("active").notNull().default(true),
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
-  },
-  (t) => [
-    index("users_email_idx").on(t.email),
-    index("users_roaster_idx").on(t.roasterId),
-  ]
-);
-
 export const roasters = mysqlTable(
   "roasters",
   {

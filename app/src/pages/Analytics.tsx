@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { trpc } from "@/providers/trpc";
-import Layout, { PageHeader, money } from "@/components/Layout";
+import Layout, { PageHeader } from "@/components/Layout";
+import { money } from "@/lib/money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CHART, TOOLTIP_STYLE, riskChipColor, sequentialScale } from "@/lib/chartTokens";
@@ -26,8 +27,8 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
   return (
     <Card>
       <CardContent className="pt-5">
-        <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</div>
-        <div className="mt-1 text-2xl font-bold tabular-nums">{value}</div>
+        <div className="folio">{label}</div>
+        <div className="mt-1 font-mono text-3xl font-bold tabular-nums text-ink">{value}</div>
         {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
       </CardContent>
     </Card>
@@ -102,7 +103,7 @@ export default function Analytics() {
         {/* ── Temporal demand heatmap ─────────────────────────────────────── */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Demand rhythm — orders by weekday × hour</CardTitle>
+            <CardTitle className="font-display text-lg">Demand rhythm — orders by weekday × hour</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -131,7 +132,7 @@ export default function Analytics() {
                           }
                           className="aspect-square rounded-[2px]"
                           style={{
-                            backgroundColor: cell ? sequentialScale(t) : "rgba(148,138,120,0.12)",
+                            backgroundColor: cell ? sequentialScale(t) : "rgb(var(--auctum-bg-recessed))",
                           }}
                         />
                       );
@@ -150,7 +151,7 @@ export default function Analytics() {
         {/* ── Retention cohort grid ───────────────────────────────────────── */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Retention cohorts — active buyers by week since first order</CardTitle>
+            <CardTitle className="font-display text-lg">Retention cohorts — active buyers by week since first order</CardTitle>
           </CardHeader>
           <CardContent>
             {cohorts?.cohorts.length ? (
@@ -180,7 +181,7 @@ export default function Analytics() {
                               style={
                                 cell.activeCount > 0
                                   ? { backgroundColor: sequentialScale(cell.pct), color: "#fff" }
-                                  : { backgroundColor: "rgba(148,138,120,0.12)", color: "inherit" }
+                                  : { backgroundColor: "rgb(var(--auctum-bg-recessed))", color: "inherit" }
                               }
                             >
                               {cell.activeCount > 0 ? `${Math.round(cell.pct * 100)}%` : "·"}
@@ -201,7 +202,7 @@ export default function Analytics() {
         {/* ── Lot loyalty matrix ──────────────────────────────────────────── */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Lot loyalty matrix — volume × reorder rate</CardTitle>
+            <CardTitle className="font-display text-lg">Lot loyalty matrix — volume × reorder rate</CardTitle>
           </CardHeader>
           <CardContent>
             {sortedLoyalty.length ? (
@@ -259,7 +260,7 @@ export default function Analytics() {
         {/* ── Churn watchlist ─────────────────────────────────────────────── */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Churn watchlist — 30d inactive or hazard ≥ threshold</CardTitle>
+            <CardTitle className="font-display text-lg">Churn watchlist — 30d inactive or hazard ≥ threshold</CardTitle>
           </CardHeader>
           <CardContent>
             {watchlist?.length ? (
@@ -270,7 +271,7 @@ export default function Analytics() {
                     <TableHead>Hazard</TableHead>
                     <TableHead className="text-right">Inactive</TableHead>
                     <TableHead className="text-right">LTV</TableHead>
-                    <TableHead className="text-right"></TableHead>
+                    <TableHead className="text-right">Review</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

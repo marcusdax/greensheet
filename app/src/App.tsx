@@ -18,6 +18,7 @@ import Lotspace from "./pages/Lotspace";
 import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
 import DocIntake from "./pages/DocIntake";
+import Navigator from "./pages/Navigator";
 import Login from "./pages/Login";
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -36,7 +37,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 // Buyers land on the catalog — the dashboard is a staff analytics surface.
 function Home() {
   const { user } = useAuth();
-  if (user?.role === "roaster_buyer") return <Navigate to="/catalog" replace />;
+  if (user?.role === "roaster_buyer") return <Navigate to="/navigator" replace />;
   return <Dashboard />;
 }
 
@@ -51,6 +52,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/analytics" element={<Analytics />} />
+              <Route path="/navigator" element={<Navigator />} />
               <Route path="/catalog" element={<Catalog />} />
               <Route path="/crm" element={<Crm />} />
               <Route path="/samples" element={<Samples />} />

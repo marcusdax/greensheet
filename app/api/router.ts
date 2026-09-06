@@ -13,7 +13,6 @@ import { commsRouter } from "./routers/comms";
 import { educationRouter } from "./routers/education";
 import { growthRouter } from "./routers/growth";
 import { managerRouter } from "./routers/manager";
-import { paymentsRouter } from "./routers/payments";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -31,7 +30,6 @@ export const appRouter = createRouter({
   education: educationRouter,
   growth: growthRouter,
   manager: managerRouter,
-  payments: paymentsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,0 +1,62 @@
+
+> app@0.0.0 test:run
+> vitest run
+
+
+ RUN  v4.1.10 C:/Users/wylde/github/greensheet/app
+
+ ❯ src/stores/selectors/__tests__/referral-selectors.test.ts (13 tests | 10 failed) 98ms
+     × useReferralCode returns the loaded referral code 16ms
+     × useReferralStats returns the loaded stats 3ms
+       × maps +0 qualified referrals to the 'Cupper' tier 3ms
+       × maps 2 qualified referrals to the 'Cupper' tier 4ms
+       × maps 3 qualified referrals to the 'Green Buyer' tier 2ms
+       × maps 6 qualified referrals to the 'Compass Circle' tier 2ms
+       × matches the seeded tier for r_001 3ms
+       × returns earned rewards minus clawed-back rewards for r_001 3ms
+       × returns 0 when earned and clawed-back rewards cancel out 2ms
+       × returns funnel fields from loaded stats 2ms
+node.exe : stderr | src/pages/__tests__/ReservationsPage.test.tsx > ReservationsPage > renders the page header and 
+empty state
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\wylde\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/pa...and empty state:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. 
+You can use the `v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+ ❯ src/pages/__tests__/ReservationsPage.test.tsx (2 tests | 2 failed) 220ms
+     × renders the page header and empty state 209ms
+     × lists an active reservation after one is created 5ms
+ ❯ src/pages/__tests__/WebhooksPage.test.tsx (2 tests | 2 failed) 174ms
+     × renders the page header and create webhook button 135ms
+     × reveals the signing secret once after creating a webhook 32ms
+ ❯ src/pages/__tests__/OrdersPage.test.tsx (2 tests | 2 failed) 205ms
+     × renders the page header and create button 162ms
+     × creates an order, reserves inventory, and updates the order list 37ms
+ ❯ src/pages/__tests__/AnalyticsPage.test.tsx (2 tests | 2 failed) 370ms
+     × renders the page header and refresh button 298ms
+     × renders derived analytics charts 66ms
+ ❯ src/pages/__tests__/RoastersPage.test.tsx (6 tests | 6 failed) 239ms
+     × renders roaster list 117ms
+     × selects a roaster and shows detail panel 21ms
+     × adds a roaster 18ms
+     × edits a roaster 23ms
+     × anonymizes a roaster 27ms
+     × logs an intervention for the selected roaster 25ms
+stderr | src/pages/__tests__/CatalogPage.test.tsx > CatalogPage > renders the page header and add lot button
+ ❯ src/pages/__tests__/SampleKitsPage.test.tsx (2 tests | 2 failed) 161ms
+     × renders the page header and request button 111ms
+     × opens the request sample kit modal 44ms
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. 
+You can use the `v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+ ❯ src/pages/__tests__/AutomationRulesPage.test.tsx (9 tests | 9 failed) 365ms

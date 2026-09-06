@@ -1,27 +1,31 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Search, Plus, Archive, Download } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 import Layout, { PageHeader } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CupScoreBadge } from "@/components/ui/cup-score-badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatCentsPerLb } from "@contracts/constants";
-import { Plus, Archive, DollarSign } from "lucide-react";
 import { toast } from "sonner";
-
-function cupScoreBadge(score: number) {
-  if (score >= 90) return "bg-gold text-ink";
-  if (score >= 85) return "bg-teal text-white";
-  if (score >= 80) return "bg-green text-white";
-  return "bg-muted-foreground text-parchment-50";
-}
 
 export default function Catalog() {
   const utils = trpc.useUtils();
   const { data: lots } = trpc.catalog.list.useQuery();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [process, setProcess] = useState("all");
+  const [minCup, setMinCup] = useState("all");
   const [priceLot, setPriceLot] = useState<{ id: number; price: number; name: string } | null>(null);
 
   const register = trpc.catalog.register.useMutation({
@@ -67,18 +71,62 @@ export default function Catalog() {
     });
   };
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (lots ?? [])
+      .filter((l) => (process === "all" ? true : l.processMethod === process))
+      .filter((l) => (minCup === "all" ? true : l.cupScore >= Number(minCup)))
+      .filter((l) =>
+        q ? `${l.name} ${l.origin} ${l.region} ${l.flavorNotes ?? ""}`.toLowerCase().includes(q) : true,
+      );
+  }, [lots, query, process, minCup]);
+
+  const processes = useMemo(
+    () => Array.from(new Set((lots ?? []).map((l) => l.processMethod))).sort(),
+    [lots],
+  );
+
+  const exportCsv = () => {
+    const rows = [
+      ["lot", "name", "origin", "region", "process", "cup", "price_per_lb_$", "cost_per_lb_$", "available_lbs", "total_lbs", "status"],
+      ...filtered.map((l) => [
+        String(l.id),
+        l.name,
+        l.origin,
+        l.region,
+        l.processMethod,
+        l.cupScore.toFixed(1),
+        (l.pricePerLbCents / 100).toFixed(2),
+        (l.costPerLbCents / 100).toFixed(2),
+        String(l.availableLbs),
+        String(l.totalProductionLbs),
+        l.status,
+      ]),
+    ];
+    const blob = new Blob([rows.map((r) => r.map((c) => `"${c.replaceAll('"', '""')}"`).join(",")).join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "auctum-catalog.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Layout>
       <PageHeader
         title="Green Coffee Catalog"
+        overline="Auctum · Source"
         sub="Lots, SCA cup scores, spot inventory — money stored as integer cents"
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 mr-1" /> Register lot</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>RegisterLot</DialogTitle></DialogHeader>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto border-border/80">
+              <DialogHeader><DialogTitle className="font-display text-xl">Register a lot</DialogTitle></DialogHeader>
               <form onSubmit={onRegister} className="grid grid-cols-2 gap-3">
                 <div className="col-span-2"><Label>Lot name</Label><Input name="name" required placeholder="Yirgacheffe G1 — Kochere" /></div>
                 <div><Label>Origin</Label><Input name="origin" required placeholder="Ethiopia" /></div>
@@ -101,59 +149,110 @@ export default function Catalog() {
         }
       />
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {lots?.map((lot) => (
-          <Card key={lot.id} className={lot.status === "retired" ? "opacity-55" : ""}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-base leading-snug">{lot.name}</CardTitle>
-                <Badge className={cupScoreBadge(lot.cupScore)}>{lot.cupScore.toFixed(1)} SCA</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {lot.region} · {lot.origin} · {lot.elevationMeters} m
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-1.5">
-                <Badge variant="outline">{lot.processMethod}</Badge>
-                <Badge variant="outline">{lot.varietal}</Badge>
-                {lot.status === "retired" && <Badge variant="destructive">retired</Badge>}
-              </div>
-              <p className="text-xs italic text-muted-foreground">{lot.flavorNotes}</p>
-              <div className="flex justify-between text-sm">
-                <span className="font-semibold text-primary">{formatCentsPerLb(lot.pricePerLbCents)}</span>
-                <span className={lot.availableLbs < 500 ? "text-destructive font-medium" : ""}>
-                  {lot.availableLbs.toLocaleString()} lbs spot
-                </span>
-              </div>
-              <div className="h-1.5 rounded bg-muted overflow-hidden">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${Math.min(100, (lot.availableLbs / Math.max(1, lot.totalProductionLbs)) * 100)}%` }}
-                />
-              </div>
-              {lot.status === "active" && (
-                <div className="flex gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setPriceLot({ id: lot.id, price: lot.pricePerLbCents / 100, name: lot.name })}
-                  >
-                    <DollarSign className="h-3.5 w-3.5 mr-1" /> Price
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => retire.mutate({ lotId: lot.id })}>
-                    <Archive className="h-3.5 w-3.5 mr-1" /> Retire
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-3">
+        <div className="relative min-w-56 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search lots, origins, regions…"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-background pl-9 pr-3 text-sm text-ink outline-none focus-visible:border-oxblood focus-visible:ring-2 focus-visible:ring-oxblood focus-visible:ring-offset-1"
+          />
+        </div>
+        <select
+          value={process}
+          onChange={(e) => setProcess(e.target.value)}
+          className="h-10 rounded-md border border-neutral-300 bg-background px-3 text-sm text-ink outline-none focus-visible:border-oxblood"
+          aria-label="Filter by process"
+        >
+          <option value="all">Any process</option>
+          {processes.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <select
+          value={minCup}
+          onChange={(e) => setMinCup(e.target.value)}
+          className="h-10 rounded-md border border-neutral-300 bg-background px-3 text-sm text-ink outline-none focus-visible:border-oxblood"
+          aria-label="Minimum cup score"
+        >
+          <option value="all">Any cup score</option>
+          {[86, 88, 90].map((v) => <option key={v} value={v}>{v === 90 ? "90+" : `${v}+`}</option>)}
+        </select>
+        <Button variant="outline" onClick={exportCsv} title="Export filtered rows as CSV">
+          <Download className="h-4 w-4 mr-1" /> Export CSV
+        </Button>
+      </div>
+
+      <p className="mb-3 text-caption text-muted-foreground" aria-live="polite">
+        {filtered.length} lot{filtered.length === 1 ? "" : "s"} on this ledger page.
+      </p>
+
+      <div className="overflow-hidden rounded-lg border border-border/80 bg-surface shadow-e1">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-10">#</TableHead>
+              <TableHead>Lot</TableHead>
+              <TableHead>Origin</TableHead>
+              <TableHead className="hidden lg:table-cell">Process</TableHead>
+              <TableHead className="text-right">Cup</TableHead>
+              <TableHead className="text-right">$/lb</TableHead>
+              <TableHead className="hidden md:table-cell text-right">Margin</TableHead>
+              <TableHead className="text-right">Available</TableHead>
+              <TableHead className="hidden xl:table-cell">Status</TableHead>
+              <TableHead className="w-24 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((lot, i) => {
+              const margin = lot.pricePerLbCents - lot.costPerLbCents;
+              return (
+                <TableRow key={lot.id} className={lot.status === "retired" ? "opacity-55" : ""}>
+                  <TableCell className="font-mono tabular-nums text-muted">{i + 1}</TableCell>
+                  <TableCell>
+                    <span className="font-medium text-ink">
+                      {lot.name}
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">{lot.region}</span>
+                  </TableCell>
+                  <TableCell className="text-muted">{lot.origin}</TableCell>
+                  <TableCell className="hidden lg:table-cell"><Badge variant="outline">{lot.processMethod}</Badge></TableCell>
+                  <TableCell className="text-right"><CupScoreBadge score={lot.cupScore} /></TableCell>
+                  <TableCell className="text-right font-mono font-semibold tabular-nums text-ink">
+                    {formatCentsPerLb(lot.pricePerLbCents)}
+                  </TableCell>
+                  <TableCell className={`hidden md:table-cell text-right font-mono tabular-nums ${margin < 0 ? "text-danger" : "text-sage"}`}>
+                    {margin < 0 ? "▲" : ""}{formatCentsPerLb(margin)}
+                  </TableCell>
+                  <TableCell className={`text-right font-mono tabular-nums ${lot.availableLbs < 500 ? "text-danger" : "text-muted"}`}>
+                    {lot.availableLbs.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell">
+                    {lot.status === "retired" ? <Badge variant="danger">Retired</Badge> : <Badge variant="success">Active</Badge>}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      {lot.status === "active" && (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => setPriceLot({ id: lot.id, price: lot.pricePerLbCents / 100, name: lot.name })}>
+                            Price
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => retire.mutate({ lotId: lot.id })}>
+                            <Archive className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
 
       <Dialog open={!!priceLot} onOpenChange={(o) => !o && setPriceLot(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>UpdateLotPricing — {priceLot?.name}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-sm border-border/80">
+          <DialogHeader><DialogTitle className="font-display text-xl">Update pricing — {priceLot?.name}</DialogTitle></DialogHeader>
           <form
             onSubmit={(e) => {
               e.preventDefault();

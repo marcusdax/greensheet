@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import { trpc } from "@/providers/trpc";
+﻿import { trpc } from "@/providers/trpc";
 import Layout, { PageHeader } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import WaitlistForm from "@/components/WaitlistForm";
@@ -18,14 +17,14 @@ export default function Foundry() {
     <Layout>
       <PageHeader
         title="Flavor Foundry"
-        sub="Internal preview of the public teaser page — coming-soon micro-lot processing menu"
+        sub="Internal preview of the public teaser page â€” coming-soon micro-lot processing menu"
       />
 
       <div
         className="relative overflow-hidden rounded-2xl text-parchment-100 p-10 mb-6"
         style={{ background: "linear-gradient(160deg, #16323E 0%, #0E1A22 100%)" }}
       >
-        {/* Earned-gold glow, top right — decorative */}
+        {/* Earned-gold glow, top right â€” decorative */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -40,7 +39,7 @@ export default function Foundry() {
           </h2>
           <p className="text-parchment-100/70 max-w-2xl mb-8 leading-relaxed">
             Flavor Foundry lets roasters commission a specific fermentation and drying protocol on a reserved
-            micro-lot — not just buy what's on the shelf. Explore 14 sensory families across three commitment
+            micro-lot â€” not just buy what's on the shelf. Explore 14 sensory families across three commitment
             tiers, from our standing House menu to a fully De Novo protocol built with our lab.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-9">
@@ -73,31 +72,6 @@ export default function Foundry() {
             </div>
           </div>
         </CardContent>
-      </Card>
-=======
-import Layout, { PageHeader } from "@/components/Layout";
-import WaitlistForm from "@/components/WaitlistForm";
-import { FlaskConical } from "lucide-react";
-
-export default function Foundry() {
-  return (
-    <Layout>
-      <PageHeader title="Flavor Foundry" sub="Experimental processing collaborations — coming soon" />
-      <div className="rounded-xl bg-[#16382a] text-[#eaf2ec] p-10 max-w-2xl">
-        <FlaskConical className="h-10 w-10 text-[#d9a441]" />
-        <h2 className="mt-4 text-2xl font-bold tracking-tight">
-          Co-design lots with the producers who grow them.
-        </h2>
-        <p className="mt-3 text-sm text-[#c4d8cb] leading-relaxed max-w-prose">
-          Flavor Foundry pairs roasters with origin partners to commission experimental
-          fermentations and processing runs — with the economics on the sheet from day one.
-          Early access opens to the waitlist first.
-        </p>
-        <div className="mt-8 max-w-md">
-          <WaitlistForm product="foundry" />
-        </div>
-      </div>
->>>>>>> 74655d4a8597236534be742336bb3a80b4bbd80f
-    </Layout>
+      </Card>    </Layout>
   );
 }

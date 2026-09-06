@@ -2,68 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Auctum Ledger theme — parchment grounds, Compass Navy ink, earned gold.
-   HSL triplets derive from design-system/02-design-tokens.md. */
+/* Auctum Ledger — Museum Folio. Semantic slots map to design-system/02-design-tokens.md.
+   Values are RGB triplets; the Tailwind config consumes them via rgb(var(--x)).
+   Theme flip is a single attribute: [data-theme="dark"] on <html> (boot script sets it). */
 @layer base {
   :root {
-    --background: 40 45.5% 93.5%;          /* parchment-100 #F6F1E7 */
-    --foreground: 35 21.4% 11%;            /* ink-900 #221D16 */
-    --card: 45 66.7% 97.6%;                /* parchment-50 #FDFBF5 */
-    --card-foreground: 35 21.4% 11%;
-    --popover: 45 66.7% 97.6%;
-    --popover-foreground: 35 21.4% 11%;
-    --primary: 198 47.6% 16.5%;            /* navy-700 #16323E */
-    --primary-foreground: 45 66.7% 97.6%;
-    --secondary: 40 39.6% 89.6%;           /* parchment-200 #EFE8DA */
-    --secondary-foreground: 40.9 13.6% 31.8%;
-    --muted: 40 39.6% 89.6%;
-    --muted-foreground: 40.9 13.6% 31.8%;  /* neutral-700 #5C5546 */
-    --accent: 42.2 33.3% 84.1%;            /* parchment-300 #E4DCC9 */
-    --accent-foreground: 35 21.4% 11%;
-    --destructive: 6.6 52.7% 40.6%;        /* status danger #9E3D31 */
-    --destructive-foreground: 45 66.7% 97.6%;
-    --border: 41.4 27.1% 79%;              /* neutral-400 #D8CFBB */
-    --input: 40.6 19.5% 65.9%;             /* neutral-500 #B9AE97 */
-    --ring: 184.1 46.5% 30.8%;             /* teal-600 #2A6E73 */
-    --radius: 0.625rem;
-    --sidebar-background: 204 41.7% 9.4%;  /* navy-900 */
-    --sidebar-foreground: 40 45.5% 93.5%;
-    --sidebar-primary: 44.7 55.2% 62.4%;   /* gold-300 */
-    --sidebar-primary-foreground: 204 41.7% 9.4%;
-    --sidebar-accent: 200.7 44.6% 12.7%;
-    --sidebar-accent-foreground: 40 45.5% 93.5%;
-    --sidebar-border: 204.8 20% 28.4%;
-    --sidebar-ring: 44.7 55.2% 62.4%;
+    --background: 245 242 235;          /* bg-canvas — paper #F5F2EB */
+    --foreground: 34 30 27;             /* text-primary — ink #221E1B */
+    --card: 250 249 244;                /* bg-surface — paper-raised #FAF9F4 */
+    --card-foreground: 34 30 27;
+    --popover: 250 249 244;
+    --popover-foreground: 34 30 27;
+    --primary: 116 54 47;               /* action.primary — oxblood #74362F */
+    --primary-foreground: 250 249 244;  /* paper-raised text on oxblood (8.62:1 AAA) */
+    --secondary: 237 231 218;           /* bg-recessed — paper-200 #EDE7DA */
+    --secondary-foreground: 34 30 27;
+    --muted: 237 231 218;
+    --muted-foreground: 88 81 75;       /* text-muted — ink-soft #58514B (6.97:1 AA) */
+    --accent: 228 222 206;              /* bg-hover — paper-300 #E4DECE */
+    --accent-foreground: 34 30 27;
+    --destructive: 150 44 44;           /* status.danger #962C2C */
+    --destructive-foreground: 250 249 244;
+    --border: 217 211 201;              /* border.decorative — hairline #D9D3C9 */
+    --input: 138 130 114;               /* border.interactive #8A8272 (3.40:1) */
+    --ring: 116 54 47;                  /* border.focus — oxblood */
+    --sidebar-background: 34 30 27;     /* ink-900 */
+    --sidebar-foreground: 250 249 244;
+    --sidebar-primary: 200 155 152;     /* oxblood-300 (dark-mode accent on ink) */
+    --sidebar-primary-foreground: 34 30 27;
+    --sidebar-accent: 57 48 40;
+    --sidebar-accent-foreground: 242 237 227;
+    --sidebar-border: 57 48 40;
+    --sidebar-ring: 148 118 66;
   }
 
-  .dark {
-    --background: 205.3 37.3% 10%;         /* #101B23 */
-    --foreground: 42 38.5% 89.8%;          /* #EFE9DB */
-    --card: 205 30.8% 15.3%;               /* #1B2933 */
-    --card-foreground: 42 38.5% 89.8%;
-    --popover: 205 30.8% 15.3%;
-    --popover-foreground: 42 38.5% 89.8%;
-    --primary: 184.1 29.9% 61.4%;          /* teal-300 #7FB6BA */
-    --primary-foreground: 205.3 37.3% 10%;
-    --secondary: 204.8 29.9% 19%;          /* #22333F */
-    --secondary-foreground: 42 38.5% 89.8%;
-    --muted: 204.8 29.9% 19%;
-    --muted-foreground: 41.4 14.4% 60.6%;  /* #A9A08C */
-    --accent: 203.2 27% 22.5%;             /* #2A3D49 */
-    --accent-foreground: 42 38.5% 89.8%;
-    --destructive: 7.4 65.9% 73.5%;        /* #E89A8F */
-    --destructive-foreground: 205.3 37.3% 10%;
-    --border: 204.8 20% 28.4%;             /* #3A4B57 */
-    --input: 207.3 14.8% 43.7%;            /* #5F7180 */
-    --ring: 184.1 29.9% 61.4%;
-    --sidebar-background: 205.3 37.3% 10%;
-    --sidebar-foreground: 42 38.5% 89.8%;
-    --sidebar-primary: 44.7 55.2% 62.4%;
-    --sidebar-primary-foreground: 205.3 37.3% 10%;
-    --sidebar-accent: 204.8 29.9% 19%;
-    --sidebar-accent-foreground: 42 38.5% 89.8%;
-    --sidebar-border: 204.8 20% 28.4%;
-    --sidebar-ring: 44.7 55.2% 62.4%;
+  .dark,
+  [data-theme="dark"] {
+    --background: 22 18 14;             /* #16120E */
+    --foreground: 242 237 227;          /* #F2EDE3 */
+    --card: 33 27 20;                   /* #211B14 */
+    --card-foreground: 242 237 227;
+    --popover: 33 27 20;
+    --popover-foreground: 242 237 227;
+    --primary: 201 151 143;             /* oxblood-300 #C9978F */
+    --primary-foreground: 22 18 14;     /* ink text on oxblood-300 (7.37:1 AAA) */
+    --secondary: 42 35 24;              /* #2A2318 */
+    --secondary-foreground: 242 237 227;
+    --muted: 42 35 24;
+    --muted-foreground: 179 169 150;    /* #B3A996 (7.33:1 AA on surface) */
+    --accent: 54 44 30;                 /* #362C1E */
+    --accent-foreground: 242 237 227;
+    --destructive: 224 138 128;         /* #E08A80 */
+    --destructive-foreground: 22 18 14;
+    --border: 58 50 38;                 /* #3A3226 */
+    --input: 122 111 92;                /* #7A6F5C (3.46:1) */
+    --ring: 201 151 143;
+    --sidebar-background: 22 18 14;
+    --sidebar-foreground: 242 237 227;
+    --sidebar-primary: 148 118 66;      /* brass-500 */
+    --sidebar-primary-foreground: 250 249 244;
+    --sidebar-accent: 42 35 24;
+    --sidebar-accent-foreground: 242 237 227;
+    --sidebar-border: 58 50 38;
+    --sidebar-ring: 148 118 66;
   }
 }
 
@@ -81,8 +82,8 @@
     font-variant-numeric: tabular-nums; /* figures align like the paper ledger */
   }
   ::selection {
-    background: #f0e6cc; /* gold-100 */
-    color: #221d16;
+    background: #f0e6cc; /* brass-100 */
+    color: #221e1b;
   }
   ::-webkit-scrollbar {
     width: 10px;
@@ -106,11 +107,19 @@
 @layer utilities {
   /* Overline label — tokens §typography "overline" */
   .overline-label {
-    @apply text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground;
+    @apply text-caption font-bold uppercase tracking-[0.18em] text-muted-foreground;
   }
-  /* Gold hairline rule under page headers — "gold is earned" */
-  .gold-rule {
-    @apply h-px w-full bg-gradient-to-r from-gold/70 via-border to-transparent;
+  /* Ledger double-rule under page headers and table header rows */
+  .ledger-rule {
+    @apply border-b-2 border-foreground;
+  }
+  /* Museum Folio metadata line: "FOLIO 03 — THE LEDGER" */
+  .folio {
+    @apply overline-label text-brass;
+  }
+  /* Archival plate caption below figures and plates */
+  .plate-caption {
+    @apply text-caption text-muted-foreground;
   }
 }
 

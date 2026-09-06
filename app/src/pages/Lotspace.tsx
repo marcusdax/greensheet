@@ -1,12 +1,11 @@
-<<<<<<< HEAD
-import { trpc } from "@/providers/trpc";
+﻿import { trpc } from "@/providers/trpc";
 import Layout, { PageHeader } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import WaitlistForm from "@/components/WaitlistForm";
 import { Boxes, Repeat, Users, Compass } from "lucide-react";
 
 const FEATURES = [
-  { icon: Compass, name: "Sovereign Spaces", desc: "Every farm, roaster, and café keeps a data-rich Space — identity, shopfront, and income ledger in one page." },
+  { icon: Compass, name: "Sovereign Spaces", desc: "Every farm, roaster, and cafÃ© keeps a data-rich Space â€” identity, shopfront, and income ledger in one page." },
   { icon: Boxes, name: "The live offer board", desc: "Surplus and micro-lot inventory listed the moment it's cut loose, priced against the verified ledger." },
   { icon: Repeat, name: "Trade on the graph", desc: "Follow farms, swap allocations roaster-to-roaster, and route every deal back through the transaction rails." },
 ];
@@ -18,7 +17,7 @@ export default function Lotspace() {
     <Layout>
       <PageHeader
         title="LotSpace"
-        sub="Internal preview of the public teaser page — the social layer of the verified ledger"
+        sub="Internal preview of the public teaser page â€” the social layer of the verified ledger"
       />
 
       <div
@@ -38,7 +37,7 @@ export default function Lotspace() {
             Every farm a Space. Every lot a ledger. Every cup a connection.
           </h2>
           <p className="text-parchment-100/70 max-w-2xl mb-8 leading-relaxed">
-            LotSpace is the offer sheet, made social — an open network layered on the verified Greensheet
+            LotSpace is the offer sheet, made social â€” an open network layered on the verified Greensheet
             ledger where farmers, collectors, roasters, and drinkers connect directly and trade against the
             same source of truth. The farmer's name is the brand; the lot is the ledger.
           </p>
@@ -72,31 +71,6 @@ export default function Lotspace() {
             </div>
           </div>
         </CardContent>
-      </Card>
-=======
-import Layout, { PageHeader } from "@/components/Layout";
-import WaitlistForm from "@/components/WaitlistForm";
-import { Boxes } from "lucide-react";
-
-export default function Lotspace() {
-  return (
-    <Layout>
-      <PageHeader title="Lotspace" sub="Shared verified-lot marketplace — coming soon" />
-      <div className="rounded-xl bg-[#16382a] text-[#eaf2ec] p-10 max-w-2xl">
-        <Boxes className="h-10 w-10 text-[#d9a441]" />
-        <h2 className="mt-4 text-2xl font-bold tracking-tight">
-          Split verified lots with roasters you trust.
-        </h2>
-        <p className="mt-3 text-sm text-[#c4d8cb] leading-relaxed max-w-prose">
-          Lotspace lets smaller roasters pool demand on full-container verified lots —
-          shared freight, transparent splits, and the same ledger-backed lot record for
-          every participant. Early access opens to the waitlist first.
-        </p>
-        <div className="mt-8 max-w-md">
-          <WaitlistForm product="lotspace" />
-        </div>
-      </div>
->>>>>>> 74655d4a8597236534be742336bb3a80b4bbd80f
-    </Layout>
+      </Card>    </Layout>
   );
 }
