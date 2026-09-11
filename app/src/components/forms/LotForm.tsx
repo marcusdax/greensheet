@@ -18,7 +18,7 @@ const processingOptions = [
 const lotFormSchema = z.object({
   origin: z.string().min(1).max(100),
   varietal: z.string().max(100).optional().nullable(),
-  processingMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable().or(z.literal('')),
+  processMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable().or(z.literal('')),
   elevation: z.number().int().positive().optional().nullable(),
   cupScore: z.number().min(0).max(100),
   pricePerLb: z.number().min(0.01),
@@ -30,7 +30,7 @@ const lotFormSchema = z.object({
 }).transform((data) => ({
   origin: data.origin,
   varietal: data.varietal || undefined,
-  processingMethod: data.processingMethod === '' || data.processingMethod == null ? undefined : data.processingMethod,
+  processMethod: data.processMethod === '' || data.processMethod == null ? undefined : data.processMethod,
   elevation: data.elevation ?? undefined,
   cupScore: data.cupScore,
   pricePerLbCents: Math.round(data.pricePerLb * 100),
@@ -47,7 +47,7 @@ type LotFormValues = z.input<typeof lotFormSchema>;
 const emptyDefaults: LotFormValues = {
   origin: '',
   varietal: null,
-  processingMethod: '',
+  processMethod: '',
   elevation: null,
   cupScore: 0,
   pricePerLb: 0,
@@ -73,7 +73,7 @@ export const LotForm: React.FC<{
         <InputField name="origin" label="Origin" />
         <InputField name="varietal" label="Varietal" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <SelectField name="processingMethod" label="Process" options={processingOptions} />
+          <SelectField name="processMethod" label="Process" options={processingOptions} />
           <NumberField name="elevation" label="Elevation (m)" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

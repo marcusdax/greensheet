@@ -8,7 +8,7 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('Vietnam');
     expect(prompt).toContain('Robusta');
     expect(prompt).toContain('EUDR');
-    expect(prompt).toContain('ODASI');
+    expect(prompt).toContain('Auctum');
   });
 
   it('concatenates all prompt sections', () => {

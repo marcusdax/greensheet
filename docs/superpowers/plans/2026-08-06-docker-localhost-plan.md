@@ -1,8 +1,8 @@
-# Docker Localhost Setup for Greensheet Platform — Implementation Plan
+# Docker Localhost Setup for Auctum Ledger Platform — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add Docker Compose support so the Greensheet Vite React frontend and Express AI proxy can be launched locally with one command, in both development (hot reload) and production-like (multi-stage build) modes.
+**Goal:** Add Docker Compose support so the Auctum Ledger Vite React frontend and Express AI proxy can be launched locally with one command, in both development (hot reload) and production-like (multi-stage build) modes.
 
 **Architecture:** Two Dockerfiles (`Dockerfile.app` and `Dockerfile.proxy`) produce multi-stage images; `docker-compose.yml` runs production-like static assets via Nginx plus the proxy, while `docker-compose.dev.yml` overrides both services with bind mounts and dev commands for hot reload. The browser AI client calls `http://localhost:3001` in both modes.
 
@@ -216,7 +216,7 @@ git commit -m "chore(docker): add nginx config for static frontend serving"
 
 **Interfaces:**
 - Consumes: `app/package*.json`, `app/nginx.conf`, source code in `app/`
-- Produces: image targets `greensheet-app:dev` and `greensheet-app:prod`
+- Produces: image targets `auctum-ledger-app:dev` and `auctum-ledger-app:prod`
 
 - [ ] **Step 1: Create the Dockerfile**
 
@@ -250,7 +250,7 @@ CMD ["nginx", "-g", "daemon off;"]
 Run:
 
 ```bash
-cd app && docker build -f Dockerfile.app --target dev -t greensheet-app:dev .
+cd app && docker build -f Dockerfile.app --target dev -t auctum-ledger-app:dev .
 ```
 
 Expected: build completes with no errors and the final line shows a success message.
@@ -271,7 +271,7 @@ git commit -m "feat(docker): add multi-stage Dockerfile for Vite frontend"
 
 **Interfaces:**
 - Consumes: `app/package*.json`, `app/server/**/*.ts`
-- Produces: image targets `greensheet-proxy:dev` and `greensheet-proxy:prod`
+- Produces: image targets `auctum-ledger-proxy:dev` and `auctum-ledger-proxy:prod`
 
 - [ ] **Step 1: Create the Dockerfile**
 
@@ -300,7 +300,7 @@ CMD ["npx", "tsx", "server/index.ts"]
 Run:
 
 ```bash
-cd app && docker build -f Dockerfile.proxy --target dev -t greensheet-proxy:dev .
+cd app && docker build -f Dockerfile.proxy --target dev -t auctum-ledger-proxy:dev .
 ```
 
 Expected: build completes with no errors.
@@ -310,7 +310,7 @@ Expected: build completes with no errors.
 Run:
 
 ```bash
-cd app && docker build -f Dockerfile.proxy --target prod -t greensheet-proxy:prod .
+cd app && docker build -f Dockerfile.proxy --target prod -t auctum-ledger-proxy:prod .
 ```
 
 Expected: build completes with no errors.
@@ -537,9 +537,9 @@ git commit -m "feat(docker): add dev compose override with bind mounts and hot r
 Create `docs/docker.md`:
 
 ```markdown
-# Running Greensheet locally with Docker
+# Running Auctum Ledger locally with Docker
 
-This setup runs the full Greensheet platform — Vite React frontend + Express AI proxy — in Docker.
+This setup runs the full Auctum Ledger platform — Vite React frontend + Express AI proxy — in Docker.
 
 ## Requirements
 
@@ -606,7 +606,7 @@ Run:
 head -n 20 docs/docker.md
 ```
 
-Expected: the file begins with `# Running Greensheet locally with Docker`.
+Expected: the file begins with `# Running Auctum Ledger locally with Docker`.
 
 - [ ] **Step 3: Commit**
 

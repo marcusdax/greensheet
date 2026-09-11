@@ -17,7 +17,7 @@ describe('RuleForm', () => {
     const conditions = screen.getByLabelText('Conditions JSON');
     const submit = screen.getByRole('button', { name: /save/i });
 
-    fireEvent.change(ruleCode, { target: { value: 'COF-001' } });
+    fireEvent.change(ruleCode, { target: { value: 'ALT-001' } });
     fireEvent.change(ruleName, { target: { value: 'Welcome Series' } });
     fireEvent.change(triggerEvent, { target: { value: 'roaster.registered' } });
 
@@ -36,7 +36,7 @@ describe('RuleForm', () => {
     expect(handleSubmit).toHaveBeenLastCalledWith(
       expect.objectContaining({
         campaignId,
-        ruleCode: 'COF-001',
+        ruleCode: 'ALT-001',
         ruleName: 'Welcome Series',
         triggerEvent: 'roaster.registered',
         conditionsJson: { foo: 'bar' },

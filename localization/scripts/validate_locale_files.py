@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Greensheet locale files: JSON validity, key parity, plural
+"""Validate Auctum Ledger locale files: JSON validity, key parity, plural
 categories, placeholder consistency, and brand-term preservation.
 
 Usage:
@@ -30,7 +30,7 @@ REQUIRED_CATEGORIES = {
 }
 
 # Brand / technical tokens that must survive translation untranslated.
-PROTECTED_TOKENS = ("Greensheet", "SCA", "ESG", "Q Grader")
+PROTECTED_TOKENS = ("Auctum", "Ledger")
 
 # Placeholders: UI uses i18next {{name}}; email/SMS merge tags use {name}.
 MERGE_TAG_RE = re.compile(r"(?<!\{)\{([a-z][a-z0-9_]*)\}(?!\})")

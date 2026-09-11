@@ -17,6 +17,7 @@ import { createConnectionsSlice, type ConnectionsSlice, initialConnectionsState 
 import { createSpacesSlice, type SpacesSlice, initialSpacesState } from './slices/spaces-slice';
 import { createFeedsSlice, type FeedsSlice, initialFeedsState } from './slices/feeds-slice';
 import { createReputationSlice, type ReputationSlice, initialReputationState } from './slices/reputation-slice';
+import { createReferralsSlice, type ReferralsSlice, initialReferralsState } from './slices/referrals-slice';
 import { useAiStore } from './ai-store';
 
 export type RootStore = {
@@ -36,6 +37,7 @@ export type RootStore = {
   spaces: SpacesSlice;
   feeds: FeedsSlice;
   reputation: ReputationSlice;
+  referrals: ReferralsSlice;
 };
 
 export const useRootStore = create<RootStore>()(
@@ -59,6 +61,7 @@ export const useRootStore = create<RootStore>()(
           spaces: createSpacesSlice(set, get),
           feeds: createFeedsSlice(set, get),
           reputation: createReputationSlice(set, get),
+          referrals: createReferralsSlice(set, get),
         })),
       ),
       {
@@ -111,6 +114,7 @@ export const useConnections = () => useRootStore((s) => s.connections);
 export const useSpaces = () => useRootStore((s) => s.spaces);
 export const useFeeds = () => useRootStore((s) => s.feeds);
 export const useReputation = () => useRootStore((s) => s.reputation);
+export const useReferrals = () => useRootStore((s) => s.referrals);
 
 export function resetStore() {
   useAiStore.getState().resetAi();
@@ -127,5 +131,6 @@ export function resetStore() {
     spaces: { ...state.spaces, ...initialSpacesState },
     feeds: { ...state.feeds, ...initialFeedsState },
     reputation: { ...state.reputation, ...initialReputationState },
+    referrals: { ...state.referrals, ...initialReferralsState },
   }));
 }

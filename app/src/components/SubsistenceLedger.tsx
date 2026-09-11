@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SubsistenceLedger as SubsistenceLedgerType } from '../types/lotspace';
+import type { SubsistenceLedger as SubsistenceLedgerType } from '../types/ledger';
 
 interface SubsistenceLedgerProps {
   ledger: SubsistenceLedgerType;
@@ -11,35 +11,35 @@ const PILLARS = [
     key: 'householdCentsPerLb' as const,
     label: 'Household',
     shortLabel: 'HH',
-    color: '#2A6E73',   // teal
+    bgClass: 'bg-teal',   // teal #2A6E73
     description: 'Food, shelter, clothing, education',
   },
   {
     key: 'operatingCentsPerLb' as const,
     label: 'Operating',
     shortLabel: 'OP',
-    color: '#3E6B50',   // leaf green
+    bgClass: 'bg-leaf',   // leaf #3E6B50
     description: 'Seeds, fertilizer, labor, processing',
   },
   {
     key: 'debtCentsPerLb' as const,
     label: 'Debt Service',
     shortLabel: 'DS',
-    color: '#8C3B34',   // cherry
+    bgClass: 'bg-cherry',   // cherry #8C3B34
     description: 'Input loans & credit repayment',
   },
   {
     key: 'infrastructureCentsPerLb' as const,
     label: 'Infrastructure',
     shortLabel: 'INF',
-    color: '#4A3527',   // roast
+    bgClass: 'bg-roast',   // roast #4A3527
     description: 'Farm maintenance, equipment depreciation',
   },
   {
     key: 'resilienceCentsPerLb' as const,
     label: 'Resilience',
     shortLabel: 'RES',
-    color: '#C9A34A',   // gold
+    bgClass: 'bg-gold',   // gold #C9A34A
     description: 'Crop insurance, savings, climate buffer',
   },
 ];
@@ -82,9 +82,9 @@ export const SubsistenceLedger: React.FC<SubsistenceLedgerProps> = ({
             return (
               <div
                 key={pillar.key}
-                style={{ width: `${pct}%`, backgroundColor: pillar.color }}
+                style={{ width: `${pct}%` }}
                 title={`${pillar.label}: ${centsToDisplay(ledger[pillar.key])}/lb`}
-                className="transition-all duration-base"
+                className={`transition-all duration-base ${pillar.bgClass}`}
               />
             );
           })}
@@ -112,8 +112,7 @@ export const SubsistenceLedger: React.FC<SubsistenceLedgerProps> = ({
           {PILLARS.map((pillar) => (
             <div key={pillar.key} className="flex items-center gap-2.5">
               <div
-                className="w-2.5 h-2.5 rounded-xs shrink-0"
-                style={{ backgroundColor: pillar.color }}
+                className={`w-2.5 h-2.5 rounded-xs shrink-0 ${pillar.bgClass}`}
               />
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-sans text-ink font-medium">{pillar.label}</span>

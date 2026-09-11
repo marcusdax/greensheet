@@ -1,6 +1,6 @@
 # 03 — Referral Engine Playbook ("Give a Kit, Get a Bag")
 
-> Implements base doc §I.2 *Referral Program Engine* ("viral coefficient tracking with UTM-aware referral attribution"). Integrates with COF-005 (file 02) as the referral seed touchpoint, and with the churn model: referred accounts carry a `sample_kit_redemption`-style trust covariate — referred roasters historically show ~0.7× the churn hazard of cold-acquired ones, which is why this program is allowed to spend real money.
+> Implements base doc §I.2 *Referral Program Engine* ("viral coefficient tracking with UTM-aware referral attribution"). Integrates with ALT-005 (file 02) as the referral seed touchpoint, and with the churn model: referred accounts carry a `sample_kit_redemption`-style trust covariate — referred roasters historically show ~0.7× the churn hazard of cold-acquired ones, which is why this program is allowed to spend real money.
 > Economic guardrails inherited from `01-growth-architecture.md`: referral CAC ≤ $200 (economic cost, §3.4), LTV:CAC ≥ 3:1 per segment, no reward that can be gamed into cash.
 
 ---
@@ -31,9 +31,9 @@ Specialty coffee is a **reputation community**, not a market of strangers. Green
 |---|---|---|
 | **Cupper** | 0–2 qualified referrals | Base offer |
 | **Green Buyer** | 3–5 | + Early access to one micro-lot drop per quarter (allocation before public listing) |
-| **Compass Circle** | 6+ | + Annual origin-trip raffle seat, co-branded cupping event hosted by Greensheet in their city, permanent "Founding Compass" badge |
+| **Ledger Circle** | 6+ | + Annual origin-trip raffle seat, co-branded cupping event hosted by Auctum Ledger in their city, permanent "Founding Seal" badge |
 
-Note the tiers escalate *access and status*, not cash. Cash escalation attracts bounty hunters; access escalation attracts evangelists. Cost of Compass Circle perks ≈ $400/yr per member — trivial against 6 × ~$2,100 yr-1 referred contribution.
+Note the tiers escalate *access and status*, not cash. Cash escalation attracts bounty hunters; access escalation attracts evangelists. Cost of Ledger Circle perks ≈ $400/yr per member — trivial against 6 × ~$2,100 yr-1 referred contribution.
 
 ### 2.3 What we deliberately don't do
 
@@ -57,16 +57,16 @@ Note the tiers escalate *access and status*, not cash. Cash escalation attracts 
 | Scenario | i | c | K | Multiplier M | Meaning |
 |---|---|---|---|---|---|
 | Launch baseline (seeded advocates only) | 2.4 | 18% | 0.43 | 1.75× | Every 100 paid acquisitions yield ~75 more over time |
-| Target @ month 6 (COF-005 seed + in-product card) | 3.4 | 18% | 0.61 | 2.56× | Guardrail KPI from file 01: K ≥ 0.6 |
+| Target @ month 6 (ALT-005 seed + in-product card) | 3.4 | 18% | 0.61 | 2.56× | Guardrail KPI from file 01: K ≥ 0.6 |
 | Stretch @ month 12 (tiers live, event loop) | 4.2 | 24% | 1.01 | ∞ (borderline) | Treated as upside, never as plan |
 
-**Levers ranked by sensitivity** (elasticity of K, from pilot data priors): (1) `c` — referee first-order rate: +1pp ≈ +0.034 K. Biggest lever; improved by kit quality and the $100 discount depth. (2) `i` — invites per account: +0.5 invites ≈ +0.09 K at c=18%; improved by placing the referral card on the *delivery confirmation* page (delight peak) and in COF-005-E1. (3) Cycle time: cutting the invite→order cycle 21d → 14d raises effective monthly K by ~30% without changing i or c (faster compounding).
+**Levers ranked by sensitivity** (elasticity of K, from pilot data priors): (1) `c` — referee first-order rate: +1pp ≈ +0.034 K. Biggest lever; improved by kit quality and the $100 discount depth. (2) `i` — invites per account: +0.5 invites ≈ +0.09 K at c=18%; improved by placing the referral card on the *delivery confirmation* page (delight peak) and in ALT-005-E1. (3) Cycle time: cutting the invite→order cycle 21d → 14d raises effective monthly K by ~30% without changing i or c (faster compounding).
 
 ### 3.3 Funnel instrumentation (per cycle, per cohort)
 
 ```
 invites_sent  →  invite_clicked  →  account_created  →  kit_requested  →  kit_delivered
-     →  feedback.submitted  →  first_order.delivered  (= qualified referral)
+      →  feedback.submitted  →  first_order.delivered  (= qualified referral)
 ```
 
 Track each hop in `campaign_engagements` (UTM fields) + `platform_metrics` (`metric_name='referral_invite'`, dimensions `{referrer_id, channel}`). Dashboard targets per hop: click 45% → signup 60% → kit 70% → feedback 45% → order 40%. Composite c = 45%×60%×70%×45%×40% ≈ **3.4% per raw invite**; with i=3.4 and re-invites across cycles, steady-state c_effective per invited *roaster* (not per invite event) ≈ 18%.
@@ -105,13 +105,13 @@ Expected fraud rate with these controls: < 3% of claimed referrals; budget 5% cl
 ### 5.1 Referral link anatomy
 
 ```
-https://greensheet.com/r/{ref_code}?utm_source=referral
+https://auctum.io/r/{ref_code}?utm_source=referral
   &utm_medium={invite_channel}          # invite_link | qr_sticker | email_share | instagram_dm | event_badge
   &utm_campaign=ref_core_2025
   &utm_content={referrer_account_id}:{invite_channel}
 ```
 
-`ref_code` is a short, human-readable code (e.g., `GS-RIVER-42`) printed on bag stickers and event badges for offline → online bridging; it resolves server-side to the same attribution record (code wins over UTM if both present — QR stickers get scanned by people who strip query strings).
+`ref_code` is a short, human-readable code (e.g., `AL-RIVER-42`) printed on bag stickers and event badges for offline → online bridging; it resolves server-side to the same attribution record (code wins over UTM if both present — QR stickers get scanned by people who strip query strings).
 
 ### 5.2 Persistence & precedence rules
 
@@ -134,21 +134,21 @@ https://greensheet.com/r/{ref_code}?utm_source=referral
 |---|---|---|---|
 | **0 — Instrumentation** | Weeks −2 to 0 | Attribution tables + code resolver live; clawback ledger; fraud controls 1–4 on; seed dashboards | Test referral end-to-end in staging incl. clawback |
 | **1 — Seeded beta** | Weeks 0–3 | Hand-invite 25 accounts: NPS ≥ 9, ≥ 3 orders, mix of micro/boutique. Personal note from founder; physical launch kit: 5 QR bag stickers + a "give this to a roaster friend" card in their next shipment | ≥ 40% of seeds send ≥ 1 invite; zero fraud flags; ≥ 8 qualified referrals |
-| **2 — Cohort rollout** | Weeks 4–7 | Open to all accounts with ≥ 1 delivered order (COF-005-E1 now carries the live link); in-product referral card on delivery confirmation + shortlist pages | K ≥ 0.35 on this cohort; referral CAC ≤ $200; invite→click ≥ 40% |
+| **2 — Cohort rollout** | Weeks 4–7 | Open to all accounts with ≥ 1 delivered order (ALT-005-E1 now carries the live link); in-product referral card on delivery confirmation + shortlist pages | K ≥ 0.35 on this cohort; referral CAC ≤ $200; invite→click ≥ 40% |
 | **3 — GA + community push** | Weeks 8–12 | All accounts incl. free tier; Roasters Guild / throwdown QR activations; tier system live; first micro-lot early-access drop for Green Buyer tier | K ≥ 0.6 trajectory; referral share of new accounts ≥ 12% and rising |
-| **4 — Steady state** | Month 4+ | Monthly economics review (rewards vs. fraud vs. LTV premium); quarterly reward-depth test (e.g., $150/$100 vs. $200/$50 — Bayesian, same decision rules as file 02 §0.3); annual Compass Circle event | Referral share ≥ 20% by M9; referred-account 90-day reorder ≥ cohort baseline |
+| **4 — Steady state** | Month 4+ | Monthly economics review (rewards vs. fraud vs. LTV premium); quarterly reward-depth test (e.g., $150/$100 vs. $200/$50 — Bayesian, same decision rules as file 02 §0.3); annual Ledger Circle event | Referral share ≥ 20% by M9; referred-account 90-day reorder ≥ cohort baseline |
 
 **Kill/pivot criteria:** referral CAC > $250 for two consecutive months, or fraud-adjusted qualification rate < 60% (i.e., farming dominates), or referred-account LTV < cohort baseline (means we're buying deal-seekers, not roasters) → halve reward depth, tighten qualification floor to $300 first order, re-evaluate in one cycle.
 
 ---
 
-## 7. Copy assets (program-level, beyond COF-005)
+## 7. Copy assets (program-level, beyond ALT-005)
 
 **In-product referral card:** "Know a roaster still buying off PDFs? Send them a real kit — scoresheets included. You get $150 of roast credit when their first order lands. {referral_url}"
 
 **Referee landing page H1:** "{referrer_roastery_name} thinks you should cup this."
 **Subhead:** "A free specialty sample kit — three lots, real Q-grader scoresheets, landed-cost math — plus $100 off your first order. Sent by a roaster, not an ad network."
 
-**QR sticker (for bag/box):** "Roasters refer roasters. Scan. Cup. Decide. → GS-{code}"
+**QR sticker (for bag/box):** "Roasters refer roasters. Scan. Cup. Decide. → AL-{code}"
 
 **Economics disclosure (linked everywhere, per the honesty-in-scarcity brand rule):** full reward amounts, qualification definition, clawback policy, and the sentence: *"We can afford this because referred roasters stay longer. That's the whole trick, and now you know it."*

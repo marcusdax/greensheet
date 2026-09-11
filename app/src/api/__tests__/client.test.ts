@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { api, idempotencyKey } from '../client';
-import { resetDatabase } from '../db';
+import { resetDatabase, db } from '../db';
 
 describe('api client', () => {
   beforeEach(() => resetDatabase());
@@ -20,7 +20,7 @@ describe('api client', () => {
       primaryContact: { fullName: 'T', email: 't@example.com', marketingOptIn: false },
     });
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1004');
+    expect(res.problem!.code).toBe('AL-GEN-1004');
   });
 
   it('replays idempotent create', async () => {
@@ -54,26 +54,26 @@ describe('api client', () => {
     expect(r1.data).toBeDefined();
     const r2 = await api.roasters.create(input2, key);
     expect('problem' in r2).toBe(true);
-    expect(r2.problem!.code).toBe('GS-GEN-1003');
+    expect(r2.problem!.code).toBe('AL-GEN-1003');
   });
 
-  it('returns GS-GEN-1004 when catalog.reserve is called without idempotency key', async () => {
-    // @ts-expect-error intentional: verify missing required idempotency key returns GS-GEN-1004
+  it('returns AL-GEN-1004 when catalog.reserve is called without idempotency key', async () => {
+    // @ts-expect-error intentional: verify missing required idempotency key returns AL-GEN-1004
     const res = await api.catalog.reserve('lot_001', {
       quantityLbs: 1,
       orderId: idempotencyKey(),
     });
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1004');
+    expect(res.problem!.code).toBe('AL-GEN-1004');
   });
 
-  it('returns GS-CAT-1001 on insufficient inventory', async () => {
+  it('returns AL-CAT-1001 on insufficient inventory', async () => {
     const res = await api.catalog.reserve('lot_001', {
       quantityLbs: 999999,
       orderId: idempotencyKey(),
     }, idempotencyKey());
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-CAT-1001');
+    expect(res.problem!.code).toBe('AL-CAT-1001');
   });
 
   it('creates an order and decrements inventory', async () => {
@@ -109,7 +109,7 @@ describe('api client', () => {
     };
     const res = await api.orders.create(orderInput, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
 
     const lotAfter = (await api.catalog.get('lot_001')).data!;
     expect(lotAfter.availableQuantityLbs).toBe(beforeQty);
@@ -123,7 +123,7 @@ describe('api client', () => {
       lineItems: [{ lotId: 'lot_001', quantityLbs: 1, unitPriceCents: 610 }],
     }, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-CAT-1002');
+    expect(res.problem!.code).toBe('AL-CAT-1002');
   });
 
   it('rejects non-integer quantityLbs in orders.create', async () => {
@@ -133,7 +133,7 @@ describe('api client', () => {
       lineItems: [{ lotId: 'lot_001', quantityLbs: 1.5, unitPriceCents: 610 }],
     }, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
   });
 
   it('persists sample kit feedback payload', async () => {
@@ -216,7 +216,7 @@ describe('api client', () => {
       lineItems: [{ lotId: 'lot_001', quantityLbs: 1, unitPriceCents: 610.5 }],
     }, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
 
     const lotAfter = (await api.catalog.get('lot_001')).data!;
     expect(lotAfter.availableQuantityLbs).toBe(beforeQty);
@@ -233,13 +233,13 @@ describe('api client', () => {
       totalProductionLbs: 100,
     }, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
   });
 
   it('rejects non-integer pricePerLbCents in catalog.patch', async () => {
     const res = await api.catalog.patch('lot_001', { pricePerLbCents: 610.5 });
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
   });
 
   it('replays catalog.create without leaking later inventory mutations', async () => {
@@ -311,14 +311,14 @@ describe('api client', () => {
       orderId: idempotencyKey(),
     }, idempotencyKey());
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
   });
 
   it('rejects empty lineItems in orders.create', async () => {
     const key = idempotencyKey();
     const res = await api.orders.create({ accountId: 'r_001', lineItems: [] }, key);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1000');
+    expect(res.problem!.code).toBe('AL-GEN-1000');
   });
 
   it('omits signingSecret from webhooks list, get, and patch but create returns it', async () => {
@@ -473,7 +473,7 @@ describe('api client', () => {
 
     const patchRes = await api.rules.patch(rule.id, { ruleCode: existingRuleCode });
     expect('problem' in patchRes).toBe(true);
-    expect(patchRes.problem!.code).toBe('GS-CMP-1003');
+    expect(patchRes.problem!.code).toBe('AL-CMP-1003');
 
     const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).toEqual(campaignBefore.ruleCodes);
@@ -503,7 +503,7 @@ describe('api client', () => {
 
     const patchRes = await api.rules.patch(rule.id, { campaignId: 'c_does_not_exist' });
     expect('problem' in patchRes).toBe(true);
-    expect(patchRes.problem!.code).toBe('GS-GEN-1005');
+    expect(patchRes.problem!.code).toBe('AL-GEN-1005');
 
     const campaignAfter = (await api.campaigns.get('campaign-cof-001')).data!;
     expect(campaignAfter.ruleCodes).toContain(rule.ruleCode);
@@ -520,7 +520,7 @@ describe('api client', () => {
     expect(res.data!.variants.length).toBeGreaterThan(0);
   });
 
-  it('returns GS-GEN-1005 when a campaign has no performance preset', async () => {
+  it('returns AL-GEN-1005 when a campaign has no performance preset', async () => {
     const created = await api.campaigns.create(
       { slug: 'cof-unknown', name: 'Unknown Slug' },
       idempotencyKey(),
@@ -529,7 +529,7 @@ describe('api client', () => {
 
     const res = await api.campaigns.performance(created.data!.id);
     expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('GS-GEN-1005');
+    expect(res.problem!.code).toBe('AL-GEN-1005');
   });
 });
 
@@ -581,10 +581,12 @@ describe('analytics growth endpoints', () => {
 });
 
 describe('referrals api', () => {
+  beforeEach(() => resetDatabase());
+
   it('creates a referral code lazily', async () => {
     const res = await api.referrals.getCodeForAccount('r_003');
     expect('data' in res).toBe(true);
-    expect(res.data!.code.code).toMatch(/^GS-[A-Z]{2,6}-\d{1,4}$/);
+    expect(res.data!.code.code).toMatch(/^AL-[A-Z]{2,6}-\d{1,4}$/);
     expect(res.data!.code.accountId).toBe('r_003');
   });
 
@@ -596,11 +598,11 @@ describe('referrals api', () => {
   });
 
   it('accepts a custom code and rejects duplicates', async () => {
-    const custom = await api.referrals.createCode('r_004', 'GS-CUSTOM-42');
+    const custom = await api.referrals.createCode('r_004', 'AL-CUSTOM-42');
     expect('data' in custom).toBe(true);
-    expect(custom.data!.code.code).toBe('GS-CUSTOM-42');
+    expect(custom.data!.code.code).toBe('AL-CUSTOM-42');
 
-    const duplicate = await api.referrals.createCode('r_005', 'GS-CUSTOM-42');
+    const duplicate = await api.referrals.createCode('r_005', 'AL-CUSTOM-42');
     expect('problem' in duplicate).toBe(true);
     expect(duplicate.problem!.status).toBe(409);
   });
@@ -632,19 +634,54 @@ describe('referrals api', () => {
   });
 
   it('records a click and creates a referral', async () => {
-    const res = await api.referrals.recordClick('GS-RVR-001', 'qr_sticker');
+    const res = await api.referrals.recordClick('AL-RVR-001', 'qr_sticker');
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('clicked');
     expect(res.data!.referral.channel).toBe('qr_sticker');
   });
 
   it('returns an error for an unknown referral code click', async () => {
-    const res = await api.referrals.recordClick('GS-UNKNOWN-99');
+    const res = await api.referrals.recordClick('AL-UNKNOWN-99');
     expect('problem' in res).toBe(true);
     expect(res.problem!.status).toBe(404);
   });
 
-  it('qualifies a referral and posts rewards', async () => {
+  it('qualifies a referral and posts rewards after fraud checks pass', async () => {
+    // Seed roasters with fraud-check fields (business registration, tax ID,
+    // distinct identity graph values) and a qualifying delivered first order.
+    await api.roasters.patch('r_002', {
+      businessRegistration: 'BR-002',
+      taxId: 'TAX-002',
+      billingAddress: '789 Referrer Ave',
+      cardFingerprint: 'fp_card_ref_002',
+      deviceFingerprint: 'fp_dev_ref_002',
+      ipSubnet: '10.0.2.0/24',
+    });
+    await api.roasters.patch('r_004', {
+      businessRegistration: 'BR-004',
+      taxId: 'TAX-004',
+      billingAddress: '321 Referee Blvd',
+      cardFingerprint: 'fp_card_ref_004',
+      deviceFingerprint: 'fp_dev_ref_004',
+      ipSubnet: '10.0.4.0/24',
+    });
+
+    const orderKey = idempotencyKey();
+    const orderRes = await api.orders.create(
+      {
+        accountId: 'r_004',
+        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
+      },
+      orderKey,
+    );
+    expect('data' in orderRes).toBe(true);
+    await api.orders.deliver(orderRes.data!.id);
+
+    // Playbook §4: 30-day return window must pass before credit posts.
+    // Backdate the delivery so the qualification floor check sees 30+ days elapsed.
+    const orderInDb = db.orders.find((o) => o.id === orderRes.data!.id);
+    orderInDb!.updatedAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
+
     const seed = await api.referrals.listReferrals('r_002');
     const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
     expect(target).toBeDefined();
@@ -655,6 +692,122 @@ describe('referrals api', () => {
     expect(res.data!.entries).toHaveLength(2);
     expect(res.data!.entries.some((e) => e.type === 'referrer_credit' && e.amountCents === 150_00)).toBe(true);
     expect(res.data!.entries.some((e) => e.type === 'referee_discount' && e.amountCents === 100_00)).toBe(true);
+  });
+
+  it('declines referral when identity graph matches (shared billing address)', async () => {
+    // Both roasters have valid business docs but share a billing address
+    await api.roasters.patch('r_002', {
+      businessRegistration: 'BR-002',
+      taxId: 'TAX-002',
+      billingAddress: 'SAME STREET',
+      cardFingerprint: 'fp_card_ref_002',
+      deviceFingerprint: 'fp_dev_ref_002',
+      ipSubnet: '10.0.2.0/24',
+    });
+    await api.roasters.patch('r_004', {
+      businessRegistration: 'BR-004',
+      taxId: 'TAX-004',
+      billingAddress: 'SAME STREET',
+      cardFingerprint: 'fp_card_ref_004',
+      deviceFingerprint: 'fp_dev_ref_004',
+      ipSubnet: '10.0.4.0/24',
+    });
+
+    const orderKey = idempotencyKey();
+    const orderRes = await api.orders.create(
+      {
+        accountId: 'r_004',
+        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
+      },
+      orderKey,
+    );
+    expect('data' in orderRes).toBe(true);
+    await api.orders.deliver(orderRes.data!.id);
+
+    const seed = await api.referrals.listReferrals('r_002');
+    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
+    expect(target).toBeDefined();
+
+    const res = await api.referrals.qualifyReferral(target!.id);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('AL-REF-1005');
+    expect(res.problem!.status).toBe(403);
+
+    const refetched = (await api.referrals.listReferrals('r_002')).data!.referrals.find(
+      (r) => r.id === target!.id,
+    );
+    expect(refetched!.status).toBe('kit_delivered'); // unchanged
+  });
+
+  it('reviews referral when referee lacks business registration or tax ID', async () => {
+    await api.roasters.patch('r_002', {
+      businessRegistration: 'BR-002',
+      taxId: 'TAX-002',
+      billingAddress: '789 Referrer Ave',
+      cardFingerprint: 'fp_card_ref_002',
+      deviceFingerprint: 'fp_dev_ref_002',
+      ipSubnet: '10.0.2.0/24',
+    });
+    await api.roasters.patch('r_004', {
+      businessRegistration: undefined,
+      billingAddress: '321 Referee Blvd',
+      cardFingerprint: 'fp_card_ref_004',
+      deviceFingerprint: 'fp_dev_ref_004',
+      ipSubnet: '10.0.4.0/24',
+    });
+
+    const orderKey = idempotencyKey();
+    const orderRes = await api.orders.create(
+      {
+        accountId: 'r_004',
+        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
+      },
+      orderKey,
+    );
+    expect('data' in orderRes).toBe(true);
+    await api.orders.deliver(orderRes.data!.id);
+
+    const seed = await api.referrals.listReferrals('r_002');
+    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
+    expect(target).toBeDefined();
+
+    const res = await api.referrals.qualifyReferral(target!.id);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('AL-REF-1006');
+    expect(res.problem!.status).toBe(422);
+
+    const refetched = (await api.referrals.listReferrals('r_002')).data!.referrals.find(
+      (r) => r.id === target!.id,
+    );
+    expect(refetched!.reviewStatus).toBe('pending_review');
+    expect(refetched!.status).toBe('kit_delivered'); // not qualified
+  });
+
+  it('declines referral when qualification floor not met (no qualifying order)', async () => {
+    await api.roasters.patch('r_002', {
+      businessRegistration: 'BR-002',
+      taxId: 'TAX-002',
+      billingAddress: '789 Referrer Ave',
+      cardFingerprint: 'fp_card_ref_002',
+      deviceFingerprint: 'fp_dev_ref_002',
+      ipSubnet: '10.0.2.0/24',
+    });
+    await api.roasters.patch('r_004', {
+      businessRegistration: 'BR-004',
+      taxId: 'TAX-004',
+      billingAddress: '321 Referee Blvd',
+      cardFingerprint: 'fp_card_ref_004',
+      deviceFingerprint: 'fp_dev_ref_004',
+      ipSubnet: '10.0.4.0/24',
+    });
+
+    const seed = await api.referrals.listReferrals('r_002');
+    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
+    expect(target).toBeDefined();
+
+    const res = await api.referrals.qualifyReferral(target!.id);
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.code).toBe('AL-REF-1005');
   });
 
   it('claws back a qualified referral and reverses rewards', async () => {

@@ -1,4 +1,4 @@
-# Greensheet Frontend Expansion Implementation Plan
+# Auctum Ledger Frontend Expansion Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -13,7 +13,7 @@
 - All money fields are stored as integer cents (`*_cents`) and displayed as dollars only at the UI boundary.
 - Domain events use `snake_case.dotted` names (e.g. `sample_kit.delivered`).
 - Mutating endpoints must include an `Idempotency-Key` header and replay identical payloads.
-- Errors follow RFC 9457 with codes `GS-<CTX>-<NNNN>`.
+- Errors follow RFC 9457 with codes `AL-<CTX>-<NNNN>`.
 - Cursor pagination returns `{ data, page: { nextCursor, hasMore } }`.
 - All new files use TypeScript strict and pass `oxlint`.
 - All UI text must use `useTranslation` and existing localization namespaces where possible.
@@ -177,11 +177,11 @@ export interface Intervention {
   notes: string;
 }
 
-export interface CoffeeLot {
+export interface LedgerLot {
   id: string;
   origin: string;
   varietal: string | null;
-  processingMethod: ProcessingMethod | null;
+  processMethod: ProcessingMethod | null;
   elevation: number | null;
   cupScore: number;
   pricePerLbCents: number;
@@ -350,7 +350,7 @@ import type { Problem } from '../types/api';
 
 export function problem(status: number, code: string, title: string, detail?: string, errors?: Problem['errors']): Problem {
   return {
-    type: `https://api.greensheet.io/problems/${code}`,
+    type: `https://api.auctum.io/problems/${code}`,
     title,
     status,
     code,
@@ -359,15 +359,15 @@ export function problem(status: number, code: string, title: string, detail?: st
   };
 }
 
-export const GS = {
-  GEN_1000: (errors?: Problem['errors']) => problem(400, 'GS-GEN-1000', 'Validation failed', undefined, errors),
-  GEN_1003: () => problem(422, 'GS-GEN-1003', 'Idempotency key conflict'),
-  GEN_1004: () => problem(400, 'GS-GEN-1004', 'Idempotency key required'),
-  GEN_1005: () => problem(404, 'GS-GEN-1005', 'Resource not found'),
-  CRM_1001: () => problem(409, 'GS-CRM-1001', 'Roaster already exists'),
-  CAT_1001: (detail: string) => problem(409, 'GS-CAT-1001', 'Insufficient inventory', detail),
-  CAT_1002: () => problem(409, 'GS-CAT-1002', 'Lot retired'),
-  CMP_1003: () => problem(409, 'GS-CMP-1003', 'Rule code in use'),
+export const AL = {
+  GEN_1000: (errors?: Problem['errors']) => problem(400, 'AL-GEN-1000', 'Validation failed', undefined, errors),
+  GEN_1003: () => problem(422, 'AL-GEN-1003', 'Idempotency key conflict'),
+  GEN_1004: () => problem(400, 'AL-GEN-1004', 'Idempotency key required'),
+  GEN_1005: () => problem(404, 'AL-GEN-1005', 'Resource not found'),
+  CRM_1001: () => problem(409, 'AL-CRM-1001', 'Roaster already exists'),
+  CAT_1001: (detail: string) => problem(409, 'AL-CAT-1001', 'Insufficient inventory', detail),
+  CAT_1002: () => problem(409, 'AL-CAT-1002', 'Lot retired'),
+  CMP_1003: () => problem(409, 'AL-CMP-1003', 'Rule code in use'),
 };
 ```
 
@@ -405,7 +405,7 @@ export const campaignCreateSchema = z.object({
 });
 
 export const ruleCreateSchema = z.object({
-  ruleCode: z.string().regex(/^COF-00[1-9]$/),
+  ruleCode: z.string().regex(/^ALT-00[1-9]$/),
   campaignId: z.string().uuid(),
   ruleName: z.string().min(1),
   triggerEvent: z.string().min(1),
@@ -422,7 +422,7 @@ export const ruleCreateSchema = z.object({
 export const lotCreateSchema = z.object({
   origin: z.string().min(1).max(100),
   varietal: z.string().max(100).optional().nullable(),
-  processingMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable(),
+  processMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable(),
   elevation: z.number().int().positive().optional().nullable(),
   cupScore: z.number().min(0).max(100),
   pricePerLbCents: z.number().int().min(1),
@@ -491,13 +491,13 @@ Expected: no errors.
 Create `app/src/api/db.ts`:
 
 ```ts
-import type { Roaster, Campaign, AutomationRule, CoffeeLot, SampleKit, Order, WebhookSubscription, Reservation } from '../types/api';
+import type { Roaster, Campaign, AutomationRule, LedgerLot, SampleKit, Order, WebhookSubscription, Reservation } from '../types/api';
 
 export const db = {
   roasters: [] as Roaster[],
   campaigns: [] as Campaign[],
   rules: [] as AutomationRule[],
-  lots: [] as CoffeeLot[],
+  lots: [] as LedgerLot[],
   sampleKits: [] as SampleKit[],
   orders: [] as Order[],
   reservations: [] as Reservation[],
@@ -512,7 +512,7 @@ export function seedDatabase() {
       id: 'lot_001',
       origin: 'Huila, Colombia',
       varietal: 'Pink Bourbon',
-      processingMethod: 'washed',
+      processMethod: 'washed',
       elevation: 1750,
       cupScore: 88.5,
       pricePerLbCents: 610,
@@ -558,11 +558,11 @@ export function seedDatabase() {
   db.campaigns = [
     {
       id: 'c_001',
-      slug: 'cof-nurture-2025',
-      name: 'COF Nurture 2025',
+      slug: 'alt-nurture-2025',
+      name: 'ALT Nurture 2025',
       status: 'active',
       version: 1,
-      ruleCodes: ['COF-001', 'COF-002', 'COF-003', 'COF-004', 'COF-005'],
+      ruleCodes: ['ALT-001', 'ALT-002', 'ALT-003', 'ALT-004', 'ALT-005'],
       targetAudience: { segments: ['micro', 'boutique'], minCupScorePreference: 85 },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -571,7 +571,7 @@ export function seedDatabase() {
   db.rules = [
     {
       id: 'rule_001',
-      ruleCode: 'COF-001',
+      ruleCode: 'ALT-001',
       campaignId: 'c_001',
       ruleName: 'Touch 1 — Origin story after kit delivery',
       triggerEvent: 'sample_kit.delivered',
@@ -580,7 +580,7 @@ export function seedDatabase() {
       status: 'armed',
       actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_001', channel: 'email', delayMinutes: 0 }],
     },
-    // ... seed COF-002..COF-005
+    // ... seed ALT-002..ALT-005
   ];
   db.orders = [];
   db.reservations = [];
@@ -636,9 +636,9 @@ Expected: PASS.
 Create `app/src/api/client.ts`:
 
 ```ts
-import type { Problem, Roaster, Campaign, AutomationRule, CoffeeLot, SampleKit, Order, WebhookSubscription, Reservation, PageInfo } from '../types/api';
+import type { Problem, Roaster, Campaign, AutomationRule, LedgerLot, SampleKit, Order, WebhookSubscription, Reservation, PageInfo } from '../types/api';
 import { db, seedDatabase } from './db';
-import { GS } from './problems';
+import { AL } from './problems';
 
 seedDatabase();
 
@@ -669,18 +669,18 @@ export const api = {
     },
     get: async (id: string): Promise<ApiResult<Roaster>> => {
       const item = db.roasters.find((r) => r.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
     create: async (input: Omit<Roaster, 'id' | 'createdAt' | 'updatedAt' | 'interventions'>, key?: string): Promise<ApiResult<Roaster>> => {
-      if (!key) return { problem: GS.GEN_1004() };
+      if (!key) return { problem: AL.GEN_1004() };
       const existing = db.idempotency.get(key);
       if (existing) {
         return JSON.stringify(input) === existing.bodyHash
           ? { data: existing.response as Roaster }
-          : { problem: GS.GEN_1003() };
+          : { problem: AL.GEN_1003() };
       }
       if (db.roasters.some((r) => r.businessRegistration && r.businessRegistration === input.businessRegistration)) {
-        return { problem: GS.CRM_1001() };
+        return { problem: AL.CRM_1001() };
       }
       const roaster: Roaster = { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), interventions: [] };
       db.roasters.push(roaster);
@@ -689,7 +689,7 @@ export const api = {
     },
     patch: async (id: string, patch: Partial<Roaster>): Promise<ApiResult<Roaster>> => {
       const idx = db.roasters.findIndex((r) => r.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.roasters[idx] = { ...db.roasters[idx], ...patch, updatedAt: new Date().toISOString() };
       return { data: db.roasters[idx] };
     },
@@ -702,25 +702,25 @@ Expand the catalog section with `reserve`:
 
 ```ts
 catalog: {
-  list: async (params: { limit?: number; cursor?: string; origins?: string[]; minCupScore?: number; maxPricePerLb?: number } = {}): Promise<ApiResult<{ data: CoffeeLot[]; page: PageInfo }>> => {
+  list: async (params: { limit?: number; cursor?: string; origins?: string[]; minCupScore?: number; maxPricePerLb?: number } = {}): Promise<ApiResult<{ data: LedgerLot[]; page: PageInfo }>> => {
     let items = db.lots;
     if (params.origins?.length) items = items.filter((l) => params.origins!.includes(l.origin));
     if (params.minCupScore != null) items = items.filter((l) => l.cupScore >= params.minCupScore!);
     if (params.maxPricePerLb != null) items = items.filter((l) => l.pricePerLbCents / 100 <= params.maxPricePerLb!);
     return { data: makePage(items, params.limit ?? 25, params.cursor) };
   },
-  get: async (id: string): Promise<ApiResult<CoffeeLot>> => {
+  get: async (id: string): Promise<ApiResult<LedgerLot>> => {
     const item = db.lots.find((l) => l.id === id);
-    return item ? { data: item } : { problem: GS.GEN_1005() };
+    return item ? { data: item } : { problem: AL.GEN_1005() };
   },
-  create: async (input: Omit<CoffeeLot, 'id' | 'lastUpdatedAt'>, key?: string): Promise<ApiResult<CoffeeLot>> => { /* ... */ },
-  patch: async (id: string, patch: Partial<CoffeeLot>): Promise<ApiResult<CoffeeLot>> => { /* ... */ },
+  create: async (input: Omit<LedgerLot, 'id' | 'lastUpdatedAt'>, key?: string): Promise<ApiResult<LedgerLot>> => { /* ... */ },
+  patch: async (id: string, patch: Partial<LedgerLot>): Promise<ApiResult<LedgerLot>> => { /* ... */ },
   reserve: async (lotId: string, input: { quantityLbs: number; orderId: string }, key?: string): Promise<ApiResult<Reservation>> => {
     const lot = db.lots.find((l) => l.id === lotId);
-    if (!lot) return { problem: GS.GEN_1005() };
-    if (lot.status === 'retired') return { problem: GS.CAT_1002() };
+    if (!lot) return { problem: AL.GEN_1005() };
+    if (lot.status === 'retired') return { problem: AL.CAT_1002() };
     if (lot.availableQuantityLbs < input.quantityLbs) {
-      return { problem: GS.CAT_1001(`Lot ${lotId} has ${lot.availableQuantityLbs} lbs available; ${input.quantityLbs} requested.`) };
+      return { problem: AL.CAT_1001(`Lot ${lotId} has ${lot.availableQuantityLbs} lbs available; ${input.quantityLbs} requested.`) };
     }
     lot.availableQuantityLbs -= input.quantityLbs;
     const reservation: Reservation = {
@@ -765,7 +765,7 @@ describe('api client', () => {
       primaryContact: { fullName: 'T', email: 't@example.com', marketingOptIn: false },
     });
     expect('problem' in res).toBe(true);
-    expect(res.problem.code).toBe('GS-GEN-1004');
+    expect(res.problem.code).toBe('AL-GEN-1004');
   });
 
   it('replays idempotent create', async () => {
@@ -779,10 +779,10 @@ describe('api client', () => {
     expect(r1.data?.id).toBe(r2.data?.id);
   });
 
-  it('returns GS-CAT-1001 on insufficient inventory', async () => {
+  it('returns AL-CAT-1001 on insufficient inventory', async () => {
     const res = await api.catalog.reserve('lot_001', { quantityLbs: 999999, orderId: crypto.randomUUID() });
     expect('problem' in res).toBe(true);
-    expect(res.problem.code).toBe('GS-CAT-1001');
+    expect(res.problem.code).toBe('AL-CAT-1001');
   });
 });
 ```
@@ -1134,7 +1134,7 @@ export const useRootStore = create<RootStore>()(
       ),
       { ...existing persist config... },
     ),
-    { name: 'GreensheetStore' },
+    { name: 'AuctumLedgerStore' },
   ),
 );
 
@@ -1391,7 +1391,7 @@ Create `app/src/components/forms/LotForm.tsx` with fields matching `lotCreateSch
 Modify `app/src/pages/CatalogPage.tsx` to:
 - Add "Add Lot" and edit buttons.
 - Add reserve action that opens a modal with `quantityLbs` and `orderId`.
-- Handle `GS-CAT-1001` error with toast.
+- Handle `AL-CAT-1001` error with toast.
 - Retire lot action (status change).
 
 - [ ] **Step 3: Create ReservationsPage**
@@ -1744,6 +1744,6 @@ Expected: all green.
 
 **Placeholder scan:** No TBD, TODO, or vague steps. Each task includes file paths, code snippets, commands, and expected outputs.
 
-**Type consistency:** All slices use `Roaster`, `Campaign`, `AutomationRule`, `CoffeeLot`, `SampleKit`, `Order`, `WebhookSubscription`, `Reservation`, `Problem` from `types/api.ts`. Schemas in `api/schemas.ts` match the OpenAPI constraints. Form primitives use `react-hook-form` names consistently.
+**Type consistency:** All slices use `Roaster`, `Campaign`, `AutomationRule`, `LedgerLot`, `SampleKit`, `Order`, `WebhookSubscription`, `Reservation`, `Problem` from `types/api.ts`. Schemas in `api/schemas.ts` match the OpenAPI constraints. Form primitives use `react-hook-form` names consistently.
 
 **Gaps identified:** None. The plan is comprehensive for the frontend + mock API scope defined in the spec.

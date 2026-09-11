@@ -15,7 +15,7 @@ import {
 import { resetStore, useRootStore } from '../../root-store';
 import type {
   CampaignLiftRow,
-  CoffeeLot,
+  LedgerLot,
   FunnelStage,
   KFactorMetric,
   KitFunnelStage,
@@ -136,12 +136,12 @@ describe('analytics selectors', () => {
   });
 
   it('derives inventory forecast from lots', () => {
-    const lots: CoffeeLot[] = [
+    const lots: LedgerLot[] = [
       {
         id: 'lot_a',
         origin: 'Huila, Colombia',
         varietal: 'Pink Bourbon',
-        processingMethod: 'washed',
+        processMethod: 'washed',
         elevation: 1750,
         cupScore: 88,
         pricePerLbCents: 600,
@@ -241,16 +241,16 @@ describe('growth selectors', () => {
   it('falls back to hardcoded campaign lift when campaigns are empty', () => {
     const result = deriveCampaignLift([]);
     expect(result).toHaveLength(5);
-    expect(result[0]).toMatchObject({ campaignId: 'cof-001', campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true });
+    expect(result[0]).toMatchObject({ campaignId: 'alt-001', campaignName: 'ALT-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true });
   });
 
   it('passes through campaign lift rows including campaignId', () => {
     const campaigns: CampaignLiftRow[] = [
-      { campaignId: 'cof-001', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true },
+      { campaignId: 'alt-001', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true },
     ];
     const result = deriveCampaignLift(campaigns);
     expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ campaignId: 'cof-001', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true });
+    expect(result[0]).toMatchObject({ campaignId: 'alt-001', campaignName: 'Test', lift: 0.1, probability: 0.95, isSignificant: true });
   });
 });
 

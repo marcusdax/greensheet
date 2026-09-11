@@ -9,29 +9,32 @@ export default {
     extend: {
       colors: {
         // semantic (CSS-var backed; vars emitted from tokens.json)
-        canvas:    'rgb(var(--gs-bg-canvas) / <alpha-value>)',
-        surface:   'rgb(var(--gs-bg-surface) / <alpha-value>)',
-        recessed:  'rgb(var(--gs-bg-recessed) / <alpha-value>)',
-        ink:       'rgb(var(--gs-text-primary) / <alpha-value>)',
-        muted:     'rgb(var(--gs-text-muted) / <alpha-value>)',
-        subtle:    'rgb(var(--gs-text-subtle) / <alpha-value>)',
+        canvas:    'rgb(var(--al-bg-canvas) / <alpha-value>)',
+        surface:   'rgb(var(--al-bg-surface) / <alpha-value>)',
+        recessed:  'rgb(var(--al-bg-recessed) / <alpha-value>)',
+        ink:       'rgb(var(--al-text-primary) / <alpha-value>)',
+        muted:     'rgb(var(--al-text-muted) / <alpha-value>)',
+        subtle:    'rgb(var(--al-text-subtle) / <alpha-value>)',
         // brand primitives (static)
         navy:   { DEFAULT: '#16323E', 800: '#12252F', 900: '#0E1A22', 600: '#1F4F54' },
         teal:   { DEFAULT: '#2A6E73', 700: '#1F4F54', 500: '#3D8A90', 300: '#7FB6BA', 100: '#DCEAEA' },
         gold:   { DEFAULT: '#C9A34A', 600: '#7A5F22', 300: '#D4B96A', 100: '#F0E6CC' },
         cherry: { DEFAULT: '#8C3B34', 300: '#E8B4A6', 100: '#F9E6E2' },
         roast:  { DEFAULT: '#4A3527', 800: '#3A2A1E', 100: '#E9DFD2' },
-        leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // greensheet green
+        leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // auctum sage
         parchment: { DEFAULT: '#F6F1E7', 50: '#FDFBF5', 200: '#EFE8DA', 300: '#E4DCC9' },
+        neutral:   { DEFAULT: '#8A8272', 400: '#D8CFBB', 500: '#B9AE97', 600: '#8A8272', 700: '#5C5546' },
         success: { DEFAULT: '#33684A', bg: '#E5EFE7' },
         warning: { DEFAULT: '#8A5F14', bg: '#FBF0DA' },
         danger:  { DEFAULT: '#9E3D31', bg: '#F9E6E2' },
         info:    { DEFAULT: '#2C6E8C', bg: '#E4EEF3' },
+        // neutral warm ramp (paper scale) — slate mirrors neutral per §9/§10
+        slate: { DEFAULT: '#5C5546', 700: '#5C5546', 600: '#8A8272', 500: '#B9AE97', 400: '#D8CFBB', 300: '#E4DCC9', 200: '#EFE8DA', 100: '#F6F1E7' },
       },
       fontFamily: {
-        display: ['Fraunces', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans:    ['Archivo', 'Inter', 'system-ui', 'sans-serif'],
-        mono:    ['IBM Plex Mono', 'JetBrains Mono', 'ui-monospace', 'monospace'],
+        display: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         caption: ['0.8125rem', { lineHeight: '1.3',  letterSpacing: '0.02em' }],

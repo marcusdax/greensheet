@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Greensheet",
-    "tagline": "Green coffee, sourced with confidence.",
+    "appName": "Auctum Ledger",
+    "tagline": "Verified Origin. True Price.",
     "nav": {
       "dashboard": "Dashboard",
       "catalog": "Catalog",
@@ -15,7 +15,8 @@
       "sampleKits": "Sample Kits",
       "automationRules": "Automation Rules",
       "webhooks": "Webhooks",
-      "growth": "Growth"
+      "growth": "Growth",
+      "referrals": "Referrals"
     },
     "actions": {
       "refresh": "Refresh"
@@ -38,7 +39,9 @@
       "clearAll": "Clear all",
       "saveView": "Save view",
       "resetFilters": "Reset filters",
-      "loadMore": "Load more"
+      "loadMore": "Load more",
+      "copied": "Copied",
+      "copy": "Copy"
     },
     "states": {
       "loading": "Loading…",
@@ -80,8 +83,8 @@
       "kg": "kg"
     },
     "meta": {
-      "title": "Greensheet — Specialty Green Coffee Sourcing",
-      "description": "Source traceable specialty green coffee by origin, process, and SCA cup score. Samples ship in 48 hours."
+      "title": "Auctum Ledger — Verified Green Coffee Marketplace",
+      "description": "Browse verified green coffee by origin, process, and SCA cup score. Samples ship in 48 hours."
     }
   },
   "dashboard": {
@@ -244,27 +247,27 @@
       "emailsSent_other": "{{count}} emails sent"
     },
     "steps": {
-      "cof001": {
+      "alt001": {
         "label": "New harvest introduction",
         "objective": "Introduce newly landed lots to fresh prospects and earn the first interaction",
         "timing": "Day 0"
       },
-      "cof002": {
+      "alt002": {
         "label": "Sample kit invitation",
         "objective": "Invite roasters to cup before they commit and lower the decision barrier",
         "timing": "Day 3"
       },
-      "cof003": {
+      "alt003": {
         "label": "Roaster case study",
         "objective": "Build trust with a peer roaster story backed by cupping data",
         "timing": "Day 7"
       },
-      "cof004": {
+      "alt004": {
         "label": "Availability update",
         "objective": "Share remaining inventory and arrival dates to create legitimate urgency",
         "timing": "Day 12"
       },
-      "cof005": {
+      "alt005": {
         "label": "Re-engagement and feedback",
         "objective": "Re-activate silent prospects and learn their sourcing plans",
         "timing": "Day 21"
@@ -303,34 +306,34 @@
       "conversions": "Conversions"
     },
     "emails": {
-      "cof001": {
+      "alt001": {
         "subject": "New arrival: {origin} {varietal} · SCA {sca_cup_score}",
-        "preheader": "{process_method} lot from {origin} — {flavor_notes}. Just landed at Greensheet.",
-        "body": "Hi {contact_first_name},\n\nOur newest {origin} lot just landed: {varietal}, {process_method} process, scoring {sca_cup_score} on the SCA scale, with notes of {flavor_notes}. It is priced at {price_per_lb}/lb with {available_lbs} lbs available.\n\nYou can cup it before you commit — samples ship within 48 hours.\n\n— {sender_name}, Greensheet",
+        "preheader": "{process_method} lot from {origin} — {flavor_notes}. Just landed at Auctum Ledger.",
+        "body": "Hi {contact_first_name},\n\nOur newest {origin} lot just landed: {varietal}, {process_method} process, scoring {sca_cup_score} on the SCA scale, with notes of {flavor_notes}. It is priced at {price_per_lb}/lb with {available_lbs} lbs available.\n\nYou can cup it before you commit — samples ship within 48 hours.\n\n— {sender_name}, Auctum Ledger",
         "cta": "View this lot"
       },
-      "cof002": {
+      "alt002": {
         "subject": "Cup {origin} before your next menu cycle",
         "preheader": "Your sample kit ships in 48 hours — {origin} {varietal} inside.",
-        "body": "Hi {contact_first_name},\n\nTaste before you commit. The {origin} sample kit includes the {varietal} ({process_method}, SCA {sca_cup_score}) our Q graders scored this week. Request your kit and we will ship within 48 hours — free for qualified roasters.\n\n— {sender_name}, Greensheet",
+        "body": "Hi {contact_first_name},\n\nTaste before you commit. The {origin} sample kit includes the {varietal} ({process_method}, SCA {sca_cup_score}) our Q graders scored this week. Request your kit and we will ship within 48 hours — free for qualified roasters.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Request your sample kit"
       },
-      "cof003": {
+      "alt003": {
         "subject": "How {peer_roaster_name} built a menu around {origin}",
         "preheader": "A roaster case study: {process_method} lots scoring SCA {sca_cup_score}+.",
-        "body": "Hi {contact_first_name},\n\n{peer_roaster_name} added our {origin} {varietal} ({process_method}) to their single-origin menu last season — and sold through their first {order_volume_lbs} lbs in {sell_through_weeks} weeks. Here is what made it work, with the cupping data behind it.\n\n— {sender_name}, Greensheet",
+        "body": "Hi {contact_first_name},\n\n{peer_roaster_name} added our {origin} {varietal} ({process_method}) to their single-origin menu last season — and sold through their first {order_volume_lbs} lbs in {sell_through_weeks} weeks. Here is what made it work, with the cupping data behind it.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Read the case study"
       },
-      "cof004": {
+      "alt004": {
         "subject": "{available_lbs} lbs left of {origin} {varietal}",
         "preheader": "Landing {arrival_date} — reserve before it is gone.",
-        "body": "Hi {contact_first_name},\n\nA quick availability update: only {available_lbs} lbs remain of the {origin} {varietal} ({process_method}, SCA {sca_cup_score}). The next container lands {arrival_date}, and reserved lots ship first. Reserve now to lock in {price_per_lb}/lb.\n\n— {sender_name}, Greensheet",
+        "body": "Hi {contact_first_name},\n\nA quick availability update: only {available_lbs} lbs remain of the {origin} {varietal} ({process_method}, SCA {sca_cup_score}). The next container lands {arrival_date}, and reserved lots ship first. Reserve now to lock in {price_per_lb}/lb.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Reserve your lot"
       },
-      "cof005": {
+      "alt005": {
         "subject": "Still sourcing for {harvest_window}, {contact_first_name}?",
         "preheader": "Tell us what you are looking for — we will match the right lots.",
-        "body": "Hi {contact_first_name},\n\nWe noticed the {origin} {varietal} did not make it onto your menu this time. If your plans for {harvest_window} are still open, reply with what you are looking for — process, score range, budget — and we will match lots to your list. Or book 15 minutes with our sourcing team.\n\n— {sender_name}, Greensheet",
+        "body": "Hi {contact_first_name},\n\nWe noticed the {origin} {varietal} did not make it onto your menu this time. If your plans for {harvest_window} are still open, reply with what you are looking for — process, score range, budget — and we will match lots to your list. Or book 15 minutes with our sourcing team.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Book a sourcing call"
       }
     },
@@ -338,15 +341,15 @@
       "unsubscribe": "Unsubscribe",
       "managePreferences": "Manage email preferences",
       "viewInBrowser": "View in browser",
-      "sentBecause": "You received this email because {roaster_name} is registered with Greensheet.",
-      "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
+      "sentBecause": "You received this email because {roaster_name} is registered with Auctum Ledger.",
+      "postalAddress": "Auctum Ledger, 548 Market St, San Francisco, CA 94104, USA"
     },
     "sms": {
-      "cof002": {
-        "body": "Greensheet: {origin} {varietal} (SCA {sca_cup_score}) samples ship in 48 hrs. Grab your kit: {sample_kit_url} Reply STOP to opt out."
+      "alt002": {
+        "body": "Auctum Ledger: {origin} {varietal} (SCA {sca_cup_score}) samples ship in 48 hrs. Grab your kit: {sample_kit_url} Reply STOP to opt out."
       },
-      "cof004": {
-        "body": "Greensheet: only {available_lbs} lbs left of {origin} {varietal}. Reserve: {lot_url} Reply STOP to opt out."
+      "alt004": {
+        "body": "Auctum Ledger: only {available_lbs} lbs left of {origin} {varietal}. Reserve: {lot_url} Reply STOP to opt out."
       }
     },
     "create": "Create Campaign",
@@ -411,7 +414,7 @@
     "create": "Create Webhook"
   },
   "agent": {
-    "widgetTitle": "ODASI Coffee Agent",
+    "widgetTitle": "Auctum Coffee Agent",
     "placeholder": "Ask the agent...",
     "openChat": "Open coffee agent chat",
     "closeChat": "Close coffee agent chat",
@@ -427,6 +430,127 @@
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
+    }
+  },
+  "referrals": {
+    "overline": "REFERRALS",
+    "title": "Referrals",
+    "subtitle": "Manage your referral program. Track invites, rewards, and share your unique code.",
+    "deliveryCardTitle": "Send a Kit, Get Credit",
+    "deliveryCardBody": "Know a roaster still buying off PDFs? Send them a real kit — scoresheets included. You get $150 of roast credit when their first order lands.",
+    "yourLink": "Your referral link",
+    "copyLink": "Copy referral link",
+    "yourCode": "Referral code",
+    "openLink": "Open link",
+    "shareTitle": "Referral link from Auctum Ledger",
+    "shareText": "Check out this sample kit referral from Auctum Ledger",
+    "copyError": "Failed to copy link",
+    "rewardReferrer": "You get",
+    "roastCredit": "roast credit",
+    "rewardReferee": "They get",
+    "offFirstOrder": "off first order",
+    "freeKit": "free sample kit",
+    "simulateQualify": "[simulate qualify]",
+    "qualifyNote": "Referral qualification is driven by referee first-order delivery.",
+    "codeSection": "Your Referral Code",
+    "viewAllCodes": "View all codes",
+    "noCode": "Loading…",
+    "referralsList": "Your Referrals",
+    "empty": "No referrals yet. Share your code to get started.",
+    "ledgerTitle": "Reward Ledger",
+    "ledgerEmpty": "No reward entries yet.",
+    "allCodesTitle": "All Referral Codes",
+    "codeStatus": "Status",
+    "anonymous": "Anonymous",
+    "detailTitle": "Referral Detail",
+    "orderConfirmationTitle": "Send a Kit — Get Roast Credit",
+    "detail": {
+      "refCode": "Referral code",
+      "status": "Status",
+      "channel": "Channel",
+      "referredAt": "Referred at",
+      "funnel": "Funnel Progress",
+      "reward": "Reward posted"
+    },
+    "stats": {
+      "invitesSent": "Invites sent",
+      "qualified": "Qualified",
+      "kFactor": "K-factor",
+      "earned": "Earned credits"
+    },
+    "status": {
+      "invited": "Invited",
+      "clicked": "Clicked",
+      "signed_up": "Signed Up",
+      "kit_requested": "Kit Requested",
+      "kit_delivered": "Kit Delivered",
+      "feedback_submitted": "Feedback Submitted",
+      "first_order_delivered": "First Order Delivered",
+      "qualified": "Qualified",
+      "clawed_back": "Clawed Back"
+    },
+    "statusShort": {
+      "invited": "Invited",
+      "clicked": "Clicked",
+      "signed_up": "Signed Up",
+      "kit_requested": "Kit Requested",
+      "kit_delivered": "Kit Delivered",
+      "feedback_submitted": "Feedback",
+      "first_order_delivered": "1st Order",
+      "qualified": "Qualified",
+      "clawed_back": "Clawed Back"
+    },
+    "tier": {
+      "copper": {
+        "label": "Cupper",
+        "description": "0–2 qualified referrals"
+      },
+      "greenBuyer": {
+        "label": "Green Buyer",
+        "description": "3–5 qualified referrals"
+      },
+      "ledgerCircle": {
+        "label": "Ledger Circle",
+        "description": "6+ qualified referrals"
+      }
+    },
+    "channel": {
+      "invite_link": "Invite link",
+      "qr_sticker": "QR sticker",
+      "email_share": "Email",
+      "instagram_dm": "Instagram DM",
+      "event_badge": "Event badge",
+      "code_entry": "Code entry"
+    },
+    "reviewQueue": {
+      "title": "Review Queue",
+      "noPending": "No pending referrals",
+      "pendingReferral": "Pending referral",
+      "reviewRequired": "Review required",
+      "reviewReason": "Review reason",
+      "decision": {
+        "qualify": "Qualify",
+        "decline": "Decline",
+        "review": "Review"
+      },
+      "reasons": {
+        "selfReferral": "Self-referral",
+        "identityGraphMatch": "Identity graph match detected",
+        "floorNotMet": "First paid order floor not met",
+        "velocityExceeded": "Velocity limit exceeded",
+        "ringDetected": "Mutual referral ring detected",
+        "missingBusinessRegistration": "Referee missing business registration or tax ID",
+        "notFound": "Referrer or referee not found"
+      }
+    },
+    "rewardType": {
+      "referrerCredit": "Referrer Credit",
+      "refereeDiscount": "Referee Discount"
+    },
+    "rewardStatus": {
+      "pending": "Pending",
+      "posted": "Posted",
+      "clawed_back": "Clawed Back"
     }
   }
 }

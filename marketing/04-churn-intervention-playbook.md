@@ -67,7 +67,7 @@ Each rung maps to the `churn_interventions.intervention_type` enum and has a str
 - **R**ecord: outcome + committed remedy in `churn_interventions` same day.
 
 **SMS assist (T3, if call unreachable, `CHN-T3-S1`):**
-> {first_name}, {rep_first_name} from Greensheet — not a sales text. I can see ordering stopped {days_since_last_order} days ago, and I'd rather hear it straight: did we drop something? 10 minutes this week and I'll come with a fix, not a pitch. Reply with a day.
+> {first_name}, {rep_first_name} from Auctum Ledger — not a sales text. I can see ordering stopped {days_since_last_order} days ago, and I'd rather hear it straight: did we drop something? 10 minutes this week and I'll come with a fix, not a pitch. Reply with a day.
 
 ### Rung 4 — The save offer (`intervention_type='discount_offer'`), T3 only, post-diagnosis
 
@@ -123,7 +123,7 @@ Never offered: % off *forever*, waived minimums permanently, or any recurring pr
 
 ### SMS — Touch 3 (`WIN-001-S1`, day 17, prior engagers only)
 
-> {first_name}, {rep_first_name} (Greensheet). Final note: your free kit — new {origin} harvest, {sca_cup_score} pts — expires {days_left}d. Want it? {kit_tracking_url} (Reply STOP and the file closes for good.)
+> {first_name}, {rep_first_name} (Auctum Ledger). Final note: your free kit — new {origin} harvest, {sca_cup_score} pts — expires {days_left}d. Want it? {kit_tracking_url} (Reply STOP and the file closes for good.)
 
 ### Win-back automation rule JSON
 
@@ -141,7 +141,7 @@ Never offered: % off *forever*, waived minimums permanently, or any recurring pr
     "suppression_check": {
       "unsubscribed": false,
       "explicit_no_contact": false,
-      "active_campaign_not_in": ["COF-004"]
+      "active_campaign_not_in": ["ALT-004"]
     }
   },
   "rule_actions": [
@@ -194,6 +194,6 @@ Quarterly: `program_ROI = (Σ saved accounts × defended contribution) ÷ (offer
 
 ## 6. Instrumentation & feedback loop
 
-- Nightly: model scores → tier assignment (hysteresis §2) → rung triggers fire via n8n/Airbyte (base doc §I.2) into the same `automation_rules` engine as COF campaigns.
+- Nightly: model scores → tier assignment (hysteresis §2) → rung triggers fire via n8n/Airbyte (base doc §I.2) into the same `automation_rules` engine as ALT campaigns.
 - Every intervention: `churn_interventions` row with `risk_score_before`; 30 days later, outcome closure (`retained` / `churned` / `pending` → forced closure) + `risk_score_after` delta logged to `platform_metrics`.
 - Monthly retention council: tier precision/recall, save-rate by rung, offer-spend vs. caps, top-3 `churn_reason` codes routed to product/ops as fix requests. **The best churn intervention is the product fix that deletes the churn reason.**

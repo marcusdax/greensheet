@@ -360,7 +360,7 @@ export const NavigatorPage: React.FC = () => {
                             )}
                           </h3>
                           <p className="text-xs text-muted font-sans mt-0.5">
-                            {lot.varietal} • <span className="capitalize">{t(`process.${lot.processingMethod}`, lot.processingMethod)}</span>
+                            {lot.varietal} • <span className="capitalize">{t(`process.${lot.processMethod}`, lot.processMethod)}</span>
                           </p>
                         </div>
                       </div>

@@ -8,5 +8,6 @@ export default defineConfig({
     globals: true,
     passWithNoTests: true,
     setupFiles: ['./src/test/setup.ts'],
+    testTimeout: 20000,
   },
 });

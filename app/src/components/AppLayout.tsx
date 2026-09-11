@@ -11,7 +11,8 @@ import { AgentChatWidget } from './agent/AgentChatWidget';
 import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
   Bell, Globe, Menu, X, ChevronDown,
-  Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp
+  Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp,
+  Gift
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -34,7 +35,7 @@ export const AppLayout: React.FC = () => {
       }
     } else {
       // Redirect to default locale if missing or invalid
-      const detectedLng = localStorage.getItem('greensheet:locale') || 'en-US';
+      const detectedLng = localStorage.getItem('auctum:locale') || 'en-US';
       const pathSuffix = location.pathname === '/' ? '/navigator' : location.pathname;
       navigate(`/${detectedLng}${pathSuffix}`, { replace: true });
     }
@@ -42,14 +43,14 @@ export const AppLayout: React.FC = () => {
 
   // Set theme from localStorage on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('greensheet:theme') as 'light' | 'dark' | null;
+    const savedTheme = localStorage.getItem('auctum:theme') as 'light' | 'dark' | null;
     const initialTheme = savedTheme || 'light';
     setTheme(initialTheme);
   }, [setTheme]);
 
   const changeLanguage = (newLng: Locale) => {
     setLangDropdownOpen(false);
-    localStorage.setItem('greensheet:locale', newLng);
+    localStorage.setItem('auctum:locale', newLng);
     
     // Replace locale in path
     if (locale) {
@@ -87,6 +88,7 @@ export const AppLayout: React.FC = () => {
         { path: 'roasters', label: t('nav.roasters', 'Roasters'), icon: Sprout },
         { path: 'sample-kits', label: t('nav.sampleKits', 'Sample Kits'), icon: Package },
         { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
+        { path: 'referrals', label: t('nav.referrals', 'Referrals'), icon: Gift },
       ]
     },
     {
@@ -123,10 +125,10 @@ export const AppLayout: React.FC = () => {
           <div className="h-16 px-6 border-b border-navy-800 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-2xl font-display font-medium text-parchment-50 leading-none">
-                Greensheet
+                Auctum Ledger
               </span>
               <span className="text-[9px] font-mono tracking-widest text-[#A9A08C] uppercase mt-1">
-                BY ODASI
+                BY Auctum
               </span>
             </div>
             <button 
@@ -164,7 +166,7 @@ export const AppLayout: React.FC = () => {
                         {({ isActive }) => (
                           <>
                             {isActive && (
-                              <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-gold rounded-r-sm" />
+                              <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-teal rounded-r-sm" />
                             )}
                             <Icon size={18} className={isActive ? 'text-white' : 'text-parchment-50/50'} />
                             <span>{item.label}</span>
@@ -180,7 +182,7 @@ export const AppLayout: React.FC = () => {
 
           {/* Footer of Sidebar */}
           <div className="p-4 border-t border-navy-800 text-[10px] text-parchment-50/40 font-mono text-center">
-            ODASI Technologies • Navigate Your Reality
+            Auctum Ledger • Verified, from origin.
           </div>
         </aside>
 

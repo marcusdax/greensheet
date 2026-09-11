@@ -22,7 +22,7 @@ export const BraveFewBadge: React.FC<BraveFewBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center font-mono font-bold tracking-wide rounded-full bg-gold/15 text-gold-600 border border-gold/50 ${sizeClasses}`}
+      className={`inline-flex items-center font-mono font-bold tracking-wide rounded-full bg-gold/15 text-gold border border-gold/50 ${sizeClasses}`}
       title={`Brave Few — paying above $3.00/lb True Price Floor${avgFarmgatePaidCentsPerLb ? `. Average: $${(avgFarmgatePaidCentsPerLb / 100).toFixed(2)}/lb` : ''}`}
     >
       <Award size={iconSize} className="text-gold" />

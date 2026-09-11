@@ -36,13 +36,13 @@ export const createUiSlice = (set: any) => ({
       const nextTheme = s.ui.theme === 'light' ? 'dark' : 'light';
       s.ui.theme = nextTheme;
       document.documentElement.setAttribute('data-theme', nextTheme);
-      localStorage.setItem('greensheet:theme', nextTheme);
+      localStorage.setItem('auctum:theme', nextTheme);
     }, false, 'ui/toggleTheme'),
   setTheme: (theme: 'light' | 'dark') =>
     set((s: any) => {
       s.ui.theme = theme;
       document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('greensheet:theme', theme);
+      localStorage.setItem('auctum:theme', theme);
     }, false, 'ui/setTheme'),
   openDrawer: (title: string, content: React.ReactNode) =>
     set((s: any) => { s.ui.drawer = { open: true, title, content }; }, false, 'ui/openDrawer'),

@@ -77,7 +77,7 @@ describe('catalog slice', () => {
     const lot = useRootStore.getState().catalog.lots[0];
     const reservation = await catalog.reserveLot(lot.id, { quantityLbs: 999999, orderId: 'order_123' });
     expect(reservation).toBeNull();
-    expect(useRootStore.getState().catalog.error?.code).toBe('GS-CAT-1001');
+    expect(useRootStore.getState().catalog.error?.code).toBe('AL-CAT-1001');
   });
 
   it('replays idempotent createLot calls and conflicts on mismatched payload', async () => {
@@ -99,6 +99,6 @@ describe('catalog slice', () => {
 
     const conflict = await catalog.createLot({ ...payload, origin: 'Different Origin' }, key);
     expect(conflict).toBeNull();
-    expect(useRootStore.getState().catalog.error?.code).toBe('GS-GEN-1003');
+    expect(useRootStore.getState().catalog.error?.code).toBe('AL-GEN-1003');
   });
 });

@@ -53,11 +53,11 @@ interface CampaignRuleMock {
 }
 
 const RULE_STATUS_BY_CODE: Record<string, CampaignRuleMock['status']> = {
-  'COF-001': 'converted',
-  'COF-002': 'active',
-  'COF-003': 'idle',
-  'COF-004': 'idle',
-  'COF-005': 'idle',
+  'ALT-001': 'converted',
+  'ALT-002': 'active',
+  'ALT-003': 'idle',
+  'ALT-004': 'idle',
+  'ALT-005': 'idle',
 };
 
 function findSendTemplate(rule: AutomationRule): RuleAction | undefined {
@@ -771,7 +771,7 @@ export const CampaignsPage: React.FC = () => {
                                   borderColor: '#16323E',
                                   borderRadius: '6px',
                                   color: '#FDFBF5',
-                                  fontFamily: 'IBM Plex Mono',
+                                  fontFamily: 'JetBrains Mono',
                                   fontSize: '11px'
                                 }}
                                 itemStyle={{ color: '#FDFBF5' }}
@@ -803,15 +803,15 @@ export const CampaignsPage: React.FC = () => {
                         <div className="space-y-2 font-mono text-[10px] leading-tight">
                           <div className="flex justify-between text-muted">
                             <span>[10:24:12] Welcome email dispatched</span>
-                            <span className="text-info font-bold">COF-001</span>
+                            <span className="text-info font-bold">ALT-001</span>
                           </div>
                           <div className="flex justify-between text-muted">
                             <span>[09:15:30] SMS urgent trigger logged</span>
-                            <span className="text-warning font-bold">COF-004</span>
+                            <span className="text-warning font-bold">ALT-004</span>
                           </div>
                           <div className="flex justify-between text-muted">
                             <span>[08:02:44] Suppression filter applied</span>
-                            <span className="text-subtle font-bold">COF-005</span>
+                            <span className="text-subtle font-bold">ALT-005</span>
                           </div>
                         </div>
                       </div>

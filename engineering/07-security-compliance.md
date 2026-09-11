@@ -6,7 +6,7 @@
 
 ## 1. Authentication (AuthN) — OIDC
 
-Greensheet runs an **OIDC Provider** (Keycloak or AWS Cognito; issuer `https://auth.greensheet.io`) with two grant patterns:
+Auctum Ledger runs an **OIDC Provider** (Keycloak or AWS Cognito; issuer `https://auth.auctum.io`) with two grant patterns:
 
 - **Humans (roaster portal + internal ops):** Authorization Code + **PKCE** (S256), short-lived access tokens (15 min) + rotating refresh tokens (8 h absolute, reuse detection on).
 - **Machines (saga participants, CI, partners):** `client_credentials` with **private_key_jwt** client assertion; internal service calls additionally bound to **mTLS** at the ALB/NLB (certificate SAN allow-list) — the `serviceAccount` security scheme in the OpenAPI contract.
@@ -17,7 +17,7 @@ sequenceDiagram
     participant U as Roaster (browser)
     participant SPA as Portal (React)
     participant IdP as OIDC Provider
-    participant API as greensheet-api
+    participant API as auctum-ledger-api
     participant ACL as Auth ACL (Identity context)
 
     U->>SPA: Click "Sign in"
@@ -38,16 +38,16 @@ sequenceDiagram
 
 ```json
 {
-  "iss": "https://auth.greensheet.io",
+  "iss": "https://auth.auctum.io",
   "sub": "usr_01H…",
-  "aud": "greensheet-api",
+  "aud": "auctum-ledger-api",
   "exp": 1739200000,
   "iat": 1739199100,
   "jti": "01J…",
   "scope": "openid catalog:read samples:write",
-  "gs_roles": ["roaster_buyer"],
-  "gs_account_ids": ["6d2f…"],
-  "gs_segment": "boutique"
+  "al_roles": ["roaster_buyer"],
+  "al_account_ids": ["6d2f…"],
+  "al_segment": "boutique"
 }
 ```
 
@@ -57,7 +57,7 @@ sequenceDiagram
 // src/lib/authn.ts
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 
-const JWKS = createRemoteJWKSet(new URL('https://auth.greensheet.io/.well-known/jwks.json'), {
+const JWKS = createRemoteJWKSet(new URL('https://auth.auctum.io/.well-known/jwks.json'), {
   cacheMaxAge: 600_000,
 });
 
@@ -71,10 +71,10 @@ export interface Principal {
 }
 
 export async function authenticate(authHeader?: string): Promise<Principal> {
-  if (!authHeader?.startsWith('Bearer ')) throw problem(401, 'GS-GEN-1001', 'Unauthenticated');
+  if (!authHeader?.startsWith('Bearer ')) throw problem(401, 'AL-GEN-1001', 'Unauthenticated');
   const { payload } = await jwtVerify(authHeader.slice(7), JWKS, {
-    issuer: 'https://auth.greensheet.io',
-    audience: 'greensheet-api',
+    issuer: 'https://auth.auctum.io',
+    audience: 'auctum-ledger-api',
     clockTolerance: 30,
   });
   return toPrincipal(payload);
@@ -83,16 +83,16 @@ export async function authenticate(authHeader?: string): Promise<Principal> {
 function toPrincipal(p: JWTPayload): Principal {
   return {
     subject: p.sub!,
-    roles: (p.gs_roles as string[]) ?? [],
+    roles: (p.al_roles as string[]) ?? [],
     scopes: new Set(((p.scope as string) ?? '').split(' ').filter(Boolean)),
-    accountIds: (p.gs_account_ids as string[]) ?? [],
-    segment: p.gs_segment as string | undefined,
+    accountIds: (p.al_account_ids as string[]) ?? [],
+    segment: p.al_segment as string | undefined,
     jti: p.jti!,
   };
 }
 ```
 
-**Session hardening:** refresh-token reuse revokes the whole family (RTR); ops roles require MFA (TOTP minimum, WebAuthn preferred); `gs_account_ids` binds roaster-portal tokens to specific roaster accounts so a stolen buyer token can't enumerate other roasters (object-level authorization, BOLA/OWASP API#1).
+**Session hardening:** refresh-token reuse revokes the whole family (RTR); ops roles require MFA (TOTP minimum, WebAuthn preferred); `al_account_ids` binds roaster-portal tokens to specific roaster accounts so a stolen buyer token can't enumerate other roasters (object-level authorization, BOLA/OWASP API#1).
 
 ---
 
@@ -127,7 +127,7 @@ export function requireScope(scope: string) {
   return (req: AuthedRequest, res: Response, next: NextFunction) => {
     if (!req.principal.scopes.has(scope)) {
       auditDeny(req, scope);                                   // → §8 audit trail
-      throw problem(403, 'GS-GEN-1002', `Missing scope ${scope}`);
+      throw problem(403, 'AL-GEN-1002', `Missing scope ${scope}`);
     }
     next();
   };
@@ -142,7 +142,7 @@ export function scopedToAccount(param = 'roasterId') {
     if (id && !p.accountIds.includes(id)) {
       auditDeny(req, `account:${id}`);
       // 404 not 403 — do not leak existence of other tenants' resources
-      throw problem(404, 'GS-GEN-1005', 'Resource not found');
+      throw problem(404, 'AL-GEN-1005', 'Resource not found');
     }
     next();
   };
@@ -159,7 +159,7 @@ export function scopedToAccount(param = 'roasterId') {
 
 ## 3. SOC 2 Type II Control Mapping
 
-| TSC criterion | Control | Greensheet implementation | Evidence artifact |
+| TSC criterion | Control | Auctum Ledger implementation | Evidence artifact |
 |---|---|---|---|
 | **CC6.1** Logical access | Least-privilege RBAC, SSO+MFA, quarterly access review | §1–2; DB roles (`04 §10`); IdP group→role mapping | Access review tickets; IdP audit log export |
 | **CC6.2** Provisioning | Joiner/mover/leaver via HRIS → IdP SCIM; machine creds via Terraform | SCIM deprovisioning < 1h; no shared accounts | Terraform plan history |
@@ -309,7 +309,7 @@ export function rateLimit() {
     res.setHeader('RateLimit-Reset', Math.ceil(tier.capacity / tier.refillPerSec));
     if (!allowed) {
       res.setHeader('Retry-After', retryAfter);
-      throw problem(429, 'GS-GEN-1007', 'Rate limited');   // contract §02-3
+      throw problem(429, 'AL-GEN-1007', 'Rate limited');   // contract §02-3
     }
     next();
   };
@@ -345,7 +345,7 @@ export function rateLimit() {
 
 ### 8.1 Hash-chained audit log
 
-Extends the Base Doc §5.1 `audit_logs` usage into a **hash-chained, WORM-exported** ledger covering security-sensitive actions: authn failures, authz denials, DSR events, campaign halts (COF-005), rule edits, price changes, feature-flag flips, admin impersonation.
+Extends the Base Doc §5.1 `audit_logs` usage into a **hash-chained, WORM-exported** ledger covering security-sensitive actions: authn failures, authz denials, DSR events, campaign halts (ALT-005), rule edits, price changes, feature-flag flips, admin impersonation.
 
 ```sql
 -- migration addendum (registered in 04 ledger)
@@ -415,7 +415,7 @@ SELECT count(*) AS verified FROM chain;    -- must equal max(seq)
 
 ### 8.2 WORM export & access
 
-- Nightly `aws s3 sync` of the day's rows to `s3://gs-audit-logs/` with **Object Lock (compliance mode, 7 y)** — immutability for SOC2/legal.
+- Nightly `aws s3 sync` of the day's rows to `s3://al-audit-logs/` with **Object Lock (compliance mode, 7 y)** — immutability for SOC2/legal.
 - Read access via Athena external table; only `platform_admin` + auditor SSO role; every audit-log query itself writes an audit row (meta-auditing).
 - Alarm: chain verification failure or missing daily export → PagerDuty `P1` (potential tampering).
 
@@ -435,7 +435,7 @@ SELECT count(*) AS verified FROM chain;    -- must equal max(seq)
 
 ### 9.2 Security testing
 
-- **DAST:** OWASP ZAP baseline scan against staging nightly (`zap-baseline.py -t https://api.staging.greensheet.io`), findings filed as issues.
+- **DAST:** OWASP ZAP baseline scan against staging nightly (`zap-baseline.py -t https://api.staging.auctum.io`), findings filed as issues.
 - **SAST:** CodeQL (JS/TS) on every PR; custom query pack flags `dangerouslySetInnerHTML`, raw SQL string concatenation outside the query builder, and missing `requireScope` on new routes.
 - **Pen test:** annual third-party (scope: API + portal + webhook signature bypass), plus a self-serve HackerOne disclosure policy.
 

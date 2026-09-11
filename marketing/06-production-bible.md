@@ -1,6 +1,6 @@
 # 06 — Video Production Bible
 
-> The craft companion to `05-video-content-ecosystem.md` (which owns what/where/how-measured). This file owns *how it looks, moves, sounds, and speaks*. Visual system is derived from the Greensheet design tokens (base doc §4.1) — the design-system workstream's token spec is canonical; this bible translates it to motion. Parent-brand mark: the ODASI compass (half-line, half-network) appears only in corporate/end-card contexts — Greensheet content carries its own identity.
+> The craft companion to `05-video-content-ecosystem.md` (which owns what/where/how-measured). This file owns *how it looks, moves, sounds, and speaks*. Visual system is derived from the Auctum Ledger design tokens (base doc §4.1) — the design-system workstream's token spec is canonical; this bible translates it to motion. Parent-brand mark: the ODASI compass (half-line, half-network) appears only in corporate/end-card contexts — Auctum Ledger content carries its own identity.
 
 ---
 
@@ -12,15 +12,15 @@ Documentary honesty + data elegance. Real places, real hands, real steam — sho
 
 **SF-01 "The Scoresheet" (signature frame — opens every anchor):** Extreme macro, 100mm, raking soft light from frame-left. Off-white Q-grader scoresheet fills 80% of frame; a carpenter-pencil tip enters and circles "86.5". Paper grain visible; shallow DOF melts a stainless cupping spoon in the background. Palette: paper `#FBFAF6`, ink `#26201A`, single green accent `#2F6B4A` on the circled score. Mood: evidence, not advertising.
 
-**SF-02 "Ridge at Dawn" (origin):** Wide drone, Gedeb-style highlands, 06:10 light — blue-green ridgelines stacked in haze, one farmer with a cherry basket walking a contour line. Desaturated greens, amber rim light `#A8721F` on the figure. A hairline data overlay draws the contour and labels "2,100 masl" in Fraunces italic — the graphic must feel *surveyed*, not decorated.
+**SF-02 "Ridge at Dawn" (origin):** Wide drone, Gedeb-style highlands, 06:10 light — blue-green ridgelines stacked in haze, one farmer with a cherry basket walking a contour line. Desaturated greens, amber rim light `#A8721F` on the figure. A hairline data overlay draws the contour and labels "2,100 masl" in Playfair Display italic — the graphic must feel *surveyed*, not decorated.
 
 **SF-03 "The Break" (cupping):** Overhead locked shot, five white bowls in a row on a dark walnut table. A spoon breaks the crust in the center bowl; grounds sink in slow motion (120 fps conformed to 24). Steam curls. Caption plate fades in lower-third: "the break — 4:00". Symmetry, silence, ritual.
 
-**SF-04 "Warehouse Honesty" (logistics):** Handheld but steady 35mm, jute bags stacked three high, GrainPro liners, a worker chalking lot numbers. Dust motes in a skylight shaft. Counter GFX bottom-right ticks "40 → 39" in IBM Plex Mono. Grade: neutral-warm, contrast +5, no teal-orange cliché.
+**SF-04 "Warehouse Honesty" (logistics):** Handheld but steady 35mm, jute bags stacked three high, GrainPro liners, a worker chalking lot numbers. Dust motes in a skylight shaft. Counter GFX bottom-right ticks "40 → 39" in JetBrains Mono. Grade: neutral-warm, contrast +5, no teal-orange cliché.
 
 **SF-05 "Day Nine" (customer story):** Roastery morning, hero roaster at the drum, face lit by trier-port glow, checking color against a sample. Through-frame depth: green bags foreground, roaster mid, café lights bokeh back. Feels earned, calm, competent — the emotional payoff frame of Ep3.
 
-**SF-06 "End Card" (system frame):** Paper background, subtle coffee-ring watermark at 6% opacity, Greensheet wordmark in Fraunces, one line of CTA copy, one QR (quiet zone respected, 300×300 min), green check-seal. 5-second hold with sonic logo (§4). Nothing else. Discipline is the brand.
+**SF-06 "End Card" (system frame):** Paper background, subtle coffee-ring watermark at 6% opacity, Auctum Ledger wordmark in Playfair Display, one line of CTA copy, one QR (quiet zone respected, 300×300 min), green check-seal. 5-second hold with sonic logo (§4). Nothing else. Discipline is the brand.
 
 ## 3. Motion & typography lockups
 
@@ -28,10 +28,10 @@ Documentary honesty + data elegance. Real places, real hands, real steam — sho
 
 | Role | Face | Usage | Motion rule |
 |---|---|---|---|
-| Display / numbers | **Fraunces** 72–144 pt (optical "Display", SOFT 30, WONK 0) | Cup scores, prices, episode titles | Numbers count-up over 600 ms with `--ease-out`; never spin, never bounce |
-| Body / captions | **Archivo** SemiBold (burned captions per file 05 §5) | VO captions, lower-thirds | Fade+rise 8 px over 150 ms (`--duration-fast`) |
-| Data / mono | **IBM Plex Mono** 400/500 | Counters, timestamps, lot codes, day stamps | Typewriter at 12 cps for day-stamps; counters tick with a 30 ms blur |
-| Stamps | Archivo 700, letter-spaced +120, rotated −4° | "UNVERIFIED" / "VERIFIED ✓" motifs | Slams in 3 frames with a paper-grain texture overlay; ink red `#A63F33` (problem) / green `#2F6B4A` (verified) |
+| Display / numbers | **Playfair Display** 72–144 pt (optical "Display", SOFT 30, WONK 0) | Cup scores, prices, episode titles | Numbers count-up over 600 ms with `--ease-out`; never spin, never bounce |
+| Body / captions | **Inter** SemiBold (burned captions per file 05 §5) | VO captions, lower-thirds | Fade+rise 8 px over 150 ms (`--duration-fast`) |
+| Data / mono | **JetBrains Mono** 400/500 | Counters, timestamps, lot codes, day stamps | Typewriter at 12 cps for day-stamps; counters tick with a 30 ms blur |
+| Stamps | Inter 700, letter-spaced +120, rotated −4° | "UNVERIFIED" / "VERIFIED ✓" motifs | Slams in 3 frames with a paper-grain texture overlay; ink red `#A63F33` (problem) / green `#2F6B4A` (verified) |
 
 **Lockup rules:** max 2 type families per frame; data plates sit on 55%-opacity ink scrims or paper chips (never floating text over busy b-roll); safe margins 5% all sides (10% bottom on 9:16); every on-screen number must match the VO number verbatim (caption-verbatim rule, file 05 §5).
 
@@ -47,7 +47,7 @@ Documentary honesty + data elegance. Real places, real hands, real steam — sho
 **Leitmotif — "First Crack":** a three-note cell, ascending minor third + perfect fourth (A–C–F), always performed on felt piano + a subtle prepared-piano strike layered with a *real first-crack recording* (the pop of roasting coffee) pitched to the final note. 1.4 seconds. The metaphor is deliberate and on-brand: first crack is the moment green coffee becomes coffee — verification is the moment a claim becomes a fact.
 
 - **Usage:** end cards (full 1.4 s logo), episode cold-opens (single struck note under the hook frame), UI ping in product-capture shots (first note only). Never under dialogue.
-- **Score direction:** sparse, acoustic, room-tone-forward. Instrumentation: felt piano, nylon guitar, hand percussion (caxixi/shaker evoking parchment in beds), low strings for stakes beats. No corporate marimba, no EDM risers. Tempo 72–84 bpm (calm confidence); silence is a scored element — the slurp in SF-03 plays naked, no music.
+- **Score direction:** sparse, acoustic, room-tone-forward. Instrumentation: felt piano, nylon guitar, hand percussion (caxixi/shaker evoking paper in beds), low strings for stakes beats. No corporate marimba, no EDM risers. Tempo 72–84 bpm (calm confidence); silence is a scored element — the slurp in SF-03 plays naked, no music.
 - **Sound design signature:** tactile foley of the trade — burlap drag, cupping spoon on porcelain, the suction pop of a vac-seal sample bag, warehouse radio chatter at −24 dB. The audience should *feel the materials*.
 - **Mix:** VO −6 dBFS peak, music bed −18 dB under VO, duck 4 dB on caption flashes; deliver −14 LUFS-I (YouTube/social) and −16 LUFS-I (podcast-feed repurposing) masters.
 - **Voice casting:** presenter = working green buyer, not VO talent — mid-register, unhurried, allowed to say "look" and "honestly." Regional warmth welcome; no "announcer" read. Pickup sessions batch-recorded against the shoot's field audio for room continuity.
@@ -76,7 +76,7 @@ Documentary honesty + data elegance. Real places, real hands, real steam — sho
 | W2 | GrainPro liner being vac-sealed (suction pop — get clean foley) | Macro + separate audio pass | sonic signature, Ep3 |
 | W3 | Chalking lot numbers on bags | 85mm | W-honesty verticals |
 | W4 | Forklift pass with bag, lateral tracking | 35mm, 24p | Ep2 |
-| W5 | Scale readout: 152 lbs, tare/settle | Macro, IBM Plex overlay later | counter motifs |
+| W5 | Scale readout: 152 lbs, tare/settle | Macro, JetBrains Mono overlay later | counter motifs |
 | W6 | Sample bagging station: 200 g portions, scoop, seal, label | Top-down 50mm | Ep3 kit assembly |
 | W7 | Shipping label + tracking scan | Macro | Ep3 day-2 beat |
 | W8 | The "oops" shelf: damaged bag + replacement being packed (transparency bank) | Handheld | Warehouse Honesty |
@@ -100,7 +100,7 @@ Documentary honesty + data elegance. Real places, real hands, real steam — sho
 
 ## 6. Post & delivery specs (summary)
 
-Master: 4K 24p ProRes 422, Rec.709; grain plate at 5% (35mm emulation, subtle); delivery: 16:9 4K + 1080, 9:16 1080×1920, 1:1 1080 — each reframed by an editor (no center-crop automation; data plates re-laid per aspect). Color: natural-warm grade, skin tones protected, greens pulled toward `#2F6B4A` family (never neon), whites to paper not blue. File naming: `GS_{EPISODE}_{ASPECT}_{HOOKVAR}_v{NN}` — mirrored in `utm_content` so creative analytics join cleanly.
+Master: 4K 24p ProRes 422, Rec.709; grain plate at 5% (35mm emulation, subtle); delivery: 16:9 4K + 1080, 9:16 1080×1920, 1:1 1080 — each reframed by an editor (no center-crop automation; data plates re-laid per aspect). Color: natural-warm grade, skin tones protected, greens pulled toward `#2F6B4A` family (never neon), whites to paper not blue. File naming: `AL_{EPISODE}_{ASPECT}_{HOOKVAR}_v{NN}` — mirrored in `utm_content` so creative analytics join cleanly.
 
 ## 7. Brand voice guide (applies to scripts, captions, thumbnails, VO direction)
 

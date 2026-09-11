@@ -12,13 +12,14 @@ import { ReservationsPage } from './pages/ReservationsPage';
 import { SampleKitsPage } from './pages/SampleKitsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { WebhooksPage } from './pages/WebhooksPage';
+import { ReferralsPage } from './pages/ReferralsPage';
 
 // Import i18n to initialize it
 import './i18n';
 
 // Simple detector/redirect for root path /
 const RootRedirect: React.FC = () => {
-  const detectedLng = localStorage.getItem('greensheet:locale') || 'en-US';
+  const detectedLng = localStorage.getItem('auctum:locale') || 'en-US';
   return <Navigate to={`/${detectedLng}/navigator`} replace />;
 };
 
@@ -47,7 +48,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[Greensheet Platform ErrorBoundary]:', error, errorInfo);
+    console.error('[Auctum Ledger Platform ErrorBoundary]:', error, errorInfo);
   }
 
   render() {
@@ -66,7 +67,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             </p>
             <button
               onClick={() => {
-                localStorage.removeItem('greensheet-store');
+                localStorage.removeItem('auctum-store');
                 window.location.reload();
               }}
               className="px-4 py-2 bg-navy text-white rounded-md text-xs font-semibold hover:bg-navy-800 shadow-e1 transition-all"
@@ -103,6 +104,7 @@ function App() {
             <Route path="sample-kits" element={<SampleKitsPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="webhooks" element={<WebhooksPage />} />
+            <Route path="referrals" element={<ReferralsPage />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />
           </Route>

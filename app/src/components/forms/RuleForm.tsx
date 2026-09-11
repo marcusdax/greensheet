@@ -100,7 +100,7 @@ export const RuleForm: React.FC<{
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
         <input type="hidden" {...methods.register('campaignId')} />
-        <InputField name="ruleCode" label="Rule Code" placeholder="COF-001" />
+        <InputField name="ruleCode" label="Rule Code" placeholder="ALT-001" />
         <InputField name="ruleName" label="Rule Name" />
         <InputField name="triggerEvent" label="Trigger Event" placeholder="roaster.registered" />
         <ControlledJsonField name="conditionsJson" label="Conditions JSON" />

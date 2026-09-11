@@ -1,19 +1,19 @@
-# 01 — Greensheet Growth Architecture (GTM System)
+# 01 — Auctum Ledger Growth Architecture (GTM System)
 
 > Workstream: Marketing & Growth. Inputs: base architecture doc §I.2 (Marketing & Growth Architecture) and §II (LTV/CAC & churn math), plus the `coffee-marketing-schema.sql` blueprint (`campaigns`, `campaign_tokens`, `marketing_templates`, `automation_rules`, `rule_actions`).
-> Companion files: `02-cof-campaign-expansion.md`, `03-referral-engine-playbook.md`, `04-churn-intervention-playbook.md`, `05-video-content-ecosystem.md`, `06-production-bible.md`.
+> Companion files: `02-alt-campaign-expansion.md`, `03-referral-engine-playbook.md`, `04-churn-intervention-playbook.md`, `05-video-content-ecosystem.md`, `06-production-bible.md`.
 
 ---
 
 ## 1. Strategy on one page
 
-**What Greensheet is:** the marketing/CRM and transaction layer for specialty green coffee — the system of record that connects importers/exporters (supply) with roasters (demand) around verified, lot-level data: SCA cup score, process method, elevation, varietal, traceability, ESG.
+**What Auctum Ledger is:** the marketing/CRM and transaction layer for specialty green coffee — the system of record that connects importers/exporters (supply) with roasters (demand) around verified, lot-level data: SCA cup score, process method, elevation, varietal, traceability, ESG.
 
 **Category we create and win:** *Verified Green Coffee Distribution*. We do not position as "another importer portal" and we do not position as generic CRM. We position as the platform where **every claim on a coffee lot is data, and every relationship is measurable.**
 
 **Growth model:** Two-sided, data-network-effect flywheel:
 
-1. Supply side (importers/exporters) pays for the CRM/marketing suite (COF-001–005 automation, predictive lead scoring, sample-kit fulfillment) because roaster attention is scarce.
+1. Supply side (importers/exporters) pays for the CRM/marketing suite (ALT-001–005 automation, predictive lead scoring, sample-kit fulfillment) because roaster attention is scarce.
 2. Demand side (roasters) joins free or near-free because verified lot data + sample logistics remove sourcing risk.
 3. Every cupping, feedback submission, order, and reorder enriches the data layer (XGBoost lead scores, Cox churn hazards, price elasticity) → better matches → higher reorder rates → more supply-side willingness to pay.
 
@@ -49,7 +49,7 @@ Segments map 1:1 to the `accounts` schema enum (`segment`, `company_size`) so th
 
 | Tier | Profile | JTBD | What we sell them |
 |---|---|---|---|
-| **Exporter / cooperative at origin** | Sells 5–40 containers/yr, weak direct-to-roaster marketing | "Get my lots in front of qualified US/EU roasters without a $200k trade-show budget." | Listing tools, COF campaign suite, sample-kit fulfillment (temporal.io orchestration), UTM attribution |
+| **Exporter / cooperative at origin** | Sells 5–40 containers/yr, weak direct-to-roaster marketing | "Get my lots in front of qualified US/EU roasters without a $200k trade-show budget." | Listing tools, ALT campaign suite, sample-kit fulfillment (temporal.io orchestration), UTM attribution |
 | **Import house (mid)** | 10–60 active lots, 1–3 sales reps drowning in spreadsheets | "Score my leads so reps call the roasters who will actually convert." | XGBoost predictive lead scoring, churn hazard alerts, A/B/n campaign engine |
 | **Enterprise trader** | Multi-origin, multi-warehouse | "Dynamic pricing, elasticity models, and an auditable system of record." | Pricing optimizer (Bayesian structural time series), API federation, ESG/logistics scoring |
 
@@ -63,7 +63,7 @@ Segments map 1:1 to the `accounts` schema enum (`segment`, `company_size`) so th
 ## 3. Positioning architecture
 
 **For** specialty coffee roasters and the importers/exporters who supply them,
-**Greensheet is** the verified green-coffee distribution platform
+**Auctum Ledger is** the verified green-coffee distribution platform
 **that** turns every lot into auditable data — SCA score, process, elevation, traceability — and every buyer relationship into a measurable pipeline.
 **Unlike** legacy importer portals and spreadsheet CRMs,
 **we** connect sample to contract in one system, so quality claims are verified before money moves and no relationship goes quietly cold.
@@ -116,12 +116,12 @@ Channel roles are assigned by segment and by the funnel stage they can actually 
 
 | Channel | Role | Primary segment | Share of spend | Efficiency target |
 |---|---|---|---|---|
-| **Sample-kit program** (COF-001–005 engine, temporal.io fulfillment) | Conversion centerpiece — physical proof | All roaster segments | 30% | Kit→feedback ≥ 45%; feedback→order ≥ 40% |
+| **Sample-kit program** (ALT-001–005 engine, temporal.io fulfillment) | Conversion centerpiece — physical proof | All roaster segments | 30% | Kit→feedback ≥ 45%; feedback→order ≥ 40% |
 | **Community & referral** (see `03`) | Lowest-CAC compounding loop | Micro, boutique | 10% | K-factor ≥ 0.6 by month 6; referral CAC ≤ $200 (economic cost, file 03 §3.4) |
 | **Content/SEO + video ecosystem** (see `05`) | Category education, evergreen acquisition | Micro, boutique | 20% | ≥ 35% of organic signups touch ≥ 1 video |
 | **LinkedIn + trade pubs (paid)** | Supply-side demand gen; enterprise roasters | Importers, commercial | 15% | SQL rate ≥ 25% of MQLs |
 | **Trade shows / cupping events** (SCA Expo, Roasters Guild, local throwdowns) | Trust acceleration, kit recruitment in person | Boutique, commercial | 15% | Badge-scan→kit-request ≥ 30% |
-| **Lifecycle/email-SMS automation** | Nurture, retention, win-back (COF + churn playbooks) | All | 5% | See file 02 metrics per campaign |
+| **Lifecycle/email-SMS automation** | Nurture, retention, win-back (ALT + churn playbooks) | All | 5% | See file 02 metrics per campaign |
 | **Partnerships** (roaster guilds, Q-grader networks, green-buyer courses) | Credibility + list access | All | 5% | Partner-sourced CAC ≤ $150 |
 
 **Channel economics guardrail:** any channel whose 90-day trailing CAC exceeds its segment ceiling (micro $405 / boutique $1,800 / commercial $9,000 — derived from platform LTV ÷ 3, see §6) is paused pending creative or audience revision. No "brand spend" without a measured lift design (geo-holdout or PSA control).
@@ -144,7 +144,7 @@ Pricing is designed around three principles: (1) **charge the side that captures
 
 | Tier | Price | Includes | Anchored against |
 |---|---|---|---|
-| **Exporter** | $499/mo | Up to 40 active lots, COF-001–005 campaign suite, sample-kit fulfillment, UTM attribution, basic analytics | One trade-show booth ($8–15k) ≈ 2 years of subscription |
+| **Exporter** | $499/mo | Up to 40 active lots, ALT-001–005 campaign suite, sample-kit fulfillment, UTM attribution, basic analytics | One trade-show booth ($8–15k) ≈ 2 years of subscription |
 | **Import House** | $1,499/mo | Unlimited lots, XGBoost predictive lead scoring, churn hazard alerts, A/B/n + Thompson sampling engine, `campaign_execution_logs` audit ledger, 3 seats | One rep's fully-loaded week ≈ $1,900; scoring must lift rep conversion ≥ 20% (measured, contractually reviewable at renewal) |
 | **Enterprise Trading Co.** | from $4,000/mo | Dynamic pricing optimizer, GraphQL federation access, custom ESG/logistics scoring, SSO/SCIM, dedicated CSM, SLA 99.9% | Replaces custom internal tooling (≥ $150k build) |
 
@@ -189,8 +189,8 @@ Why: it compresses acquisition (new roasters), retention (reorders), and supply 
 |---|---|---|---|---|
 | L1 Acquisition | Kit requests / wk | count of sample-kit orders created | +25% MoM signup proxy | Growth |
 | L1 Acquisition | Kit delivery SLA | median days kit created → `sample_kit.delivered` event | ≤ 5 days | Ops |
-| L2 Activation | Feedback submission rate | kits with `feedback.submitted` ÷ kits delivered | ≥ 45% | Lifecycle (COF-002) |
-| L2 Activation | Sample-to-sale | first paid order ÷ kits with feedback submitted | ≥ 40% | Lifecycle (COF-003) |
+| L2 Activation | Feedback submission rate | kits with `feedback.submitted` ÷ kits delivered | ≥ 45% | Lifecycle (ALT-002) |
+| L2 Activation | Sample-to-sale | first paid order ÷ kits with feedback submitted | ≥ 40% | Lifecycle (ALT-003) |
 | L2 Activation | Time feedback→first order | median hours | ≤ 336 h (14 days) | Lifecycle |
 | L3 Revenue | First-order rate (30-day) | activated accounts with order ≤ 30 days ÷ activated | ≥ 60% | Growth |
 | L3 Revenue | Blended CAC | all demand-gen spend ÷ new paying accounts | ≤ $250 (cap $500) | Growth lead |
@@ -217,7 +217,7 @@ Add to the existing `dashboardConfig.widgets`: (a) `wtr` timeseries w/ 4-week mo
 
 | Motion | Cadence | Owner | Consulted |
 |---|---|---|---|
-| COF sequence optimization (file 02) | Weekly experiment review | Lifecycle marketer | Data, Ops |
+| ALT sequence optimization (file 02) | Weekly experiment review | Lifecycle marketer | Data, Ops |
 | Referral program economics (file 03) | Monthly K-factor & fraud review | Growth lead | Finance, Eng |
 | Churn triage (file 04) | Daily hazard queue, weekly save-rate review | CS lead | Data |
 | Video/content engine (files 05–06) | Monthly content council, quarterly anchor shoot | Content lead | Brand, Growth |

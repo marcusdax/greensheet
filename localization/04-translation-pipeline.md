@@ -1,6 +1,6 @@
 # 04 — Translation Pipeline & Operations
 
-How Greensheet translations are produced, reviewed, and shipped. Principles: en-US is the source of truth; keys are stable; placeholders and plurals are machine-validated; humans own tone, machines own consistency.
+How Auctum Ledger translations are produced, reviewed, and shipped. Principles: en-US is the source of truth; keys are stable; placeholders and plurals are machine-validated; humans own tone, machines own consistency.
 
 ---
 
@@ -23,14 +23,14 @@ QA checks (§4) + CI validation (§6)  →  merge  →  TM/TBX + glossary update
 ## 2. TM & glossary management
 
 - **Translation Memory (TM):** store per-locale TMX (or the TMS's native memory: Lokalise/Crowdin/Phrase). Reuse threshold 85% fuzzy; anything below goes to human review. TM is updated **after** human review, never from raw AI output.
-- **Glossary/termbase:** CSV below is the starter; convert to TBX for TMS import. `do_not_translate=yes` entries are enforced by the CI brand-token check (`scripts/validate_locale_files.py`) for Greensheet/SCA/ESG/Q Grader.
+- **Glossary/termbase:** CSV below is the starter; convert to TBX for TMS import. `do_not_translate=yes` entries are enforced by the CI brand-token check (`scripts/validate_locale_files.py`) for Auctum/Ledger.
 - Glossary changes require sign-off from the locale's lead reviewer; log changes in the PR description.
 
 ### Starter glossary — `glossary.csv`
 
 ```csv
 term_en,zh_cn,es_mx,pt_br,do_not_translate,notes
-Greensheet,Greensheet,Greensheet,Greensheet,yes,Product/brand name
+Auctum Ledger,Auctum Ledger,Auctum Ledger,yes,Product/brand name
 SCA,SCA,SCA,SCA,yes,Specialty Coffee Association acronym
 SCA cup score,SCA 杯测分数,puntaje de taza SCA,pontuação de xícara SCA,no,
 cupping,杯测,cata,degustação,no,pt-BR also accepts "prova"
@@ -53,7 +53,7 @@ ESG,ESG,ESG,ESG,yes,
 LTV,LTV,LTV,LTV,yes,Customer lifetime value acronym
 CAC,CAC,CAC,CAC,yes,Customer acquisition cost acronym
 API,API,API,API,yes,
-COF-001,COF-001,COF-001,COF-001,yes,Campaign IDs COF-001 through COF-005
+ALT-001,ALT-001,ALT-001,ALT-001,yes,Campaign IDs ALT-001 through ALT-005
 dashboard,数据总览,panel,painel,no,
 campaign,营销活动,campaña,campanha,no,
 unsubscribe,退订邮件,cancelar suscripción,cancelar inscrição,no,
@@ -86,7 +86,7 @@ RACI: PM = accountable for glossary; locale leads = responsible for sign-off; en
 - Brand tokens intact; no Latin-script placeholders left untranslated inside zh-CN prose except protected tokens.
 - Length checks: subjects ≤ 60 chars (zh ≤ 30 CJK), preheaders ≤ 90, SMS ≤ 160 GSM-7-equivalent (note: zh SMS is UCS-2 → 70 chars/segment — keep to one segment).
 - Link lint: every `{*_url}` tag appears in a sentence that survives URL-stripping (a11y for plain-text part).
-- Rendering smoke test: COF-001–005 rendered with fixture data in all four locales, screenshot-reviewed once per quarter.
+- Rendering smoke test: ALT-001–005 rendered with fixture data in all four locales, screenshot-reviewed once per quarter.
 
 ## 5. ICU MessageFormat decisions
 

@@ -60,7 +60,7 @@ export const ComparisonTray: React.FC = () => {
                 <div className="flex items-center gap-2 text-[10px] font-mono text-parchment-50/60 mt-0.5">
                   <span>{fmtCurrency(currentLocale).format(lot.pricePerLb)}/lb</span>
                   <span>•</span>
-                  <span className="capitalize">{lot.processingMethod}</span>
+                  <span className="capitalize">{lot.processMethod}</span>
                   {lot.esgScore && (
                     <>
                       <span>•</span>

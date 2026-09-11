@@ -20,26 +20,25 @@ describe('AutomationRulesPage', () => {
 
   it('shows the rules table after loading', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
-    expect(screen.getByText('COF-001')).toBeInTheDocument();
-    expect(screen.getByText('COF-005')).toBeInTheDocument();
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
+    expect(await screen.findByText('COF-005')).toBeInTheDocument();
   });
 
   it('filters rules by status', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
     expect(screen.getAllByText('armed').length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole('button', { name: 'Paused' }));
     await waitFor(() => expect(screen.getByText('No rules match the selected filters.')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'All' }));
-    await waitFor(() => expect(screen.getByText('COF-001')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
   });
 
   it('filters rules by trigger event', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
 
     const triggerSelect = screen.getByLabelText('Trigger');
     fireEvent.change(triggerSelect, { target: { value: 'sample_kit.delivered' } });
@@ -62,7 +61,7 @@ describe('AutomationRulesPage', () => {
 
   it('creates a standalone rule', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /create rule/i }));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
@@ -80,7 +79,7 @@ describe('AutomationRulesPage', () => {
 
   it('edits a rule', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
 
     // Create a rule with schema-friendly actions so it can be edited and saved.
     fireEvent.click(screen.getByRole('button', { name: /create rule/i }));
@@ -106,9 +105,9 @@ describe('AutomationRulesPage', () => {
     await waitFor(() => expect(within(screen.getByRole('table')).getByText('Updated Rule Name')).toBeInTheDocument());
   });
 
-  it('surfaces a validation error when editing a seeded COF rule with a non-UUID templateId', async () => {
+  it('surfaces a validation error when editing a seeded ALT rule with a non-UUID templateId', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText(/Edit qualified_lead_first_crack_sequence/));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
@@ -122,7 +121,7 @@ describe('AutomationRulesPage', () => {
 
   it('deletes a rule', async () => {
     render(<AutomationRulesPage />);
-    await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
+    expect(await screen.findByText('COF-001')).toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText(/Delete qualified/));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());

@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Greensheet",
-    "tagline": "咖啡生豆，安心采购。",
+    "appName": "Auctum Ledger",
+    "tagline": "验证产地。真实价格。",
     "nav": {
       "dashboard": "数据总览",
       "catalog": "生豆目录",
@@ -15,7 +15,8 @@
       "sampleKits": "样品套装",
       "automationRules": "自动化规则",
       "webhooks": "Webhooks",
-      "growth": "Growth"
+      "growth": "Growth",
+      "referrals": "推荐"
     },
     "actions": {
       "refresh": "Refresh"
@@ -38,7 +39,9 @@
       "clearAll": "全部清除",
       "saveView": "保存视图",
       "resetFilters": "重置筛选",
-      "loadMore": "加载更多"
+      "loadMore": "加载更多",
+      "copied": "已复制",
+      "copy": "复制"
     },
     "states": {
       "loading": "加载中…",
@@ -80,8 +83,8 @@
       "kg": "公斤"
     },
     "meta": {
-      "title": "Greensheet — 精品咖啡生豆采购平台",
-      "description": "按产地、处理方式和 SCA 杯测分数采购可追溯的精品咖啡生豆，样品 48 小时内发货。"
+      "title": "Auctum Ledger — 已验证的绿咖啡交易市场",
+      "description": "按产地、处理方式和 SCA 杯测分数浏览已验证的咖啡生豆。样品 48 小时内发货。"
     }
   },
   "dashboard": {
@@ -240,27 +243,27 @@
       "emailsSent_other": "已发送 {{count}} 封"
     },
     "steps": {
-      "cof001": {
+      "alt001": {
         "label": "新产季介绍",
         "objective": "向新潜在客户介绍当季到港生豆，促成首次互动",
         "timing": "第 0 天"
       },
-      "cof002": {
+      "alt002": {
         "label": "样品套装邀请",
         "objective": "邀请烘焙商先杯测再决策，降低采购门槛",
         "timing": "第 3 天"
       },
-      "cof003": {
+      "alt003": {
         "label": "烘焙商案例",
         "objective": "以同行烘焙商案例和杯测数据建立信任",
         "timing": "第 7 天"
       },
-      "cof004": {
+      "alt004": {
         "label": "库存动态提醒",
         "objective": "通报剩余库存与到港时间，营造合理的紧迫感",
         "timing": "第 12 天"
       },
-      "cof005": {
+      "alt005": {
         "label": "再互动与反馈",
         "objective": "重新激活未响应的潜在客户，了解其采购计划",
         "timing": "第 21 天"
@@ -299,34 +302,34 @@
       "conversions": "转化数"
     },
     "emails": {
-      "cof001": {
+      "alt001": {
         "subject": "新到港：{origin} {varietal} · SCA {sca_cup_score} 分",
-        "preheader": "来自 {origin} 的{process_method}批次——{flavor_notes}。现已到港 Greensheet。",
-        "body": "{contact_first_name}，您好：\n\n最新一批 {origin} 生豆已到港：{varietal}，{process_method}处理，SCA 杯测 {sca_cup_score} 分，带有{flavor_notes}风味。价格 {price_per_lb}/磅，现货 {available_lbs} 磅。\n\n您可以先杯测、再决定——样品 48 小时内发货。\n\n—— {sender_name}，Greensheet",
+        "preheader": "来自 {origin} 的{process_method}批次——{flavor_notes}。现已到港 Auctum Ledger。",
+        "body": "{contact_first_name}，您好：\n\n最新一批 {origin} 生豆已到港：{varietal}，{process_method}处理，SCA 杯测 {sca_cup_score} 分，带有{flavor_notes}风味。价格 {price_per_lb}/磅，现货 {available_lbs} 磅。\n\n您可以先杯测、再决定——样品 48 小时内发货。\n\n—— {sender_name}，Auctum Ledger",
         "cta": "查看该批次"
       },
-      "cof002": {
+      "alt002": {
         "subject": "在下一季菜单前，先杯测 {origin}",
         "preheader": "样品套装 48 小时内发货——内含 {origin} {varietal}。",
-        "body": "{contact_first_name}，您好：\n\n先品尝，再决定。{origin} 样品套装内含本周由 Q Grader 评分的 {varietal}（{process_method}，SCA {sca_cup_score} 分）。申请后 48 小时内发货，符合条件的烘焙商可免费获取。\n\n—— {sender_name}，Greensheet",
+        "body": "{contact_first_name}，您好：\n\n先品尝，再决定。{origin} 样品套装内含本周由 Q Grader 评分的 {varietal}（{process_method}，SCA {sca_cup_score} 分）。申请后 48 小时内发货，符合条件的烘焙商可免费获取。\n\n—— {sender_name}，Auctum Ledger",
         "cta": "申请样品套装"
       },
-      "cof003": {
+      "alt003": {
         "subject": "{peer_roaster_name} 如何围绕 {origin} 打造菜单",
         "preheader": "烘焙商实战案例：SCA {sca_cup_score}+ 分的{process_method}批次。",
-        "body": "{contact_first_name}，您好：\n\n上一产季，{peer_roaster_name} 将我们的 {origin} {varietal}（{process_method}）加入其单一产地菜单，首批 {order_volume_lbs} 磅在 {sell_through_weeks} 周内售罄。我们整理了背后的成功要素与杯测数据，供您参考。\n\n—— {sender_name}，Greensheet",
+        "body": "{contact_first_name}，您好：\n\n上一产季，{peer_roaster_name} 将我们的 {origin} {varietal}（{process_method}）加入其单一产地菜单，首批 {order_volume_lbs} 磅在 {sell_through_weeks} 周内售罄。我们整理了背后的成功要素与杯测数据，供您参考。\n\n—— {sender_name}，Auctum Ledger",
         "cta": "阅读完整案例"
       },
-      "cof004": {
+      "alt004": {
         "subject": "{origin} {varietal} 仅剩 {available_lbs} 磅",
         "preheader": "{arrival_date} 到港——售完即止，请提前预订。",
-        "body": "{contact_first_name}，您好：\n\n库存动态提醒：{origin} {varietal}（{process_method}，SCA {sca_cup_score} 分）目前仅剩 {available_lbs} 磅。下一柜将于 {arrival_date} 到港，已预订批次优先发货。现在预订即可锁定 {price_per_lb}/磅 的价格。\n\n—— {sender_name}，Greensheet",
+        "body": "{contact_first_name}，您好：\n\n库存动态提醒：{origin} {varietal}（{process_method}，SCA {sca_cup_score} 分）目前仅剩 {available_lbs} 磅。下一柜将于 {arrival_date} 到港，已预订批次优先发货。现在预订即可锁定 {price_per_lb}/磅 的价格。\n\n—— {sender_name}，Auctum Ledger",
         "cta": "立即预订"
       },
-      "cof005": {
+      "alt005": {
         "subject": "{contact_first_name}，{harvest_window}的采购计划定了吗？",
         "preheader": "告诉我们您的需求，我们为您匹配最合适的批次。",
-        "body": "{contact_first_name}，您好：\n\n我们注意到这次的 {origin} {varietal} 没有进入您的菜单。如果 {harvest_window}的采购计划尚未确定，欢迎回复告诉我们您的需求——处理方式、分数区间、预算——我们将为您匹配最合适的批次。也欢迎预约 15 分钟与采购顾问聊聊。\n\n—— {sender_name}，Greensheet",
+        "body": "{contact_first_name}，您好：\n\n我们注意到这次的 {origin} {varietal} 没有进入您的菜单。如果 {harvest_window}的采购计划尚未确定，欢迎回复告诉我们您的需求——处理方式、分数区间、预算——我们将为您匹配最合适的批次。也欢迎预约 15 分钟与采购顾问聊聊。\n\n—— {sender_name}，Auctum Ledger",
         "cta": "预约采购咨询"
       }
     },
@@ -334,15 +337,15 @@
       "unsubscribe": "退订邮件",
       "managePreferences": "管理订阅偏好",
       "viewInBrowser": "在浏览器中查看",
-      "sentBecause": "您收到此邮件，是因为 {roaster_name} 已注册 Greensheet。",
-      "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
+      "sentBecause": "您收到此邮件，是因为 {roaster_name} 已注册 Auctum Ledger。",
+      "postalAddress": "Auctum Ledger, 548 Market St, San Francisco, CA 94104, USA"
     },
     "sms": {
-      "cof002": {
-        "body": "【Greensheet】{origin}{varietal}（SCA {sca_cup_score} 分）样品 48 小时内发货。领取样品套装：{sample_kit_url} 退订回T"
+      "alt002": {
+        "body": "【Auctum Ledger】{origin}{varietal}（SCA {sca_cup_score} 分）样品 48 小时内发货。领取样品套装：{sample_kit_url} 退订回T"
       },
-      "cof004": {
-        "body": "【Greensheet】{origin}{varietal} 仅剩 {available_lbs} 磅。立即预订：{lot_url} 退订回T"
+      "alt004": {
+        "body": "【Auctum Ledger】{origin}{varietal} 仅剩 {available_lbs} 磅。立即预订：{lot_url} 退订回T"
       }
     },
     "create": "创建活动",
@@ -407,7 +410,7 @@
     "create": "创建 Webhook"
   },
   "agent": {
-    "widgetTitle": "ODASI Coffee Agent",
+    "widgetTitle": "Auctum Coffee Agent",
     "placeholder": "Ask the agent...",
     "openChat": "Open coffee agent chat",
     "closeChat": "Close coffee agent chat",
@@ -423,6 +426,127 @@
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
+    }
+  },
+  "referrals": {
+    "overline": "推荐",
+    "title": "推荐",
+    "subtitle": "管理您的推荐计划。跟踪邀请、奖励并分享您的唯一代码。",
+    "deliveryCardTitle": "发送样品，获得信用",
+    "deliveryCardBody": "知道还有烘焙商在看 PDF 吗？送他们一个真实的样品 — 包括评分表。当他们的第一笔订单送达时，您获得 150 美元的烘焙信用。",
+    "yourLink": "您的推荐链接",
+    "copyLink": "复制推荐链接",
+    "yourCode": "推荐代码",
+    "openLink": "打开链接",
+    "shareTitle": "来自 Auctum Ledger 的推荐链接",
+    "shareText": "看看这个来自 Auctum Ledger 的样品推荐",
+    "copyError": "复制链接失败",
+    "rewardReferrer": "您将获得",
+    "roastCredit": "烘焙信用",
+    "rewardReferee": "他们将获得",
+    "offFirstOrder": "抵扣首单",
+    "freeKit": "免费样品套装",
+    "simulateQualify": "[模拟实现资格]",
+    "qualifyNote": "推荐资格由 referee 第一笔订单送达驱动。",
+    "codeSection": "您的推荐代码",
+    "viewAllCodes": "查看所有代码",
+    "noCode": "加载中…",
+    "referralsList": "您的推荐",
+    "empty": "暂无推荐。分享您的代码以开始。",
+    "ledgerTitle": "Auctum Ledger 奖励总账",
+    "ledgerEmpty": "暂无奖励记录。",
+    "allCodesTitle": "所有推荐代码",
+    "codeStatus": "状态",
+    "anonymous": "匿名",
+    "detailTitle": "推荐详情",
+    "orderConfirmationTitle": "发送样品 — 获得烘焙信用",
+    "detail": {
+      "refCode": "推荐代码",
+      "status": "状态",
+      "channel": "渠道",
+      "referredAt": "推荐时间",
+      "funnel": "漏斗进度",
+      "reward": "奖励已记账"
+    },
+    "stats": {
+      "invitesSent": "已发送邀请",
+      "qualified": "已实现",
+      "kFactor": "K因子",
+      "earned": "已赚信用"
+    },
+    "status": {
+      "invited": "已邀请",
+      "clicked": "已点击",
+      "signed_up": "已注册",
+      "kit_requested": "样品已请求",
+      "kit_delivered": "样品已送达",
+      "feedback_submitted": "反馈已提交",
+      "first_order_delivered": "首单已送达",
+      "qualified": "已实现",
+      "clawed_back": "已追回"
+    },
+    "statusShort": {
+      "invited": "已邀请",
+      "clicked": "已点击",
+      "signed_up": "已注册",
+      "kit_requested": "样品请求",
+      "kit_delivered": "样品送达",
+      "feedback_submitted": "反馈",
+      "first_order_delivered": "首单",
+      "qualified": "已实现",
+      "clawed_back": "已追回"
+    },
+    "tier": {
+      "copper": {
+        "label": "品尝者",
+        "description": "0–2 个已实现推荐"
+      },
+      "greenBuyer": {
+        "label": "绿豆买家",
+        "description": "3–5 个已实现推荐"
+      },
+      "ledgerCircle": {
+        "label": "Ledger 圈",
+        "description": "6+ 个已实现推荐"
+      }
+    },
+    "channel": {
+      "invite_link": "邀请链接",
+      "qr_sticker": "QR 贴纸",
+      "email_share": "电子邮件",
+      "instagram_dm": "Instagram 私信",
+      "event_badge": "活动徽章",
+      "code_entry": "代码输入"
+    },
+    "reviewQueue": {
+      "title": "审核队列",
+      "noPending": "暂无待审核推荐",
+      "pendingReferral": "待审核推荐",
+      "reviewRequired": "需要审核",
+      "reviewReason": "审核原因",
+      "decision": {
+        "qualify": "批准",
+        "decline": "拒绝",
+        "review": "审核"
+      },
+      "reasons": {
+        "selfReferral": "自我推荐",
+        "identityGraphMatch": "身份图匹配已检测到",
+        "floorNotMet": "首笔付款订单未达标",
+        "velocityExceeded": "超出速度限制",
+        "ringDetected": "检测到互推环",
+        "missingBusinessRegistration": "推荐人缺少企业注册或税号",
+        "notFound": "推荐人或被推荐人未找到"
+      }
+    },
+    "rewardType": {
+      "referrerCredit": "推荐人信用",
+      "refereeDiscount": "被推荐人折扣"
+    },
+    "rewardStatus": {
+      "pending": "待处理",
+      "posted": "已记账",
+      "clawed_back": "已追回"
     }
   }
 }

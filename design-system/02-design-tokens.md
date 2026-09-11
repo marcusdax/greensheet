@@ -1,15 +1,15 @@
-# Greensheet — Design Tokens
+# Auctum Ledger — Design Tokens
 
 **Version 1.0 · Source of truth for all UI color, type, space, elevation, and motion · WCAG 2.2 AA minimum**
 
 Token architecture has three tiers. **Engineers consume tier 2 (semantic) and tier 3 (component) tokens only.** Tier 1 primitives exist so a rebrand never touches component code.
 
 ```
-primitive  (gs-color-navy-700)   raw values, named by hue+step
+primitive  (al-color-navy-700)   raw values, named by hue+step
    ↓ alias
-semantic   (gs-color-action-primary)   role-based, theme-switched (light/dark)
+semantic   (al-color-action-primary)   role-based, theme-switched (light/dark)
    ↓ alias
-component  (gs-button-primary-bg)   bound to a component slot
+component  (al-button-primary-bg)   bound to a component slot
 ```
 
 All contrast ratios below were computed with the WCAG 2.x relative-luminance formula. "AA ✓" = ≥ 4.5:1 for normal text; "AA-large ✓" = ≥ 3:1 (18 pt / 14 pt bold+, and non-text UI per 1.4.11).
@@ -22,17 +22,17 @@ All contrast ratios below were computed with the WCAG 2.x relative-luminance for
 
 | Token | Hex | LCH approx. | Source |
 |---|---|---|---|
-| `navy-900` | `#0E1A22` | L18 C10 H235 | ODASI navy `#142435`, deepened |
+| `navy-900` | `#0E1A22` | L18 C10 H235 | Auctum navy `#142435`, deepened |
 | `navy-800` | `#12252F` | — | interpolated |
-| **`navy-700` (Compass Navy)** | `#16323E` | L20 C12 H228 | **primary brand ink**, harmonized with ODASI |
+| **`navy-700` (Ink)** | `#16323E` | L20 C12 H228 | **primary brand ink**, harmonized with Auctum |
 | `navy-600` | `#1F4F54` | — | navy→teal bridge (teal-dark text) |
 | `teal-700` | `#1F4F54` | L31 C13 H198 | teal text on parchment |
-| **`teal-600` (Constellation Teal)** | `#2A6E73` | L42 C16 H196 | ODASI teal `#3D7681`, darkened for AA |
+| **`teal-600` (Sage)** | `#2A6E73` | L42 C16 H196 | Auctum teal `#3D7681`, darkened for AA |
 | `teal-500` | `#3D8A90` | — | hover on teal fills |
 | `teal-300` | `#7FB6BA` | L70 C14 H200 | dark-mode primary action |
 | `teal-100` | `#DCEAEA` | — | teal tint surface |
 | `gold-600` | `#7A5F22` | L40 C45 H85 | gold text on parchment |
-| **`gold-500` (Core Gold)** | `#C9A34A` | L70 C50 H88 | ODASI gold `#968853`, brightened; badges/graphics |
+| **`gold-500` (Brass)** | `#C9A34A` | L70 C50 H88 | Auctum gold `#968853`, brightened; badges/graphics |
 | `gold-300` | `#D4B96A` | L76 C42 H90 | dark-mode gold |
 | `gold-100` | `#F0E6CC` | — | gold tint surface |
 | `cherry-600` | `#8C3B34` | L38 C42 H38 | coffee cherry; destructive |
@@ -41,16 +41,16 @@ All contrast ratios below were computed with the WCAG 2.x relative-luminance for
 | `roast-800` | `#3A2A1E` | — | deepest roast |
 | **`roast-700` (Roast Brown)** | `#4A3527` | L23 C18 H60 | stamp ink, footer bands |
 | `roast-100` | `#E9DFD2` | — | roast tint surface |
-| **`green-600` (Greensheet Green)** | `#3E6B50` | L41 C22 H155 | namesake; ESG/certified; evolved from legacy `#2F6B4A` |
+| **`green-600` (Auctum Ledger Green)** | `#3E6B50` | L41 C22 H155 | namesake; ESG/certified; evolved from legacy `#2F6B4A` |
 | `green-300` | `#9FD3B4` | — | dark-mode green |
 | `green-100` | `#E5EFE7` | — | green tint surface |
 
-### 1.2 Warm neutral ramp (parchment scale)
+### 1.2 Warm neutral ramp (paper scale)
 
 | Token | Hex | Role |
 |---|---|---|
 | `parchment-50` | `#FDFBF5` | raised surface (cards, inputs) |
-| **`parchment-100`** | `#F6F1E7` | **page ground ("the green sheet")** |
+| **`parchment-100`** | `#F6F1E7` | **page ground ("the ledger")** |
 | `parchment-200` | `#EFE8DA` | recessed surface, table zebra |
 | `parchment-300` | `#E4DCC9` | hover on recessed |
 | `neutral-400` | `#D8CFBB` | decorative border (1.38:1 — decorative only) |
@@ -58,6 +58,20 @@ All contrast ratios below were computed with the WCAG 2.x relative-luminance for
 | `neutral-600` | `#8A8272` | **interactive border** (3.38:1 ✓ 1.4.11), muted-light large text (3.38:1, AA-large only) |
 | `neutral-700` | `#5C5546` | muted body text (6.56:1 AA ✓) |
 | `ink-900` | `#221D16` | primary ink / headings/body (14.86:1 AAA ✓) |
+
+#### 1.2.1 Slate family (warm neutral ramp for de-emphasized UI)
+
+The slate family mirrors the warm neutral ramp — parchment surfaces plus the neutral text/border steps. It is the canonical family for de-emphasized surfaces, receding backgrounds, and cup-score tiers below specialty. `slate-700` (`#5C5546`) is the muted-body text value and the default for all `slate-*` references.
+
+| Token | Hex | Role |
+|---|---|---|
+| `slate-100` | `#F6F1E7` | surface variant (parchment-100) |
+| `slate-200` | `#EFE8DA` | recessed surface variant |
+| `slate-300` | `#E4DCC9` | hover on slate surfaces |
+| `slate-400` | `#D8CFBB` | decorative border |
+| `slate-500` | `#B9AE97` | strong decorative border |
+| `slate-600` | `#8A8272` | interactive border |
+| `slate-700` | `#5C5546` | **muted body text, de-emphasized UI (6.56:1 AA ✓)** |
 
 ---
 
@@ -106,7 +120,7 @@ All contrast ratios below were computed with the WCAG 2.x relative-luminance for
 | Outstanding | 90.0–100 | `gold-500` bg + `ink-900` text (7.03:1 AAA ✓) | gold is *earned* |
 | Excellent | 85.0–89.9 | `teal-600` bg + white (5.87:1 AA ✓) | house tier |
 | Very Good | 80.0–84.9 | `green-600` bg + white (6.13:1 AA ✓) | specialty floor |
-| Below specialty | < 80.0 | `neutral-700` bg + white (7.39:1 AAA ✓) | de-emphasized |
+| Below specialty | < 80.0 | `slate-700` bg + white (7.39:1 AAA ✓) | de-emphasized |
 
 ### 2.4 Dark mode (`data-theme="dark"` or `prefers-color-scheme`)
 
@@ -147,9 +161,9 @@ Warm espresso-navy darks — **never pure black, never cool gray.**
 
 | Token | Stack | Role |
 |---|---|---|
-| `font.display` | `"Fraunces", "Cormorant Garamond", Georgia, serif` | wordmark, page titles, hero numerals, pull quotes. Optical size opsz ≥ 40 for display; SOFT 0, WONK 0 |
-| `font.sans` | `"Archivo", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif` | UI text, labels, tables |
-| `font.mono` | `"IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace` | **all figures**: prices, cup scores, weights, table numerals, merge tags |
+| `font.display` | `"Playfair Display", "Cormorant Garamond", Georgia, serif` | wordmark, page titles, hero numerals, pull quotes. Optical size opsz ≥ 40 for display; SOFT 0, WONK 0 |
+| `font.sans` | `"Inter", system-ui, -apple-system, "Segoe UI", sans-serif` | UI text, labels, tables |
+| `font.mono` | `"JetBrains Mono", ui-monospace, SFMono-Regular, monospace` | **all figures**: prices, cup scores, weights, table numerals, merge tags |
 
 Numerals rule (from product code): every price, score, and quantity renders in `font.mono` with `font-variant-numeric: tabular-nums` — columns of figures must align like the paper ledger.
 
@@ -157,15 +171,15 @@ Numerals rule (from product code): every price, score, and quantity renders in `
 
 | Token | px | rem | Line-height | Weight / face | Letter-spacing | Use |
 |---|---|---|---|---|---|---|
-| `text.caption` | 12.8 → **13** | 0.8125 | 1.3 | Archivo 500 | +0.02em | table captions, axis labels, timestamps |
-| `text.sm` | 14 | 0.875 | 1.5 | Archivo 400/500 | 0 | secondary body, badges, chips |
-| `text.base` | 16 | 1 | 1.5 | Archivo 400 | 0 | body, inputs, table cells |
-| `text.lg` | 20 | 1.25 | 1.4 | Archivo 500 | −0.005em | card titles, lead paragraphs |
-| `text.xl` | 25 | 1.5625 | 1.3 | Archivo 600 | −0.01em | section headings (h3) |
-| `text.2xl` | 31.25 → **31** | 1.9531 | 1.25 | Fraunces 560 | −0.012em | page titles (h2) |
-| `text.3xl` | 39.06 → **39** | 2.4414 | 1.2 | Fraunces 560 | −0.015em | view headers (h1) |
-| `text.4xl` | 48.83 → **49** | 3.0518 | 1.15 | Fraunces 560 | −0.018em | marketing hero, KPI hero numerals |
-| `text.5xl` | 61.04 → **61** | 3.8147 | 1.1 | Fraunces 480 | −0.02em | brand moments only (landing) |
+| `text.caption` | 12.8 → **13** | 0.8125 | 1.3 | Inter 500 | +0.02em | table captions, axis labels, timestamps |
+| `text.sm` | 14 | 0.875 | 1.5 | Inter 400/500 | 0 | secondary body, badges, chips |
+| `text.base` | 16 | 1 | 1.5 | Inter 400 | 0 | body, inputs, table cells |
+| `text.lg` | 20 | 1.25 | 1.4 | Inter 500 | −0.005em | card titles, lead paragraphs |
+| `text.xl` | 25 | 1.5625 | 1.3 | Inter 600 | −0.01em | section headings (h3) |
+| `text.2xl` | 31.25 → **31** | 1.9531 | 1.25 | Playfair Display 560 | −0.012em | page titles (h2) |
+| `text.3xl` | 39.06 → **39** | 2.4414 | 1.2 | Playfair Display 560 | −0.015em | view headers (h1) |
+| `text.4xl` | 48.83 → **49** | 3.0518 | 1.15 | Playfair Display 560 | −0.018em | marketing hero, KPI hero numerals |
+| `text.5xl` | 61.04 → **61** | 3.8147 | 1.1 | Playfair Display 480 | −0.02em | brand moments only (landing) |
 
 Fluid forms (viewport-interpolated, from legacy architecture §4.1 — keep `clamp()`):
 
@@ -182,10 +196,10 @@ Fluid forms (viewport-interpolated, from legacy architecture §4.1 — keep `cla
 
 | Style | Compose of | Notes |
 |---|---|---|
-| `overline` | caption · Archivo 700 · +0.12em · uppercase · `text.muted` | filter labels ("BUDGET CEILING"), table group headers |
+| `overline` | caption · Inter 700 · +0.12em · uppercase · `text.muted` | filter labels ("BUDGET CEILING"), table group headers |
 | `figure` | mono 500 · tabular-nums | prices, lbs, scores inside sentences |
 | `figure.strong` | mono 700 | KPI values, composite scores |
-| `label` | sm · Archivo 600 | form labels, button text |
+| `label` | sm · Inter 600 | form labels, button text |
 | `link` | base · teal-600 · underline offset 3px | hover: teal-700 |
 
 ---
@@ -225,7 +239,7 @@ Brand note: corners stay **small and precise** (4–8) — the brand is a ledger
 
 ## 6. Elevation (warm-tinted, navy-based shadows)
 
-Light mode shadows are tinted with Compass Navy `rgb(22 50 62)` — never neutral black — so depth feels printed, not dropped.
+Light mode shadows are tinted with Ink `rgb(22 50 62)` — never neutral black — so depth feels printed, not dropped.
 
 | Token | Light value | Dark value |
 |---|---|---|
@@ -274,31 +288,31 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
 
 ```json
 {
-  "$description": "Greensheet design tokens v1.0 — ODASI product family. W3C DTCG draft format.",
-  "gs": {
+  "$description": "Auctum Ledger design tokens v1.0 — Auctum product family. W3C DTCG draft format.",
+  "al": {
     "color": {
       "primitive": {
         "navy": {
           "900": { "$value": "#0E1A22", "$type": "color" },
           "800": { "$value": "#12252F", "$type": "color" },
-          "700": { "$value": "#16323E", "$type": "color", "$description": "Compass Navy — primary brand" },
+          "700": { "$value": "#16323E", "$type": "color", "$description": "Ink — primary brand" },
           "600": { "$value": "#1F4F54", "$type": "color" }
         },
         "teal": {
           "700": { "$value": "#1F4F54", "$type": "color" },
-          "600": { "$value": "#2A6E73", "$type": "color", "$description": "Constellation Teal" },
+          "600": { "$value": "#2A6E73", "$type": "color", "$description": "Sage" },
           "500": { "$value": "#3D8A90", "$type": "color" },
           "300": { "$value": "#7FB6BA", "$type": "color" },
           "100": { "$value": "#DCEAEA", "$type": "color" }
         },
         "gold": {
           "600": { "$value": "#7A5F22", "$type": "color" },
-          "500": { "$value": "#C9A34A", "$type": "color", "$description": "Core Gold — earned accent only" },
+          "500": { "$value": "#C9A34A", "$type": "color", "$description": "Brass — earned accent only" },
           "300": { "$value": "#D4B96A", "$type": "color" },
           "100": { "$value": "#F0E6CC", "$type": "color" }
         },
         "cherry": {
-          "600": { "$value": "#8C3B34", "$type": "color", "$description": "Coffee Cherry" },
+          "600": { "$value": "#8C3B34", "$type": "color", "$description": "Oxblood" },
           "300": { "$value": "#E8B4A6", "$type": "color" },
           "100": { "$value": "#F9E6E2", "$type": "color" }
         },
@@ -308,13 +322,13 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
           "100": { "$value": "#E9DFD2", "$type": "color" }
         },
         "green": {
-          "600": { "$value": "#3E6B50", "$type": "color", "$description": "Greensheet Green — ESG/certified" },
+          "600": { "$value": "#3E6B50", "$type": "color", "$description": "Auctum Ledger Green — ESG/certified" },
           "300": { "$value": "#9FD3B4", "$type": "color" },
           "100": { "$value": "#E5EFE7", "$type": "color" }
         },
         "parchment": {
           "50":  { "$value": "#FDFBF5", "$type": "color" },
-          "100": { "$value": "#F6F1E7", "$type": "color", "$description": "Parchment — the green sheet ground" },
+          "100": { "$value": "#F6F1E7", "$type": "color", "$description": "Paper — the ledger ground" },
           "200": { "$value": "#EFE8DA", "$type": "color" },
           "300": { "$value": "#E4DCC9", "$type": "color" }
         },
@@ -326,6 +340,15 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
         },
         "ink": {
           "900": { "$value": "#221D16", "$type": "color" }
+        },
+        "slate": {
+          "100": { "$value": "#F6F1E7", "$type": "color", "$description": "surface variant (parchment-100)" },
+          "200": { "$value": "#EFE8DA", "$type": "color" },
+          "300": { "$value": "#E4DCC9", "$type": "color" },
+          "400": { "$value": "#D8CFBB", "$type": "color" },
+          "500": { "$value": "#B9AE97", "$type": "color" },
+          "600": { "$value": "#8A8272", "$type": "color" },
+          "700": { "$value": "#5C5546", "$type": "color", "$description": "muted body text, de-emphasized UI (6.56:1 AA ✓)" }
         },
         "status": {
           "success": { "$value": "#33684A", "$type": "color" },
@@ -340,60 +363,60 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
       },
       "semantic": {
         "light": {
-          "bg-canvas":    { "$value": "{gs.color.primitive.parchment.100}", "$type": "color" },
-          "bg-surface":   { "$value": "{gs.color.primitive.parchment.50}", "$type": "color" },
-          "bg-recessed":  { "$value": "{gs.color.primitive.parchment.200}", "$type": "color" },
-          "bg-hover":     { "$value": "{gs.color.primitive.parchment.300}", "$type": "color" },
-          "bg-inverse":   { "$value": "{gs.color.primitive.navy.700}", "$type": "color" },
-          "text-primary": { "$value": "{gs.color.primitive.ink.900}", "$type": "color" },
-          "text-muted":   { "$value": "{gs.color.primitive.neutral.700}", "$type": "color" },
-          "text-subtle":  { "$value": "{gs.color.primitive.neutral.600}", "$type": "color" },
-          "text-inverse": { "$value": "{gs.color.primitive.parchment.50}", "$type": "color" },
-          "text-link":    { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "action-primary-bg":     { "$value": "{gs.color.primitive.navy.700}", "$type": "color" },
-          "action-primary-hover":  { "$value": "{gs.color.primitive.navy.800}", "$type": "color" },
-          "action-secondary-bg":   { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "action-secondary-hover":{ "$value": "{gs.color.primitive.teal.700}", "$type": "color" },
-          "accent-gold":       { "$value": "{gs.color.primitive.gold.500}", "$type": "color" },
-          "accent-gold-text":  { "$value": "{gs.color.primitive.gold.600}", "$type": "color" },
-          "accent-cherry":     { "$value": "{gs.color.primitive.cherry.600}", "$type": "color" },
-          "brand-green":       { "$value": "{gs.color.primitive.green.600}", "$type": "color" },
-          "border-decorative": { "$value": "{gs.color.primitive.neutral.400}", "$type": "color" },
-          "border-strong":     { "$value": "{gs.color.primitive.neutral.500}", "$type": "color" },
-          "border-interactive":{ "$value": "{gs.color.primitive.neutral.600}", "$type": "color" },
-          "border-focus":      { "$value": "{gs.color.primitive.teal.600}", "$type": "color" },
-          "status-success":    { "$value": "{gs.color.primitive.status.success}", "$type": "color" },
-          "status-success-bg": { "$value": "{gs.color.primitive.status.successBg}", "$type": "color" },
-          "status-warning":    { "$value": "{gs.color.primitive.status.warning}", "$type": "color" },
-          "status-warning-bg": { "$value": "{gs.color.primitive.status.warningBg}", "$type": "color" },
-          "status-danger":     { "$value": "{gs.color.primitive.status.danger}", "$type": "color" },
-          "status-danger-bg":  { "$value": "{gs.color.primitive.status.dangerBg}", "$type": "color" },
-          "status-info":       { "$value": "{gs.color.primitive.status.info}", "$type": "color" },
-          "status-info-bg":    { "$value": "{gs.color.primitive.status.infoBg}", "$type": "color" }
+          "bg-canvas":    { "$value": "{al.color.primitive.parchment.100}", "$type": "color" },
+          "bg-surface":   { "$value": "{al.color.primitive.parchment.50}", "$type": "color" },
+          "bg-recessed":  { "$value": "{al.color.primitive.parchment.200}", "$type": "color" },
+          "bg-hover":     { "$value": "{al.color.primitive.parchment.300}", "$type": "color" },
+          "bg-inverse":   { "$value": "{al.color.primitive.navy.700}", "$type": "color" },
+          "text-primary": { "$value": "{al.color.primitive.ink.900}", "$type": "color" },
+          "text-muted":   { "$value": "{al.color.primitive.neutral.700}", "$type": "color" },
+          "text-subtle":  { "$value": "{al.color.primitive.neutral.600}", "$type": "color" },
+          "text-inverse": { "$value": "{al.color.primitive.parchment.50}", "$type": "color" },
+          "text-link":    { "$value": "{al.color.primitive.teal.600}", "$type": "color" },
+          "action-primary-bg":     { "$value": "{al.color.primitive.navy.700}", "$type": "color" },
+          "action-primary-hover":  { "$value": "{al.color.primitive.navy.800}", "$type": "color" },
+          "action-secondary-bg":   { "$value": "{al.color.primitive.teal.600}", "$type": "color" },
+          "action-secondary-hover":{ "$value": "{al.color.primitive.teal.700}", "$type": "color" },
+          "accent-gold":       { "$value": "{al.color.primitive.gold.500}", "$type": "color" },
+          "accent-gold-text":  { "$value": "{al.color.primitive.gold.600}", "$type": "color" },
+          "accent-cherry":     { "$value": "{al.color.primitive.cherry.600}", "$type": "color" },
+          "brand-green":       { "$value": "{al.color.primitive.green.600}", "$type": "color" },
+          "border-decorative": { "$value": "{al.color.primitive.neutral.400}", "$type": "color" },
+          "border-strong":     { "$value": "{al.color.primitive.neutral.500}", "$type": "color" },
+          "border-interactive":{ "$value": "{al.color.primitive.neutral.600}", "$type": "color" },
+          "border-focus":      { "$value": "{al.color.primitive.teal.600}", "$type": "color" },
+          "status-success":    { "$value": "{al.color.primitive.status.success}", "$type": "color" },
+          "status-success-bg": { "$value": "{al.color.primitive.status.successBg}", "$type": "color" },
+          "status-warning":    { "$value": "{al.color.primitive.status.warning}", "$type": "color" },
+          "status-warning-bg": { "$value": "{al.color.primitive.status.warningBg}", "$type": "color" },
+          "status-danger":     { "$value": "{al.color.primitive.status.danger}", "$type": "color" },
+          "status-danger-bg":  { "$value": "{al.color.primitive.status.dangerBg}", "$type": "color" },
+          "status-info":       { "$value": "{al.color.primitive.status.info}", "$type": "color" },
+          "status-info-bg":    { "$value": "{al.color.primitive.status.infoBg}", "$type": "color" }
         },
         "dark": {
           "bg-canvas":    { "$value": "#101B23", "$type": "color" },
           "bg-surface":   { "$value": "#1B2933", "$type": "color" },
           "bg-recessed":  { "$value": "#22333F", "$type": "color" },
           "bg-hover":     { "$value": "#2A3D49", "$type": "color" },
-          "bg-inverse":   { "$value": "{gs.color.primitive.parchment.100}", "$type": "color" },
+          "bg-inverse":   { "$value": "{al.color.primitive.parchment.100}", "$type": "color" },
           "text-primary": { "$value": "#EFE9DB", "$type": "color" },
           "text-muted":   { "$value": "#A9A08C", "$type": "color" },
           "text-subtle":  { "$value": "#8A8272", "$type": "color" },
           "text-inverse": { "$value": "#101B23", "$type": "color" },
-          "text-link":    { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
-          "action-primary-bg":     { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
+          "text-link":    { "$value": "{al.color.primitive.teal.300}", "$type": "color" },
+          "action-primary-bg":     { "$value": "{al.color.primitive.teal.300}", "$type": "color" },
           "action-primary-hover":  { "$value": "#93C4C7", "$type": "color" },
           "action-secondary-bg":   { "$value": "#2F7E84", "$type": "color" },
-          "action-secondary-hover":{ "$value": "{gs.color.primitive.teal.500}", "$type": "color" },
-          "accent-gold":       { "$value": "{gs.color.primitive.gold.300}", "$type": "color" },
-          "accent-gold-text":  { "$value": "{gs.color.primitive.gold.300}", "$type": "color" },
-          "accent-cherry":     { "$value": "{gs.color.primitive.cherry.300}", "$type": "color" },
-          "brand-green":       { "$value": "{gs.color.primitive.green.300}", "$type": "color" },
+          "action-secondary-hover":{ "$value": "{al.color.primitive.teal.500}", "$type": "color" },
+          "accent-gold":       { "$value": "{al.color.primitive.gold.300}", "$type": "color" },
+          "accent-gold-text":  { "$value": "{al.color.primitive.gold.300}", "$type": "color" },
+          "accent-cherry":     { "$value": "{al.color.primitive.cherry.300}", "$type": "color" },
+          "brand-green":       { "$value": "{al.color.primitive.green.300}", "$type": "color" },
           "border-decorative": { "$value": "#3A4B57", "$type": "color" },
           "border-strong":     { "$value": "#4A5B68", "$type": "color" },
           "border-interactive":{ "$value": "#5F7180", "$type": "color" },
-          "border-focus":      { "$value": "{gs.color.primitive.teal.300}", "$type": "color" },
+          "border-focus":      { "$value": "{al.color.primitive.teal.300}", "$type": "color" },
           "status-success":    { "$value": "#9FD3B4", "$type": "color" },
           "status-success-bg": { "$value": "#1E3328", "$type": "color" },
           "status-warning":    { "$value": "#E3B76B", "$type": "color" },
@@ -407,9 +430,9 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
     },
     "font": {
       "family": {
-        "display": { "$value": ["Fraunces", "Cormorant Garamond", "Georgia", "serif"], "$type": "fontFamily" },
-        "sans":    { "$value": ["Archivo", "Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"], "$type": "fontFamily" },
-        "mono":    { "$value": ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"], "$type": "fontFamily" }
+        "display": { "$value": ["Playfair Display", "Cormorant Garamond", "Georgia", "serif"], "$type": "fontFamily" },
+        "sans":    { "$value": ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"], "$type": "fontFamily" },
+        "mono":    { "$value": ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"], "$type": "fontFamily" }
       },
       "size": {
         "caption": { "$value": "0.8125rem", "$type": "dimension" },
@@ -515,26 +538,27 @@ Theme switching: `color.semantic.light` / `color.semantic.dark` mirror each othe
 Consume semantic tokens as CSS variables so dark mode is a single attribute flip. Add to `tailwind.config.js`:
 
 ```js
-// tailwind.config.js — Greensheet extension
+// tailwind.config.js — Auctum Ledger extension
 module.exports = {
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
         // semantic (CSS-var backed; vars emitted from tokens.json)
-        canvas:    'rgb(var(--gs-bg-canvas) / <alpha-value>)',
-        surface:   'rgb(var(--gs-bg-surface) / <alpha-value>)',
-        recessed:  'rgb(var(--gs-bg-recessed) / <alpha-value>)',
-        ink:       'rgb(var(--gs-text-primary) / <alpha-value>)',
-        muted:     'rgb(var(--gs-text-muted) / <alpha-value>)',
-        subtle:    'rgb(var(--gs-text-subtle) / <alpha-value>)',
+        canvas:    'rgb(var(--al-bg-canvas) / <alpha-value>)',
+        surface:   'rgb(var(--al-bg-surface) / <alpha-value>)',
+        recessed:  'rgb(var(--al-bg-recessed) / <alpha-value>)',
+        ink:       'rgb(var(--al-text-primary) / <alpha-value>)',
+        muted:     'rgb(var(--al-text-muted) / <alpha-value>)',
+        subtle:    'rgb(var(--al-text-subtle) / <alpha-value>)',
         // brand primitives (static)
         navy:   { DEFAULT: '#16323E', 800: '#12252F', 900: '#0E1A22', 600: '#1F4F54' },
         teal:   { DEFAULT: '#2A6E73', 700: '#1F4F54', 500: '#3D8A90', 300: '#7FB6BA', 100: '#DCEAEA' },
         gold:   { DEFAULT: '#C9A34A', 600: '#7A5F22', 300: '#D4B96A', 100: '#F0E6CC' },
         cherry: { DEFAULT: '#8C3B34', 300: '#E8B4A6', 100: '#F9E6E2' },
         roast:  { DEFAULT: '#4A3527', 800: '#3A2A1E', 100: '#E9DFD2' },
-        leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // greensheet green
+        leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // auctum ledger green
+        slate:  { DEFAULT: '#5C5546', 700: '#5C5546', 600: '#8A8272', 500: '#B9AE97', 400: '#D8CFBB', 300: '#E4DCC9', 200: '#EFE8DA', 100: '#F6F1E7' },  // warm neutral ramp — slate family
         parchment: { DEFAULT: '#F6F1E7', 50: '#FDFBF5', 200: '#EFE8DA', 300: '#E4DCC9' },
         success: { DEFAULT: '#33684A', bg: '#E5EFE7' },
         warning: { DEFAULT: '#8A5F14', bg: '#FBF0DA' },
@@ -542,9 +566,9 @@ module.exports = {
         info:    { DEFAULT: '#2C6E8C', bg: '#E4EEF3' },
       },
       fontFamily: {
-        display: ['Fraunces', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans:    ['Archivo', 'Inter', 'system-ui', 'sans-serif'],
-        mono:    ['IBM Plex Mono', 'JetBrains Mono', 'ui-monospace', 'monospace'],
+        display: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         caption: ['0.8125rem', { lineHeight: '1.3',  letterSpacing: '0.02em' }],
@@ -592,20 +616,20 @@ Corresponding CSS variables (emitted by Style Dictionary from `tokens.json`; sho
 
 ```css
 :root {
-  --gs-bg-canvas: 246 241 231;   /* parchment-100 */
-  --gs-bg-surface: 253 251 245;
-  --gs-bg-recessed: 239 232 218;
-  --gs-text-primary: 34 29 22;
-  --gs-text-muted: 92 85 70;
-  --gs-text-subtle: 138 130 114;
+  --al-bg-canvas: 246 241 231;   /* parchment-100 */
+  --al-bg-surface: 253 251 245;
+  --al-bg-recessed: 239 232 218;
+  --al-text-primary: 34 29 22;
+  --al-text-muted: 92 85 70;
+  --al-text-subtle: 138 130 114;
 }
 [data-theme="dark"] {
-  --gs-bg-canvas: 16 27 35;
-  --gs-bg-surface: 27 41 51;
-  --gs-bg-recessed: 34 51 63;
-  --gs-text-primary: 239 233 219;
-  --gs-text-muted: 169 160 140;
-  --gs-text-subtle: 138 130 114;
+  --al-bg-canvas: 16 27 35;
+  --al-bg-surface: 27 41 51;
+  --al-bg-recessed: 34 51 63;
+  --al-text-primary: 239 233 219;
+  --al-text-muted: 169 160 140;
+  --al-text-subtle: 138 130 114;
 }
 ```
 
@@ -615,15 +639,16 @@ Corresponding CSS variables (emitted by Style Dictionary from `tokens.json`; sho
 
 | Token | Traces to |
 |---|---|
-| navy-700 `#16323E` | ODASI compass navy `#142435` (sampled from parent mark), lightened +6% for UI text AA |
-| teal-600 `#2A6E73` | ODASI constellation teal `#3D7681` (sampled), darkened to reach 4.5:1 with white |
-| gold-500 `#C9A34A` | ODASI core gold `#968853` (sampled), brightened for badge graphics; gold-600 `#7A5F22` derived for text AA |
-| parchment-100 `#F6F1E7` | legacy `--color-paper #fbfaf6`, warmed toward green-sheet paper stock |
+| navy-700 `#16323E` | Auctum Ink `#142435` (sampled from parent mark), lightened +6% for UI text AA |
+| teal-600 `#2A6E73` | Auctum Sage `#3D7681` (sampled), darkened to reach 4.5:1 with white |
+| gold-500 `#C9A34A` | Auctum Brass `#968853` (sampled), brightened for badge graphics; gold-600 `#7A5F22` derived for text AA |
+| parchment-100 `#F6F1E7` | legacy `--color-paper #fbfaf6`, warmed toward ledger paper stock |
 | ink-900 `#221D16` | legacy `--color-ink #26201a`, deepened slightly for AAA on parchment |
-| green-600 `#3E6B50` | legacy `--color-primary #2f6b4a`, desaturated to sit beside navy |
+| green-600 `#3E6B50` | Auctum Ledger Green — namesake; legacy `--color-primary #2f6b4a` desaturated to sit beside navy |
+| slate family | mirrors warm neutral ramp (parchment + neutral); `slate-700 #5C5546` is the canonical muted-body value; used for de-emphasized UI and cup-score tiers below specialty |
 | status.* | legacy `--color-success/warning/danger/info`, re-balanced; warning darkened `#a8721f → #8A5F14` to reach AA |
-| type scale 1.25 / Archivo / Fraunces / IBM Plex Mono | legacy §4.1 font stacks and modular ratio, fixed-step rendering of its fluid clamps |
+| type scale 1.25 / Inter / Playfair Display / JetBrains Mono | legacy §4.1 font stacks and modular ratio, fixed-step rendering of its fluid clamps |
 | radius 2–16, durations 100–500, easings | legacy §4.1 values, pruned (bounce → `ease.compass`, scoped to badge/winner moments) |
-| cherry/roast | new to this system — coffee materiality (cherry fruit, roast profile); no legacy equivalent |
+| Oxblood/roast | new to this system — coffee materiality (cherry fruit, roast profile); no legacy equivalent |
 
 **Governance:** any new token requires (a) a role name, (b) a computed contrast note, (c) an entry in this ledger. Ad-hoc hex in product code fails CI stylelint.

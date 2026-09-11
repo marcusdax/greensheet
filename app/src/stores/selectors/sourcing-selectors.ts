@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useSourcing } from '../root-store';
-import type { CoffeeLot } from '../../types/domain';
+import type { LedgerLot } from '../../types/domain';
 
-export interface ScoredLot extends CoffeeLot {
+export interface ScoredLot extends LedgerLot {
   metrics: {
     costNorm: number;
     cupNorm: number;
@@ -14,7 +14,7 @@ export interface ScoredLot extends CoffeeLot {
 }
 
 export function rankLots(
-  lots: CoffeeLot[],
+  lots: LedgerLot[],
   s: {
     weights: { cost: number; cup: number; esg: number; logistics: number };
     budgetCeiling: number;
@@ -44,7 +44,7 @@ export function rankLots(
 
   if (s.selectedProcesses.length) {
     filtered = filtered.filter(
-      (l) => l.processingMethod && s.selectedProcesses.includes(l.processingMethod)
+      (l) => l.processMethod && s.selectedProcesses.includes(l.processMethod)
     );
   }
 
@@ -95,7 +95,7 @@ export function rankLots(
 
 const clamp100 = (n: number) => Math.max(0, Math.min(100, n));
 
-export function useRankedLots(lots: CoffeeLot[]): ScoredLot[] {
+export function useRankedLots(lots: LedgerLot[]): ScoredLot[] {
   const slice = useShallowFilters();
   return useMemo(() => rankLots(lots, slice), [lots, slice]);
 }

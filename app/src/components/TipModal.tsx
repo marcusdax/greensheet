@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Smartphone, CreditCard, ArrowRight, CheckCircle, Loader } from 'lucide-react';
 import { useConnections } from '../stores/root-store';
-import type { MobileMoneyRail } from '../types/lotspace';
+import type { MobileMoneyRail } from '../types/ledger';
 
 interface TipModalProps {
   farmerSpaceId: string;

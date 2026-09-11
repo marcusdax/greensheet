@@ -1,8 +1,8 @@
-# Greensheet Platform — Technical & Product Documentation
+# Auctum Ledger — Technical & Product Documentation
 
-Greensheet is a B2B SaaS platform for specialty coffee green-bean distribution, connecting importers/exporters with coffee roasters. The platform combines advanced, multi-attribute sourcing optimization with automated, adjustable CRM marketing engines and a premium, token-driven editorial design system.
+Auctum Ledger is a B2B SaaS platform for specialty coffee green-bean distribution, connecting importers/exporters with coffee roasters. The platform combines advanced, multi-attribute sourcing optimization with automated, adjustable CRM marketing engines and a premium, token-driven editorial design system.
 
-This repository contains the interactive Greensheet web application under the `app/` folder, wired to support localized B2B client operations across multiple international markets.
+This repository contains the interactive Auctum Ledger web application under the `app/` folder, wired to support localized B2B client operations across multiple international markets.
 
 ---
 
@@ -83,7 +83,7 @@ A high-density B2B ledger displaying all available lots in a responsive table.
 
 ### 2.3 Adjustable Marketing Campaigns (`/campaigns`)
 The core marketing command center which lets green coffee distributors build, adjust, and track B2B email/SMS outreach:
-*   **Active Rules Builder**: A step-based automation inspector that lets users edit triggers, actions (e.g. `SEND_EMAIL`, `SEND_SMS`), delay durations, and target segments for campaign series (COF-001 through COF-005).
+*   **Active Rules Builder**: A step-based automation inspector that lets users edit triggers, actions (e.g. `SEND_EMAIL`, `SEND_SMS`), delay durations, and target segments for campaign series (ALT-001 through ALT-005).
 *   **A/B Test Variant Cards**: Shows Bayesian-optimized split conversions (e.g. Variant A "SCA Cup Focus" vs. Variant B "ESG Story Focus") detailing sample sizes, conversion rates, and statistical significance values.
 *   **Automation Timelines**: Visualized subscriber conversion pipelines demonstrating live status counts.
 
@@ -116,9 +116,9 @@ The visual layer is governed by a W3C-compliant Design Token System mapping hex 
 *   **Gold/Bronze (`--color-gold`)**: `#C9A34A` (Premium scoring badges and highlighted lots)
 
 ### 3.2 Typography Guidelines
-*   **Display Title**: *Fraunces* (Serif, weights 400-600). Used for page headers and premium editorial sections.
-*   **UI Typography**: *Archivo* (Sans-serif, weights 400-600). Used for clean, legible controls, sidebar navigation, and filters.
-*   **Data & Ledgers**: *IBM Plex Mono* (Monospace, weights 400-500). Configured with CSS `.figure` classes to ensure tabular, non-proportional alignment for pricing, weights, and dates.
+*   **Display Title**: *Playfair Display* (Serif, weights 400-600). Used for page headers and premium editorial sections.
+*   **UI Typography**: *Inter* (Sans-serif, weights 400-600). Used for clean, legible controls, sidebar navigation, and filters.
+*   **Data & Ledgers**: *JetBrains Mono* (Monospace, weights 400-500). Configured with CSS `.figure` classes to ensure tabular, non-proportional alignment for pricing, weights, and dates.
 
 ### 3.3 Elevations & Transitions
 *   **Shadows**: Soft, multi-layered elevations (`e1` through `e5`) ranging from basic borders to floating modal sheets.

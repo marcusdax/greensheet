@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a localized referral dashboard, an in-product delivery card, mock fraud/attribution controls, and a review queue to the Greensheet frontend, building on the mock API from Sub-project 1.
+**Goal:** Add a localized referral dashboard, an in-product delivery card, mock fraud/attribution controls, and a review queue to the Auctum Ledger frontend, building on the mock API from Sub-project 1.
 
 **Architecture:** Reuse the existing Zustand slice + selector pattern, page + `DataTable` component pattern, and `ApiResult<T>` mock API. Add a dedicated `referrals` slice that caches `api.referrals` responses; pure fraud helpers gate qualification in `api.referrals.qualifyReferral`; new `components/referrals/*` components keep page files small.
 
@@ -551,7 +551,7 @@ export function useReferralTier(): ReferralTier | null {
     const count = stats.qualifiedReferrals;
     if (count >= 6) {
       return {
-        name: 'Compass Circle',
+        name: 'Ledger Circle',
         qualifiedCount: count,
         perks: 'Early access to micro-lot drops, origin-trip raffle seat, priority support.',
       };
@@ -630,12 +630,12 @@ describe('referral selectors', () => {
   it('computes Cupper tier for fewer than 3 qualified', async () => {
     await useRootStore.getState().referrals.loadStats('r_002');
     const { result } = renderHook(() => useReferralTier());
-    expect(result.current?.name).toBe('Compass Circle'); // r_002 has 1 qualified
+    expect(result.current?.name).toBe('Ledger Circle'); // r_002 has 1 qualified
   });
 });
 ```
 
-Wait — the test above is wrong; it asserts Compass Circle. Replace the assertion with a correct one once the seed stats are known, or simply assert that a tier name is returned.
+Wait — the test above is wrong; it asserts Ledger Circle. Replace the assertion with a correct one once the seed stats are known, or simply assert that a tier name is returned.
 
 Use this corrected minimal test instead:
 
@@ -661,7 +661,7 @@ describe('referral selectors', () => {
     await useRootStore.getState().referrals.loadStats('r_001');
     const { result } = renderHook(() => useReferralTier());
     expect(result.current).not.toBeNull();
-    expect(['Cupper', 'Green Buyer', 'Compass Circle']).toContain(result.current?.name);
+    expect(['Cupper', 'Green Buyer', 'Ledger Circle']).toContain(result.current?.name);
   });
 
   it('computes net earned cents', async () => {
@@ -773,7 +773,7 @@ export const ReferralCodeCard: React.FC<{ accountId: string }> = ({ accountId })
           <InputField
             name="requestedCode"
             label={t('code.customLabel')}
-            placeholder="GS-MYCODE-42"
+            placeholder="AL-MYCODE-42"
           />
           <button
             type="submit"
@@ -1037,7 +1037,7 @@ const channels: { key: string; icon: any }[] = [
 ];
 
 const buildUrl = (code: string, accountId: string, channel: string) =>
-  `https://greensheet.com/r/${code}?utm_source=referral&utm_medium=${channel}&utm_campaign=ref_core_2025&utm_content=${accountId}:${channel}`;
+  `https://app.auctum.io/r/${code}?utm_source=referral&utm_medium=${channel}&utm_campaign=ref_core_2025&utm_content=${accountId}:${channel}`;
 
 export const ReferralShareCard: React.FC<{ accountId: string }> = ({ accountId }) => {
   const { t } = useTranslation('referrals');
@@ -1116,7 +1116,7 @@ beforeEach(() => {
 describe('ReferralCodeCard', () => {
   it('loads and displays the active code', async () => {
     render(<ReferralCodeCard accountId="r_001" />);
-    expect(await screen.findByText('GS-RVR-001')).toBeInTheDocument();
+    expect(await screen.findByText('AL-RVR-001')).toBeInTheDocument();
   });
 });
 ```
@@ -1252,14 +1252,14 @@ describe('ReferralsPage', () => {
   it('renders the page title and code card', async () => {
     renderPage();
     expect(await screen.findByText(/Referrals/i)).toBeInTheDocument();
-    expect(await screen.findByText('GS-RVR-001')).toBeInTheDocument();
+    expect(await screen.findByText('AL-RVR-001')).toBeInTheDocument();
   });
 });
 ```
 
 - [ ] **Step 5: Run page test and TypeScript**
 
-Run: `cd app && npm run test:run src/pages/__tests__/ReferralsPage.test.tsx && npx tsc --noEmit`  
+Run: `cd app && npm run test:run src/pages/__tests__/ReferralsPage.test.tsx && npx tsc --noEmit`
 Expected: tests pass, no errors.
 
 - [ ] **Step 6: Commit**
@@ -1436,7 +1436,7 @@ export const ReferralDeliveryCard: React.FC<{ accountId: string }> = ({ accountI
   }, [accountId, loadCode, loadStats]);
 
   const url = code
-    ? `https://greensheet.com/r/${code.code}?utm_source=referral&utm_medium=invite_link&utm_campaign=ref_core_2025&utm_content=${accountId}:invite_link`
+    ? `https://app.auctum.io/r/${code.code}?utm_source=referral&utm_medium=invite_link&utm_campaign=ref_core_2025&utm_content=${accountId}:invite_link`
     : '';
 
   const handleCopy = async () => {
@@ -1511,7 +1511,7 @@ describe('ReferralDeliveryCard', () => {
   it('renders the share copy and referral URL', async () => {
     render(<ReferralDeliveryCard accountId="r_001" />);
     expect(await screen.findByText(/Know a roaster still buying off PDFs/i)).toBeInTheDocument();
-    expect(await screen.findByDisplayValue(/greensheet.com\/r\/GS-RVR-001/i)).toBeInTheDocument();
+    expect(await screen.findByDisplayValue(/app.auctum.io\/r\/AL-RVR-001/i)).toBeInTheDocument();
   });
 });
 ```
@@ -1888,7 +1888,7 @@ declineReview: async (referralId: string): Promise<ApiResult<{ referral: Referra
         type: 'about:blank',
         title: 'Referral not found',
         status: 404,
-        code: 'GS-REF-1003',
+        code: 'AL-REF-1003',
         detail: `No referral found with id ${referralId}.`,
       },
     };
@@ -1911,7 +1911,7 @@ qualifyReferral: async (referralId: string): Promise<ApiResult<{ referral: Refer
         type: 'about:blank',
         title: 'Referral not found',
         status: 404,
-        code: 'GS-REF-1003',
+        code: 'AL-REF-1003',
         detail: `No referral found with id ${referralId}.`,
       },
     };

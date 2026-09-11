@@ -3,7 +3,7 @@
 Two layers of automated protection:
 
 1. **`scripts/i18n_audit.py`** (from the localization-toolkit skill) — audits **key usage**: scans the React source for `t('…')` calls and reports keys missing from each locale file, unused keys, and naive parity.
-2. **`scripts/validate_locale_files.py`** (authored for Greensheet) — validates **locale file health**: JSON validity, plural-aware key parity, per-locale plural categories, placeholder/merge-tag consistency, and protected brand tokens. This is the PR gate.
+2. **`scripts/validate_locale_files.py`** (authored for Auctum Ledger) — validates **locale file health**: JSON validity, plural-aware key parity, per-locale plural categories, placeholder/merge-tag consistency, and protected brand tokens. This is the PR gate.
 
 ---
 
@@ -115,7 +115,7 @@ Shipped in this deliverable and embedded here so the check is reviewable inline;
 
 ```python
 #!/usr/bin/env python3
-"""Validate Greensheet locale files: JSON validity, key parity, plural
+"""Validate Auctum Ledger locale files: JSON validity, key parity, plural
 categories, placeholder consistency, and brand-term preservation.
 
 Usage:
@@ -146,7 +146,7 @@ REQUIRED_CATEGORIES = {
 }
 
 # Brand / technical tokens that must survive translation untranslated.
-PROTECTED_TOKENS = ("Greensheet", "SCA", "ESG", "Q Grader")
+PROTECTED_TOKENS = ("Auctum", "Ledger")
 
 # Placeholders: UI uses i18next {{name}}; email/SMS merge tags use {name}.
 MERGE_TAG_RE = re.compile(r"(?<!\{)\{([a-z][a-z0-9_]*)\}(?!\})")
@@ -300,5 +300,5 @@ if __name__ == "__main__":
 | `[parity] extra` | Remove the orphaned key or add it to en-US first |
 | `[plural]` | Match the locale's CLDR category set; do not copy en `_one` into zh-CN |
 | `[placeholder]` | Restore the exact merge tag/`{{var}}`; translators must not "fix" tag names |
-| `[brand]` | Restore `Greensheet`/`SCA`/`ESG`/`Q Grader` verbatim; add the term to the glossary |
+| `[brand]` | Restore `Auctum`/`Ledger` verbatim; add the term to the glossary |
 | usage-audit `Missing` | The code references a key not in the locale files — add it to en-US + all locales in the same PR |

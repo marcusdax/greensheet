@@ -53,7 +53,7 @@ Your {roaster_name} sample kit is reserved. It holds this lot plus two more matc
 
 No contract. No minimum. If the coffee doesn't cup, you've lost nothing but a brew cycle.
 
-— {rep_first_name}, Greensheet
+— {rep_first_name}, Auctum Ledger
 P.S. There are {lot_size_bags} bags of the {region} lot. We'll never email you fake scarcity — that's the real count from the warehouse.`,
     mergeTokens: ['{first_name}', '{roaster_name}', '{origin}', '{region}', '{process_method}', '{sca_cup_score}', '{elevation_masl}', '{varietal}', '{lot_size_bags}', '{kit_tracking_url}', '{rep_first_name}'],
     metrics: { primary: 'kit_request_rate', baselineRate: 24, targetRate: 32, mde: 4, openRateA: 45, openRateB: 52 },
@@ -80,9 +80,9 @@ The kit costs you nothing. It costs us $38 to put on your table, and we do it gl
     campaignId: 'COF-001',
     touchpoint: 3,
     channel: 'sms',
-    subjectA: 'Hi {first_name}, {rep_first_name} from Greensheet. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
+    subjectA: 'Hi {first_name}, {rep_first_name} from Auctum Ledger. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
     subjectB: null,
-    body: 'Hi {first_name}, {rep_first_name} from Greensheet. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
+    body: 'Hi {first_name}, {rep_first_name} from Auctum Ledger. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
     mergeTokens: ['{first_name}', '{rep_first_name}', '{roaster_name}', '{sca_cup_score}', '{process_method}', '{origin}', '{kit_tracking_url}'],
     metrics: { primary: 'kit_request_rate', baselineRate: 24, targetRate: 32, mde: 4, openRateA: 18, openRateB: null },
   },
@@ -121,9 +121,9 @@ P.S. The Q-grader's original scoresheet is the second card in the box. Score bli
     campaignId: 'COF-002',
     touchpoint: 2,
     channel: 'sms',
-    subjectA: "Hi {first_name}, {rep_first_name} at Greensheet. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
+    subjectA: "Hi {first_name}, {rep_first_name} at Auctum Ledger. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
     subjectB: null,
-    body: "Hi {first_name}, {rep_first_name} at Greensheet. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
+    body: "Hi {first_name}, {rep_first_name} at Auctum Ledger. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
     mergeTokens: ['{first_name}', '{rep_first_name}', '{origin}', '{roaster_name}', '{feedback_url}'],
     metrics: { primary: 'feedback_submission_rate', baselineRate: 38, targetRate: 45, mde: 4, openRateA: 15, openRateB: null },
   },
@@ -180,9 +180,9 @@ Your 14-day price lock expires in {days_left_on_lock} days: {shortlist_url}
     campaignId: 'COF-003',
     touchpoint: 3,
     channel: 'sms',
-    subjectA: '{first_name}, {rep_first_name} (Greensheet). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
+    subjectA: '{first_name}, {rep_first_name} (Auctum Ledger). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
     subjectB: null,
-    body: '{first_name}, {rep_first_name} (Greensheet). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
+    body: '{first_name}, {rep_first_name} (Auctum Ledger). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
     mergeTokens: ['{first_name}', '{rep_first_name}', '{origin}', '{days_left_on_lock}', '{lot_size_bags}', '{shortlist_url}'],
     metrics: { primary: 'sample_to_sale', baselineRate: 32, targetRate: 40, mde: 4, openRateA: 10, openRateB: null },
   },

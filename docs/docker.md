@@ -1,6 +1,6 @@
-# Running Greensheet locally with Docker
+# Running Auctum Ledger locally with Docker
 
-This setup runs the full Greensheet platform — Vite React frontend + Express AI proxy — in Docker.
+This setup runs the full Auctum Ledger platform — Vite React frontend + Express AI proxy — in Docker.
 
 ## Requirements
 
@@ -71,7 +71,7 @@ The frontend image relies on the `localization/02-locale-files/` directory, whic
 
 ```bash
 cd app
-docker build -f Dockerfile.app --target prod -t greensheet-app:prod . \
+docker build -f Dockerfile.app --target prod -t auctum-ledger-app:prod . \
   --build-context localization=../localization/02-locale-files
 ```
 

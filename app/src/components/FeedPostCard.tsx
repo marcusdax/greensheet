@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Share2, Coffee, TrendingUp, Image, Radio, Clock } from 'lucide-react';
-import { VerificationBadge } from './VerificationBadge';
-import type { FeedPost, PostType } from '../types/lotspace';
+import { AuctumVerifiedOrigin } from './AuctumVerifiedOrigin';
+import type { FeedPost, PostType } from '../types/ledger';
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -15,10 +15,10 @@ interface FeedPostCardProps {
 
 const POST_TYPE_CONFIG: Record<PostType, { label: string; color: string }> = {
   lot_listing: { label: 'Lot Live', color: 'bg-teal/10 text-teal border-teal/30' },
-  price_update: { label: 'Price Update', color: 'bg-gold/10 text-gold-600 border-gold/30' },
+  price_update: { label: 'Price Update', color: 'bg-gold/10 text-gold border-gold/30' },
   harvest_report: { label: 'Harvest', color: 'bg-leaf/10 text-leaf border-leaf/30' },
   process_experiment: { label: 'Processing', color: 'bg-roast/10 text-roast border-roast/20' },
-  competition_result: { label: 'Competition', color: 'bg-gold/10 text-gold-600 border-gold/30' },
+  competition_result: { label: 'Competition', color: 'bg-gold/10 text-gold border-gold/30' },
   transparency_receipt: { label: 'True Price', color: 'bg-leaf/10 text-leaf border-leaf/30' },
   tip_milestone: { label: 'Tip Milestone', color: 'bg-cherry/10 text-cherry border-cherry/20' },
   media_story: { label: 'Story', color: 'bg-info/20 text-info border-info/20' },
@@ -77,7 +77,7 @@ export const FeedPostCard: React.FC<FeedPostCardProps> = ({
               <span className="text-sm font-sans font-semibold text-ink leading-tight truncate">
                 {post.authorName}
               </span>
-              <VerificationBadge tier={post.authorVerificationTier} size="sm" showLabel={false} />
+              <AuctumVerifiedOrigin verified={true} tier={post.authorVerificationTier} size="sm" showLabel={false} />
             </div>
             <div className="flex items-center gap-1.5 text-[10px] text-subtle font-mono">
               <Clock size={9} />

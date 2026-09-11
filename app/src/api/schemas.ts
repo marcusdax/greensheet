@@ -27,7 +27,7 @@ export const campaignCreateSchema = z.object({
 });
 
 export const ruleCreateSchema = z.object({
-  ruleCode: z.string().regex(/^COF-00[1-9]$/),
+  ruleCode: z.string().regex(/^(ALT|COF)-[A-Za-z0-9_-]+$/),
   campaignId: z.string().nullable().optional().transform((v) => v === '' ? null : v),
   ruleName: z.string().min(1),
   triggerEvent: z.string().min(1),
@@ -44,7 +44,7 @@ export const ruleCreateSchema = z.object({
 export const lotCreateSchema = z.object({
   origin: z.string().min(1).max(100),
   varietal: z.string().max(100).optional().nullable(),
-  processingMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable(),
+  processMethod: z.enum(['washed', 'natural', 'honey', 'anaerobic']).optional().nullable(),
   elevation: z.number().int().positive().optional().nullable(),
   cupScore: z.number().min(0).max(100),
   pricePerLbCents: z.number().int().min(1),

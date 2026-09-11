@@ -53,7 +53,7 @@ Every action in the Base Doc reducer (§IV.4.2) maps 1:1 to a slice action — t
 | `{ type: 'TOGGLE_PROCESS', payload }` | `toggleProcess(p)` | — |
 | `{ type: 'SET_MIN_CUP_SCORE', payload }` | `setMinCupScore(n)` | — |
 | `{ type: 'RESET_FILTERS' }` | `resetFilters()` | — |
-| `useLocalStorage('greensheet-navigator-view')` | `persist` middleware (partialize) | saved views now versioned, see §4.3 |
+| `useLocalStorage('auctum-navigator-view')` | `persist` middleware (partialize) | saved views now versioned, see §4.3 |
 | `useMemo(rankedLots)` | **selector** `selectRankedLots` (memoized) | moves computation out of render, §4.4 |
 
 **Migration steps (per component, zero big-bang):**
@@ -74,11 +74,11 @@ Every action in the Base Doc reducer (§IV.4.2) maps 1:1 to a slice action — t
 
 ```typescript
 // src/types/domain.ts
-export interface CoffeeLot {
+export interface LedgerLot {
   id: string;
   origin: string;
   varietal: string | null;
-  processingMethod: 'washed' | 'natural' | 'honey' | 'anaerobic' | null;
+  processMethod: 'washed' | 'natural' | 'honey' | 'anaerobic' | null;
   elevation: number | null;
   cupScore: number;
   pricePerLbCents: number;          // API field; UI converts: pricePerLb = cents / 100
@@ -314,7 +314,7 @@ export const useRootStore = create<RootStore>()(
         })),
       ),
       {
-        name: 'greensheet-store',
+        name: 'auctum-store',
         version: 3,
         // Persist ONLY the durable bits — never server data, never toasts.
         partialize: (s) => ({
@@ -335,7 +335,7 @@ export const useRootStore = create<RootStore>()(
         },
       },
     ),
-    { name: 'GreensheetStore' },
+    { name: 'AuctumLedgerStore' },
   ),
 );
 
@@ -355,9 +355,9 @@ The Base Doc's `rankedLots` `useMemo` becomes a **selector factory** with struct
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useSourcing } from '../root-store';
-import type { CoffeeLot } from '../../types/domain';
+import type { LedgerLot } from '../../types/domain';
 
-export interface ScoredLot extends CoffeeLot {
+export interface ScoredLot extends LedgerLot {
   metrics: {
     costNorm: number; cupNorm: number; esgNorm: number; logisticsNorm: number;
     weightedScore: number; isOverBudget: boolean;
@@ -365,7 +365,7 @@ export interface ScoredLot extends CoffeeLot {
 }
 
 /** Pure function — exported for Vitest (see 06-testing-chaos-ci.md §3). */
-export function rankLots(lots: CoffeeLot[], s: {
+export function rankLots(lots: LedgerLot[], s: {
   weights: { cost: number; cup: number; esg: number; logistics: number };
   budgetCeiling: number; showOverBudget: boolean; searchQuery: string;
   selectedOrigins: string[]; selectedProcesses: string[]; minCupScore: number;
@@ -380,7 +380,7 @@ export function rankLots(lots: CoffeeLot[], s: {
       l.flavorNotes.some((n) => n.toLowerCase().includes(s.searchQuery)));
   }
   if (s.selectedOrigins.length)   filtered = filtered.filter((l) => s.selectedOrigins.includes(l.origin));
-  if (s.selectedProcesses.length) filtered = filtered.filter((l) => l.processingMethod && s.selectedProcesses.includes(l.processingMethod));
+  if (s.selectedProcesses.length) filtered = filtered.filter((l) => l.processMethod && s.selectedProcesses.includes(l.processMethod));
   if (!s.showOverBudget)          filtered = filtered.filter((l) => l.pricePerLbCents / 100 <= s.budgetCeiling);
   filtered = filtered.filter((l) => l.cupScore >= s.minCupScore);
 
@@ -417,7 +417,7 @@ export function rankLots(lots: CoffeeLot[], s: {
 const clamp100 = (n: number) => Math.max(0, Math.min(100, n));
 
 /** Hook: subscribes to exactly the 8 filter fields, not the whole slice. */
-export function useRankedLots(lots: CoffeeLot[]): ScoredLot[] {
+export function useRankedLots(lots: LedgerLot[]): ScoredLot[] {
   const filters = useSourcing();   // slice object is stable (single immer draft per action)
   const slice = useShallowFilters();
   return useMemo(() => rankLots(lots, slice), [lots, slice]);
@@ -450,7 +450,7 @@ function useShallowObject<T extends Record<string, unknown>>(obj: T): T {
 ```typescript
 // src/queries/lots-queries.ts
 import { queryOptions } from '@tanstack/react-query';
-import type { CoffeeLot } from '../types/domain';
+import type { LedgerLot } from '../types/domain';
 import { api } from '../lib/api-client';          // fetch wrapper w/ OIDC token (07 doc §1)
 
 export const lotsKeys = {
@@ -471,7 +471,7 @@ export function lotsListQuery(params: {
       if (params.maxPricePerLb) qs.set('maxPricePerLb', String(params.maxPricePerLb));
       qs.set('limit', String(params.limit ?? 50));
       if (pageParam) qs.set('cursor', pageParam as string);
-      const res = await api.get<{ data: CoffeeLot[]; page: { nextCursor: string | null; hasMore: boolean } }>(
+      const res = await api.get<{ data: LedgerLot[]; page: { nextCursor: string | null; hasMore: boolean } }>(
         `/v1/catalog/lots?${qs}`);
       return res;
     },
@@ -495,7 +495,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api-client';
 import { useRootStore } from '../../stores/root-store';
 import { lotsKeys } from '../lots-queries';
-import type { CoffeeLot } from '../../types/domain';
+import type { LedgerLot } from '../../types/domain';
 
 interface ReserveInput { lotId: string; quantityLbs: number; orderId: string; }
 
@@ -522,7 +522,7 @@ export function useReserveLot() {
           ...old,
           pages: old.pages.map((p: any) => ({
             ...p,
-            data: p.data.map((l: CoffeeLot) =>
+            data: p.data.map((l: LedgerLot) =>
               l.id === input.lotId
                 ? { ...l, availableQuantityLbs: Math.max(0, l.availableQuantityLbs - input.quantityLbs) }
                 : l),
@@ -539,7 +539,7 @@ export function useReserveLot() {
       ctx?.snapshots?.forEach(([key, data]) => qc.setQueryData(key, data));
       useRootStore.getState().ui.pushToast({
         kind: 'error',
-        message: isProblem(err, 'GS-CAT-1001')
+        message: isProblem(err, 'AL-CAT-1001')
           ? 'Not enough inventory available.'
           : 'Reservation failed — please retry.',
       });
@@ -779,7 +779,7 @@ describe('sourcing slice (reducer parity)', () => {
 
 describe('rankLots', () => {
   const lot = (id: string, priceCents: number, cup: number) => ({
-    id, origin: 'Ethiopia', varietal: null, processingMethod: 'washed' as const,
+    id, origin: 'Ethiopia', varietal: null, processMethod: 'washed' as const,
     elevation: null, cupScore: cup, pricePerLbCents: priceCents, costPerLbCents: 300,
     availableQuantityLbs: 1000, esgScore: 0.8, logisticsScore: 0.9, flavorNotes: [], status: 'active' as const,
   });

@@ -1,6 +1,6 @@
-import type { CoffeeLot } from '../data/lots';
+import type { LedgerLot } from "../data/lots";
 
-export type { CoffeeLot };
+export type { LedgerLot };
 
 export type SortOrder = 'weighted' | 'price' | 'cup' | 'esg';
 export type GoalKey = 'baseline' | 'costOptimized' | 'qualityFirst' | 'sustainability' | 'supplyChain';

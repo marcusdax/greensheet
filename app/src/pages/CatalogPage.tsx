@@ -10,9 +10,9 @@ import {
   ArrowUpDown, ArrowUp, ArrowDown, Plus, Pencil, Archive, ShoppingCart
 } from 'lucide-react';
 import { fmtPricePerLb, fmtDate } from '../i18n/format';
-import type { CoffeeLot, CoffeeLotPatch } from '../types/api';
+import type { LedgerLot, LedgerLotPatch } from '../types/api';
 
-type CatalogSortField = 'origin' | 'processingMethod' | 'elevation' | 'cupScore' | 'pricePerLbCents' | 'availableQuantityLbs' | 'esgScore' | 'estimatedArrival';
+type CatalogSortField = 'origin' | 'processMethod' | 'elevation' | 'cupScore' | 'pricePerLbCents' | 'availableQuantityLbs' | 'esgScore' | 'estimatedArrival';
 
 export const CatalogPage: React.FC = () => {
   const { t, i18n } = useTranslation(['catalog', 'common']);
@@ -32,10 +32,10 @@ export const CatalogPage: React.FC = () => {
 
   // CRUD modals
   const [lotModalOpen, setLotModalOpen] = useState(false);
-  const [editingLot, setEditingLot] = useState<CoffeeLot | null>(null);
+  const [editingLot, setEditingLot] = useState<LedgerLot | null>(null);
 
   // Reserve modal
-  const [reserveTarget, setReserveTarget] = useState<CoffeeLot | null>(null);
+  const [reserveTarget, setReserveTarget] = useState<LedgerLot | null>(null);
   const [reserveQty, setReserveQty] = useState<number>(0);
   const [reserveOrderId, setReserveOrderId] = useState('');
 
@@ -50,7 +50,7 @@ export const CatalogPage: React.FC = () => {
       (lot.varietal && lot.varietal.toLowerCase().includes(search.toLowerCase())) ||
       (lot.flavorNotes && lot.flavorNotes.some((n) => n.toLowerCase().includes(search.toLowerCase())));
 
-    const matchesProcess = selectedProcess === 'all' || lot.processingMethod === selectedProcess;
+    const matchesProcess = selectedProcess === 'all' || lot.processMethod === selectedProcess;
     const matchesCup = lot.cupScore >= minCup;
 
     return matchesSearch && matchesProcess && matchesCup;
@@ -96,7 +96,7 @@ export const CatalogPage: React.FC = () => {
       l.id,
       `"${l.origin.replace(/"/g, '""')}"`,
       `"${(l.varietal || '').replace(/"/g, '""')}"`,
-      l.processingMethod ?? '',
+      l.processMethod ?? '',
       l.elevation ?? '',
       l.cupScore,
       (l.pricePerLbCents / 100).toFixed(2),
@@ -115,7 +115,7 @@ export const CatalogPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `greensheet_catalog_${new Date().toISOString().substring(0, 10)}.csv`);
+    link.setAttribute('download', `auctum_ledger_catalog_${new Date().toISOString().substring(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -126,7 +126,7 @@ export const CatalogPage: React.FC = () => {
     setLotModalOpen(true);
   };
 
-  const openEdit = (lot: CoffeeLot) => {
+  const openEdit = (lot: LedgerLot) => {
     setEditingLot(lot);
     setLotModalOpen(true);
   };
@@ -136,7 +136,7 @@ export const CatalogPage: React.FC = () => {
     setEditingLot(null);
   };
 
-  const openReserve = (lot: CoffeeLot) => {
+  const openReserve = (lot: LedgerLot) => {
     setReserveTarget(lot);
     setReserveQty(0);
     setReserveOrderId('');
@@ -161,7 +161,7 @@ export const CatalogPage: React.FC = () => {
 
   const handleUpdateLot = async (data: LotFormOutput) => {
     if (!editingLot) return;
-    const patch: CoffeeLotPatch = {
+    const patch: LedgerLotPatch = {
       pricePerLbCents: data.pricePerLbCents,
       availableQuantityLbs: data.availableQuantityLbs,
       esgScore: data.esgScore,
@@ -176,7 +176,7 @@ export const CatalogPage: React.FC = () => {
     }
   };
 
-  const handleRetire = async (lot: CoffeeLot) => {
+  const handleRetire = async (lot: LedgerLot) => {
     const updated = await retireLot(lot.id);
     if (updated) {
       pushToast({ kind: 'success', message: `${lot.origin} retired` });
@@ -311,8 +311,8 @@ export const CatalogPage: React.FC = () => {
                   <th className="px-4 py-3 font-semibold overline text-xs tracking-wider cursor-pointer select-none" onClick={() => handleSort('origin')}>
                     <span className="flex items-center">{t('catalog.table.lot', 'LOT / ORIGIN')} {getSortIcon('origin')}</span>
                   </th>
-                  <th className="px-4 py-3 font-semibold overline text-xs tracking-wider cursor-pointer select-none" onClick={() => handleSort('processingMethod')}>
-                    <span className="flex items-center">{t('catalog.table.process', 'PROCESS')} {getSortIcon('processingMethod')}</span>
+                  <th className="px-4 py-3 font-semibold overline text-xs tracking-wider cursor-pointer select-none" onClick={() => handleSort('processMethod')}>
+                    <span className="flex items-center">{t('catalog.table.process', 'PROCESS')} {getSortIcon('processMethod')}</span>
                   </th>
                   <th className="px-4 py-3 font-semibold overline text-xs tracking-wider cursor-pointer select-none text-right" onClick={() => handleSort('elevation')}>
                     <span className="flex items-center justify-end">{t('catalog.table.elevation', 'ELEVATION')} {getSortIcon('elevation')}</span>
@@ -370,7 +370,7 @@ export const CatalogPage: React.FC = () => {
                       {/* Process */}
                       <td className={`px-4 ${rowHeightClass}`}>
                         <span className="inline-flex px-2 py-0.5 text-xs rounded-full bg-recessed text-ink capitalize font-sans">
-                          {t(`process.${lot.processingMethod}`, lot.processingMethod ?? '—')}
+                          {t(`process.${lot.processMethod}`, lot.processMethod ?? '—')}
                         </span>
                       </td>
 

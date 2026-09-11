@@ -18,7 +18,7 @@ describe('rules slice', () => {
   it('creates a rule', async () => {
     const rules = useRootStore.getState().rules;
     const created = await rules.createRule({
-      ruleCode: 'NEW-001',
+      ruleCode: 'COF-006',
       campaignId: 'campaign-cof-001',
       ruleName: 'New Rule',
       triggerEvent: 'order.created',
@@ -26,7 +26,7 @@ describe('rules slice', () => {
       actions: [{ actionType: 'SEND_TEMPLATE', templateId: 'tmpl_x', channel: 'email' }],
     });
     expect(created).not.toBeNull();
-    expect(useRootStore.getState().rules.rules[0].ruleCode).toBe('NEW-001');
+    expect(useRootStore.getState().rules.rules[0].ruleCode).toBe('COF-006');
   });
 
   it('updates a rule', async () => {
@@ -51,6 +51,6 @@ describe('rules slice', () => {
     const rules = useRootStore.getState().rules;
     const deleted = await rules.deleteRule('missing');
     expect(deleted).toBe(false);
-    expect(useRootStore.getState().rules.error?.code).toBe('GS-GEN-1005');
+    expect(useRootStore.getState().rules.error?.code).toBe('AL-GEN-1005');
   });
 });

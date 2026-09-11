@@ -1,4 +1,4 @@
-import type { FeedPost, FeedType } from '../../types/lotspace';
+import type { FeedPost, FeedType } from '../../types/ledger';
 import { feedPosts } from '../../data/feed';
 
 export interface FeedsState {

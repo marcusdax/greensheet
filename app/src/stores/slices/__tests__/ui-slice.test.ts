@@ -73,7 +73,7 @@ describe('ui-slice theme actions', () => {
     ui.setTheme('dark');
     expect(useRootStore.getState().ui.theme).toBe('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    expect(localStorage.getItem('greensheet:theme')).toBe('dark');
+    expect(localStorage.getItem('auctum:theme')).toBe('dark');
   });
 
   it('toggleTheme switches between light and dark', () => {

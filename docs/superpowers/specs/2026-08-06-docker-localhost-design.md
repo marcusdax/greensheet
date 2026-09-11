@@ -1,8 +1,8 @@
-# Docker Localhost Setup for Greensheet Platform
+# Docker Localhost Setup for Auctum Ledger Platform
 
 ## Goal
 
-Add Docker support so the full Greensheet platform — React/Vite frontend plus Express AI proxy — can be launched locally with one command. Provide both a development mode with hot reload and a production-like multi-stage build.
+Add Docker support so the full Auctum Ledger platform — React/Vite frontend plus Express AI proxy — can be launched locally with one command. Provide both a development mode with hot reload and a production-like multi-stage build.
 
 ## Decisions from brainstorming
 

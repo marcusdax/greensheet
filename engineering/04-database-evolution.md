@@ -391,13 +391,13 @@ CREATE UNIQUE INDEX ux_locales_default ON i18n.locales ((is_default)) WHERE is_d
 
 CREATE TABLE i18n.namespaces (
     id              SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name            TEXT NOT NULL UNIQUE                  -- 'portal','emails.cof','sms.cof'
+    name            TEXT NOT NULL UNIQUE                  -- 'portal','emails.alt','sms.alt'
 );
 
 CREATE TABLE i18n.keys (
     id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     namespace_id    SMALLINT NOT NULL REFERENCES i18n.namespaces(id) ON DELETE CASCADE,
-    key             TEXT NOT NULL,                        -- 'cof001.touch1.subject'
+    key             TEXT NOT NULL,                        -- 'alt001.touch1.subject'
     description     TEXT,                                 -- translator context
     max_length      INT,                                  -- SMS 160-char enforcement
     placeholders    JSONB,                                -- ["roaster_name","sca_cup_score"]
@@ -449,7 +449,7 @@ LEFT JOIN i18n.locales ld ON ld.is_default
 LEFT JOIN i18n.translations t_def
        ON t_def.key_id = k.id AND t_def.locale_code = ld.code AND t_def.state = 'published';
 
--- Seed: tie marketing templates into i18n (COF-001 subject, en + es)
+-- Seed: tie marketing templates into i18n (ALT-001 subject, en + es)
 INSERT INTO i18n.locales (code, display_name, is_enabled, is_default) VALUES
   ('en-US', 'English (US)', TRUE, TRUE),
   ('es-CO', 'Español (Colombia)', TRUE, FALSE),
@@ -474,7 +474,7 @@ CREATE TABLE audit.campaign_execution_logs (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     campaign_id       UUID NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
     rule_id           UUID REFERENCES automation_rules(id) ON DELETE SET NULL,
-    rule_code         TEXT,                               -- denormalized 'COF-001' (survives rule delete)
+    rule_code         TEXT,                               -- denormalized 'ALT-001' (survives rule delete)
     rule_version      INT,
     roaster_id        UUID NOT NULL,                      -- no FK: ledger outlives anonymization
     template_id       UUID REFERENCES marketing_templates(id) ON DELETE SET NULL,

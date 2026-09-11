@@ -12,7 +12,7 @@
 
 - New types live in `app/src/types/api.ts` and are re-exported from `app/src/api/client.ts`.
 - Economic values match `marketing/03-referral-engine-playbook.md`: referrer reward `$150` credit, referee reward `$100` off, referral CAC ≤ `$200`, qualification on first paid order delivered.
-- Code format follows the existing `GS-XXX-NN` referral-code pattern from the playbook.
+- Code format follows the existing `AL-XXX-NN` referral-code pattern from the playbook.
 - Every endpoint has a focused test in `app/src/api/__tests__/client.test.ts`.
 - Use the existing `ApiResult<T>` / `Problem` contract; do not introduce a new error shape.
 - Each task ends with a commit and a green test run covering the changed code.
@@ -161,7 +161,7 @@ import type {
   Roaster,
   Campaign,
   AutomationRule,
-  CoffeeLot,
+  LedgerLot,
   SampleKit,
   Order,
   WebhookSubscriptionWithSecret,
@@ -192,7 +192,7 @@ function seedReferrals(now: string) {
     {
       id: 'rc_001',
       accountId: 'r_001',
-      code: 'GS-RVR-001',
+      code: 'AL-RVR-001',
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -200,7 +200,7 @@ function seedReferrals(now: string) {
     {
       id: 'rc_002',
       accountId: 'r_002',
-      code: 'GS-RVR-002',
+      code: 'AL-RVR-002',
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -212,7 +212,7 @@ function seedReferrals(now: string) {
       id: 'ref_001',
       referrerId: 'r_001',
       refereeId: 'r_003',
-      refCode: 'GS-RVR-001',
+      refCode: 'AL-RVR-001',
       status: 'qualified',
       channel: 'invite_link',
       utmSource: 'referral',
@@ -230,7 +230,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_002',
       referrerId: 'r_001',
-      refCode: 'GS-RVR-001',
+      refCode: 'AL-RVR-001',
       status: 'clicked',
       channel: 'qr_sticker',
       utmSource: 'referral',
@@ -242,7 +242,7 @@ function seedReferrals(now: string) {
       id: 'ref_003',
       referrerId: 'r_001',
       refereeId: 'r_004',
-      refCode: 'GS-RVR-001',
+      refCode: 'AL-RVR-001',
       status: 'kit_delivered',
       channel: 'email_share',
       createdAt: '2025-06-12T00:00:00.000Z',
@@ -255,7 +255,7 @@ function seedReferrals(now: string) {
       id: 'ref_004',
       referrerId: 'r_001',
       refereeId: 'r_005',
-      refCode: 'GS-RVR-001',
+      refCode: 'AL-RVR-001',
       status: 'feedback_submitted',
       channel: 'instagram_dm',
       createdAt: '2025-06-15T00:00:00.000Z',
@@ -268,7 +268,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_005',
       referrerId: 'r_001',
-      refCode: 'GS-RVR-001',
+      refCode: 'AL-RVR-001',
       status: 'invited',
       channel: 'event_badge',
       createdAt: '2025-06-25T00:00:00.000Z',
@@ -277,7 +277,7 @@ function seedReferrals(now: string) {
       id: 'ref_006',
       referrerId: 'r_002',
       refereeId: 'r_003',
-      refCode: 'GS-RVR-002',
+      refCode: 'AL-RVR-002',
       status: 'qualified',
       channel: 'invite_link',
       createdAt: '2025-05-15T00:00:00.000Z',
@@ -292,7 +292,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_007',
       referrerId: 'r_002',
-      refCode: 'GS-RVR-002',
+      refCode: 'AL-RVR-002',
       status: 'signed_up',
       channel: 'qr_sticker',
       createdAt: '2025-06-18T00:00:00.000Z',
@@ -302,7 +302,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_008',
       referrerId: 'r_002',
-      refCode: 'GS-RVR-002',
+      refCode: 'AL-RVR-002',
       status: 'clawed_back',
       channel: 'invite_link',
       createdAt: '2025-04-01T00:00:00.000Z',
@@ -319,7 +319,7 @@ function seedReferrals(now: string) {
       id: 'ref_009',
       referrerId: 'r_002',
       refereeId: 'r_006',
-      refCode: 'GS-RVR-002',
+      refCode: 'AL-RVR-002',
       status: 'kit_delivered',
       channel: 'qr_sticker',
       createdAt: '2025-07-10T00:00:00.000Z',
@@ -338,7 +338,7 @@ function seedReferrals(now: string) {
       type: 'referrer_credit',
       amountCents: 150_00,
       status: 'posted',
-      description: 'Referrer credit for GS-RVR-001 qualified referral',
+      description: 'Referrer credit for AL-RVR-001 qualified referral',
       createdAt: '2025-06-20T00:00:00.000Z',
       postedAt: '2025-06-20T00:00:00.000Z',
     },
@@ -349,7 +349,7 @@ function seedReferrals(now: string) {
       type: 'referee_discount',
       amountCents: 100_00,
       status: 'posted',
-      description: 'Referee discount for GS-RVR-001 qualified referral',
+      description: 'Referee discount for AL-RVR-001 qualified referral',
       createdAt: '2025-06-20T00:00:00.000Z',
       postedAt: '2025-06-20T00:00:00.000Z',
     },
@@ -380,7 +380,7 @@ function seedReferrals(now: string) {
       type: 'referrer_credit',
       amountCents: 150_00,
       status: 'posted',
-      description: 'Referrer credit for GS-RVR-002 qualified referral',
+      description: 'Referrer credit for AL-RVR-002 qualified referral',
       createdAt: '2025-07-05T00:00:00.000Z',
       postedAt: '2025-07-05T00:00:00.000Z',
     },
@@ -391,7 +391,7 @@ function seedReferrals(now: string) {
       type: 'referee_discount',
       amountCents: 100_00,
       status: 'posted',
-      description: 'Referee discount for GS-RVR-002 qualified referral',
+      description: 'Referee discount for AL-RVR-002 qualified referral',
       createdAt: '2025-07-05T00:00:00.000Z',
       postedAt: '2025-07-05T00:00:00.000Z',
     },
@@ -479,7 +479,7 @@ function generateRefCode(): string {
   const idx = nextRefCodeIndex();
   const word = adjectives[idx % adjectives.length];
   const suffix = String(100 + (idx % 900));
-  return `GS-${word}-${suffix}`;
+  return `AL-${word}-${suffix}`;
 }
 
 function nowIso(): string {
@@ -523,7 +523,7 @@ referrals: {
     if (active) return { data: { code: active } };
 
     let codeText: string;
-    if (requestedCode && /^GS-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
+    if (requestedCode && /^AL-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
       const taken = db.referralCodes.some(
         (c) => c.code.toLowerCase() === requestedCode.toLowerCase(),
       );
@@ -533,7 +533,7 @@ referrals: {
             type: 'about:blank',
             title: 'Code already taken',
             status: 409,
-            code: 'GS-REF-1001',
+            code: 'AL-REF-1001',
             detail: `The referral code ${requestedCode} is already in use.`,
           },
         };
@@ -639,7 +639,7 @@ referrals: {
           type: 'about:blank',
           title: 'Referral code not found',
           status: 404,
-          code: 'GS-REF-1002',
+          code: 'AL-REF-1002',
           detail: `No active referral code found for ${code}.`,
         },
       };
@@ -679,7 +679,7 @@ referrals: {
           type: 'about:blank',
           title: 'Referral not found',
           status: 404,
-          code: 'GS-REF-1003',
+          code: 'AL-REF-1003',
           detail: `No referral found with id ${referralId}.`,
         },
       };
@@ -731,7 +731,7 @@ referrals: {
           type: 'about:blank',
           title: 'Referral not found',
           status: 404,
-          code: 'GS-REF-1003',
+          code: 'AL-REF-1003',
           detail: `No referral found with id ${referralId}.`,
         },
       };
@@ -743,7 +743,7 @@ referrals: {
           type: 'about:blank',
           title: 'Referral not qualified',
           status: 400,
-          code: 'GS-REF-1004',
+          code: 'AL-REF-1004',
           detail: 'Only qualified referrals can be clawed back.',
         },
       };
@@ -811,7 +811,7 @@ describe('referrals api', () => {
   it('creates a referral code lazily', async () => {
     const res = await api.referrals.getCodeForAccount('r_003');
     expect('data' in res).toBe(true);
-    expect(res.data!.code.code).toMatch(/^GS-[A-Z]{2,6}-\d{1,4}$/);
+    expect(res.data!.code.code).toMatch(/^AL-[A-Z]{2,6}-\d{1,4}$/);
     expect(res.data!.code.accountId).toBe('r_003');
   });
 
@@ -823,11 +823,11 @@ describe('referrals api', () => {
   });
 
   it('accepts a custom code and rejects duplicates', async () => {
-    const custom = await api.referrals.createCode('r_004', 'GS-CUSTOM-42');
+    const custom = await api.referrals.createCode('r_004', 'AL-CUSTOM-42');
     expect('data' in custom).toBe(true);
-    expect(custom.data!.code.code).toBe('GS-CUSTOM-42');
+    expect(custom.data!.code.code).toBe('AL-CUSTOM-42');
 
-    const duplicate = await api.referrals.createCode('r_005', 'GS-CUSTOM-42');
+    const duplicate = await api.referrals.createCode('r_005', 'AL-CUSTOM-42');
     expect('problem' in duplicate).toBe(true);
     expect(duplicate.problem!.status).toBe(409);
   });
@@ -859,14 +859,14 @@ describe('referrals api', () => {
   });
 
   it('records a click and creates a referral', async () => {
-    const res = await api.referrals.recordClick('GS-RVR-001', 'qr_sticker');
+    const res = await api.referrals.recordClick('AL-RVR-001', 'qr_sticker');
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('clicked');
     expect(res.data!.referral.channel).toBe('qr_sticker');
   });
 
   it('returns an error for an unknown referral code click', async () => {
-    const res = await api.referrals.recordClick('GS-UNKNOWN-99');
+    const res = await api.referrals.recordClick('AL-UNKNOWN-99');
     expect('problem' in res).toBe(true);
     expect(res.problem!.status).toBe(404);
   });

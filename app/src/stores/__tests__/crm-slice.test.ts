@@ -97,7 +97,7 @@ describe('crm slice', () => {
       notes: 'Different intervention',
     }, key);
     expect(conflict).toBeNull();
-    expect(useRootStore.getState().crm.error?.code).toBe('GS-GEN-1003');
+    expect(useRootStore.getState().crm.error?.code).toBe('AL-GEN-1003');
   });
 
   it('anonymizes a roaster name and contact', async () => {
@@ -113,7 +113,7 @@ describe('crm slice', () => {
   it('records an error when anonymizing a missing roaster', async () => {
     const crm = useRootStore.getState().crm;
     await crm.anonymizeRoaster('missing');
-    expect(useRootStore.getState().crm.error?.code).toBe('GS-GEN-1005');
+    expect(useRootStore.getState().crm.error?.code).toBe('AL-GEN-1005');
   });
 
   it('replays idempotent createRoaster calls and conflicts on mismatched payload', async () => {
@@ -151,13 +151,13 @@ describe('crm slice', () => {
       key,
     );
     expect(conflict).toBeNull();
-    expect(useRootStore.getState().crm.error?.code).toBe('GS-GEN-1003');
+    expect(useRootStore.getState().crm.error?.code).toBe('AL-GEN-1003');
   });
 
   it('returns null when updating a missing roaster', async () => {
     const crm = useRootStore.getState().crm;
     const updated = await crm.updateRoaster('missing', { roasterName: 'Ghost' });
     expect(updated).toBeNull();
-    expect(useRootStore.getState().crm.error?.code).toBe('GS-GEN-1005');
+    expect(useRootStore.getState().crm.error?.code).toBe('AL-GEN-1005');
   });
 });

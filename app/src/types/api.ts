@@ -48,6 +48,11 @@ export interface Roaster {
   totalOrders: number | null;
   billingCycle?: 'monthly' | 'quarterly' | 'annual';
   businessRegistration?: string;
+  taxId?: string;
+  billingAddress?: string;
+  cardFingerprint?: string;
+  deviceFingerprint?: string;
+  ipSubnet?: string;
   lastActivityAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -203,7 +208,8 @@ export type ReferralStatus =
   | 'feedback_submitted'
   | 'first_order_delivered'
   | 'qualified'
-  | 'clawed_back';
+  | 'clawed_back'
+  | 'declined';
 
 export type ReferralChannel =
   | 'invite_link'
@@ -247,6 +253,10 @@ export interface Referral {
   firstOrderDeliveredAt?: string;
   qualifiedAt?: string;
   clawedBackAt?: string;
+  reviewStatus?: 'pending_review' | 'approved' | 'declined';
+  refereeOrderId?: string;
+  /** Last status/review mutation timestamp (playbook §4 review queue) */
+  updatedAt?: string;
 }
 
 export interface RewardLedgerEntry {
@@ -277,11 +287,13 @@ export interface ReferralStats {
   kFactor: number;
 }
 
-export interface CoffeeLot {
+export type CoffeeLot = LedgerLot;
+
+export interface LedgerLot {
   id: string;
   origin: string;
   varietal: string | null;
-  processingMethod: ProcessingMethod | null;
+  processMethod: ProcessingMethod | null;
   elevation: number | null;
   cupScore: number;
   pricePerLbCents: number;
@@ -301,11 +313,11 @@ export interface CoffeeLot {
   portOfOrigin: string | null;
   estimatedArrival: string | null;
   status: LotStatus;
-  metrics?: CoffeeLotMetrics;
+  metrics?: LedgerLotMetrics;
   lastUpdatedAt: string;
 }
 
-export interface CoffeeLotMetrics {
+export interface LedgerLotMetrics {
   costNorm?: number;
   cupNorm?: number;
   esgNorm?: number;
@@ -313,10 +325,10 @@ export interface CoffeeLotMetrics {
   weightedScore?: number;
 }
 
-export interface CoffeeLotCreate {
+export interface LedgerLotCreate {
   origin: string;
   varietal?: string;
-  processingMethod?: ProcessingMethod;
+  processMethod?: ProcessingMethod;
   elevation?: number;
   cupScore: number;
   pricePerLbCents: number;
@@ -328,7 +340,7 @@ export interface CoffeeLotCreate {
   confirmBelowCost?: boolean;
 }
 
-export interface CoffeeLotPatch {
+export interface LedgerLotPatch {
   pricePerLbCents?: number;
   priceChangeReason?: string;
   availableQuantityLbs?: number;
@@ -435,7 +447,7 @@ export interface CampaignFunnel {
   opened?: number;
   clicked?: number;
   ordered?: number;
-  // Extended fields for the COF nurture engine
+  // Extended fields for the ALT nurture engine
   feedbackSubmitted?: number;
   responded?: number;
   firstOrders?: number;
@@ -518,6 +530,8 @@ export interface Order {
   invoiceNumber?: string | null;
   createdAt: string;
   updatedAt: string;
+  // Referral credits applied toward this order (for the 50% spend-through cap).
+  creditsAppliedCents?: number;
 }
 
 export interface WebhookSubscription {

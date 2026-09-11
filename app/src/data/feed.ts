@@ -1,7 +1,7 @@
 /**
- * LotSpace — Mock Feed Posts & Competition Data
+ * Auctum Ledger — Mock Feed Posts & Competition Data
  */
-import type { FeedPost, CuppingCompetition, SentinelFlag } from '../types/lotspace';
+import type { FeedPost, CuppingCompetition, SentinelFlag } from '../types/ledger';
 
 // ─── FEED POSTS ────────────────────────────────────────────────────────────────
 
@@ -115,7 +115,7 @@ export const feedPosts: FeedPost[] = [
     feedType: 'following',
     postType: 'transparency_receipt',
     authorSpaceId: 'sp_roaster_001',
-    authorName: 'Karmic Circle Coffee',
+    authorName: 'Auctum Trading',
     authorArchetype: 'roaster',
     authorVerificationTier: 'audit_verified',
     authorPhoto: null,
@@ -164,7 +164,7 @@ export const feedPosts: FeedPost[] = [
     authorVerificationTier: 'audit_verified',
     authorPhoto: null,
     referencedLotId: null,
-    headline: 'LotSpace Dak Lak Cup — Results Published. Winner: Toi Nguyen.',
+    headline: 'Auctum Dak Lak Cup — Results Published. Winner: Toi Nguyen.',
     bodyText: 'Blind cupping of 8 lots from Dak Lak region. Toi Nguyen\'s Java Arabica Anaerobic scored 88.5 — highest in the competition. Winner premium: $2.00/lb above market.',
     mediaAsset: null,
     lotPriceCentsPerLb: null,
@@ -257,7 +257,7 @@ export const feedPosts: FeedPost[] = [
 export const competitions: CuppingCompetition[] = [
   {
     id: 'comp_001',
-    name: 'LotSpace Dak Lak Cup — 2025',
+    name: 'Auctum Dak Lak Cup — 2025',
     description: 'Blind cupping of 8 Dak Lak lots. Creator panel judges publicly. Winner earns $2.00/lb premium above market rate.',
     status: 'results_published',
     blindLotIds: ['lot_vn_001', 'lot_vn_002', 'lot_vn_003', 'lot_vn_004', 'lot_vn_005', 'lot_vn_006', 'lot_vn_007', 'lot_vn_008'],

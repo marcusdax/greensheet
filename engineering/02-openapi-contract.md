@@ -1,7 +1,7 @@
 # 02 — Public REST API: OpenAPI 3.1 Contract
 
 > **Extends:** Base Doc §V (Backend Services & API Architecture), §I.3 (Idempotency for Financial Operations), and the marketing schema (campaigns/automation tables).
-> **Scope:** the public REST surface for the bounded contexts defined in `01-domain-model-event-storming.md`: Roasters (CRM), Catalog/Lots, Campaigns (COF-001–005), Sample Kits, Automation Rules, and Webhooks. The full machine-readable contract is embedded below and is the single source of truth for client SDK generation, Pact consumer tests (`06-testing-chaos-ci.md`), and the developer portal.
+> **Scope:** the public REST surface for the bounded contexts defined in `01-domain-model-event-storming.md`: Roasters (CRM), Catalog/Lots, Campaigns (ALT-001–005), Sample Kits, Automation Rules, and Webhooks. The full machine-readable contract is embedded below and is the single source of truth for client SDK generation, Pact consumer tests (`06-testing-chaos-ci.md`), and the developer portal.
 
 ---
 
@@ -20,8 +20,8 @@ All mutating endpoints that create financial or dispatch side-effects (`POST /v1
 - Key format: opaque string, 16–128 chars (UUIDv7 recommended for time-ordered debugging).
 - Server stores `(key, account_scope) → response` for **24h** (Redis `SET … NX EX 86400`, cf. `CacheService.acquireLock`, Base Doc §IX.9.2).
 - Replay with the **same key + same body** → `200 OK` with the original response body and header `Idempotent-Replay: true`.
-- Replay with the **same key + different body** → `422` + problem `GS-GEN-1003` (`idempotency_key_conflict`).
-- Missing key on a required endpoint → `400` + `GS-GEN-1004`.
+- Replay with the **same key + different body** → `422` + problem `AL-GEN-1003` (`idempotency_key_conflict`).
+- Missing key on a required endpoint → `400` + `AL-GEN-1004`.
 
 ## 3. Error Model
 
@@ -29,10 +29,10 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 
 ```json
 {
-  "type": "https://api.greensheet.io/problems/GS-CAT-1001",
+  "type": "https://api.auctum.io/problems/AL-CAT-1001",
   "title": "Insufficient inventory",
   "status": 409,
-  "code": "GS-CAT-1001",
+  "code": "AL-CAT-1001",
   "detail": "Lot 9f2… has 320 lbs available; 500 lbs requested.",
   "instance": "/v1/catalog/lots/9f2…/reservations",
   "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
@@ -42,30 +42,30 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 }
 ```
 
-**Error code catalogue (namespace: `GS-<CONTEXT>-<NNNN>`):**
+**Error code catalogue (namespace: `AL-<CONTEXT>-<NNNN>`):**
 
 | Code | HTTP | Meaning |
 |---|---|---|
-| `GS-GEN-1000` | 400 | `validation_failed` — schema/field validation (details in `errors[]`) |
-| `GS-GEN-1001` | 401 | `unauthenticated` — missing/expired OIDC token |
-| `GS-GEN-1002` | 403 | `forbidden` — RBAC denial (see `07-security-compliance.md` §2) |
-| `GS-GEN-1003` | 422 | `idempotency_key_conflict` — key reused with different payload |
-| `GS-GEN-1004` | 400 | `idempotency_key_required` |
-| `GS-GEN-1005` | 404 | `resource_not_found` |
-| `GS-GEN-1006` | 409 | `version_conflict` — optimistic-lock `ETag`/`If-Match` mismatch |
-| `GS-GEN-1007` | 429 | `rate_limited` (see `Retry-After`, `07-security-compliance.md` §6) |
-| `GS-GEN-1008` | 400 | `invalid_cursor` — pagination cursor tampered/expired |
-| `GS-CRM-1001` | 409 | `roaster_already_exists` (unique on `business_registration`) |
-| `GS-CRM-1002` | 422 | `roaster_anonymized` — resource is GDPR-erased, no further mutation |
-| `GS-CAT-1001` | 409 | `insufficient_inventory` |
-| `GS-CAT-1002` | 409 | `lot_retired` — no new reservations |
-| `GS-CAT-1003` | 422 | `price_below_cost` — margin floor warning requires `confirm: true` |
-| `GS-CMP-1001` | 409 | `campaign_halted` — dispatch blocked (COF-005 `EXECUTE_CAMPAIGN_HALT`) |
-| `GS-CMP-1002` | 422 | `rule_condition_invalid` — `conditionsJson` failed schema validation |
-| `GS-CMP-1003` | 409 | `rule_code_in_use` — COF code already bound to an active rule |
-| `GS-SMP-1001` | 409 | `kit_limit_exceeded` — >2 active kits per roaster (domain invariant §01) |
-| `GS-SMP-1002` | 410 | `feedback_token_expired` — one-time feedback link consumed/expired |
-| `GS-WHB-1001` | 422 | `webhook_url_invalid` — HTTPS + ownership challenge failed |
+| `AL-GEN-1000` | 400 | `validation_failed` — schema/field validation (details in `errors[]`) |
+| `AL-GEN-1001` | 401 | `unauthenticated` — missing/expired OIDC token |
+| `AL-GEN-1002` | 403 | `forbidden` — RBAC denial (see `07-security-compliance.md` §2) |
+| `AL-GEN-1003` | 422 | `idempotency_key_conflict` — key reused with different payload |
+| `AL-GEN-1004` | 400 | `idempotency_key_required` |
+| `AL-GEN-1005` | 404 | `resource_not_found` |
+| `AL-GEN-1006` | 409 | `version_conflict` — optimistic-lock `ETag`/`If-Match` mismatch |
+| `AL-GEN-1007` | 429 | `rate_limited` (see `Retry-After`, `07-security-compliance.md` §6) |
+| `AL-GEN-1008` | 400 | `invalid_cursor` — pagination cursor tampered/expired |
+| `AL-CRM-1001` | 409 | `roaster_already_exists` (unique on `business_registration`) |
+| `AL-CRM-1002` | 422 | `roaster_anonymized` — resource is GDPR-erased, no further mutation |
+| `AL-CAT-1001` | 409 | `insufficient_inventory` |
+| `AL-CAT-1002` | 409 | `lot_retired` — no new reservations |
+| `AL-CAT-1003` | 422 | `price_below_cost` — margin floor warning requires `confirm: true` |
+| `AL-CMP-1001` | 409 | `campaign_halted` — dispatch blocked (ALT-005 `EXECUTE_CAMPAIGN_HALT`) |
+| `AL-CMP-1002` | 422 | `rule_condition_invalid` — `conditionsJson` failed schema validation |
+| `AL-CMP-1003` | 409 | `rule_code_in_use` — ALT code already bound to an active rule |
+| `AL-SMP-1001` | 409 | `kit_limit_exceeded` — >2 active kits per roaster (domain invariant §01) |
+| `AL-SMP-1002` | 410 | `feedback_token_expired` — one-time feedback link consumed/expired |
+| `AL-WHB-1001` | 422 | `webhook_url_invalid` — HTTPS + ownership challenge failed |
 
 ## 4. Pagination, Filtering, Rate Limits
 
@@ -80,24 +80,24 @@ Errors follow **RFC 9457 Problem Details**. Every problem carries a stable machi
 ```yaml
 openapi: 3.1.0
 info:
-  title: Greensheet Platform API
+  title: Auctum Ledger Platform API
   version: 1.4.0
-  summary: Public REST API for the Greensheet specialty green-coffee distribution platform.
+  summary: Public REST API for the Auctum Ledger specialty green-coffee distribution platform.
   description: |
-    Covers the CRM (roasters), Catalog (coffee lots), Campaigns (COF-001–005 nurture
+    Covers the CRM (roasters), Catalog (coffee lots), Campaigns (ALT-001–005 nurture
     automation), Samples (kit fulfilment), and Webhook subscription surfaces.
     Domain model: see engineering/01-domain-model-event-storming.md.
     Event transport: see engineering/03-event-driven-pipeline.md.
   contact:
-    name: Greensheet Platform Engineering
-    url: https://developers.greensheet.io
+    name: Auctum Ledger Platform Engineering
+    url: https://developers.auctum.io
   license:
     name: Proprietary
   x-audiences: [roaster-portal, internal-ops, integration-partners]
 servers:
-  - url: https://api.greensheet.io
+  - url: https://api.auctum.io
     description: Production
-  - url: https://api.staging.greensheet.io
+  - url: https://api.staging.auctum.io
     description: Staging (canary target, see 06-testing-chaos-ci.md)
 tags:
   - name: roasters
@@ -105,7 +105,7 @@ tags:
   - name: catalog
     description: Catalog context — coffee lots and inventory reservations.
   - name: campaigns
-    description: Campaigns context — COF-001–005 nurture rules, performance.
+    description: Campaigns context — ALT-001–005 nurture rules, performance.
   - name: sample-kits
     description: Samples context — kit request, tracking, feedback.
   - name: automation-rules
@@ -196,10 +196,10 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
               example:
-                type: https://api.greensheet.io/problems/GS-CRM-1001
+                type: https://api.auctum.io/problems/AL-CRM-1001
                 title: Roaster already exists
                 status: 409
-                code: GS-CRM-1001
+                code: AL-CRM-1001
       security: [{ oauth2: [roasters:write] }]
   /v1/roasters/{roasterId}:
     parameters:
@@ -241,7 +241,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Roaster' }
         '409':
-          description: Version conflict (GS-GEN-1006).
+          description: Version conflict (AL-GEN-1006).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -333,7 +333,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: { $ref: '#/components/schemas/CoffeeLot' }
+                    items: { $ref: '#/components/schemas/LedgerLot' }
                   page: { $ref: '#/components/schemas/PageInfo' }
         '400': { $ref: '#/components/responses/ValidationProblem' }
       security: [{ oauth2: [catalog:read] }]
@@ -347,16 +347,16 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/CoffeeLotCreate' }
+            schema: { $ref: '#/components/schemas/LedgerLotCreate' }
       responses:
         '201':
           description: Lot created.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/CoffeeLot' }
+              schema: { $ref: '#/components/schemas/LedgerLot' }
         '400': { $ref: '#/components/responses/ValidationProblem' }
         '422':
-          description: Price below cost without confirmation (GS-CAT-1003).
+          description: Price below cost without confirmation (AL-CAT-1003).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -375,7 +375,7 @@ paths:
             ETag: { schema: { type: string } }
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/CoffeeLot' }
+              schema: { $ref: '#/components/schemas/LedgerLot' }
         '404': { $ref: '#/components/responses/NotFound' }
       security: [{ oauth2: [catalog:read] }]
     patch:
@@ -391,13 +391,13 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/CoffeeLotPatch' }
+            schema: { $ref: '#/components/schemas/LedgerLotPatch' }
       responses:
         '200':
           description: Updated lot.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/CoffeeLot' }
+              schema: { $ref: '#/components/schemas/LedgerLot' }
         '409': { $ref: '#/components/responses/VersionConflict' }
       security: [{ oauth2: [catalog:write] }]
   /v1/catalog/lots/{lotId}/reservations:
@@ -426,7 +426,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Reservation' }
         '409':
-          description: Insufficient inventory (GS-CAT-1001) or lot retired (GS-CAT-1002).
+          description: Insufficient inventory (AL-CAT-1001) or lot retired (AL-CAT-1002).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -437,7 +437,7 @@ paths:
     get:
       tags: [campaigns]
       operationId: listCampaigns
-      summary: List campaigns (e.g. `cof-nurture-2025`).
+      summary: List campaigns (e.g. `alt-nurture-2025`).
       parameters:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Cursor'
@@ -515,7 +515,7 @@ paths:
     get:
       tags: [campaigns]
       operationId: listCampaignRules
-      summary: List automation rules (COF-001…005) for a campaign.
+      summary: List automation rules (ALT-001…005) for a campaign.
       responses:
         '200':
           description: Rules with actions (mirrors `view_compiled_campaign_rules`).
@@ -547,12 +547,12 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AutomationRule' }
         '409':
-          description: Rule code already in use (GS-CMP-1003).
+          description: Rule code already in use (AL-CMP-1003).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
         '422':
-          description: Condition JSON failed validation (GS-CMP-1002).
+          description: Condition JSON failed validation (AL-CMP-1002).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -566,12 +566,12 @@ paths:
         description: Stable business code of the rule.
         schema:
           type: string
-          pattern: '^COF-00[1-9]$'
-          example: COF-001
+          pattern: '^ALT-00[1-9]$'
+          example: ALT-001
     get:
       tags: [campaigns]
       operationId: getCampaignRule
-      summary: Fetch one rule by COF code.
+      summary: Fetch one rule by ALT code.
       responses:
         '200':
           description: The rule.
@@ -691,7 +691,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SampleKit' }
         '409':
-          description: Active kit limit exceeded (GS-SMP-1001).
+          description: Active kit limit exceeded (AL-SMP-1001).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -720,7 +720,7 @@ paths:
       summary: |
         Submit cupping feedback. Public endpoint — authentication is the signed
         one-time `feedbackToken` from the kit email (mitigates hotspot §01-7.3).
-        Emits `feedback.submitted`, the trigger for COF-002/COF-003.
+        Emits `feedback.submitted`, the trigger for ALT-002/ALT-003.
       security: []
       requestBody:
         required: true
@@ -738,7 +738,7 @@ paths:
                   feedbackId: { type: string, format: uuid }
                   submittedAt: { type: string, format: date-time }
         '410':
-          description: Feedback token expired/consumed (GS-SMP-1002).
+          description: Feedback token expired/consumed (AL-SMP-1002).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -795,7 +795,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AutomationRule' }
         '422':
-          description: Invalid conditions (GS-CMP-1002).
+          description: Invalid conditions (AL-CMP-1002).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -886,7 +886,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/WebhookSubscriptionWithSecret' }
         '422':
-          description: URL invalid or challenge failed (GS-WHB-1001).
+          description: URL invalid or challenge failed (AL-WHB-1001).
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
@@ -978,9 +978,9 @@ components:
       description: OIDC authorization-code + PKCE (see 07-security-compliance.md §1).
       flows:
         authorizationCode:
-          authorizationUrl: https://auth.greensheet.io/oauth2/authorize
-          tokenUrl: https://auth.greensheet.io/oauth2/token
-          refreshUrl: https://auth.greensheet.io/oauth2/token
+          authorizationUrl: https://auth.auctum.io/oauth2/authorize
+          tokenUrl: https://auth.auctum.io/oauth2/token
+          refreshUrl: https://auth.auctum.io/oauth2/token
           scopes:
             roasters:read: Read roaster accounts
             roasters:write: Create/update roasters
@@ -995,7 +995,7 @@ components:
     serviceAccount:
       type: apiKey
       in: header
-      name: X-GS-Service-Token
+      name: X-AL-Service-Token
       description: mTLS-bound service token for internal saga participants.
 
   parameters:
@@ -1040,10 +1040,10 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1000
+            type: https://api.auctum.io/problems/AL-GEN-1000
             title: Validation failed
             status: 400
-            code: GS-GEN-1000
+            code: AL-GEN-1000
             errors:
               - { field: quantityLbs, code: too_small, message: must be >= 1 }
     Unauthenticated:
@@ -1052,30 +1052,30 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1001
+            type: https://api.auctum.io/problems/AL-GEN-1001
             title: Unauthenticated
             status: 401
-            code: GS-GEN-1001
+            code: AL-GEN-1001
     NotFound:
       description: Resource not found.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1005
+            type: https://api.auctum.io/problems/AL-GEN-1005
             title: Resource not found
             status: 404
-            code: GS-GEN-1005
+            code: AL-GEN-1005
     VersionConflict:
       description: ETag mismatch.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1006
+            type: https://api.auctum.io/problems/AL-GEN-1006
             title: Version conflict
             status: 409
-            code: GS-GEN-1006
+            code: AL-GEN-1006
     RateLimited:
       description: Rate limit exceeded.
       headers:
@@ -1084,10 +1084,10 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
           example:
-            type: https://api.greensheet.io/problems/GS-GEN-1007
+            type: https://api.auctum.io/problems/AL-GEN-1007
             title: Rate limited
             status: 429
-            code: GS-GEN-1007
+            code: AL-GEN-1007
 
   schemas:
     Problem:
@@ -1099,7 +1099,7 @@ components:
         status: { type: integer }
         code:
           type: string
-          pattern: '^GS-[A-Z]{3}-[0-9]{4}$'
+          pattern: '^AL-[A-Z]{3}-[0-9]{4}$'
         detail: { type: string }
         instance: { type: string }
         traceId: { type: string }
@@ -1212,14 +1212,14 @@ components:
               contribution: { type: number }
         scoredAt: { type: string, format: date-time }
 
-    CoffeeLot:
+    LedgerLot:
       type: object
       required: [id, origin, pricePerLbCents, costPerLbCents, availableQuantityLbs, status]
       properties:
         id: { type: string, format: uuid }
         origin: { type: string, maxLength: 100 }
         varietal: { type: string, maxLength: 100, nullable: true }
-        processingMethod:
+        processMethod:
           type: string
           enum: [washed, natural, honey, anaerobic]
           nullable: true
@@ -1262,13 +1262,13 @@ components:
             logisticsNorm: { type: integer }
             weightedScore: { type: number }
         lastUpdatedAt: { type: string, format: date-time }
-    CoffeeLotCreate:
+    LedgerLotCreate:
       type: object
       required: [origin, cupScore, pricePerLbCents, costPerLbCents, availableQuantityLbs, totalProductionLbs]
       properties:
         origin: { type: string }
         varietal: { type: string }
-        processingMethod: { $ref: '#/components/schemas/CoffeeLot/properties/processingMethod' }
+        processMethod: { $ref: '#/components/schemas/LedgerLot/properties/processMethod' }
         elevation: { type: integer }
         cupScore: { type: number }
         pricePerLbCents: { type: integer }
@@ -1279,14 +1279,14 @@ components:
         flavorNotes: { type: array, items: { type: string } }
         confirmBelowCost:
           type: boolean
-          description: Must be true when pricePerLbCents < costPerLbCents (GS-CAT-1003).
-    CoffeeLotPatch:
+          description: Must be true when pricePerLbCents < costPerLbCents (AL-CAT-1003).
+    LedgerLotPatch:
       type: object
       properties:
         pricePerLbCents: { type: integer }
         priceChangeReason: { type: string, maxLength: 200 }
         availableQuantityLbs: { type: integer }
-        status: { $ref: '#/components/schemas/CoffeeLot/properties/status' }
+        status: { $ref: '#/components/schemas/LedgerLot/properties/status' }
         esgScore: { type: number }
     Reservation:
       type: object
@@ -1306,7 +1306,7 @@ components:
       required: [id, name, status, version]
       properties:
         id: { type: string, format: uuid }
-        slug: { type: string, example: cof-nurture-2025 }
+        slug: { type: string, example: alt-nurture-2025 }
         name: { type: string }
         description: { type: string }
         status:
@@ -1320,7 +1320,7 @@ components:
             minCupScorePreference: { type: number }
         ruleCodes:
           type: array
-          items: { type: string, example: COF-001 }
+          items: { type: string, example: ALT-001 }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     CampaignCreate:
@@ -1342,7 +1342,7 @@ components:
       required: [id, ruleCode, campaignId, triggerEvent, version, status]
       properties:
         id: { type: string, format: uuid }
-        ruleCode: { type: string, pattern: '^COF-00[1-9]$', example: COF-001 }
+        ruleCode: { type: string, pattern: '^ALT-00[1-9]$', example: ALT-001 }
         campaignId: { type: string, format: uuid }
         ruleName: { type: string, example: Touch 1 — Origin story after kit delivery }
         triggerEvent:
@@ -1364,7 +1364,7 @@ components:
       type: object
       required: [ruleCode, campaignId, ruleName, triggerEvent, actions]
       properties:
-        ruleCode: { type: string, pattern: '^COF-00[1-9]$' }
+        ruleCode: { type: string, pattern: '^ALT-00[1-9]$' }
         campaignId: { type: string, format: uuid }
         ruleName: { type: string }
         triggerEvent: { type: string }
@@ -1552,7 +1552,7 @@ components:
 Subscribers receive **CloudEvents 1.0 in structured JSON mode** with an HMAC signature:
 
 - `Content-Type: application/cloudevents+json`
-- `X-GS-Signature-256: t=<unix_ts>,v1=<hex(hmac_sha256(secret, ts + "." + body))>` — reject if clock skew > 5 min (replay protection).
+- `X-AL-Signature-256: t=<unix_ts>,v1=<hex(hmac_sha256(secret, ts + "." + body))>` — reject if clock skew > 5 min (replay protection).
 - Retry policy: exponential backoff `1m, 5m, 30m, 2h, 12h` (5 attempts), then `exhausted` and the subscription flips to `failing` (auto-pauses after 1,000 consecutive failures; alert in `07-security-compliance.md` runbook).
 - Ordering: best-effort per aggregate (`Ce-Subject` = `/orders/{id}`); consumers must be idempotent on `Ce-Id`.
 
@@ -1571,7 +1571,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/orders' }
+                source: { const: '//auctum/orders' }
                 type: { const: order.created }
                 subject: { type: string, example: /orders/6d2f… }
                 time: { type: string, format: date-time }
@@ -1594,7 +1594,7 @@ webhooks:
   sampleKitDelivered:
     post:
       operationId: onSampleKitDelivered
-      summary: sample_kit.delivered (COF-001 trigger)
+      summary: sample_kit.delivered (ALT-001 trigger)
       requestBody:
         content:
           application/cloudevents+json:
@@ -1603,7 +1603,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/samples' }
+                source: { const: '//auctum/samples' }
                 type: { const: sample_kit.delivered }
                 subject: { type: string, example: /sample-kits/91ab… }
                 time: { type: string, format: date-time }
@@ -1630,13 +1630,13 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/campaigns' }
+                source: { const: '//auctum/campaigns' }
                 type: { const: campaigns.converted }
                 data:
                   type: object
                   properties:
                     campaignId: { type: string, format: uuid }
-                    ruleCode: { type: string, example: COF-004 }
+                    ruleCode: { type: string, example: ALT-004 }
                     roasterId: { type: string, format: uuid }
                     convertedOrderId: { type: string, format: uuid }
       responses:
@@ -1653,7 +1653,7 @@ webhooks:
               properties:
                 specversion: { const: '1.0' }
                 id: { type: string, format: uuid }
-                source: { const: '//greensheet/crm' }
+                source: { const: '//auctum/crm' }
                 type: { const: crm.churn_risk_detected }
                 data:
                   type: object
@@ -1669,7 +1669,7 @@ webhooks:
 
 ## 8. Contract Governance
 
-1. **Source of truth:** this YAML lives at `api/openapi/greensheet-v1.yaml`; docs and SDKs are generated artifacts.
-2. **Breaking-change gate:** CI runs `oasdiff breaking openapi-prev.yaml greensheet-v1.yaml`; a breaking diff requires a `/v2` bump (see `06-testing-chaos-ci.md` §7).
-3. **Mock server:** `prism mock greensheet-v1.yaml` backs consumer-driven contract tests and partner sandboxes.
+1. **Source of truth:** this YAML lives at `api/openapi/auctum-ledger-v1.yaml`; docs and SDKs are generated artifacts.
+2. **Breaking-change gate:** CI runs `oasdiff breaking openapi-prev.yaml auctum-ledger-v1.yaml`; a breaking diff requires a `/v2` bump (see `06-testing-chaos-ci.md` §7).
+3. **Mock server:** `prism mock auctum-ledger-v1.yaml` backs consumer-driven contract tests and partner sandboxes.
 4. **Consistency checks:** CI asserts every `triggerEvent` enum value exists in the Kafka event catalogue (`03-event-driven-pipeline.md` §2) and every error `code` is registered in the error catalogue above.

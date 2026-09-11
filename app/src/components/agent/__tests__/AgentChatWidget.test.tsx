@@ -19,7 +19,7 @@ describe('AgentChatWidget', () => {
     render(<AgentChatWidget />);
     fireEvent.click(screen.getByLabelText(/Open coffee agent chat/i));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/ODASI Coffee Agent/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auctum Coffee Agent/i)).toBeInTheDocument();
   });
 
   it('toggles settings panel', () => {

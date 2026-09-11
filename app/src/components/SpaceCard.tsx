@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, MapPin, Coffee, TrendingUp, UserPlus, UserCheck } from 'lucide-react';
-import { VerificationBadge } from './VerificationBadge';
+import { AuctumVerifiedOrigin } from './AuctumVerifiedOrigin';
 import { BraveFewBadge } from './BraveFewBadge';
-import type { AnySpace, FarmerSpace, RoasterSpace, CafeSpace, CooperativeSpace } from '../types/lotspace';
+import type { AnySpace, FarmerSpace, RoasterSpace, CafeSpace, CooperativeSpace } from '../types/ledger';
 
 interface SpaceCardProps {
   space: AnySpace;
@@ -67,7 +67,7 @@ function getMetric(space: AnySpace): { label: string; value: string } | null {
 const ARCHETYPE_COLORS: Record<string, string> = {
   farmer: 'bg-leaf/10 text-leaf border-leaf/20',
   roaster: 'bg-teal/10 text-teal border-teal/20',
-  cooperative: 'bg-gold/10 text-gold-600 border-gold/20',
+  cooperative: 'bg-gold/10 text-gold border-gold/20',
 };
 
 const ARCHETYPE_LABELS: Record<string, string> = {
@@ -89,8 +89,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
   const archetypeLabel = ARCHETYPE_LABELS[space.archetype] || space.archetype;
   const archetypeColor = ARCHETYPE_COLORS[space.archetype] || 'bg-recessed text-muted border-border';
 
-  const isBraveFew =
-    space.archetype === 'roaster' && ((space as RoasterSpace).isBraveFew || (space as CafeSpace).isBraveFew);
+const isBraveFew = space.archetype === 'cafe' && Boolean((space as CafeSpace).isBraveFew);
 
   const handleFollowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -153,7 +152,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
 
       {/* Badges */}
       <div className="flex flex-wrap gap-1.5">
-        <VerificationBadge tier={space.verificationTier} size="sm" />
+        <AuctumVerifiedOrigin verified={true} tier={space.verificationTier} size="sm" />
         {isBraveFew && <BraveFewBadge size="sm" />}
       </div>
 

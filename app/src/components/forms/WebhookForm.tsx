@@ -43,7 +43,7 @@ export const WebhookForm: React.FC<{
           name="url"
           label="Webhook URL"
           type="url"
-          placeholder="https://api.example.com/webhooks/greensheet"
+          placeholder="https://api.example.com/webhooks/auctum"
         />
         <MultiSelect name="events" label="Events" options={eventOptions} />
         <TextAreaField

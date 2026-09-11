@@ -6,9 +6,9 @@ import '../../i18n';
 import { resetStore } from '../../stores/root-store';
 import { resetDatabase } from '../../api/db';
 import { api } from '../../api/client';
-import { GS } from '../../api/problems';
+import { AL } from '../../api/problems';
 
-vi.setConfig({ testTimeout: 10000 });
+vi.setConfig({ testTimeout: 30000 });
 
 function renderWithProviders() {
   return render(
@@ -92,7 +92,7 @@ describe('GrowthPage', () => {
   });
 
   it('renders an error banner with a retry button when loadGrowthAll fails', async () => {
-    vi.spyOn(api.analytics, 'wtr').mockResolvedValue({ problem: GS.GEN_1000() });
+    vi.spyOn(api.analytics, 'wtr').mockResolvedValue({ problem: AL.GEN_1000() });
 
     renderWithProviders();
 

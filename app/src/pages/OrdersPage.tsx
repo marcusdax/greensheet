@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
-import { useOrders, useCatalog, useCrm, useUi, useRootStore } from '../stores/root-store';
+import { useOrders, useCatalog, useCrm, useUi, useRootStore, useReferrals } from '../stores/root-store';
 import { OrderForm } from '../components/forms/OrderForm';
+import { ReferralDeliveryCard } from '../components/ReferralDeliveryCard';
 import { Modal } from '../components/ui/Modal';
 import { Drawer } from '../components/ui/Drawer';
 import { DataTable } from '../components/ui/DataTable';
@@ -40,6 +41,7 @@ export const OrdersPage: React.FC = () => {
   const { orders, loading, loadOrders, processOrder, shipOrder, deliverOrder, cancelOrder, returnOrder } = useOrders();
   const { lots, loadLots } = useCatalog();
   const { roasters, loadRoasters } = useCrm();
+  const { setCurrentAccount } = useReferrals();
   const { pushToast } = useUi();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -58,6 +60,13 @@ export const OrdersPage: React.FC = () => {
   }, [loadRoasters]);
 
   const selectedOrder = useMemo(() => orders.find((o) => o.id === selectedOrderId) ?? null, [orders, selectedOrderId]);
+
+  // Sync the referral store's current account so ensureReferralCode resolves the right code
+  useEffect(() => {
+    if (selectedOrder) {
+      setCurrentAccount(selectedOrder.accountId);
+    }
+  }, [selectedOrder, setCurrentAccount]);
 
   const accountOptions = useMemo(
     () => roasters.map((r) => ({ value: r.id, label: r.roasterName })),
@@ -243,6 +252,11 @@ export const OrdersPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Referral Delivery Card — shown on order confirmation (delivered) */}
+            {selectedOrder.status === 'delivered' && (
+              <ReferralConfirmationCard accountId={selectedOrder.accountId} />
+            )}
+
             <div className="flex flex-wrap gap-2 pt-2">
               {selectedOrder.status === 'pending' && (
                 <button
@@ -293,6 +307,41 @@ export const OrdersPage: React.FC = () => {
           </div>
         )}
       </Drawer>
+    </div>
+  );
+};
+
+interface ReferralConfirmationCardProps {
+  accountId: string;
+}
+
+const ReferralConfirmationCard: React.FC<ReferralConfirmationCardProps> = ({ accountId }) => {
+  const { t } = useTranslation(['referrals', 'common']);
+  const { ensureReferralCode, setCurrentAccount } = useReferrals();
+  const { roasters } = useCrm();
+  const [resolved, setResolved] = useState<string | null>(null);
+
+  const roasterName = roasters.find((r) => r.id === accountId)?.roasterName ?? '';
+
+  useEffect(() => {
+    setCurrentAccount(accountId);
+    void ensureReferralCode().then((code) => {
+      setResolved(code?.code ?? null);
+    });
+  }, [accountId, ensureReferralCode, setCurrentAccount]);
+
+  if (!resolved) return null;
+
+  return (
+    <div className="border-t border-border pt-4 mt-2">
+      <h3 className="text-xs font-sans font-semibold text-muted uppercase tracking-wider mb-3">
+        {t('referrals:orderConfirmationTitle', 'Send a Kit — Get Roast Credit')}
+      </h3>
+      <ReferralDeliveryCard
+        accountId={accountId}
+        roasterName={roasterName}
+        referralCode={resolved}
+      />
     </div>
   );
 };

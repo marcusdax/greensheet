@@ -61,6 +61,6 @@ describe('orders slice', () => {
       lineItems: [{ lotId: 'lot_001', quantityLbs: 999999, unitPriceCents: 610 }],
     });
     expect(created).toBeNull();
-    expect(useRootStore.getState().orders.error?.code).toBe('GS-CAT-1001');
+    expect(useRootStore.getState().orders.error?.code).toBe('AL-CAT-1001');
   });
 });

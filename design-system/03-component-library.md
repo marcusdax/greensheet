@@ -1,8 +1,8 @@
-# Greensheet — Component Library
+# Auctum Ledger — Component Library
 
 **Version 1.0 · Atomic design: atoms → molecules → organisms · Consumes tokens from `02-design-tokens.md` only**
 
-Conventions used below: React 18 + Tailwind (config per §10 of the tokens doc) + framer-motion. Class names reference the Greensheet Tailwind extension (`bg-surface`, `text-ink`, `shadow-e3`, `duration-base`, `ease-compass`, …). No arbitrary hex values anywhere. Every interactive element ships **default / hover / focus / active / disabled / loading** states and, where applicable, **empty / error** states.
+Conventions used below: React 18 + Tailwind (config per §10 of the tokens doc) + framer-motion. Class names reference the Auctum Ledger Tailwind extension (`bg-surface`, `text-ink`, `shadow-e3`, `duration-base`, `ease-compass`, …). No arbitrary hex values anywhere. Every interactive element ships **default / hover / focus / active / disabled / loading** states and, where applicable, **empty / error** states.
 
 Shared state rules:
 
@@ -114,7 +114,7 @@ Renders `coffee_lots.cup_score` (DECIMAL 4,1). **Always** shows one decimal (86.
 | Very Good | 80.0–84.9 | `leaf` (green-600) / white | pill | — |
 | Below specialty | < 80.0 | `neutral-700` / white (7.39:1 AAA) | pill | — |
 
-Geometry: height 24 px (`sm`) / 28 px (`md`), padding-x 10 px, numeral in `IBM Plex Mono 700`, `tabular-nums`. Never render a score without its tier color; never recolor.
+Geometry: height 24 px (`sm`) / 28 px (`md`), padding-x 10 px, numeral in `JetBrains Mono 700`, `tabular-nums`. Never render a score without its tier color; never recolor.
 
 ```tsx
 // components/ui/CupScoreBadge.tsx
@@ -224,7 +224,7 @@ export function TextField({ label, error, id, ...props }: TextFieldProps) {
 
 ## 4. Coffee Lot Card (molecule — the hero component)
 
-The lot card is the digital descendant of the paper offer-sheet line item. One card = one row of the old green sheet, elevated to an instrument.
+The lot card is the digital descendant of the paper offer-sheet line item. One card = one row of the old ledger, elevated to an instrument.
 
 ### 4.1 Anatomy (top → bottom)
 
@@ -245,7 +245,7 @@ The lot card is the digital descendant of the paper offer-sheet line item. One c
 |---|---|
 | Container | `bg-surface border border-decorative rounded-lg p-5 shadow-e1`; hover `shadow-e3` + border `neutral-500`; transition `duration-base` |
 | Rank medallion | 40 px circle, `bg-recessed text-muted`, mono 700 `#n` |
-| Title | `text-lg` Archivo 600 `text-ink`; varietal in `text-muted` after an interpunct |
+| Title | `text-lg` Inter 600 `text-ink`; varietal in `text-muted` after an interpunct |
 | Process badge | neutral process badge (§2.2) |
 | Over-budget | container border becomes 2 px `warning`; badge `bg-warning-bg text-warning` (4.98:1 on tint AA ✓) |
 | Metrics row | `text-sm text-muted`, icons 16 px, **figures in mono ink**: `$5.20`/lb, cup score via CupScoreBadge, ESG % mono, quantity `toLocaleString()` lbs, ETA from `estimated_arrival` |
@@ -298,7 +298,7 @@ export const LotCard = memo(function LotCard({ lot, rank, budgetCeiling, onSelec
           <div className="mb-1 flex flex-wrap items-center gap-2">
             <h3 className="text-lg font-semibold text-ink">{lot.origin}</h3>
             {lot.varietal && <span className="text-sm text-muted">· {lot.varietal}</span>}
-            {lot.processingMethod && <ProcessBadge method={lot.processingMethod} />}
+            {lot.processMethod && <ProcessBadge method={lot.processMethod} />}
             {isOverBudget && <span className="rounded-full bg-warning-bg px-2 py-0.5 text-caption font-medium text-warning">Over budget</span>}
           </div>
 
@@ -340,7 +340,7 @@ export const LotCard = memo(function LotCard({ lot, rank, budgetCeiling, onSelec
 
 ## 5. Catalog table (organism)
 
-The catalog is the full green sheet: every lot, sortable, filterable, exportable.
+The catalog is the full ledger: every lot, sortable, filterable, exportable.
 
 ### 5.1 Structure
 
@@ -362,7 +362,7 @@ Lot (origin + varietal, truncated 24ch) · Process (badge) · Elevation (mono, m
 
 - **Loading:** 8 skeleton rows ( shimmer blocks inside the frame — the table chrome stays put).
 - **Empty (filtered):** centered empty state (§8) with "Clear all filters" ghost button.
-- **Empty (no inventory):** "The sheet is being written." + CTA to importer onboarding.
+- **Empty (no inventory):** "The ledger is being written." + CTA to importer onboarding.
 - **Error:** `danger` caption row with retry secondary button; keep last-good data visible behind a scrim note where possible.
 
 ---
@@ -383,17 +383,17 @@ Lot (origin + varietal, truncated 24ch) · Process (badge) · Elevation (mono, m
 
 ### 6.2 Sidebar (`bg-navy-700 text-parchment-50`)
 
-- Brand slot: wordmark-only lockup (Fraunces, parchment) + "by ODASI" microline at 60% opacity (`text-[#A9A08C]`).
+- Brand slot: wordmark-only lockup (Playfair Display, parchment) + "by Auctum" microline at 60% opacity (`text-[#A9A08C]`).
 - Nav items: h 40 px, `radius-md`, 20 px icon + `text-sm` 500 label.
   - Default: `text-parchment-50/70`; hover `bg-white/8 text-parchment-50`.
-  - Active: `bg-teal-600 text-white` (5.87:1 AA ✓) + 3 px `gold-500` leading tick — the compass needle points at the current section.
-- Sections: **Source** (Navigator, Catalog, Sample Kits) · **Engage** (Campaigns COF-001–005, Templates) · **Relationships** (Roasters CRM, Interventions) · **Intelligence** (Analytics, Benchmarks, Pricing) · **Operations** (Orders, Inventory, Settings).
+  - Active: `bg-teal-600 text-white` (5.87:1 AA ✓) + 3 px `gold-500` leading tick — the seal points at the current section.
+- Sections: **Source** (Navigator, Catalog, Sample Kits) · **Engage** (Campaigns ALT-001–005, Templates) · **Relationships** (Roasters CRM, Interventions) · **Intelligence** (Analytics, Benchmarks, Pricing) · **Operations** (Orders, Inventory, Settings).
 - Footer: account card + collapsed rail mode (72 px, icon + tooltip) below `lg`; overlay drawer with scrim below `md`.
 - Focus order: skip-link → sidebar nav → topbar → main. `aria-current="page"` on active item.
 
 ### 6.3 Topbar
 
-Breadcrumb (Archivo 500, `text-muted`, current page `text-ink`) · global lot search (§3.1 search input, 320 px, collapses to icon button < md) · theme toggle (sun/moon, `aria-pressed`) · notifications (badge count in `cherry-600` mono) · avatar menu (32 px roast-brown monogram circle).
+Breadcrumb (Inter 500, `text-muted`, current page `text-ink`) · global lot search (§3.1 search input, 320 px, collapses to icon button < md) · theme toggle (sun/moon, `aria-pressed`) · notifications (badge count in `cherry-600` mono) · avatar menu (32 px roast-brown monogram circle).
 
 ---
 
@@ -415,11 +415,11 @@ Tufte discipline per the architecture: maximize data-ink, no chartjunk, no 3D, n
 
 ### 7.2 KPI cards
 
-`bg-surface rounded-lg p-5 shadow-e1`: overline label → `text-3xl` mono 700 value (Fraunces only for the single hero KPI on a marketing page, never in ops dashboards) → delta line (▲ `text-success` / ▼ `text-danger` with mono % and "vs. prior period" caption). Sparkline h 32 px, `teal-600` 1.5 px stroke, no fill.
+`bg-surface rounded-lg p-5 shadow-e1`: overline label → `text-3xl` mono 700 value (Playfair Display only for the single hero KPI on a marketing page, never in ops dashboards) → delta line (▲ `text-success` / ▼ `text-danger` with mono % and "vs. prior period" caption). Sparkline h 32 px, `teal-600` 1.5 px stroke, no fill.
 
 ### 7.3 Dashboard-specific compositions
 
-- **Campaign Intelligence (COF-001–005):** stepper of the 5 rules across the top (numbered medallions, active = navy fill, converted = gold); A/B results table per architecture §4.4 with `Winner` gold badge at probability ≥ 0.95, credible-interval bars as horizontal `teal-600` bars with whisker caps (error bars = 95% CI, `navy-700` 1.5 px); engagement line chart: opens = navy, clicks = teal, conversions = gold.
+- **Campaign Intelligence (ALT-001–005):** stepper of the 5 rules across the top (numbered medallions, active = navy fill, converted = gold); A/B results table per architecture §4.4 with `Winner` gold badge at probability ≥ 0.95, credible-interval bars as horizontal `teal-600` bars with whisker caps (error bars = 95% CI, `navy-700` 1.5 px); engagement line chart: opens = navy, clicks = teal, conversions = gold.
 - **LTV/Churn (CRM):** churn-risk column uses a 5-stop sequential scale `leaf → gold-300 → warning → cherry-600` with the numeric score always shown (never color-only); survival-curve chart uses `cherry-600` line with 95% band at 12% alpha.
 - **Benchmarks (quantile regression):** peer band = `teal-100` area, median = `teal-700` line, "you" marker = 8 px `gold-500` diamond.
 - **Inventory forecast:** actuals solid navy; Prophet/ARIMA forecast dashed `teal-600` with `teal-100` confidence cone.
@@ -430,27 +430,27 @@ Tufte discipline per the architecture: maximize data-ink, no chartjunk, no 3D, n
 
 ### 8.1 Loading
 
-- Route-level: center spinner + "Reading the sheet…" caption (rotate copy among 3 ledger phrases, no jokes about roasting).
+- Route-level: center spinner + "Reading the ledger…" caption (rotate copy among 3 ledger phrases, no jokes about roasting).
 - Component-level: skeletons that mirror final geometry (cards, rows, charts) in `bg-recessed` with parchment shimmer; `aria-busy="true"` on the region; keep layout stable (no CLS).
 
 ### 8.2 Empty states (the only licensed wit)
 
-Structure: 48 px Lot Stamp illustration at `opacity-stamp`, `text-lg` Fraunces headline, `text-sm text-muted` explainer, one primary/ghost action.
+Structure: 48 px Lot Stamp illustration at `opacity-stamp`, `text-lg` Playfair Display headline, `text-sm text-muted` explainer, one primary/ghost action.
 
 | Context | Headline | Action |
 |---|---|---|
 | Navigator no results | "No lots match your criteria" | ghost "Clear all filters" |
-| Catalog empty | "The sheet is being written." | primary "Add your first lot" |
-| Campaigns empty | "No campaigns on the board." | primary "Start COF-001" |
+| Catalog empty | "The ledger is being written." | primary "Add your first lot" |
+| Campaigns empty | "No campaigns on the board." | primary "Start ALT-001" |
 | CRM no roasters | "Every relationship starts with a sample." | secondary "Import roasters" |
 | 404 | "Off the map." | ghost "Back to the Navigator" |
 
 ### 8.3 Error & offline
 
-Inline field errors per §3.1. View-level: `bg-danger-bg border border-danger rounded-lg p-4` with retry. Offline: sticky `warning` banner "You're offline — showing the last saved sheet (timestamp mono)."
+Inline field errors per §3.1. View-level: `bg-danger-bg border border-danger rounded-lg p-4` with retry. Offline: sticky `warning` banner "You're offline — showing the last saved ledger (timestamp mono)."
 
 ---
 
 ## 9. Email component system (summary)
 
-Full spec in `04-email-campaign-visual-system.md`. UI parity notes: the email header uses the navy band + parchment compass lockup; email buttons mirror `Button primary` (navy, 6 px radius) rendered as bulletproof VML/anchor hybrids; merge tags render in-product as mono `teal-700` chips (`{sca_cup_score}`) in the template editor, and as italic serif fallbacks in plaintext parts. Dark-mode email fallbacks mirror §2.4 token values.
+Full spec in `04-email-campaign-visual-system.md`. UI parity notes: the email header uses the navy band + parchment seal lockup; email buttons mirror `Button primary` (navy, 6 px radius) rendered as bulletproof VML/anchor hybrids; merge tags render in-product as mono `teal-700` chips (`{sca_cup_score}`) in the template editor, and as italic serif fallbacks in plaintext parts. Dark-mode email fallbacks mirror §2.4 token values.

@@ -1,8 +1,8 @@
-# COF-001 → COF-005 Campaign Seed Data Implementation Plan
+# ALT-001 → ALT-005 Campaign Seed Data Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the placeholder campaign/rule seed data in the Greensheet app with the real COF-001 → COF-005 nurture-engine definitions from `marketing/02-cof-campaign-expansion.md`, so CampaignsPage shows accurate campaigns, rule sequences, A/B subject variants, and campaign-specific performance metrics.
+**Goal:** Replace the placeholder campaign/rule seed data in the Auctum Ledger app with the real ALT-001 → ALT-005 nurture-engine definitions from `marketing/02-cof-campaign-expansion.md`, so CampaignsPage shows accurate campaigns, rule sequences, A/B subject variants, and campaign-specific performance metrics.
 
 **Architecture:** Add a small marketing domain layer (`types/marketing.ts` + `api/marketing-data.ts`) that holds canonical merge tokens and all 13 email/SMS templates. The in-memory mock DB seeds five campaigns, five rules, and the template library. The existing API client returns per-campaign performance presets, and CampaignsPage derives its rule-level A/B mock data from the seeded templates instead of a hard-coded array.
 
@@ -11,9 +11,9 @@
 ## Global Constraints
 
 - **Scope is seed data only.** Landing pages, real email/SMS delivery, orchestrator execution, and the Bayesian runtime are out of scope.
-- Rule codes must stay within the existing `^COF-00[1-9]$` regex.
+- Rule codes must stay within the existing `^ALT-00[1-9]$` regex.
 - Rule actions must use the existing `RuleActionType` enum (`SEND_TEMPLATE`, `UPDATE_CRM_LIFECYCLE`, `EXECUTE_CAMPAIGN_HALT`). Store `ab_test_id`/`fire_if` in `payload`.
-- Template IDs are human-readable (`COF-001-E1`) even though `ruleCreateSchema` expects UUIDs; seeded rules bypass API validation.
+- Template IDs are human-readable (`ALT-001-E1`) even though `ruleCreateSchema` expects UUIDs; seeded rules bypass API validation.
 - All copy must match `marketing/02-cof-campaign-expansion.md` verbatim.
 - `npm run test:run` and `npm run build` must pass before the task is complete.
 
@@ -38,7 +38,7 @@ export interface CampaignFunnel {
   opened?: number;
   clicked?: number;
   ordered?: number;
-  // Extended fields for the COF nurture engine
+  // Extended fields for the ALT nurture engine
   feedbackSubmitted?: number;
   responded?: number;
   firstOrders?: number;
@@ -120,7 +120,7 @@ export const CAMPAIGN_TOKENS: CampaignToken[] = [
   { token: '{roaster_name}', sourceField: 'accounts.roaster_name', tooltip: 'Account / roastery name' },
   { token: '{origin}', sourceField: 'coffee_lots.origin', tooltip: 'Country of origin' },
   { token: '{region}', sourceField: 'coffee_lots origin metadata', tooltip: 'Producing region (e.g., Gedeb, Huila)' },
-  { token: '{process_method}', sourceField: 'coffee_lots.processing_method', tooltip: 'washed / natural / honey / anaerobic' },
+  { token: '{process_method}', sourceField: 'coffee_lots.process_method', tooltip: 'washed / natural / honey / anaerobic' },
   { token: '{sca_cup_score}', sourceField: 'coffee_lots.cup_score', tooltip: 'SCA cup score, one decimal (e.g., 86.5)' },
   { token: '{elevation_masl}', sourceField: 'coffee_lots.elevation', tooltip: 'Meters above sea level' },
   { token: '{varietal}', sourceField: 'coffee_lots.varietal', tooltip: 'e.g., Heirloom, Caturra, Pink Bourbon' },
@@ -134,7 +134,7 @@ export const CAMPAIGN_TOKENS: CampaignToken[] = [
   { token: '{importer_name}', sourceField: 'supply-side account', tooltip: 'Fulfilling importer/exporter' },
   { token: '{rep_first_name}', sourceField: 'assigned CSM/rep', tooltip: 'Human sender' },
   { token: '{savings_estimate}', sourceField: 'pricing engine', tooltip: 'Modeled landed-cost delta' },
-  // Extended copy tokens used in COF templates
+  // Extended copy tokens used in ALT templates
   { token: '{feedback_highlight}', sourceField: 'feedback engine', tooltip: "Roaster's own cupping note highlight" },
   { token: '{bags_sold_since}', sourceField: 'inventory engine', tooltip: 'Bags sold since feedback' },
   { token: '{days_left_on_lock}', sourceField: 'pricing engine', tooltip: 'Days remaining on 14-day price lock' },
@@ -144,10 +144,10 @@ export const CAMPAIGN_TOKENS: CampaignToken[] = [
 ];
 
 export const MARKETING_TEMPLATES: MarketingTemplate[] = [
-  // COF-001 — First Crack
+  // ALT-001 — First Crack
   {
-    id: 'COF-001-E1',
-    campaignId: 'COF-001',
+    id: 'ALT-001-E1',
+    campaignId: 'ALT-001',
     touchpoint: 1,
     channel: 'email',
     subjectA: 'An {sca_cup_score}-point {process_method} {origin} is waiting on your cupping table',
@@ -166,14 +166,14 @@ Your {roaster_name} sample kit is reserved. It holds this lot plus two more matc
 
 No contract. No minimum. If the coffee doesn't cup, you've lost nothing but a brew cycle.
 
-— {rep_first_name}, Greensheet
+— {rep_first_name}, Auctum Ledger
 P.S. There are {lot_size_bags} bags of the {region} lot. We'll never email you fake scarcity — that's the real count from the warehouse.`,
     mergeTokens: ['{first_name}', '{roaster_name}', '{origin}', '{region}', '{process_method}', '{sca_cup_score}', '{elevation_masl}', '{varietal}', '{lot_size_bags}', '{kit_tracking_url}', '{rep_first_name}'],
     metrics: { primary: 'kit_request_rate', baselineRate: 24, targetRate: 32, mde: 4, openRateA: 45, openRateB: 52 },
   },
   {
-    id: 'COF-001-E2',
-    campaignId: 'COF-001',
+    id: 'ALT-001-E2',
+    campaignId: 'ALT-001',
     touchpoint: 2,
     channel: 'email',
     subjectA: "The kit's still here. The {origin} might not be.",
@@ -189,21 +189,21 @@ The kit costs you nothing. It costs us $38 to put on your table, and we do it gl
     metrics: { primary: 'kit_request_rate', baselineRate: 24, targetRate: 32, mde: 4, openRateA: 40, openRateB: 48 },
   },
   {
-    id: 'COF-001-S1',
-    campaignId: 'COF-001',
+    id: 'ALT-001-S1',
+    campaignId: 'ALT-001',
     touchpoint: 3,
     channel: 'sms',
-    subjectA: 'Hi {first_name}, {rep_first_name} from Greensheet. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
+    subjectA: 'Hi {first_name}, {rep_first_name} from Auctum Ledger. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
     subjectB: null,
-    body: 'Hi {first_name}, {rep_first_name} from Greensheet. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
+    body: 'Hi {first_name}, {rep_first_name} from Auctum Ledger. Your {roaster_name} sample kit is still reserved — the {sca_cup_score}-pt {process_method} {origin} plus two matched lots, free. Want me to hold it one more week or release it? Claim: {kit_tracking_url} Reply STOP to opt out.',
     mergeTokens: ['{first_name}', '{rep_first_name}', '{roaster_name}', '{sca_cup_score}', '{process_method}', '{origin}', '{kit_tracking_url}'],
     metrics: { primary: 'kit_request_rate', baselineRate: 24, targetRate: 32, mde: 4, openRateA: 18, openRateB: null },
   },
 
-  // COF-002 — The Cupping
+  // ALT-002 — The Cupping
   {
-    id: 'COF-002-E1',
-    campaignId: 'COF-002',
+    id: 'ALT-002-E1',
+    campaignId: 'ALT-002',
     touchpoint: 1,
     channel: 'email',
     subjectA: 'Your {origin} has been on the table 4 days. How did it cup?',
@@ -230,21 +230,21 @@ P.S. The Q-grader's original scoresheet is the second card in the box. Score bli
     metrics: { primary: 'feedback_submission_rate', baselineRate: 38, targetRate: 45, mde: 4, openRateA: 42, openRateB: 50 },
   },
   {
-    id: 'COF-002-S1',
-    campaignId: 'COF-002',
+    id: 'ALT-002-S1',
+    campaignId: 'ALT-002',
     touchpoint: 2,
     channel: 'sms',
-    subjectA: "Hi {first_name}, {rep_first_name} at Greensheet. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
+    subjectA: "Hi {first_name}, {rep_first_name} at Auctum Ledger. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
     subjectB: null,
-    body: "Hi {first_name}, {rep_first_name} at Greensheet. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
+    body: "Hi {first_name}, {rep_first_name} at Auctum Ledger. Your {origin} kit's been there a week — cupped it yet? Even a \"too bright for us\" helps me tune {roaster_name}'s shortlist. 60 seconds, honestly: {feedback_url}",
     mergeTokens: ['{first_name}', '{rep_first_name}', '{origin}', '{roaster_name}', '{feedback_url}'],
     metrics: { primary: 'feedback_submission_rate', baselineRate: 38, targetRate: 45, mde: 4, openRateA: 15, openRateB: null },
   },
 
-  // COF-003 — The Shortlist
+  // ALT-003 — The Shortlist
   {
-    id: 'COF-003-E1',
-    campaignId: 'COF-003',
+    id: 'ALT-003-E1',
+    campaignId: 'ALT-003',
     touchpoint: 1,
     channel: 'email',
     subjectA: 'You scored the {origin} an {sca_cup_score}. Here\'s what we\'d do next.',
@@ -271,8 +271,8 @@ P.S. Not ready for a full bag? Split-bag options start at 30 lbs on this lot.`,
     metrics: { primary: 'sample_to_sale', baselineRate: 32, targetRate: 40, mde: 4, openRateA: 38, openRateB: 45 },
   },
   {
-    id: 'COF-003-E2',
-    campaignId: 'COF-003',
+    id: 'ALT-003-E2',
+    campaignId: 'ALT-003',
     touchpoint: 2,
     channel: 'email',
     subjectA: "{lot_size_bags} bags. That's the whole position, {first_name}.",
@@ -289,21 +289,21 @@ Your 14-day price lock expires in {days_left_on_lock} days: {shortlist_url}
     metrics: { primary: 'sample_to_sale', baselineRate: 32, targetRate: 40, mde: 4, openRateA: 35, openRateB: 42 },
   },
   {
-    id: 'COF-003-S1',
-    campaignId: 'COF-003',
+    id: 'ALT-003-S1',
+    campaignId: 'ALT-003',
     touchpoint: 3,
     channel: 'sms',
-    subjectA: '{first_name}, {rep_first_name} (Greensheet). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
+    subjectA: '{first_name}, {rep_first_name} (Auctum Ledger). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
     subjectB: null,
-    body: '{first_name}, {rep_first_name} (Greensheet). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
+    body: '{first_name}, {rep_first_name} (Auctum Ledger). Your {origin} price lock lapses {days_left_on_lock}d from now — {lot_size_bags} bags left, and I can hold 30 lbs on a split-bag if cash flow\'s the blocker. Want me to? {shortlist_url}',
     mergeTokens: ['{first_name}', '{rep_first_name}', '{origin}', '{days_left_on_lock}', '{lot_size_bags}', '{shortlist_url}'],
     metrics: { primary: 'sample_to_sale', baselineRate: 32, targetRate: 40, mde: 4, openRateA: 10, openRateB: null },
   },
 
-  // COF-004 — Second Cup
+  // ALT-004 — Second Cup
   {
-    id: 'COF-004-E1',
-    campaignId: 'COF-004',
+    id: 'ALT-004-E1',
+    campaignId: 'ALT-004',
     touchpoint: 1,
     channel: 'email',
     subjectA: 'Wrong coffee? Wrong time? Wrong importer? (One tap tells us)',
@@ -326,8 +326,8 @@ P.S. If the box arrived damaged or a sample was off, reply to this email — a h
     metrics: { primary: 'rescue_rate', baselineRate: 11, targetRate: 18, mde: 3, openRateA: 22, openRateB: 28 },
   },
   {
-    id: 'COF-004-S1',
-    campaignId: 'COF-004',
+    id: 'ALT-004-S1',
+    campaignId: 'ALT-004',
     touchpoint: 2,
     channel: 'sms',
     subjectA: 'Hi {first_name} — last note from me about the {origin} kit. One tap: cupped it / need more time / not a fit. Whatever you pick, I\'ll honor it: {feedback_url}',
@@ -337,10 +337,10 @@ P.S. If the box arrived damaged or a sample was off, reply to this email — a h
     metrics: { primary: 'rescue_rate', baselineRate: 11, targetRate: 18, mde: 3, openRateA: 8, openRateB: null },
   },
 
-  // COF-005 — The Regular
+  // ALT-005 — The Regular
   {
-    id: 'COF-005-E1',
-    campaignId: 'COF-005',
+    id: 'ALT-005-E1',
+    campaignId: 'ALT-005',
     touchpoint: 1,
     channel: 'email',
     subjectA: 'The {origin} is dialed in. Know a roaster who\'d cup it?',
@@ -363,8 +363,8 @@ P.S. Referral economics are public on the link page. We'd rather you trust the p
     metrics: { primary: 'referral_invite_rate', baselineRate: 14, targetRate: 25, mde: 4, openRateA: 30, openRateB: 38 },
   },
   {
-    id: 'COF-005-E2',
-    campaignId: 'COF-005',
+    id: 'ALT-005-E2',
+    campaignId: 'ALT-005',
     touchpoint: 2,
     channel: 'email',
     subjectA: '~15% of the {region} lot left. Reorder before the spreadsheet says so?',
@@ -385,8 +385,8 @@ Either way, automated replenishment is one toggle in settings — set the par le
     metrics: { primary: 'reorder_rate', baselineRate: 48, targetRate: 55, mde: 4, openRateA: 25, openRateB: 32 },
   },
   {
-    id: 'COF-005-S1',
-    campaignId: 'COF-005',
+    id: 'ALT-005-S1',
+    campaignId: 'ALT-005',
     touchpoint: 3,
     channel: 'sms',
     subjectA: '{first_name}, {rep_first_name}. You\'re ~a week from running dry on the {origin} by my math — {lot_size_bags} bags left at your locked price. Hold 60 lbs for {roaster_name}? Reply YES and it\'s done.',
@@ -407,7 +407,7 @@ Expected: no errors.
 
 ```bash
 git add src/api/marketing-data.ts
-git commit -m "feat(marketing): add COF merge-token registry and 13 template library"
+git commit -m "feat(marketing): add ALT merge-token registry and 13 template library"
 ```
 
 ---
@@ -456,62 +456,62 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
 
   db.campaigns = [
     {
-      id: 'campaign-cof-001',
-      slug: 'cof-001',
-      name: 'COF-001 — First Crack',
+      id: 'campaign-alt-001',
+      slug: 'alt-001',
+      name: 'ALT-001 — First Crack',
       description: 'Activate new lead → sample kit request.',
       status: 'active',
       version: 1,
       targetAudience: { segments: ['micro', 'boutique'], minCupScorePreference: 55 },
-      ruleCodes: ['COF-001'],
+      ruleCodes: ['ALT-001'],
       createdAt: now,
       updatedAt: now,
     },
     {
-      id: 'campaign-cof-002',
-      slug: 'cof-002',
-      name: 'COF-002 — The Cupping',
+      id: 'campaign-alt-002',
+      slug: 'alt-002',
+      name: 'ALT-002 — The Cupping',
       description: 'Kit delivered → cupping feedback.',
       status: 'active',
       version: 1,
       targetAudience: { segments: ['micro', 'boutique', 'commercial'] },
-      ruleCodes: ['COF-002'],
+      ruleCodes: ['ALT-002'],
       createdAt: now,
       updatedAt: now,
     },
     {
-      id: 'campaign-cof-003',
-      slug: 'cof-003',
-      name: 'COF-003 — The Shortlist',
+      id: 'campaign-alt-003',
+      slug: 'alt-003',
+      name: 'ALT-003 — The Shortlist',
       description: 'Feedback → first paid order.',
       status: 'active',
       version: 1,
       targetAudience: { segments: ['micro', 'boutique', 'commercial'] },
-      ruleCodes: ['COF-003'],
+      ruleCodes: ['ALT-003'],
       createdAt: now,
       updatedAt: now,
     },
     {
-      id: 'campaign-cof-004',
-      slug: 'cof-004',
-      name: 'COF-004 — Second Cup',
+      id: 'campaign-alt-004',
+      slug: 'alt-004',
+      name: 'ALT-004 — Second Cup',
       description: 'Rescue non-responders before hard suppression at day 21.',
       status: 'active',
       version: 1,
       targetAudience: { segments: ['micro', 'boutique', 'commercial'] },
-      ruleCodes: ['COF-004'],
+      ruleCodes: ['ALT-004'],
       createdAt: now,
       updatedAt: now,
     },
     {
-      id: 'campaign-cof-005',
-      slug: 'cof-005',
-      name: 'COF-005 — The Regular',
+      id: 'campaign-alt-005',
+      slug: 'alt-005',
+      name: 'ALT-005 — The Regular',
       description: 'First order → reorder + referral seed.',
       status: 'active',
       version: 1,
       targetAudience: { segments: ['micro', 'boutique', 'commercial'] },
-      ruleCodes: ['COF-005'],
+      ruleCodes: ['ALT-005'],
       createdAt: now,
       updatedAt: now,
     },
@@ -519,9 +519,9 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
 
   db.rules = [
     {
-      id: 'rule-cof-001',
-      ruleCode: 'COF-001',
-      campaignId: 'campaign-cof-001',
+      id: 'rule-alt-001',
+      ruleCode: 'ALT-001',
+      campaignId: 'campaign-alt-001',
       ruleName: 'qualified_lead_first_crack_sequence',
       triggerEvent: 'lead.qualified',
       conditionsJson: {
@@ -530,24 +530,24 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
         account_status_not_in: ['churned'],
         suppression_check: {
           unsubscribed: false,
-          active_campaign_not_in: ['COF-004', 'WIN-001'],
+          active_campaign_not_in: ['ALT-004', 'WIN-001'],
           open_order_in_flight: false,
         },
       },
       version: 1,
       status: 'armed',
       actions: [
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-001-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_cof001_subject_v1' } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-001-E2', channel: 'email', delayMinutes: 4320, payload: { fire_if: { opened_at_is_null: true } } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-001-S1', channel: 'sms', delayMinutes: 7200, payload: { fire_if: { opened_at_not_null: true, kit_requested: false } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-001-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_alt001_subject_v1' } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-001-E2', channel: 'email', delayMinutes: 4320, payload: { fire_if: { opened_at_is_null: true } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-001-S1', channel: 'sms', delayMinutes: 7200, payload: { fire_if: { opened_at_not_null: true, kit_requested: false } } },
         { actionType: 'UPDATE_CRM_LIFECYCLE', payload: { lifecycle_stage: 'kit_offered', set_fields: { status: 'trial' }, log_to: 'campaign_execution_logs' } },
-        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['sample_kit.requested', 'user.unsubscribed', 'order.created'], halt_scope: 'campaign_id:COF-001', post_halt_route: { 'sample_kit.requested': 'fulfillment.temporal.kit_workflow' }, reason: 'conversion_or_opt_out' } },
+        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['sample_kit.requested', 'user.unsubscribed', 'order.created'], halt_scope: 'campaign_id:ALT-001', post_halt_route: { 'sample_kit.requested': 'fulfillment.temporal.kit_workflow' }, reason: 'conversion_or_opt_out' } },
       ],
     },
     {
-      id: 'rule-cof-002',
-      ruleCode: 'COF-002',
-      campaignId: 'campaign-cof-002',
+      id: 'rule-alt-002',
+      ruleCode: 'ALT-002',
+      campaignId: 'campaign-alt-002',
       ruleName: 'kit_delivered_cupping_followup',
       triggerEvent: 'sample_kit.delivered',
       conditionsJson: {
@@ -558,16 +558,16 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
       version: 1,
       status: 'armed',
       actions: [
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-002-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_cof002_subject_v1' } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-002-S1', channel: 'sms', delayMinutes: 4320, payload: { fire_if: { feedback_submitted: false } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-002-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_alt002_subject_v1' } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-002-S1', channel: 'sms', delayMinutes: 4320, payload: { fire_if: { feedback_submitted: false } } },
         { actionType: 'UPDATE_CRM_LIFECYCLE', payload: { lifecycle_stage: 'kit_cupping_window', set_fields: { last_activity_at: 'now()' }, log_to: 'campaign_execution_logs' } },
-        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['feedback.submitted', 'order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:COF-002', post_halt_route: { 'feedback.submitted': 'campaign:COF-003', 'order.created': 'campaign:COF-005' }, reason: 'activation_or_conversion' } },
+        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['feedback.submitted', 'order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:ALT-002', post_halt_route: { 'feedback.submitted': 'campaign:ALT-003', 'order.created': 'campaign:ALT-005' }, reason: 'activation_or_conversion' } },
       ],
     },
     {
-      id: 'rule-cof-003',
-      ruleCode: 'COF-003',
-      campaignId: 'campaign-cof-003',
+      id: 'rule-alt-003',
+      ruleCode: 'ALT-003',
+      campaignId: 'campaign-alt-003',
       ruleName: 'feedback_to_first_order',
       triggerEvent: 'feedback.submitted',
       conditionsJson: {
@@ -578,38 +578,38 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
       version: 1,
       status: 'armed',
       actions: [
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-003-E1', channel: 'email', delayMinutes: 120, payload: { ab_test_id: 'abt_cof003_subject_v1', personalization: { branch_on: 'feedback_valence', tokens: ['{flavor_notes}', '{lot_size_bags}', '{price_per_lb}', '{savings_estimate}'] } } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-003-E2', channel: 'email', delayMinutes: 7200, payload: { fire_if: { order_created: false } } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-003-S1', channel: 'sms', delayMinutes: 14400, payload: { fire_if: { order_created: false } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-003-E1', channel: 'email', delayMinutes: 120, payload: { ab_test_id: 'abt_alt003_subject_v1', personalization: { branch_on: 'feedback_valence', tokens: ['{flavor_notes}', '{lot_size_bags}', '{price_per_lb}', '{savings_estimate}'] } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-003-E2', channel: 'email', delayMinutes: 7200, payload: { fire_if: { order_created: false } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-003-S1', channel: 'sms', delayMinutes: 14400, payload: { fire_if: { order_created: false } } },
         { actionType: 'UPDATE_CRM_LIFECYCLE', payload: { lifecycle_stage: 'shortlist_presented', set_fields: { days_since_last_order: null }, log_to: 'campaign_execution_logs' } },
-        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:COF-003', post_halt_route: { 'order.created': 'campaign:COF-005' }, reason: 'first_order_conversion', sla_ms: 300000 } },
+        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:ALT-003', post_halt_route: { 'order.created': 'campaign:ALT-005' }, reason: 'first_order_conversion', sla_ms: 300000 } },
       ],
     },
     {
-      id: 'rule-cof-004',
-      ruleCode: 'COF-004',
-      campaignId: 'campaign-cof-004',
+      id: 'rule-alt-004',
+      ruleCode: 'ALT-004',
+      campaignId: 'campaign-alt-004',
       ruleName: 'silent_kit_rescue',
       triggerEvent: 'sample_kit.delivered',
       conditionsJson: {
         days_since_delivery: 9,
         feedback_submitted: false,
         order_created_since_delivery: false,
-        suppression_check: { unsubscribed: false, active_campaign_not_in: ['COF-003'], prior_rescue_attempts_max: 0 },
+        suppression_check: { unsubscribed: false, active_campaign_not_in: ['ALT-003'], prior_rescue_attempts_max: 0 },
       },
       version: 1,
       status: 'armed',
       actions: [
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-004-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_cof004_subject_v1' } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-004-S1', channel: 'sms', delayMinutes: 7200, payload: { fire_if: { any_structured_response: false } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-004-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_alt004_subject_v1' } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-004-S1', channel: 'sms', delayMinutes: 7200, payload: { fire_if: { any_structured_response: false } } },
         { actionType: 'UPDATE_CRM_LIFECYCLE', payload: { lifecycle_stage: 'rescue_window', schedule_exit: { at_day: 21, route: 'newsletter.quarterly', set_lead_score_decay: -15 }, log_to: 'campaign_execution_logs' } },
-        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['feedback.submitted', 'order.created', 'structured_response.logged', 'user.unsubscribed'], halt_scope: 'campaign_id:COF-004', post_halt_route: { 'feedback.submitted': 'campaign:COF-003', 'order.created': 'campaign:COF-005' }, reason: 'rescued_or_resolved' } },
+        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['feedback.submitted', 'order.created', 'structured_response.logged', 'user.unsubscribed'], halt_scope: 'campaign_id:ALT-004', post_halt_route: { 'feedback.submitted': 'campaign:ALT-003', 'order.created': 'campaign:ALT-005' }, reason: 'rescued_or_resolved' } },
       ],
     },
     {
-      id: 'rule-cof-005',
-      ruleCode: 'COF-005',
-      campaignId: 'campaign-cof-005',
+      id: 'rule-alt-005',
+      ruleCode: 'ALT-005',
+      campaignId: 'campaign-alt-005',
       ruleName: 'first_order_habit_and_advocacy',
       triggerEvent: 'order.delivered',
       conditionsJson: {
@@ -620,11 +620,11 @@ Replace the existing `db.campaigns = [...]` and `db.rules = [...]` blocks with:
       version: 1,
       status: 'armed',
       actions: [
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-005-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_cof005_subject_v1', personalization: { tokens: ['{referral_url}', '{origin}', '{process_method}'] } } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-005-E2', channel: 'email', delayMinutes: 44640, payload: { fire_if: { reorder_created: false }, personalization: { tokens: ['{first_order_lbs}', '{lot_size_bags}', '{price_per_lb}'] } } },
-        { actionType: 'SEND_TEMPLATE', templateId: 'COF-005-S1', channel: 'sms', delayMinutes: 54720, payload: { fire_if: { reorder_created: false, clicked_at_not_null: true } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-005-E1', channel: 'email', delayMinutes: 0, payload: { ab_test_id: 'abt_alt005_subject_v1', personalization: { tokens: ['{referral_url}', '{origin}', '{process_method}'] } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-005-E2', channel: 'email', delayMinutes: 44640, payload: { fire_if: { reorder_created: false }, personalization: { tokens: ['{first_order_lbs}', '{lot_size_bags}', '{price_per_lb}'] } } },
+        { actionType: 'SEND_TEMPLATE', templateId: 'ALT-005-S1', channel: 'sms', delayMinutes: 54720, payload: { fire_if: { reorder_created: false, clicked_at_not_null: true } } },
         { actionType: 'UPDATE_CRM_LIFECYCLE', payload: { lifecycle_stage: 'first_order_active', on_reorder: { lifecycle_stage: 'active_repeat', set_fields: { status: 'active' } }, log_to: 'campaign_execution_logs' } },
-        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:COF-005', halt_note: 'reorder converts lifecycle to active_repeat cadence; referral card persists in-product regardless', reason: 'habit_established' } },
+        { actionType: 'EXECUTE_CAMPAIGN_HALT', payload: { halt_on_event: ['order.created', 'user.unsubscribed'], halt_scope: 'campaign_id:ALT-005', halt_note: 'reorder converts lifecycle to active_repeat cadence; referral card persists in-product regardless', reason: 'habit_established' } },
       ],
     },
   ];
@@ -646,7 +646,7 @@ Expected: type check passes; tests may fail on performance counts but should com
 
 ```bash
 git add src/api/db.ts
-git commit -m "feat(marketing): seed COF-001..005 campaigns, rules, and templates"
+git commit -m "feat(marketing): seed ALT-001..005 campaigns, rules, and templates"
 ```
 
 ---
@@ -719,13 +719,13 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
 ```ts
     performance: async (id: string): Promise<ApiResult<CampaignPerformance>> => {
       const campaign = db.campaigns.find((c) => c.id === id);
-      if (!campaign) return { problem: GS.GEN_1005() };
+      if (!campaign) return { problem: AL.GEN_1005() };
 
       const now = nowIso();
-      const code = campaign.slug; // cof-001 .. cof-005
+      const code = campaign.slug; // alt-001 .. alt-005
 
       const presets: Record<string, CampaignPerformance> = {
-        'cof-001': {
+        'alt-001': {
           campaignId: id,
           sent: 1000,
           openRate: 0.52,
@@ -733,10 +733,10 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
           conversionRate: 0.32,
           attributedRevenueCents: 0,
           funnel: { kitSent: 1000, opened: 520, clicked: 234, ordered: 320 },
-          variants: firstTouchVariants('COF-001'),
+          variants: firstTouchVariants('ALT-001'),
           computedAt: now,
         },
-        'cof-002': {
+        'alt-002': {
           campaignId: id,
           sent: 320,
           openRate: 0.52,
@@ -744,10 +744,10 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
           conversionRate: 0.45,
           attributedRevenueCents: 0,
           funnel: { kitSent: 320, opened: 166, clicked: 75, ordered: 144, feedbackSubmitted: 144 },
-          variants: firstTouchVariants('COF-002'),
+          variants: firstTouchVariants('ALT-002'),
           computedAt: now,
         },
-        'cof-003': {
+        'alt-003': {
           campaignId: id,
           sent: 144,
           openRate: 0.45,
@@ -755,10 +755,10 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
           conversionRate: 0.40,
           attributedRevenueCents: 3_770_000,
           funnel: { feedbackSubmitted: 144, opened: 65, clicked: 29, ordered: 58 },
-          variants: firstTouchVariants('COF-003'),
+          variants: firstTouchVariants('ALT-003'),
           computedAt: now,
         },
-        'cof-004': {
+        'alt-004': {
           campaignId: id,
           sent: 176,
           openRate: 0.28,
@@ -766,10 +766,10 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
           conversionRate: 0.18,
           attributedRevenueCents: 0,
           funnel: { kitSent: 176, opened: 49, clicked: 19, ordered: 32, responded: 32 },
-          variants: firstTouchVariants('COF-004'),
+          variants: firstTouchVariants('ALT-004'),
           computedAt: now,
         },
-        'cof-005': {
+        'alt-005': {
           campaignId: id,
           sent: 58,
           openRate: 0.38,
@@ -777,12 +777,12 @@ Replace the existing `performance: async (id: string) => { ... }` method with:
           conversionRate: 0.55,
           attributedRevenueCents: 2_080_000,
           funnel: { firstOrders: 58, referralSent: 55, reordered: 32, opened: 22, clicked: 8, ordered: 32 },
-          variants: firstTouchVariants('COF-005'),
+          variants: firstTouchVariants('ALT-005'),
           computedAt: now,
         },
       };
 
-      return { data: presets[code] ?? presets['cof-001'] };
+      return { data: presets[code] ?? presets['alt-001'] };
     },
 ```
 
@@ -827,11 +827,11 @@ Add these helpers after the `ABVariant` / `CampaignRuleMock` interfaces and remo
 
 ```ts
 const RULE_STATUS_BY_CODE: Record<string, CampaignRuleMock['status']> = {
-  'COF-001': 'converted',
-  'COF-002': 'active',
-  'COF-003': 'idle',
-  'COF-004': 'idle',
-  'COF-005': 'idle',
+  'ALT-001': 'converted',
+  'ALT-002': 'active',
+  'ALT-003': 'idle',
+  'ALT-004': 'idle',
+  'ALT-005': 'idle',
 };
 
 function findSendTemplate(rule: AutomationRule): RuleAction | undefined {
@@ -1012,7 +1012,7 @@ For example, if a test expects exactly one campaign, replace `toBe(1)` with `toB
 
 ```bash
 git add src/stores/__tests__/campaigns-slice.test.ts
-git commit -m "test(campaigns): update assertions for COF seed data" # only if changed
+git commit -m "test(campaigns): update assertions for ALT seed data" # only if changed
 ```
 
 ---
@@ -1054,7 +1054,7 @@ cd app
 npm run dev
 ```
 Open `http://localhost:5173` (or the configured port), navigate to Campaigns, and confirm:
-- Five campaigns appear: COF-001 → COF-005.
+- Five campaigns appear: ALT-001 → ALT-005.
 - Each campaign shows its rule sequence and the correct trigger event.
 - Selecting each campaign shows the correct A/B subject variants and funnel KPIs.
 
@@ -1070,7 +1070,7 @@ git commit -m "fix(campaigns): address review/verification feedback" # only if n
 ## Self-Review
 
 1. **Spec coverage:**
-   - All five COF campaigns seeded with correct triggers and rule sequences — Task 3.
+   - All five ALT campaigns seeded with correct triggers and rule sequences — Task 3.
    - All 13 email/SMS templates with canonical/extended tokens — Task 2.
    - Merge-token registry — Task 2.
    - Campaign-specific performance funnels/metrics — Task 4.

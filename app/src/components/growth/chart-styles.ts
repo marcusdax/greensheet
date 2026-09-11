@@ -3,6 +3,6 @@ export const GROWTH_CHART_TOOLTIP_STYLE = {
   borderColor: '#16323E',
   borderRadius: '6px',
   color: '#FDFBF5',
-  fontFamily: 'IBM Plex Mono',
+  fontFamily: 'JetBrains Mono',
   fontSize: '11px',
 };

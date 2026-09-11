@@ -7,7 +7,7 @@ const mockProblem = {
   type: 'about:blank',
   title: 'Internal Server Error',
   status: 500,
-  code: 'GS-ANL-1000',
+  code: 'AL-ANL-1000',
   detail: 'Mocked analytics failure',
 };
 
@@ -139,7 +139,7 @@ describe('analytics slice', () => {
     const analytics = useRootStore.getState().analytics;
     await analytics.loadCacByChannel();
     expect(useRootStore.getState().analytics.loading).toBe(false);
-    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'GS-ANL-1000' });
+    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'AL-ANL-1000' });
   });
 
   it('captures a problem from loadGrowthAll', async () => {
@@ -147,7 +147,7 @@ describe('analytics slice', () => {
     const analytics = useRootStore.getState().analytics;
     await analytics.loadGrowthAll();
     expect(useRootStore.getState().analytics.loading).toBe(false);
-    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'GS-ANL-1000' });
+    expect(useRootStore.getState().analytics.error).toMatchObject({ code: 'AL-ANL-1000' });
     expect(useRootStore.getState().analytics.cacByChannel).toHaveLength(0);
     expect(useRootStore.getState().analytics.wtrPoints.length).toBeGreaterThan(0);
   });

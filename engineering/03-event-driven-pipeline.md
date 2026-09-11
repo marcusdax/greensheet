@@ -1,7 +1,7 @@
 # 03 — Event-Driven Pipeline: Kafka Topology, Schemas, Exactly-Once
 
-> **Extends:** Base Doc §5.1 (`OrderService` Kafka producer/consumer), §I.3 (Event-Driven Architecture), §VI (MSK cluster `greensheet-events`).
-> **Fixes:** the **dual-write defect** in Base Doc §5.1 — `createOrder()` commits Postgres *then* calls `producer.send()`; a crash between the two loses `order.created` (inventory never reserved, COF-005 never fires). This document replaces direct sends with the **transactional outbox** and defines the full topology, schemas, and delivery semantics.
+> **Extends:** Base Doc §5.1 (`OrderService` Kafka producer/consumer), §I.3 (Event-Driven Architecture), §VI (MSK cluster `auctum-ledger-events`).
+> **Fixes:** the **dual-write defect** in Base Doc §5.1 — `createOrder()` commits Postgres *then* calls `producer.send()`; a crash between the two loses `order.created` (inventory never reserved, ALT-005 never fires). This document replaces direct sends with the **transactional outbox** and defines the full topology, schemas, and delivery semantics.
 
 ---
 
@@ -10,7 +10,7 @@
 ### 1.1 Naming Convention
 
 ```
-gs.<context>.<entity-stream>.v<schema-major>[.<suffix>]
+al.<context>.<entity-stream>.v<schema-major>[.<suffix>]
 ```
 
 - `context` — bounded context from `01-domain-model-event-storming.md` (`orders`, `catalog`, `crm`, `campaigns`, `samples`, `billing`, `analytics`).
@@ -31,16 +31,16 @@ flowchart LR
         OUT[Outbox Relay<br/>per-service sidecar]
     end
 
-    subgraph MSK["MSK cluster: greensheet-events (SASL_TLS + IAM)"]
-        T1["gs.orders.events.v1<br/>12p · RF3 · 7d"]
-        T2["gs.catalog.events.v1<br/>12p · RF3 · 7d"]
-        T3["gs.samples.events.v1<br/>6p · RF3 · 7d"]
-        T4["gs.campaigns.events.v1<br/>12p · RF3 · 30d"]
-        T5["gs.crm.events.v1<br/>6p · RF3 · 7d"]
-        T6["gs.billing.events.v1<br/>6p · RF3 · 30d"]
-        TR["gs.*.events.v1.retry<br/>6p · 1d"]
-        TD["gs.*.events.v1.dlq<br/>6p · 365d"]
-        TC["gs.analytics.projections.compact<br/>6p · compact"]
+    subgraph MSK["MSK cluster: auctum-ledger-events (SASL_TLS + IAM)"]
+        T1["al.orders.events.v1<br/>12p · RF3 · 7d"]
+        T2["al.catalog.events.v1<br/>12p · RF3 · 7d"]
+        T3["al.samples.events.v1<br/>6p · RF3 · 7d"]
+        T4["al.campaigns.events.v1<br/>12p · RF3 · 30d"]
+        T5["al.crm.events.v1<br/>6p · RF3 · 7d"]
+        T6["al.billing.events.v1<br/>6p · RF3 · 30d"]
+        TR["al.*.events.v1.retry<br/>6p · 1d"]
+        TD["al.*.events.v1.dlq<br/>6p · 365d"]
+        TC["al.analytics.projections.compact<br/>6p · compact"]
     end
 
     subgraph Consumers
@@ -67,17 +67,17 @@ flowchart LR
 
 | Topic | Producer (via outbox) | Key | Retention | Consumers (group) |
 |---|---|---|---|---|
-| `gs.orders.events.v1` | Order Service | `orderId` | 7 d / 20 GB | `orders-saga-cg`, `analytics-projector-cg`, `webhook-dispatcher-cg` |
-| `gs.catalog.events.v1` | Catalog Service | `lotId` | 7 d | `orders-saga-cg`, `analytics-projector-cg` |
-| `gs.samples.events.v1` | Samples Service | `kitId` | 7 d | `campaigns-rule-engine-cg`, `notifications-cg`, `analytics-projector-cg` |
-| `gs.campaigns.events.v1` | Campaigns Service | `campaignId` (dispatch events: `roasterId`) | 30 d | `analytics-projector-cg`, `webhook-dispatcher-cg` |
-| `gs.crm.events.v1` | CRM Service | `roasterId` | 7 d | `campaigns-rule-engine-cg`, `analytics-projector-cg` |
-| `gs.billing.events.v1` | Billing adapter (Stripe webhooks) | `orderId` | 30 d | `orders-saga-cg` |
-| `gs.<ctx>.events.v1.retry` | retry producer in each consumer | original key | 1 d | owning consumer group (delayed re-subscription) |
-| `gs.<ctx>.events.v1.dlq` | DLQ producer in each consumer | original key | 365 d | `dlq-triage-cg` (ops tooling) |
-| `gs.analytics.projections.compact` | Analytics projector | projection name + key | compacted | cache warmers, backfill jobs |
+| `al.orders.events.v1` | Order Service | `orderId` | 7 d / 20 GB | `orders-saga-cg`, `analytics-projector-cg`, `webhook-dispatcher-cg` |
+| `al.catalog.events.v1` | Catalog Service | `lotId` | 7 d | `orders-saga-cg`, `analytics-projector-cg` |
+| `al.samples.events.v1` | Samples Service | `kitId` | 7 d | `campaigns-rule-engine-cg`, `notifications-cg`, `analytics-projector-cg` |
+| `al.campaigns.events.v1` | Campaigns Service | `campaignId` (dispatch events: `roasterId`) | 30 d | `analytics-projector-cg`, `webhook-dispatcher-cg` |
+| `al.crm.events.v1` | CRM Service | `roasterId` | 7 d | `campaigns-rule-engine-cg`, `analytics-projector-cg` |
+| `al.billing.events.v1` | Billing adapter (Stripe webhooks) | `orderId` | 30 d | `orders-saga-cg` |
+| `al.<ctx>.events.v1.retry` | retry producer in each consumer | original key | 1 d | owning consumer group (delayed re-subscription) |
+| `al.<ctx>.events.v1.dlq` | DLQ producer in each consumer | original key | 365 d | `dlq-triage-cg` (ops tooling) |
+| `al.analytics.projections.compact` | Analytics projector | projection name + key | compacted | cache warmers, backfill jobs |
 
-**Partition keys are binding:** all events for one aggregate (`orderId`, `kitId`, `roasterId`) share a partition → per-aggregate ordering, which the saga choreography in `01-domain-model-event-storming.md` §4.5 relies on. Campaign dispatch events are keyed by `roasterId` (not `campaignId`) so that a roaster's COF-001→COF-005 journey is totally ordered.
+**Partition keys are binding:** all events for one aggregate (`orderId`, `kitId`, `roasterId`) share a partition → per-aggregate ordering, which the saga choreography in `01-domain-model-event-storming.md` §4.5 relies on. Campaign dispatch events are keyed by `roasterId` (not `campaignId`) so that a roaster's ALT-001→ALT-005 journey is totally ordered.
 
 ### 1.4 Broker/Topic Config (applied by Terraform, extends Base Doc §6.1 MSK resource)
 
@@ -85,13 +85,13 @@ flowchart LR
 # terraform/kafka-topics.tf — module: cloud83/topic-management/kafka ~> 0.4
 locals {
   topics = {
-    "gs.orders.events.v1"    = { partitions = 12, replication = 3, retention_ms = 604800000,  cleanup = "delete" }
-    "gs.catalog.events.v1"   = { partitions = 12, replication = 3, retention_ms = 604800000,  cleanup = "delete" }
-    "gs.samples.events.v1"   = { partitions = 6,  replication = 3, retention_ms = 604800000,  cleanup = "delete" }
-    "gs.campaigns.events.v1" = { partitions = 12, replication = 3, retention_ms = 2592000000, cleanup = "delete" }
-    "gs.crm.events.v1"       = { partitions = 6,  replication = 3, retention_ms = 604800000,  cleanup = "delete" }
-    "gs.billing.events.v1"   = { partitions = 6,  replication = 3, retention_ms = 2592000000, cleanup = "delete" }
-    "gs.analytics.projections.compact" = { partitions = 6, replication = 3, retention_ms = -1, cleanup = "compact" }
+    "al.orders.events.v1"    = { partitions = 12, replication = 3, retention_ms = 604800000,  cleanup = "delete" }
+    "al.catalog.events.v1"   = { partitions = 12, replication = 3, retention_ms = 604800000,  cleanup = "delete" }
+    "al.samples.events.v1"   = { partitions = 6,  replication = 3, retention_ms = 604800000,  cleanup = "delete" }
+    "al.campaigns.events.v1" = { partitions = 12, replication = 3, retention_ms = 2592000000, cleanup = "delete" }
+    "al.crm.events.v1"       = { partitions = 6,  replication = 3, retention_ms = 604800000,  cleanup = "delete" }
+    "al.billing.events.v1"   = { partitions = 6,  replication = 3, retention_ms = 2592000000, cleanup = "delete" }
+    "al.analytics.projections.compact" = { partitions = 6, replication = 3, retention_ms = -1, cleanup = "compact" }
   }
 }
 
@@ -124,7 +124,7 @@ Every message uses **CloudEvents binary mode**: attributes in Kafka headers, Avr
 | `specversion` | `ce_specversion` | `1.0` | constant |
 | `id` | `ce_id` | `018f3c2a-…` (UUIDv7) | dedupe key for inbox pattern (§5.3) |
 | `type` | `ce_type` | `order.created` | **must match** domain catalogue (§01-6) and `automation_rules.trigger_event` for rule-triggering events |
-| `source` | `ce_source` | `//greensheet/orders` | producing service |
+| `source` | `ce_source` | `//auctum-ledger/orders` | producing service |
 | `subject` | `ce_subject` | `/orders/6d2f…` | aggregate URI |
 | `time` | `ce_time` | RFC3339 | business occurrence time |
 | `datacontenttype` | `content-type` | `application/avro` | |
@@ -134,19 +134,19 @@ Every message uses **CloudEvents binary mode**: attributes in Kafka headers, Avr
 
 ### 2.2 Avro Schemas (Schema Registry subjects)
 
-Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union schema per topic**; event-specific records below.
+Subject naming: `<topic>-value`, e.g. `al.orders.events.v1-value`. One **union schema per topic**; event-specific records below.
 
 ```json
-// avro/orders/OrderCreated.avsc — registered under gs.orders.events.v1-value (union member 0)
+// avro/orders/OrderCreated.avsc — registered under al.orders.events.v1-value (union member 0)
 {
   "type": "record",
   "name": "OrderCreated",
-  "namespace": "io.greensheet.events.orders",
+  "namespace": "io.auctumledger.events.orders",
   "doc": "Emitted when an Order aggregate is created (Base Doc 5.1 order.created).",
   "fields": [
     { "name": "orderId", "type": { "type": "string", "logicalType": "uuid" } },
     { "name": "accountId", "type": { "type": "string", "logicalType": "uuid" } },
-    { "name": "firstOrder", "type": "boolean", "doc": "Drives COF-005 EXECUTE_CAMPAIGN_HALT" },
+    { "name": "firstOrder", "type": "boolean", "doc": "Drives ALT-005 EXECUTE_CAMPAIGN_HALT" },
     { "name": "lineItems", "type": { "type": "array", "items": {
         "type": "record", "name": "OrderLineItem", "fields": [
           { "name": "lotId", "type": { "type": "string", "logicalType": "uuid" } },
@@ -162,12 +162,12 @@ Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union s
 ```
 
 ```json
-// avro/samples/SampleKitDelivered.avsc — gs.samples.events.v1-value (union member)
+// avro/samples/SampleKitDelivered.avsc — al.samples.events.v1-value (union member)
 {
   "type": "record",
   "name": "SampleKitDelivered",
-  "namespace": "io.greensheet.events.samples",
-  "doc": "Pivotal funnel event; CloudEvents type 'sample_kit.delivered' triggers COF-001.",
+  "namespace": "io.auctumledger.events.samples",
+  "doc": "Pivotal funnel event; CloudEvents type 'sample_kit.delivered' triggers ALT-001.",
   "fields": [
     { "name": "kitId", "type": { "type": "string", "logicalType": "uuid" } },
     { "name": "roasterId", "type": { "type": "string", "logicalType": "uuid" } },
@@ -180,14 +180,14 @@ Subject naming: `<topic>-value`, e.g. `gs.orders.events.v1-value`. One **union s
 ```
 
 ```json
-// avro/campaigns/RuleTriggered.avsc — gs.campaigns.events.v1-value (union member)
+// avro/campaigns/RuleTriggered.avsc — al.campaigns.events.v1-value (union member)
 {
   "type": "record",
   "name": "RuleTriggered",
-  "namespace": "io.greensheet.events.campaigns",
+  "namespace": "io.auctumledger.events.campaigns",
   "fields": [
     { "name": "campaignId", "type": { "type": "string", "logicalType": "uuid" } },
-    { "name": "ruleCode", "type": "string", "doc": "COF-001..COF-005 (validated regex ^COF-00[1-9]$)" },
+    { "name": "ruleCode", "type": "string", "doc": "ALT-001..ALT-005 (validated regex ^ALT-00[1-9]$)" },
     { "name": "ruleVersion", "type": "int" },
     { "name": "roasterId", "type": { "type": "string", "logicalType": "uuid" } },
     { "name": "triggerEvent", "type": "string", "doc": "e.g. sample_kit.delivered" },
@@ -261,7 +261,7 @@ const producer = kafka.producer({
 export async function runOrderSaga() {
   await consumer.connect();
   await producer.connect();
-  await consumer.subscribe({ topics: ['gs.catalog.events.v1', 'gs.billing.events.v1'] });
+  await consumer.subscribe({ topics: ['al.catalog.events.v1', 'al.billing.events.v1'] });
 
   await consumer.run({
     autoCommit: false,                                    // offsets move inside the txn
@@ -274,12 +274,12 @@ export async function runOrderSaga() {
         if (ce.type === 'catalog.inventory_reserved') {
           await authorizePayment(payload.orderId);        // side effect (Stripe)
           await txn.send({
-            topic: 'gs.billing.events.v1',
+            topic: 'al.billing.events.v1',
             messages: [{
               key: payload.orderId,
               headers: cloudEventHeaders({
                 id: uuidv7(), type: 'billing.payment_authorized',
-                source: '//greensheet/billing', subject: `/orders/${payload.orderId}`,
+                source: '//auctum-ledger/billing', subject: `/orders/${payload.orderId}`,
               }),
               value: encodeAvro('PaymentAuthorized', { orderId: payload.orderId, amountCents: payload.amountCents, occurredAt: Date.now() }),
             }],
@@ -288,12 +288,12 @@ export async function runOrderSaga() {
 
         if (ce.type === 'billing.payment_failed') {
           await txn.send({
-            topic: 'gs.catalog.events.v1',
+            topic: 'al.catalog.events.v1',
             messages: [{
               key: payload.lotId,
               headers: cloudEventHeaders({
                 id: uuidv7(), type: 'catalog.reservation_released',
-                source: '//greensheet/orders', subject: `/lots/${payload.lotId}`,
+                source: '//auctum-ledger/orders', subject: `/lots/${payload.lotId}`,
               }),
               value: encodeAvro('ReservationReleased', payload),
             }],
@@ -330,7 +330,7 @@ CREATE TABLE IF NOT EXISTS event_outbox (
     aggregate_type  TEXT        NOT NULL,                            -- 'order' | 'lot' | 'kit' | ...
     aggregate_id    UUID        NOT NULL,                            -- partition key
     event_type      TEXT        NOT NULL,                            -- 'order.created' (matches ce_type)
-    topic           TEXT        NOT NULL,                            -- 'gs.orders.events.v1'
+    topic           TEXT        NOT NULL,                            -- 'al.orders.events.v1'
     payload         JSONB       NOT NULL,                            -- serialized Avro-compatible record
     headers         JSONB       NOT NULL DEFAULT '{}'::jsonb,        -- traceparent, idempotencykey
     occurred_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -356,7 +356,7 @@ export interface OutboxEvent {
   aggregateType: string;
   aggregateId: string;
   eventType: string;      // e.g. 'order.created'
-  topic: string;          // e.g. 'gs.orders.events.v1'
+  topic: string;          // e.g. 'al.orders.events.v1'
   payload: Record<string, unknown>;
   headers?: Record<string, string>;
 }
@@ -394,7 +394,7 @@ async createOrder(cmd: CreateOrderCommand): Promise<Order> {
       aggregateType: 'order',
       aggregateId: order.id,
       eventType: 'order.created',
-      topic: 'gs.orders.events.v1',
+      topic: 'al.orders.events.v1',
       payload: {
         orderId: order.id,
         accountId: order.accountId,
@@ -454,7 +454,7 @@ export async function runOutboxRelay(signal: AbortSignal) {
               ce_specversion: '1.0',
               ce_id: row.id,
               ce_type: row.event_type,
-              ce_source: `//greensheet/${process.env.SERVICE_NAME}`,
+              ce_source: `//auctum-ledger/${process.env.SERVICE_NAME}`,
               ce_subject: `/${row.topic.split('.')[1]}/${row.aggregate_id}`,
               ce_time: new Date(row.occurred_at).toISOString(),
               'content-type': 'application/avro',
@@ -474,7 +474,7 @@ export async function runOutboxRelay(signal: AbortSignal) {
 }
 ```
 
-> **CDC alternative:** for high-volume topics (`gs.campaigns.events.v1`) the relay is replaceable by **Debezium Postgres connector** reading `event_outbox` via logical replication (`wal2json`) — zero code change, same table contract. Decision matrix: relay for <2k msg/s, Debezium beyond.
+> **CDC alternative:** for high-volume topics (`al.campaigns.events.v1`) the relay is replaceable by **Debezium Postgres connector** reading `event_outbox` via logical replication (`wal2json`) — zero code change, same table contract. Decision matrix: relay for <2k msg/s, Debezium beyond.
 
 ### 5.4 Inbox (Idempotent Consumer) — Effectively-Once Side Effects
 
@@ -533,7 +533,7 @@ flowchart TD
 
 - **Retry topics** use a delayed-consumption pattern: consumer pauses partitions until `not-before` header timestamp (implemented with `consumer.pause()`), avoiding busy-spin.
 - **DLQ headers (mandatory):** `x-original-topic`, `x-original-partition`, `x-original-offset`, `x-error-class`, `x-error-message`, `x-first-failure-time`, `x-retry-count`.
-- **Replay tool:** `scripts/dlq-replay.ts --topic gs.samples.events.v1 --since 2025-03-01 --filter ce_type=sample_kit.delivered` republishes preserving original `ce_id` (so inbox dedupe still protects consumers).
+- **Replay tool:** `scripts/dlq-replay.ts --topic al.samples.events.v1 --since 2025-03-01 --filter ce_type=sample_kit.delivered` republishes preserving original `ce_id` (so inbox dedupe still protects consumers).
 
 ### 6.2 DLQ Triage SLOs
 
@@ -548,7 +548,7 @@ flowchart TD
 
 ## 7. Rule-Engine Consumer (Campaigns) — Reference Implementation
 
-The consumer that turns `sample_kit.delivered` into COF-001 dispatches, closing the loop with the marketing schema's `view_compiled_campaign_rules`:
+The consumer that turns `sample_kit.delivered` into ALT-001 dispatches, closing the loop with the marketing schema's `view_compiled_campaign_rules`:
 
 ```typescript
 // services/campaigns/RuleEngineConsumer.ts
@@ -577,7 +577,7 @@ await consumer.run({
         });
         await appendToOutbox(trx, {
           aggregateType: 'campaign', aggregateId: rule.campaign_id,
-          eventType: 'campaigns.rule_triggered', topic: 'gs.campaigns.events.v1',
+          eventType: 'campaigns.rule_triggered', topic: 'al.campaigns.events.v1',
           payload: { campaignId: rule.campaign_id, ruleCode: rule.rule_code,
                      ruleVersion: rule.version, roasterId: ce.data.roasterId,
                      triggerEvent: ce.type, triggerEventId: ce.id, occurredAt: Date.now() },
@@ -592,7 +592,7 @@ await consumer.run({
 
 ## 8. Cross-References & Operational Notes
 
-- **Ordering contract:** per-aggregate only (partition key). Campaign sequence ordering across event types (delivered → feedback → click) is guaranteed because all are keyed by `roasterId` within `gs.samples/campaigns` topics consumed by the same group — verified by the chaos experiment `kafka-partition-rebalance` in `06-testing-chaos-ci.md`.
-- **Backfill:** new projections bootstrap from the compacted `gs.analytics.projections.compact` changelog plus a one-time Postgres snapshot (`COPY` → replay through projector with synthetic `ce_id = uuidv5(aggregateId)` for idempotence).
-- **Cost note:** MSK `kafka.m7g.large ×3` (Base Doc §6.1) sustains ~15 MB/s ingress with the configs above; campaign season peaks (COF blasts) are absorbed by `gs.campaigns.events.v1` 30-day retention buffer.
-- **Security:** MSK IAM auth + TLS in transit; topic-level ACLs per service (Catalog produces only `gs.catalog.*`),详见 `07-security-compliance.md` §7.
+- **Ordering contract:** per-aggregate only (partition key). Campaign sequence ordering across event types (delivered → feedback → click) is guaranteed because all are keyed by `roasterId` within `al.samples/campaigns` topics consumed by the same group — verified by the chaos experiment `kafka-partition-rebalance` in `06-testing-chaos-ci.md`.
+- **Backfill:** new projections bootstrap from the compacted `al.analytics.projections.compact` changelog plus a one-time Postgres snapshot (`COPY` → replay through projector with synthetic `ce_id = uuidv5(aggregateId)` for idempotence).
+- **Cost note:** MSK `kafka.m7g.large ×3` (Base Doc §6.1) sustains ~15 MB/s ingress with the configs above; campaign season peaks (ALT blasts) are absorbed by `al.campaigns.events.v1` 30-day retention buffer.
+- **Security:** MSK IAM auth + TLS in transit; topic-level ACLs per service (Catalog produces only `al.catalog.*`),详见 `07-security-compliance.md` §7.

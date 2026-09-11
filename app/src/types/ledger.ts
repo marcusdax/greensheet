@@ -1,6 +1,6 @@
 /**
- * LotSpace — Domain Type System
- * The social ledger layer of Greensheet. Four new bounded contexts:
+ * Auctum Ledger — Domain Type System
+ * The social ledger layer of Auctum Ledger. Four new bounded contexts:
  * Spaces · Feeds · Reputation · Connections
  *
  * Design principle: every type here must be traceable to a ledger event.

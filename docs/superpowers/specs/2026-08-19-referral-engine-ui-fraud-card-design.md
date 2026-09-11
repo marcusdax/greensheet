@@ -6,7 +6,7 @@
 
 ## Goal
 
-Add a complete, localized referral program experience to the Greensheet frontend:
+Add a complete, localized referral program experience to the Auctum Ledger frontend:
 - A logged-in roaster dashboard for managing referral codes, tracking invites, viewing rewards, and sharing the program.
 - An in-product share card shown at the delivery-delight moment.
 - Mock fraud/attribution controls that gate qualification and a review queue for flagged referrals.
@@ -126,7 +126,7 @@ export interface ReferralsState {
 
 - `useReferralCode()`
 - `useReferralStats()`
-- `useReferralTier()` — maps `stats.qualifiedReferrals` to Cupper / Green Buyer / Compass Circle.
+- `useReferralTier()` — maps `stats.qualifiedReferrals` to Cupper / Green Buyer / Ledger Circle.
 - `useNetEarnedCents()` — `earnedRewardsCents - clawedBackRewardsCents`.
 - `useFunnelCounts()` — `{ invitesSent, clicks, signups, kitRequests, kitDeliveries, feedbackSubmitted, qualifiedReferrals }`.
 

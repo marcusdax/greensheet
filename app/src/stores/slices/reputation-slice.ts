@@ -1,4 +1,4 @@
-import type { CuppingCompetition, CuppingResult, BraveFewEntry } from '../../types/lotspace';
+import type { CuppingCompetition, CuppingResult, BraveFewEntry } from '../../types/ledger';
 import { competitions } from '../../data/feed';
 import { braveFewLeaderboard } from '../../data/spaces';
 

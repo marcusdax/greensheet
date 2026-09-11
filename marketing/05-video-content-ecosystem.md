@@ -1,6 +1,6 @@
 # 05 — Video Content Ecosystem
 
-> Role: video strategy layer for the growth engine (file 01 §5 assigns video 20% of demand-gen spend and ≥ 35% of organic signups touching ≥ 1 video). Production craft specs live in `06-production-bible.md`; this file owns *what we make, how it's cut, where it goes, and how it's measured*. All CTAs resolve to UTM-tagged landing pages so video influence is visible in the same `campaign_engagements` attribution system as COF campaigns.
+> Role: video strategy layer for the growth engine (file 01 §5 assigns video 20% of demand-gen spend and ≥ 35% of organic signups touching ≥ 1 video). Production craft specs live in `06-production-bible.md`; this file owns *what we make, how it's cut, where it goes, and how it's measured*. All CTAs resolve to UTM-tagged landing pages so video influence is visible in the same `campaign_engagements` attribution system as ALT campaigns.
 
 **Strategic thesis:** Specialty coffee roasters are drowning in unverifiable claims ("exotic," "premium," "traceable") and starving for proof. Video is the highest-bandwidth proof medium we own — a camera can show the scoresheet, the elevation, the warehouse, the slurp. Every asset in this ecosystem is built on one attention bargain: **give them something true and specific in the first 3 seconds, and they will give you the next 87.**
 
@@ -13,7 +13,7 @@
 ### Episode 1 — "The 86-Point Problem" (runtime ~95 s)
 
 **Concept:** The entire specialty trade runs on a number — the SCA cup score — that buyers historically cannot verify. We stage a blind cupping wager: two coffees, one claim, one scoresheet, eleven minutes.
-**Objective:** Category problem awareness → drive to `/watch/verified-ep1` → kit claim (feeds COF-001).
+**Objective:** Category problem awareness → drive to `/watch/verified-ep1` → kit claim (feeds ALT-001).
 **Audience:** micro/boutique roasters; new-lead cold audiences on YouTube/LinkedIn.
 
 | Time | Beat | VO (presenter, to camera + b-roll) | On-screen text / GFX |
@@ -21,14 +21,14 @@
 | 0:00–0:03 | **HOOK** | "This coffee scores 86.5. This one scores 84. One of those numbers is made up." | Hard cut: two cupping bowls side by side. Supers: **86.5** / **84** stamped over each |
 | 0:03–0:14 | Problem | "Every green coffee you've ever bought came with a number attached. Cup score. Eighty-six point five. Eighty-eight. And nine times out of ten, you took the seller's word for it — because the scoresheet stayed in their drawer." | Montage: importer PDFs, "86+" badges flying past. Stamp GFX: **UNVERIFIED** |
 | 0:14–0:30 | Stakes | "That word is expensive. An 86 and an 84 can be a dollar-fifty a pound apart. Across a year of buying, believing the wrong number is a five-figure act of faith." | Animated math: $1.50/lb × 500 lb/mo × 12 = **$9,000/yr** |
-| 0:30–0:52 | Turn | "So we changed the rules. Every lot on Greensheet ships with the Q-grader's actual scoresheet — fragrance, acidity, body, the sub-scores, the signature. Not a marketing bullet. The sheet." | Macro: scoresheet fills frame; pen circles **fragrance/aroma 8.25** |
+| 0:30–0:52 | Turn | "So we changed the rules. Every lot on Auctum Ledger ships with the Q-grader's actual scoresheet — fragrance, acidity, body, the sub-scores, the signature. Not a marketing bullet. The sheet." | Macro: scoresheet fills frame; pen circles **fragrance/aroma 8.25** |
 | 0:52–1:14 | Proof (the wager) | "And we dare you to break it. Cup our samples blind, score them yourself, compare. Most roasters land within half a point — which is the whole point. When your number matches our number, the number stops being a claim and starts being a fact." | Split-screen: roaster scores left, Q-grader sheet right; deltas animate: **−0.25 / +0.5 / 0.0** |
 | 1:14–1:28 | Product glimpse | "Verified scores. Real elevation data. Process method, varietal, harvest week, bags remaining — live. This is what buying green coffee looks like when the data shows up to work." | UI capture: lot page scroll; lot card: *Gedeb, Ethiopia — washed — 86.5 — 2,100 masl — 40 bags* |
 | 1:28–1:35 | **CTA** | "The kit is free. The scoresheet is real. The eleven minutes are yours." | End card: **Cup it before you commit a dollar →** URL + QR |
 
 ### Episode 2 — "Anatomy of a Lot" (runtime ~120 s)
 
-**Concept:** Follow one lot — washed heirloom from Gedeb, 2,100 masl — from cherry to warehouse, decoding what each data field on a Greensheet lot page *physically means*. Teaches the market to read our data (education = moat).
+**Concept:** Follow one lot — washed heirloom from Gedeb, 2,100 masl — from cherry to warehouse, decoding what each data field on a Auctum Ledger lot page *physically means*. Teaches the market to read our data (education = moat).
 **Objective:** Consideration → shortlist engagement; SEO/chaptered YouTube asset.
 
 | Time | Beat | VO | On-screen text / GFX |
@@ -43,7 +43,7 @@
 
 ### Episode 3 — "Sample to Contract in 9 Days" (runtime ~90 s)
 
-**Concept:** A real roaster's timeline, day-stamped: kit request → cupping → blind score match → first order → reorder trigger. The workflow proof — this is the COF-001→005 journey dramatized.
+**Concept:** A real roaster's timeline, day-stamped: kit request → cupping → blind score match → first order → reorder trigger. The workflow proof — this is the ALT-001→005 journey dramatized.
 **Objective:** Conversion — retargeting audiences who engaged Ep1/Ep2 or visited kit LP but didn't claim.
 
 | Time | Beat | VO | On-screen text / GFX |
@@ -77,7 +77,7 @@ Hook variants: **A = question** ("How much is a made-up cup score costing you?")
 | TikTok | 9:16 | 20–35 s | Score Reveal / wager beat | C, A | "Kit link in bio" | 3s→full retention, shares |
 | Instagram Reels | 9:16 | 20–35 s | Origin macro + score reveal | C, B | Link sticker → kit LP | Saves, shares, CTR |
 | X / Twitter | 16:9 | 30–45 s | Bold stat + wager | B | Quote-tweet prompt | Link clicks |
-| Email/CRM embed (COF-002 assist) | 16:9 GIF→video | 15 s loop | Cupping beat | — | Feedback form | Feedback submission rate |
+| Email/CRM embed (ALT-002 assist) | 16:9 GIF→video | 15 s loop | Cupping beat | — | Feedback form | Feedback submission rate |
 
 **Cut rules:** 9:16 reframes on the *data* not the face (roasters share numbers); every cutdown stands alone (no "previously on"); the first frame must survive as a static image (it's the autoplay poster); CTA verbal ≤ 5 words.
 
@@ -87,7 +87,7 @@ Hook variants: **A = question** ("How much is a made-up cup score costing you?")
 
 - **Grid:** 3-zone layout — left 40% face/scoresheet macro (expressive: mid-slurp concentration or raised-eyebrow reveal), right 60% bold number or stamp.
 - **Palette:** paper background `#FBFAF6`, ink text `#26201A`, primary green `#2F6B4A` accents, warning amber `#A8721F` reserved for "UNVERIFIED" stamp motifs (semantic consistency with design tokens; never use danger red except for genuine problem frames).
-- **Text:** ≤ 4 words, Fraunces 600 for the number, Archivo 700 for label; min 90 pt effective at 1280×720 so it survives mobile feed at 120 px.
+- **Text:** ≤ 4 words, Playfair Display 600 for the number, Inter 700 for label; min 90 pt effective at 1280×720 so it survives mobile feed at 120 px.
 - **Series system:** *VERIFIED* episodes carry the green check-seal bottom-right; spine content carries a coffee-ring motif instead — instant series recognition in feed.
 - **Variants:** 3 thumbnails per anchor (face / number / stamp) run through YouTube Test & Compare; decision rule = watch-time-share winner ≥ 7 days or ≥ 5,000 impressions, then lock. No clickbait drift: thumbnail claims must be provable in the first 30 s of the video (retention punishes liars and the algorithm knows it).
 
@@ -98,7 +98,7 @@ Hook variants: **A = question** ("How much is a made-up cup score costing you?")
 ≥ 80% of LinkedIn/Instagram feed plays start muted; captions are the primary track, not an accommodation.
 
 - **Files:** sidecar SRT + VTT for YouTube/LinkedIn; **burned-in** for all 9:16 (platform caption tools mangle brand type).
-- **Type:** Archivo SemiBold; 42 px min at 1080×1920 (≈ 4.2% of frame height); stroke 2 px ink at 40% for legibility over b-roll; max 2 lines, ≤ 42 chars/line.
+- **Type:** Inter SemiBold; 42 px min at 1080×1920 (≈ 4.2% of frame height); stroke 2 px ink at 40% for legibility over b-roll; max 2 lines, ≤ 42 chars/line.
 - **Timing:** 1.5–6.0 s per card, ≥ 2-frame gap, synced to speech ± 80 ms; numbers and cup scores get a 150 ms hold and green highlight (`#2F6B4A`) — the data should *flash*, not blink.
 - **Safe zones (9:16):** keep captions in the central 1080×1420; bottom 250 px and right 120 px reserved for platform UI; top 220 px for username/sound chip.
 - **Accessibility:** WCAG 2.2 AA contrast ≥ 4.5:1 against a sampled background plate (use a 55%-opacity ink scrim behind text when b-roll is bright); speaker labels when off-screen; no caption may paraphrase a number — figures verbatim.
@@ -116,7 +116,7 @@ Hook variants: **A = question** ("How much is a made-up cup score costing you?")
 | W4 | Ep2 cutdown wave | 1× Warehouse Honesty | TikTok Spark on best organic | First retention-curve review vs targets |
 | W5 | Ep3 premiere | 2× Score Reveal | $3k retargeting kit-LP visitors, unconverted | Maya episode = conversion workhorse |
 | W6 | Ep3 cutdown wave | 1× Origin, 1× Warehouse | Holdout-cell measurement window (§7.4) | Geo-lift readout W8 |
-| W7 | "Best of" recut 60 s (all eps) + community remix UTM push | 2× UGC reposts (referral engine synergy) | Pause paid; organic-only week | Feed referral program: viewers who convert see COF-005 referral seed |
+| W7 | "Best of" recut 60 s (all eps) + community remix UTM push | 2× UGC reposts (referral engine synergy) | Pause paid; organic-only week | Feed referral program: viewers who convert see ALT-005 referral seed |
 | W8 | Measurement & planning week; publish results internally | 1× "what we learned" transparency vertical | — | Lock next-quarter anchor topics from comment mining |
 
 ---
@@ -143,12 +143,12 @@ Hook variants: **A = question** ("How much is a made-up cup score costing you?")
 
 ### 7.3 Attribution plumbing
 
-All video CTAs resolve to `/watch/{episode}` pages tagged `utm_source={platform}&utm_medium=video&utm_campaign=verified_s1&utm_content={episode}_{hook_variant}`; engaged-view (≥ 75%) audiences sync to the ad platforms for COF-001 retargeting; `campaign_engagements` logs video-touch as a nurture touch (acquisition channel stays with first-touch per file 03 §5.2 precedence).
+All video CTAs resolve to `/watch/{episode}` pages tagged `utm_source={platform}&utm_medium=video&utm_campaign=verified_s1&utm_content={episode}_{hook_variant}`; engaged-view (≥ 75%) audiences sync to the ad platforms for ALT-001 retargeting; `campaign_engagements` logs video-touch as a nurture touch (acquisition channel stays with first-touch per file 03 §5.2 precedence).
 
 ### 7.4 Conversion-lift measurement (beyond last click)
 
 1. **Geo-holdout (paid):** W6 runs paid Ep3 in 60% of matched DMA pairs; compare kit-claim rates in exposed vs holdout DMAs; lift ≥ 15% at posterior ≥ 0.95 = scale budget +50%; lift < 5% = reallocate spend to COF kit budget.
-2. **Brand-search lift:** weekly tracked "greensheet" + "greensheet coffee" query volume vs 8-week pre-launch baseline; anchor premieres should move +20% within 7 days.
+2. **Brand-search lift:** weekly tracked "auctum ledger" + "auctum ledger coffee" query volume vs 8-week pre-launch baseline; anchor premieres should move +20% within 7 days.
 3. **Survey attribution:** kit-claim form carries "how did you hear about us?" with video options; self-reported vs modeled triangulation (expect video under-credit in last-click of 2–4×).
 4. **Cohort quality:** video-attributed accounts tracked for 90-day reorder vs blended baseline — content that acquires deal-hunters gets de-funded even at good CTR (LTV is the judge, not the view count).
 

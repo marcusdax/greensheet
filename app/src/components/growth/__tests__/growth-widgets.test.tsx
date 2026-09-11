@@ -82,15 +82,15 @@ describe('Growth widgets', () => {
 
   const campaignData: GrowthCampaignLiftPoint[] = [
     {
-      campaignId: 'cof-001',
-      campaignName: 'COF-001 Welcome',
+      campaignId: 'alt-001',
+      campaignName: 'ALT-001 Welcome',
       lift: 0.12,
       probability: 0.97,
       isSignificant: true,
     },
     {
-      campaignId: 'cof-002',
-      campaignName: 'COF-002 Feedback',
+      campaignId: 'alt-002',
+      campaignName: 'ALT-002 Feedback',
       lift: 0.08,
       probability: 0.91,
       isSignificant: false,
@@ -163,6 +163,6 @@ describe('Growth widgets', () => {
     );
     expect(container).toHaveTextContent('Campaign Lift');
     expect(container).toHaveTextContent('Campaign lift description');
-    expect(container).toHaveTextContent(/COF-001\s?Welcome/);
+    expect(container).toHaveTextContent(/ALT-001\s?Welcome/);
   });
 });

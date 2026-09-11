@@ -1,7 +1,7 @@
 # 01 — Domain Model & Event Storming
 
 > **Extends:** Base Doc §I.3 (Software Engineering & Systems Architecture), §V (Backend Services), and the marketing schema's `automation_rules` trigger catalogue (`sample_kit.delivered`, `feedback.submitted`).
-> **Purpose:** This is the canonical output of the Greensheet domain-modelling event-storming workshop. It defines bounded contexts, aggregates, commands, domain events, and reactive policies that every downstream artefact in this series (OpenAPI contract, Kafka topology, DB migrations, frontend stores) must conform to.
+> **Purpose:** This is the canonical output of the Auctum Ledger domain-modelling event-storming workshop. It defines bounded contexts, aggregates, commands, domain events, and reactive policies that every downstream artefact in this series (OpenAPI contract, Kafka topology, DB migrations, frontend stores) must conform to.
 
 ---
 
@@ -27,7 +27,7 @@
 
 ## 2. Big-Picture Event Flow (Discovery → Revenue)
 
-The workshop mapped the end-to-end value stream of the COF-001–005 nurture funnel (Base Doc §I.2, marketing schema §4) onto a single timeline. This is the "big picture" event storm.
+The workshop mapped the end-to-end value stream of the ALT-001–005 nurture funnel (Base Doc §I.2, marketing schema §4) onto a single timeline. This is the "big picture" event storm.
 
 ```mermaid
 flowchart LR
@@ -38,13 +38,13 @@ flowchart LR
         E4 --> E5(["sample_kit.delivered"])
     end
 
-    subgraph P2["Phase 2 · Nurture (COF-001…005)"]
-        E5 --> E6(["campaigns.rule_triggered<br/>COF-001"])
+    subgraph P2["Phase 2 · Nurture (ALT-001…005)"]
+        E5 --> E6(["campaigns.rule_triggered<br/>ALT-001"])
         E6 --> E7(["campaigns.message_sent"])
         E7 --> E8(["campaigns.message_opened"])
         E8 --> E9(["campaigns.link_clicked"])
         E9 --> E10(["feedback.submitted"])
-        E10 --> E11(["campaigns.rule_triggered<br/>COF-002…COF-005"])
+        E10 --> E11(["campaigns.rule_triggered<br/>ALT-002…ALT-005"])
     end
 
     subgraph P3["Phase 3 · Revenue"]
@@ -69,7 +69,7 @@ flowchart LR
     style P4 fill:#fce8e6,stroke:#a63f33
 ```
 
-**Key causal spine (happy path):** `sample_kit.delivered` is the *pivotal event* — it is the `trigger_event` for automation rule **COF-001** in `automation_rules` (marketing schema §1) and starts the 3-touch email/SMS sequence. `feedback.submitted` gates progression to COF-002+ and is also the trigger for CRM lifecycle updates (`UPDATE_CRM_LIFECYCLE` rule action).
+**Key causal spine (happy path):** `sample_kit.delivered` is the *pivotal event* — it is the `trigger_event` for automation rule **ALT-001** in `automation_rules` (marketing schema §1) and starts the 3-touch email/SMS sequence. `feedback.submitted` gates progression to ALT-002+ and is also the trigger for CRM lifecycle updates (`UPDATE_CRM_LIFECYCLE` rule action).
 
 ---
 
@@ -81,7 +81,7 @@ Six core contexts were identified, matching — and refining — the microservic
 flowchart TB
     subgraph Core["CORE SUBDOMAINS (differentiating)"]
         CAT["«context» Catalog<br/><i>lots, cup scores, ESG, inventory</i>"]
-        CMP["«context» Campaigns<br/><i>COF-001…005, templates, rules</i>"]
+        CMP["«context» Campaigns<br/><i>ALT-001…005, templates, rules</i>"]
         ANL["«context» Analytics<br/><i>LTV, churn, cohorts, forecasting</i>"]
     end
 
@@ -140,12 +140,12 @@ flowchart TB
 
 ```mermaid
 classDiagram
-    class CoffeeLot {
+    class LedgerLot {
         «aggregate root»
         +UUID id
         +string origin
         +string varietal
-        +ProcessingMethod processingMethod
+        +ProcessingMethod processMethod
         +int elevationMeters
         +CupScore cupScore
         +Money pricePerLbCents
@@ -181,25 +181,25 @@ classDiagram
         +Instant occurredAt
     }
 
-    CoffeeLot "1" *-- "0..*" Reservation
-    CoffeeLot "1" *-- "0..*" InventoryTransaction
+    LedgerLot "1" *-- "0..*" Reservation
+    LedgerLot "1" *-- "0..*" InventoryTransaction
 ```
 
 **Commands (blue stickies):**
 
 | Command | Actor | Aggregate | Emits |
 |---|---|---|---|
-| `RegisterLot` | Importer/ops | CoffeeLot | `catalog.lot_registered` |
-| `UpdateLotPricing` | Pricing service / ops | CoffeeLot | `catalog.price_changed` |
-| `ReserveInventory` | Order saga | CoffeeLot | `catalog.inventory_reserved` |
-| `ReleaseReservation` | Order saga (compensation) | CoffeeLot | `catalog.reservation_released` |
-| `ReceiveShipment` | Warehouse ops | CoffeeLot | `catalog.shipment_received` |
-| `AdjustInventory` | Ops (QC loss, shrink) | CoffeeLot | `catalog.inventory_adjusted` |
-| `RetireLot` | Ops | CoffeeLot | `catalog.lot_retired` |
+| `RegisterLot` | Importer/ops | LedgerLot | `catalog.lot_registered` |
+| `UpdateLotPricing` | Pricing service / ops | LedgerLot | `catalog.price_changed` |
+| `ReserveInventory` | Order saga | LedgerLot | `catalog.inventory_reserved` |
+| `ReleaseReservation` | Order saga (compensation) | LedgerLot | `catalog.reservation_released` |
+| `ReceiveShipment` | Warehouse ops | LedgerLot | `catalog.shipment_received` |
+| `AdjustInventory` | Ops (QC loss, shrink) | LedgerLot | `catalog.inventory_adjusted` |
+| `RetireLot` | Ops | LedgerLot | `catalog.lot_retired` |
 
 **Invariants (enforced inside the aggregate — never in the service layer):**
 
-1. `availableQuantityLbs ≥ 0` — reservation fails with `InsufficientInventory` domain error (see error code `GS-CAT-1001` in `02-openapi-contract.md`).
+1. `availableQuantityLbs ≥ 0` — reservation fails with `InsufficientInventory` domain error (see error code `AL-CAT-1001` in `02-openapi-contract.md`).
 2. `pricePerLbCents > 0`; a price below `costPerLbCents` is legal (clearance) but emits `catalog.margin_floor_breached` for the Analytics context to alert on.
 3. A retired lot (`status = 'retired'`) rejects all reservations but remains readable for historical orders (`ON DELETE RESTRICT` per Base Doc §III).
 
@@ -282,13 +282,13 @@ classDiagram
 
 > Maps to: `campaigns`, `campaign_tokens`, `marketing_templates`, `automation_rules`, `rule_actions`, `view_compiled_campaign_rules` (marketing schema §1–3); `campaign_engagements`, `ab_tests` (Base Doc §III.3.2); Campaign Intelligence UI (§IV.4.4).
 
-**Ubiquitous language:** *Campaign* (versioned container, e.g. `cof-nurture-2025`), *Rule* (COF-001…COF-005 trigger/condition pair), *Action* (`SEND_TEMPLATE`, `EXECUTE_CAMPAIGN_HALT`, `UPDATE_CRM_LIFECYCLE`), *Token* (merge tag like `{sca_cup_score}`), *Touchpoint* (step in sequence), *Variant* (A/B arm: `subject_variant_a`/`subject_variant_b`).
+**Ubiquitous language:** *Campaign* (versioned container, e.g. `alt-nurture-2025`), *Rule* (ALT-001…ALT-005 trigger/condition pair), *Action* (`SEND_TEMPLATE`, `EXECUTE_CAMPAIGN_HALT`, `UPDATE_CRM_LIFECYCLE`), *Token* (merge tag like `{sca_cup_score}`), *Touchpoint* (step in sequence), *Variant* (A/B arm: `subject_variant_a`/`subject_variant_b`).
 
-**The COF-001…COF-005 rule model (canonical):**
+**The ALT-001…ALT-005 rule model (canonical):**
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Armed : rule created (COF-001)
+    [*] --> Armed : rule created (ALT-001)
     Armed --> Evaluating : trigger_event received
     Evaluating --> Fired : conditions_json satisfied
     Evaluating --> Suppressed : suppression list hit
@@ -302,11 +302,11 @@ stateDiagram-v2
 
 | Rule | Trigger event | Core condition (`conditions_json`) | Primary action |
 |---|---|---|---|
-| **COF-001** | `sample_kit.delivered` | `{"days_since_delivery": 4}` | Send Touch-1 email (origin story + cupping notes) |
-| **COF-002** | `feedback.submitted` | `{"feedback.rating_gte": 4}` | Send Touch-2 email (pricing sheet w/ `{sca_cup_score}` token) |
-| **COF-003** | `feedback.submitted` | `{"feedback.rating_lte": 2}` | `UPDATE_CRM_LIFECYCLE` → `needs_attention` + SMS consultative variant (`option_b_consultative`) |
-| **COF-004** | `campaigns.link_clicked` | `{"clicked.pricing_page": true}` | Send Touch-3 email (volume discount CTA) |
-| **COF-005** | `order.created` | `{"first_order": true}` | `EXECUTE_CAMPAIGN_HALT` for nurture + enroll in onboarding stream |
+| **ALT-001** | `sample_kit.delivered` | `{"days_since_delivery": 4}` | Send Touch-1 email (origin story + cupping notes) |
+| **ALT-002** | `feedback.submitted` | `{"feedback.rating_gte": 4}` | Send Touch-2 email (pricing sheet w/ `{sca_cup_score}` token) |
+| **ALT-003** | `feedback.submitted` | `{"feedback.rating_lte": 2}` | `UPDATE_CRM_LIFECYCLE` → `needs_attention` + SMS consultative variant (`option_b_consultative`) |
+| **ALT-004** | `campaigns.link_clicked` | `{"clicked.pricing_page": true}` | Send Touch-3 email (volume discount CTA) |
+| **ALT-005** | `order.created` | `{"first_order": true}` | `EXECUTE_CAMPAIGN_HALT` for nurture + enroll in onboarding stream |
 
 **Aggregates:**
 
@@ -330,7 +330,7 @@ stateDiagram-v2
 
 - `OnTriggerEventEvaluateRules` — platform event bus → `TriggerRule` for each armed rule matching `trigger_event` (this is the runtime engine behind `view_compiled_campaign_rules`).
 - `OnMessageOpenedNoClickFollowUp` — opened but no click within 72h → enqueue reminder variant (Thompson-sampled arm selection, Base Doc §I.2).
-- `OnOrderCreatedHaltNurture` — `order.created` with `first_order = true` → `HaltCampaign` (COF-005) + `RecordConversion` (writes `campaign_engagements.converted_order_id`).
+- `OnOrderCreatedHaltNurture` — `order.created` with `first_order = true` → `HaltCampaign` (ALT-005) + `RecordConversion` (writes `campaign_engagements.converted_order_id`).
 
 ---
 
@@ -347,7 +347,7 @@ stateDiagram-v2
     Assembling --> Shipped : carrier handoff + tracking
     Shipped --> Delivered : carrier webhook (delivered scan)
     Shipped --> Exception : lost / damaged / returned
-    Delivered --> FeedbackPending : wait 4 days (COF-001 window)
+    Delivered --> FeedbackPending : wait 4 days (ALT-001 window)
     FeedbackPending --> FeedbackReceived : feedback.submitted
     FeedbackPending --> FeedbackStale : 14 days no feedback
     Exception --> Requested : re-ship policy (max 2)
@@ -359,12 +359,12 @@ stateDiagram-v2
 
 | Command | Emits | Transport topic |
 |---|---|---|
-| `RequestSampleKit` | `samples.kit_requested` | `gs.samples.events.v1` |
-| `AssembleKit` | `samples.kit_assembled` | `gs.samples.events.v1` |
-| `ShipKit` | `samples.kit_shipped` | `gs.samples.events.v1` |
-| `MarkKitDelivered` | **`sample_kit.delivered`** ⚠ exact string — contract with `automation_rules.trigger_event` | `gs.samples.events.v1` |
-| `SubmitFeedback` | **`feedback.submitted`** ⚠ exact string | `gs.samples.events.v1` |
-| `MarkKitException` | `samples.kit_exception` | `gs.samples.events.v1` |
+| `RequestSampleKit` | `samples.kit_requested` | `al.samples.events.v1` |
+| `AssembleKit` | `samples.kit_assembled` | `al.samples.events.v1` |
+| `ShipKit` | `samples.kit_shipped` | `al.samples.events.v1` |
+| `MarkKitDelivered` | **`sample_kit.delivered`** ⚠ exact string — contract with `automation_rules.trigger_event` | `al.samples.events.v1` |
+| `SubmitFeedback` | **`feedback.submitted`** ⚠ exact string | `al.samples.events.v1` |
+| `MarkKitException` | `samples.kit_exception` | `al.samples.events.v1` |
 
 **Invariants:** max 2 active kits per roaster; a kit references exactly the lot IDs present in `coffee_lots` at assembly time (snapshot of `cup_score`, `price_per_lb_cents` copied onto the kit — orders placed from a kit quote the snapshot, not the live lot, preventing bait-and-switch pricing).
 
@@ -409,7 +409,7 @@ sequenceDiagram
         B->>K: billing.payment_authorized
         K->>O: ProcessOrder → order.processed
         O->>K: order.processed (invoice_number)
-        K->>CMP: RecordConversion (COF-005 halt)
+        K->>CMP: RecordConversion (ALT-005 halt)
     else payment fails
         B->>K: billing.payment_failed
         K->>C: ReleaseReservation (compensation)
@@ -454,10 +454,10 @@ Analytics is a **pure downstream context**: it owns no commands and mutates no o
 | P-01 | `order.created` | `ReserveInventory` | Catalog | §5.1 `reserveInventory` |
 | P-02 | `billing.payment_failed` | `ReleaseReservation` | Catalog | *new — closes compensation gap* |
 | P-03 | `billing.payment_authorized` | `ProcessOrder` | Orders | §5.1 `processOrderAsync` |
-| P-04 | `sample_kit.delivered` | `TriggerRule` (COF-001) | Campaigns | marketing schema §4 |
-| P-05 | `feedback.submitted` (rating ≥ 4) | `TriggerRule` (COF-002) | Campaigns | marketing schema §4 |
-| P-06 | `feedback.submitted` (rating ≤ 2) | `TriggerRule` (COF-003) + `StartIntervention` | Campaigns + CRM | marketing schema §4 |
-| P-07 | `order.created` (first order) | `HaltCampaign` (COF-005) + `RecordConversion` | Campaigns | marketing schema §4 |
+| P-04 | `sample_kit.delivered` | `TriggerRule` (ALT-001) | Campaigns | marketing schema §4 |
+| P-05 | `feedback.submitted` (rating ≥ 4) | `TriggerRule` (ALT-002) | Campaigns | marketing schema §4 |
+| P-06 | `feedback.submitted` (rating ≤ 2) | `TriggerRule` (ALT-003) + `StartIntervention` | Campaigns + CRM | marketing schema §4 |
+| P-07 | `order.created` (first order) | `HaltCampaign` (ALT-005) + `RecordConversion` | Campaigns | marketing schema §4 |
 | P-08 | `crm.churn_risk_detected` | `StartIntervention` | CRM | §I.2 churn workflows |
 | P-09 | `order.delivered` | `RecalculateLtv` → `UpdateLtvSnapshot` | Analytics → CRM | §II.2.1 |
 | P-10 | `campaigns.message_opened` ∧ ¬clicked 72h | `DispatchMessage` (reminder variant) | Campaigns | §I.2 Thompson sampling |
@@ -478,9 +478,9 @@ All events are CloudEvents 1.0 on the wire; `type` below is the CloudEvents `typ
 | `crm.roaster_registered` | CRM | roasterId, segment, utmSource, referralCode | Campaigns, Analytics |
 | `crm.churn_risk_detected` | CRM | roasterId, riskScore, modelVersion, topFeatures | CRM (policy), Notifications |
 | `samples.kit_requested` / `samples.kit_shipped` | Samples | kitId, roasterId, lotIds[], trackingNumber | Notifications |
-| **`sample_kit.delivered`** | Samples | kitId, roasterId, deliveredAt, lotIds[] | **Campaigns (COF-001)**, CRM |
-| **`feedback.submitted`** | Samples | kitId, roasterId, rating, notes, lotRatings[] | **Campaigns (COF-002/003)**, Analytics |
-| `campaigns.rule_triggered` | Campaigns | ruleCode (COF-001…005), campaignId, roasterId, conditionsMatched | Analytics |
+| **`sample_kit.delivered`** | Samples | kitId, roasterId, deliveredAt, lotIds[] | **Campaigns (ALT-001)**, CRM |
+| **`feedback.submitted`** | Samples | kitId, roasterId, rating, notes, lotRatings[] | **Campaigns (ALT-002/ALT-003)**, Analytics |
+| `campaigns.rule_triggered` | Campaigns | ruleCode (ALT-001…ALT-005), campaignId, roasterId, conditionsMatched | Analytics |
 | `campaigns.message_sent/opened/link_clicked` | Campaigns | dispatchId, ruleCode, variantName, templateId, roasterId | Analytics |
 | `campaigns.converted` | Campaigns | campaignId, roasterId, convertedOrderId, attributedTouchpoints | Analytics, CRM |
 | `order.created/processed/shipped/delivered/cancelled/processing_failed` | Orders | orderId, accountId, lineItems[{lotId, quantityLbs, unitPriceCents}], finalTotalCents | Catalog, Billing, Campaigns, Analytics |
@@ -494,7 +494,7 @@ All events are CloudEvents 1.0 on the wire; `type` below is the CloudEvents `typ
 1. **⚠ Multi-currency:** `*_cents` assumes USD. LatAm exporter invoicing needs a `currency` field on `Money`. *Decision deferred to Q3; schema预留 `currency CHAR(3) DEFAULT 'USD'` in new tables (`04-database-evolution.md`).*
 2. **⚠ Lot vs. Blend:** roasters increasingly buy pre-blended lots. A `BlendLot` aggregate referencing component lots is parked; current model treats blends as opaque lots.
 3. **⚠ `feedback.submitted` identity:** feedback arrives from a public link — spoofing risk. Mitigation: signed one-time token in the feedback URL (see `07-security-compliance.md` §8).
-4. **⚠ COF rule versioning mid-flight:** editing `conditions_json` while a roaster is mid-sequence can double-send. Mitigation: rule edits create a new rule version; in-flight sequences pin the version they started on (tracked in `campaign_execution_logs.rule_version`, `04-database-evolution.md`).
+4. **⚠ ALT rule versioning mid-flight:** editing `conditions_json` while a roaster is mid-sequence can double-send. Mitigation: rule edits create a new rule version; in-flight sequences pin the version they started on (tracked in `campaign_execution_logs.rule_version`, `04-database-evolution.md`).
 5. **⚠ Analytics write-back to `accounts.ltv_cents`:** technically cross-context mutation. Accepted pragmatically (single-writer principle: only the LTV projector writes that column); revisit if CRM needs local LTV logic.
 
 ---
@@ -508,7 +508,7 @@ All events are CloudEvents 1.0 on the wire; `type` below is the CloudEvents `typ
 | **Cup Score** | SCA quality score 0–100; token `{sca_cup_score}`. | Catalog / Campaigns |
 | **Sample Kit** | A curated box of small lot samples sent to a prospect roaster. | Samples |
 | **Touchpoint** | One numbered step of a campaign sequence (email or SMS). | Campaigns `marketing_templates.touchpoint` |
-| **Rule (COF-xxx)** | A trigger/condition/action triple driving automation. | Campaigns `automation_rules` |
+| **Rule (ALT-xxx)** | A trigger/condition/action triple driving automation. | Campaigns `automation_rules` |
 | **Suppression** | A roaster-level opt-out that blocks dispatch. | Campaigns suppression list |
 | **Intervention** | A retention action triggered by churn risk. | CRM `churn_interventions` |
 | **Conversion** | First order attributable to a campaign touchpoint. | Campaigns `campaign_engagements.converted_order_id` |

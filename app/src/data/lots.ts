@@ -1,8 +1,8 @@
-export interface CoffeeLot {
+export interface LedgerLot {
   id: string;
   origin: string;
   varietal?: string;
-  processingMethod: 'washed' | 'natural' | 'honey' | 'anaerobic';
+  processMethod: 'washed' | 'natural' | 'honey' | 'anaerobic';
   elevation: number;
   cupScore: number;
   pricePerLb: number;
@@ -19,12 +19,12 @@ export interface CoffeeLot {
   lastUpdatedAt: string;
 }
 
-export const lots: CoffeeLot[] = [
+export const lots: LedgerLot[] = [
   {
     id: 'lot_001',
     origin: 'Huila, Colombia',
     varietal: 'Pink Bourbon',
-    processingMethod: 'washed',
+    processMethod: 'washed',
     elevation: 1750,
     cupScore: 88.5,
     pricePerLb: 6.10,
@@ -42,7 +42,7 @@ export const lots: CoffeeLot[] = [
     id: 'lot_002',
     origin: 'Yirgacheffe, Ethiopia',
     varietal: 'Heirloom',
-    processingMethod: 'natural',
+    processMethod: 'natural',
     elevation: 2100,
     cupScore: 87.0,
     pricePerLb: 5.75,
@@ -60,7 +60,7 @@ export const lots: CoffeeLot[] = [
     id: 'lot_003',
     origin: 'Tarrazú, Costa Rica',
     varietal: 'Caturra',
-    processingMethod: 'honey',
+    processMethod: 'honey',
     elevation: 1850,
     cupScore: 86.5,
     pricePerLb: 5.20,
@@ -78,7 +78,7 @@ export const lots: CoffeeLot[] = [
     id: 'lot_004',
     origin: 'Nyeri, Kenya',
     varietal: 'SL28',
-    processingMethod: 'washed',
+    processMethod: 'washed',
     elevation: 1900,
     cupScore: 90.5,
     pricePerLb: 9.80,
@@ -95,7 +95,7 @@ export const lots: CoffeeLot[] = [
     id: 'lot_005',
     origin: 'Cajamarca, Peru',
     varietal: 'Bourbon',
-    processingMethod: 'anaerobic',
+    processMethod: 'anaerobic',
     elevation: 1950,
     cupScore: 84.0,
     pricePerLb: 4.60,

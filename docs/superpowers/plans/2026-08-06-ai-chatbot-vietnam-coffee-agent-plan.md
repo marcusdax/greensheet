@@ -171,7 +171,7 @@ Expected: `node_modules/` updated, `package-lock.json` changed.
 - [ ] **Step 5: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/package.json app/package-lock.json app/.env.example
 git commit -m "chore: add AI proxy dependencies and dev scripts"
 ```
@@ -193,12 +193,12 @@ git commit -m "chore: add AI proxy dependencies and dev scripts"
 - [ ] **Step 1: Write `app/server/system-prompt/base.ts`**
 
 ```ts
-export const basePrompt = `You are the ODASI Vietnam Coffee Industry Omni-Expert, a unified strategic advisor for the Vietnamese coffee value chain.
+export const basePrompt = `You are the Auctum Vietnam Coffee Industry Omni-Expert, a unified strategic advisor for the Vietnamese coffee value chain.
 
 Mission:
 - Synthesize agricultural telemetry, economic models, sensory data, and consumer insights.
 - Deliver pragmatic, data-backed advice that balances quality, sustainability, and profitability.
-- Respect Vietnam's coffee heritage and origin craft while prioritizing ODASI's commercial and ethical objectives.
+- Respect Vietnam's coffee heritage and origin craft while prioritizing Auctum's commercial and ethical objectives.
 
 Tone:
 - Speak as a seasoned Vietnamese coffee professional.
@@ -299,7 +299,7 @@ export function buildSystemPrompt(): string {
 - [ ] **Step 6: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/server/system-prompt
 git commit -m "feat(ai): add Vietnam coffee omni-expert system prompt modules"
 ```
@@ -439,7 +439,7 @@ export function getAdapter(provider: string): ProviderAdapter | undefined {
 - [ ] **Step 5: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/server/providers
 git commit -m "feat(ai): add provider adapter interface, DeepSeek adapter, and stubs"
 ```
@@ -572,7 +572,7 @@ Expected output: `AI proxy listening on http://localhost:3001`
 - [ ] **Step 4: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/server/index.ts app/server/routes/chat.ts
 git commit -m "feat(ai): add Express proxy and chat completions route with SSE"
 ```
@@ -814,7 +814,7 @@ export function resetStore() {
 - [ ] **Step 4: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/src/stores
 git commit -m "feat(ai): add Zustand ai slice for providers and chat sessions"
 ```
@@ -973,7 +973,7 @@ Expected: 2 tests pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/src/api
 git commit -m "feat(ai): add streaming AI client and tests"
 ```
@@ -1143,7 +1143,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleSettings, onClos
 
   return (
     <div className="h-12 px-3 bg-navy text-parchment-50 flex items-center justify-between rounded-t-lg">
-      <span className="text-sm font-semibold">ODASI Coffee Agent</span>
+      <span className="text-sm font-semibold">Auctum Coffee Agent</span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => ai.clearSession()}
@@ -1323,7 +1323,7 @@ export const AgentChatWidget: React.FC = () => {
 - [ ] **Step 6: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/src/components/agent
 git commit -m "feat(ai): add agent chat widget and settings panel"
 ```
@@ -1350,7 +1350,7 @@ For each locale JSON (`en-US.json`, `zh-CN.json`, `es-MX.json`, `pt-BR.json`), a
 ```json
 {
   "agent": {
-    "widgetTitle": "ODASI Coffee Agent",
+    "widgetTitle": "Auctum Coffee Agent",
     "placeholder": "Ask the agent...",
     "openChat": "Open coffee agent chat",
     "closeChat": "Close coffee agent chat",
@@ -1411,7 +1411,7 @@ Use `t('agent:widgetTitle')`, `t('agent:openChat')`, etc. For `ChatInput`, `Chat
 - [ ] **Step 5: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/src/i18n app/src/components/AppLayout.tsx app/localization/02-locale-files
 git commit -m "feat(ai): add agent i18n namespace and mount widget in layout"
 ```
@@ -1570,7 +1570,7 @@ Expected: all backend tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/server/__tests__ app/server/index.ts
 git commit -m "test(ai): add backend proxy and adapter tests"
 ```
@@ -1660,7 +1660,7 @@ describe('AgentChatWidget', () => {
     render(<AgentChatWidget />);
     fireEvent.click(screen.getByLabelText(/Open coffee agent chat/i));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/ODASI Coffee Agent/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auctum Coffee Agent/i)).toBeInTheDocument();
   });
 
   it('toggles settings panel', () => {
@@ -1713,7 +1713,7 @@ Expected: all frontend tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add app/src/stores/slices/__tests__/ai-slice.test.ts app/src/components/agent/__tests__
 git commit -m "test(ai): add ai slice and widget component tests"
 ```
@@ -1774,7 +1774,7 @@ Expected: no errors.
 - [ ] **Step 6: Final commit**
 
 ```bash
-cd C:/Users/wylde/Desktop/greensheet-expansion
+cd C:/Users/wylde/Desktop/auctum-ledger
 git add -A
 git commit -m "feat(ai): Vietnam coffee omni-expert chatbot integration complete"
 ```

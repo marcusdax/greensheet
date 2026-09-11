@@ -5,7 +5,7 @@
 
 ## Goal
 
-Add a complete, mocked referral data layer to the Greensheet frontend so the app can display referral codes, referral funnels, reward balances, and program stats without requiring a real backend.
+Add a complete, mocked referral data layer to the Auctum Ledger frontend so the app can display referral codes, referral funnels, reward balances, and program stats without requiring a real backend.
 
 ## Architecture
 
@@ -126,8 +126,8 @@ rewardsLedger: [] as RewardLedgerEntry[],
 
 In `seedDatabase()`:
 
-- For `r_001` (Blue Bottle), create an active code `GS-RVR-001`.
-- For `r_002` (Heart), create an active code `GS-RVR-002`.
+- For `r_001` (Blue Bottle), create an active code `AL-RVR-001`.
+- For `r_002` (Heart), create an active code `AL-RVR-002`.
 - Seed at least five `Referral` rows for `r_001` and three for `r_002` spanning statuses:
   - `invited`, `clicked`, `signed_up`, `kit_requested`, `kit_delivered`, `feedback_submitted`, `qualified`.
 - Seed matching `RewardLedgerEntry` rows:
@@ -153,7 +153,7 @@ Returns the existing active code for the account. If none exists, lazily generat
 createCode: (accountId: string, requestedCode?: string) => Promise<ApiResult<{ code: ReferralCode }>>
 ```
 
-Creates a new referral code. If `requestedCode` is provided, validates it is unique (case-insensitive) and matches `/^GS-[A-Z]{2,6}-\d{1,4}$/` or falls back to generated. Returns a problem if the requested code is already taken.
+Creates a new referral code. If `requestedCode` is provided, validates it is unique (case-insensitive) and matches `/^AL-[A-Z]{2,6}-\d{1,4}$/` or falls back to generated. Returns a problem if the requested code is already taken.
 
 ### `listReferrals`
 
@@ -217,7 +217,7 @@ Transitions a `qualified` referral to `clawed_back`, sets `clawedBackAt`, and fl
 
 ## Helper Functions
 
-- `generateRefCode(): string` — produces codes like `GS-XXXX-NN` using a small deterministic counter + random suffix, ensuring no collisions with existing seeded codes.
+- `generateRefCode(): string` — produces codes like `AL-XXXX-NN` using a small deterministic counter + random suffix, ensuring no collisions with existing seeded codes.
 - `nextRefCodeIndex(): number` — tracks a private counter inside `client.ts` for deterministic generation during the session.
 
 ## Tests

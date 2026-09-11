@@ -1,8 +1,8 @@
 /**
- * LotSpace — Mock Spaces Data
+ * Auctum Ledger — Mock Spaces Data
  * 12 farmer · 4 roaster · 3 café · 2 cooperative Spaces
  * Grounded in real Vietnam / Ethiopia / Uganda geography and
- * the Karmic Circle corpus (Toi Nguyen, Vuong Family, Hana).
+ * the Auctum Trading corpus (Toi Nguyen, Vuong Family, Hana).
  */
 
 import type {
@@ -11,7 +11,7 @@ import type {
   CafeSpace,
   CooperativeSpace,
   BraveFewEntry,
-} from '../types/lotspace';
+} from '../types/ledger';
 
 // ─── FARMER SPACES ─────────────────────────────────────────────────────────────
 
@@ -58,7 +58,7 @@ export const farmerSpaces: FarmerSpace[] = [
       reproducedCostCentsPerLb: 280,
       costNotes: 'Slight upward pressure from fertilizer costs; manageable within operating budget.',
       verifier: 'q_grader',
-      verifierName: 'Karmic Circle Q-Grader Panel',
+      verifierName: 'Auctum Trading Q-Grader Panel',
       auditedAt: '2025-03-10T09:00:00Z',
     },
     harvestCalendar: [
@@ -145,7 +145,7 @@ export const farmerSpaces: FarmerSpace[] = [
     followerCount: 892,
     followingCount: 28,
     totalTipsReceivedCents: 31200,
-    bioText: 'Growing Fine Robusta at 750m in Dak Lak. Working with Karmic Circle to prove Robusta can belong on specialty tables. 2.1 hectares, family-managed.',
+    bioText: 'Growing Fine Robusta at 750m in Dak Lak. Working with Auctum Trading to prove Robusta can belong on specialty tables. 2.1 hectares, family-managed.',
     mediaWall: [],
     createdAt: '2024-07-15T00:00:00Z',
     updatedAt: '2025-02-20T08:00:00Z',
@@ -687,7 +687,7 @@ export const roasterSpaces: RoasterSpace[] = [
     id: 'sp_roaster_001',
     archetype: 'roaster',
     verificationTier: 'audit_verified',
-    roasterName: 'Karmic Circle Coffee',
+    roasterName: 'Auctum Trading',
     photo: null,
     coverPhoto: null,
     locationLabel: 'Portland, OR, USA',
@@ -755,7 +755,7 @@ export const roasterSpaces: RoasterSpace[] = [
     cuppingHistory: [],
     followerCount: 1890,
     followingCount: 9,
-    bioText: 'Neighborhood roastery. New to direct trade — building our first farm relationships through LotSpace.',
+    bioText: 'Neighborhood roastery. New to direct trade — building our first farm relationships through Auctum Ledger.',
     createdAt: '2025-01-15T00:00:00Z',
     updatedAt: '2025-02-01T00:00:00Z',
   },
@@ -792,7 +792,7 @@ export const cafeSpaces: CafeSpace[] = [
     isBraveFew: true,
     followerCount: 4200,
     followingCount: 18,
-    bioText: 'HCMC specialty café sourcing exclusively from verified LotSpace farmers. Every cup has a QR — scan and meet the farmer.',
+    bioText: 'HCMC specialty café sourcing exclusively from verified Auctum Ledger farmers. Every cup has a QR — scan and meet the farmer.',
     createdAt: '2024-05-01T00:00:00Z',
     updatedAt: '2025-03-10T00:00:00Z',
   },
@@ -885,7 +885,7 @@ export const cooperativeSpaces: CooperativeSpace[] = [
     activeLotIds: ['lot_et_001'],
     followerCount: 24300,
     followingCount: 8,
-    bioText: 'OCFCU — 52,000 smallholder members across Oromia. Digitalizing payments and EUDR compliance with LotSpace agent network.',
+    bioText: 'OCFCU — 52,000 smallholder members across Oromia. Digitalizing payments and EUDR compliance with Auctum Ledger agent network.',
     createdAt: '2024-02-01T00:00:00Z',
     updatedAt: '2025-02-28T00:00:00Z',
   },
@@ -897,7 +897,7 @@ export const braveFewLeaderboard: BraveFewEntry[] = [
   {
     rank: 1,
     roasterSpaceId: 'sp_roaster_001',
-    roasterName: 'Karmic Circle Coffee',
+    roasterName: 'Auctum Trading',
     photo: null,
     locationLabel: 'Portland, OR, USA',
     avgFarmgatePaidCentsPerLb: 680,

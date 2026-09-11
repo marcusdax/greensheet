@@ -1,4 +1,4 @@
-import type { TipTransaction, MobileMoneyRail } from '../../types/lotspace';
+import type { TipTransaction, MobileMoneyRail } from '../../types/ledger';
 
 export interface ConnectionsState {
   tips: TipTransaction[];

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a floating AI chat assistant to the Greensheet React app. The agent is a unified Vietnam coffee value-chain expert for ODASI Technologies Inc. Users configure provider keys in a settings panel and chat with the agent; responses stream token-by-token from a backend proxy. The first release wires DeepSeek and scaffolds UI inputs for Claude, Kimi, and Gemini.
+Add a floating AI chat assistant to the Auctum Ledger React app. The agent is a unified Vietnam coffee value-chain expert for ODASI Technologies Inc. Users configure provider keys in a settings panel and chat with the agent; responses stream token-by-token from a backend proxy. The first release wires DeepSeek and scaffolds UI inputs for Claude, Kimi, and Gemini.
 
 ## Decisions from brainstorming
 
@@ -140,8 +140,8 @@ API client:
 - Uses `fetch` + `ReadableStream` + `TextDecoder`.
 
 Storage:
-- Provider configs persisted under `greensheet:ai` with lightweight obfuscation (base64 + XOR with an app salt).
-- Chat sessions persisted under the existing `greensheet-store` Zustand persist.
+- Provider configs persisted under `auctum:ai` with lightweight obfuscation (base64 + XOR with an app salt).
+- Chat sessions persisted under the existing `auctum-store` Zustand persist.
 
 ## 4. UI/UX
 
@@ -219,5 +219,5 @@ Environment:
 - Wire Claude, Kimi, and Gemini adapters.
 - Dedicated `/agent` route for full-screen deep sessions.
 - Server-side persistence with encrypted keys and cross-session memory.
-- RAG grounding from the Greensheet catalog and lot data.
+- RAG grounding from the Auctum Ledger catalog and lot data.
 - Voice/text-to-speech for hands-free cupping-lab use.

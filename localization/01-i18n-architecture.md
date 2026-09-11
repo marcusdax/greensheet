@@ -1,4 +1,4 @@
-# 01 — Greensheet i18n Architecture
+# 01 — Auctum Ledger i18n Architecture
 
 Target locales: **en-US** (source of truth), **zh-CN**, **es-MX**, **pt-BR**.
 Stack assumption (per expansion plan): React SPA (Vite/TypeScript) + FastAPI/Node backend + a Notification Service that renders email/SMS.
@@ -53,7 +53,7 @@ void i18n
       order: ['path', 'localStorage', 'navigator'],
       lookupFromPathIndex: 0,             // /zh-CN/catalog/...
       caches: ['localStorage'],
-      lookupLocalStorage: 'greensheet:locale',
+      lookupLocalStorage: 'auctum:locale',
     },
     interpolation: { escapeValue: false }, // React already escapes
     returnEmptyString: false,              // empty translations fall back to en-US
@@ -83,20 +83,20 @@ Mount once in `main.tsx` (`import './i18n'`) and gate first paint on `useTransla
 - Subpaths (not subdomains or `?lang=`): one domain's SEO authority, shareable localized URLs, trivial CDN rules, cookie-free.
 - `react-router` wraps all routes in a `<LocaleLayout>` at `path="/:locale"` that (a) validates the param against `SUPPORTED_LOCALES`, (b) calls `i18n.changeLanguage(locale)`, (c) renders `<Outlet/>`. Invalid/missing locale → `302` to the detected best locale.
 - Root `/` redirects via detection order (§4). Never 404 on `/`.
-- Keep COF campaign links locale-aware: email CTAs deep-link to `/{locale}/catalog/lots/{lotId}` using the recipient's stored locale (falls back to en-US).
+- Keep ALT campaign links locale-aware: email CTAs deep-link to `/{locale}/catalog/lots/{lotId}` using the recipient's stored locale (falls back to en-US).
 
 ## 4. Detection, switcher, persistence
 
 Detection precedence (first hit wins):
 
 1. **URL path** — explicit user/shared-link choice always wins.
-2. **`localStorage["greensheet:locale"]`** — returning visitor.
+2. **`localStorage["auctum:locale"]`** — returning visitor.
 3. **`navigator.language`** — browser hint, matched exactly (`zh-CN` ✅) then by prefix only where safe (`es-MX` ← `es-*` LatAm; otherwise es → es-MX default; `pt-BR` ← `pt`; `zh-*` → zh-CN only for `zh-Hans`/`zh-CN`/`zh-SG`, **not** `zh-TW`/`zh-HK` → those fall back to en-US until Traditional Chinese ships).
 4. **Default en-US.**
 
 Persistence, on every switch:
 
-- write `localStorage["greensheet:locale"]`;
+- write `localStorage["auctum:locale"]`;
 - `PATCH /api/users/me { preferred_locale }` so **transactional + campaign email/SMS** render in the same language (the Notification Service reads this field, not the browser);
 - update `<html lang>` and localized `<title>`/meta (§9).
 
@@ -111,7 +111,7 @@ common.*      appName, nav, buttons, states, labels, a11y, units, meta, language
 dashboard.*   metrics, charts, benchmark, time ranges, empty states
 catalog.*     Origin Navigator, goal profiles, filters, lot card, attributes,
               processMethods, certifications, origins, plurals
-campaigns.*   sequence UI, COF-001–005 steps, A/B test table, engagement,
+campaigns.*   sequence UI, ALT-001–005 steps, A/B test table, engagement,
               emails (subject/preheader/body/cta), sms, emailFooter
 errors.*      title/generic/unknown + errors.codes.<ERROR_CODE> + errors.cta.*
 ```
@@ -123,7 +123,7 @@ Rules (enforced in review + CI):
    - UI strings → i18next `{{var}}` (e.g. `campaigns.sequence.step = "Step {{number}}"`).
    - Email/SMS templates → single-brace `{merge_tag}` (e.g. `{sca_cup_score}`), rendered server-side by the Notification Service. These are **byte-identical across locales** and validated in CI (`scripts/validate_locale_files.py`).
 3. **Plurals** use i18next JSON v4 suffixes resolved by `Intl.PluralRules`: `t('catalog.lot.lbsAvailable', { count })` → `_one`/`_other` (en), `_other` only (zh), `_one`/`_many`/`_other` (es, pt — `many` covers compact-million counts). Source files in this deliverable already follow this.
-4. **Brand tokens stay untranslated:** `Greensheet`, `SCA`, `ESG`, `Q Grader`, API names, and merge-tag names. (CI brand-token check.)
+4. **Brand tokens stay untranslated:** `Auctum`, `Ledger`, API names, and merge-tag names. (CI brand-token check.)
 5. **Dates/numbers/currency are never hard-coded in strings** — use the Intl helpers (§6).
 6. **No raw `error.message` to UI** — map codes (§7).
 7. Keys are snake/camel-case-stable; renaming a shipped key requires a migration note in the PR (TM leverage depends on stable keys).
@@ -183,11 +183,11 @@ No current locale is RTL, but build RTL-ready now (Arabic is a plausible future 
 - `<title>` + `<meta name="description">` come from `common.meta.title` / `common.meta.description` (already localized in the locale files) and update on `languageChanged` (react-helmet-async or equivalent).
 - `hreflang` alternates for every route:
   ```html
-  <link rel="alternate" hreflang="en-US" href="https://app.greensheet.com/en-US/catalog" />
-  <link rel="alternate" hreflang="zh-CN" href="https://app.greensheet.com/zh-CN/catalog" />
-  <link rel="alternate" hreflang="es-MX" href="https://app.greensheet.com/es-MX/catalog" />
-  <link rel="alternate" hreflang="pt-BR" href="https://app.greensheet.com/pt-BR/catalog" />
-  <link rel="alternate" hreflang="x-default" href="https://app.greensheet.com/en-US/catalog" />
+  <link rel="alternate" hreflang="en-US" href="https://app.auctum.io/en-US/catalog" />
+  <link rel="alternate" hreflang="zh-CN" href="https://app.auctum.io/zh-CN/catalog" />
+  <link rel="alternate" hreflang="es-MX" href="https://app.auctum.io/es-MX/catalog" />
+  <link rel="alternate" hreflang="pt-BR" href="https://app.auctum.io/pt-BR/catalog" />
+  <link rel="alternate" hreflang="x-default" href="https://app.auctum.io/en-US/catalog" />
   ```
 - `og:locale` = current locale (`es_MX`, `pt_BR`, `zh_CN` underscore form) plus `og:locale:alternate` for the other three.
 - Canonical URL includes the locale subpath (never collapse locales to one canonical).

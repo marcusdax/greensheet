@@ -43,7 +43,7 @@ describe('OrdersPage', () => {
       id: lotId,
       origin: 'Test Origin',
       varietal: 'Test Varietal',
-      processingMethod: 'washed',
+      processMethod: 'washed',
       elevation: 1500,
       cupScore: 85,
       pricePerLbCents: 500,

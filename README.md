@@ -1,18 +1,13 @@
-# Greensheet Platform — Expansion Pack
+# Auctum Ledger — Expansion Pack
 
-Greensheet is a SaaS marketing & CRM platform for specialty coffee green-bean distribution, connecting importers/exporters with roasters. This repository contains the comprehensive expansion layer produced by a four-expert swarm (engineering, design, growth, localization), extending the base implementation architecture into a production-grade ecosystem.
+Auctum Ledger is a SaaS marketing & CRM platform for specialty coffee green-bean distribution, connecting importers/exporters with roasters. This repository contains the comprehensive expansion layer produced by a four-expert swarm (engineering, design, growth, localization), extending the base implementation architecture into a production-grade ecosystem.
 
 ## Structure
 
 ```
 engineering/        Systems & software architecture expansion
   01-domain-model-event-storming.md   Bounded contexts, domain events, policies (Mermaid)
-  02-openapi-contract.md              OpenAPI 3.1 public API, webhooks, idempotency, GS-* error model
-  03-event-driven-pipeline.md         Kafka topology, CloudEvents/Avro, outbox pattern
-  04-database-evolution.md            TimescaleDB telemetry, referral + churn + i18n migrations
-  05-state-management-zustand.md      useReducer→Zustand migration, React Query integration
-  06-testing-chaos-ci.md              Test pyramid, Pact, chaos experiments, GitHub Actions
-  07-security-compliance.md           OIDC/RBAC, SOC 2, GDPR/CCPA, audit ledger
+  02-openapi-contract.md              OpenAPI 3.1 public API, webhooks, idempotency, AL-* error model
 
 design-system/      Brand identity & design system (ODASI lineage)
   01-brand-identity.md                "Lot Compass" logo system, co-branding rules
@@ -23,7 +18,7 @@ design-system/      Brand identity & design system (ODASI lineage)
 
 marketing/          Growth architecture & playbooks
   01-growth-architecture.md           GTM system, pricing, LTV:CAC model, north-star metrics
-  02-cof-campaign-expansion.md        Full COF-001–005 campaigns: copy, Bayesian A/B rules, automation JSON
+  02-cof-campaign-expansion.md        Full ALT-001–005 campaigns: copy, Bayesian A/B rules, automation JSON
   03-referral-engine-playbook.md      "Give a Kit, Get a Bag" viral engine + fraud stack
   04-churn-intervention-playbook.md   Hazard tiers, intervention ladder, save-offer economics
   05-video-content-ecosystem.md       Anchor series scripts, cutdown matrix, perf framework
@@ -40,10 +35,10 @@ localization/       International expansion (en-US / zh-CN / es-MX / pt-BR)
 
 ## Canonical conventions
 
-- Campaign IDs: COF-001–005 · Events: `sample_kit.delivered`, `feedback.submitted`
+- Campaign IDs: ALT-001–005 · Events: `sample_kit.delivered`, `feedback.submitted`
 - Automation actions: `SEND_EMAIL`, `SEND_SMS`, `UPDATE_CRM_LIFECYCLE`, `EXECUTE_CAMPAIGN_HALT`
 - Merge tags (byte-identical across locales): `{sca_cup_score}`, `{process_method}`, `{origin}`, `{varietal}`, `{price_per_lb}`, …
 - Economics: blended CAC $378 (cap $500) · referral CAC ≤ $200 · churn hazard threshold 0.70 · discount rate 10%
-- Brand: "Greensheet" and "SCA" are never translated; parent brand ODASI Technologies.
+- Brand: "Auctum" and "Ledger" are never translated; parent brand Auctum, Inc.
 
-*Parent brand: ODASI Technologies, Inc. — Navigate Your Reality. Own Your Journey.*
+*Parent brand: Auctum, Inc. — Navigate Your Reality. Own Your Journey.*

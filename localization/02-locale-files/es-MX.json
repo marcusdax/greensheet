@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Greensheet",
-    "tagline": "Café verde, comprado con confianza.",
+    "appName": "Auctum Ledger",
+    "tagline": "Origen verificado. Precio verdadero.",
     "nav": {
       "dashboard": "Panel",
       "catalog": "Catálogo",
@@ -15,7 +15,8 @@
       "sampleKits": "Kits de muestra",
       "automationRules": "Reglas de automatización",
       "webhooks": "Webhooks",
-      "growth": "Growth"
+      "growth": "Growth",
+      "referrals": "Referidos"
     },
     "actions": {
       "refresh": "Refresh"
@@ -38,7 +39,9 @@
       "clearAll": "Borrar todo",
       "saveView": "Guardar vista",
       "resetFilters": "Restablecer filtros",
-      "loadMore": "Cargar más"
+      "loadMore": "Cargar más",
+      "copied": "Copiado",
+      "copy": "Copiar"
     },
     "states": {
       "loading": "Cargando…",
@@ -80,8 +83,8 @@
       "kg": "kg"
     },
     "meta": {
-      "title": "Greensheet — Café verde de especialidad para tostadores",
-      "description": "Compre café verde de especialidad trazable por origen, proceso y puntaje de taza SCA. Muestras en 48 horas."
+      "title": "Auctum Ledger — Mercado de Café Verde Verificado",
+      "description": "Explore café verde verificado por origen, proceso y puntaje de taza SCA. Muestras en 48 horas."
     }
   },
   "dashboard": {
@@ -248,27 +251,27 @@
       "emailsSent_other": "{{count}} correos enviados"
     },
     "steps": {
-      "cof001": {
+      "alt001": {
         "label": "Presentación de la nueva cosecha",
         "objective": "Presentar los lotes recién llegados a prospectos nuevos y lograr la primera interacción",
         "timing": "Día 0"
       },
-      "cof002": {
+      "alt002": {
         "label": "Invitación al kit de muestras",
         "objective": "Invitar a los tostadores a catar antes de comprar y reducir la fricción de decisión",
         "timing": "Día 3"
       },
-      "cof003": {
+      "alt003": {
         "label": "Caso de éxito de un tostador",
         "objective": "Generar confianza con la historia de un tostador par, respaldada por datos de taza",
         "timing": "Día 7"
       },
-      "cof004": {
+      "alt004": {
         "label": "Aviso de disponibilidad",
         "objective": "Compartir el inventario restante y las fechas de arribo para crear urgencia legítima",
         "timing": "Día 12"
       },
-      "cof005": {
+      "alt005": {
         "label": "Reenganche y retroalimentación",
         "objective": "Reactivar prospectos sin respuesta y conocer sus planes de compra",
         "timing": "Día 21"
@@ -307,34 +310,34 @@
       "conversions": "Conversiones"
     },
     "emails": {
-      "cof001": {
+      "alt001": {
         "subject": "Recién llegado: {origin} {varietal} · SCA {sca_cup_score}",
-        "preheader": "Lote {process_method} de {origin} — {flavor_notes}. Acaba de llegar a Greensheet.",
-        "body": "Hola, {contact_first_name}:\n\nNuestro lote más reciente de {origin} acaba de llegar: {varietal}, proceso {process_method}, con {sca_cup_score} puntos en la escala SCA y notas a {flavor_notes}. Precio de {price_per_lb}/lb, con {available_lbs} lb disponibles.\n\nPuede catarlo antes de decidir: las muestras se envían en 48 horas.\n\n— {sender_name}, Greensheet",
+        "preheader": "Lote {process_method} de {origin} — {flavor_notes}. Acaba de llegar a Auctum Ledger.",
+        "body": "Hola, {contact_first_name}:\n\nNuestro lote más reciente de {origin} acaba de llegar: {varietal}, proceso {process_method}, con {sca_cup_score} puntos en la escala SCA y notas a {flavor_notes}. Precio de {price_per_lb}/lb, con {available_lbs} lb disponibles.\n\nPuede catarlo antes de decidir: las muestras se envían en 48 horas.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Ver este lote"
       },
-      "cof002": {
+      "alt002": {
         "subject": "Cate {origin} antes de su próximo menú",
         "preheader": "Su kit de muestras se envía en 48 horas: incluye {origin} {varietal}.",
-        "body": "Hola, {contact_first_name}:\n\nPruebe antes de decidir. El kit de muestras de {origin} incluye el {varietal} ({process_method}, SCA {sca_cup_score}) que nuestros Q graders puntuaron esta semana. Solicite su kit y lo enviaremos en 48 horas; es gratis para tostadores calificados.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nPruebe antes de decidir. El kit de muestras de {origin} incluye el {varietal} ({process_method}, SCA {sca_cup_score}) que nuestros Q graders puntuaron esta semana. Solicite su kit y lo enviaremos en 48 horas; es gratis para tostadores calificados.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Solicitar kit de muestras"
       },
-      "cof003": {
+      "alt003": {
         "subject": "Cómo {peer_roaster_name} construyó su menú alrededor de {origin}",
         "preheader": "Caso de éxito: lotes {process_method} con puntaje SCA {sca_cup_score}+.",
-        "body": "Hola, {contact_first_name}:\n\nLa temporada pasada, {peer_roaster_name} incorporó nuestro {origin} {varietal} ({process_method}) a su menú de origen único y agotó sus primeras {order_volume_lbs} lb en {sell_through_weeks} semanas. Le contamos qué lo hizo posible, con los datos de cata como respaldo.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nLa temporada pasada, {peer_roaster_name} incorporó nuestro {origin} {varietal} ({process_method}) a su menú de origen único y agotó sus primeras {order_volume_lbs} lb en {sell_through_weeks} semanas. Le contamos qué lo hizo posible, con los datos de cata como respaldo.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Leer el caso de éxito"
       },
-      "cof004": {
+      "alt004": {
         "subject": "Quedan {available_lbs} lb de {origin} {varietal}",
         "preheader": "Arriba el {arrival_date}: resérvelo antes de que se agote.",
-        "body": "Hola, {contact_first_name}:\n\nUn aviso rápido de disponibilidad: solo quedan {available_lbs} lb del {origin} {varietal} ({process_method}, SCA {sca_cup_score}). El próximo contenedor arriba el {arrival_date} y los lotes reservados se envían primero. Reserve ahora para fijar el precio de {price_per_lb}/lb.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nUn aviso rápido de disponibilidad: solo quedan {available_lbs} lb del {origin} {varietal} ({process_method}, SCA {sca_cup_score}). El próximo contenedor arriba el {arrival_date} y los lotes reservados se envían primero. Reserve ahora para fijar el precio de {price_per_lb}/lb.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Reservar mi lote"
       },
-      "cof005": {
+      "alt005": {
         "subject": "¿Aún busca café para {harvest_window}, {contact_first_name}?",
         "preheader": "Cuéntenos qué busca y le encontraremos los lotes indicados.",
-        "body": "Hola, {contact_first_name}:\n\nNotamos que el {origin} {varietal} no llegó a su menú esta vez. Si sus planes para {harvest_window} aún están abiertos, respóndanos con lo que busca —proceso, rango de puntaje, presupuesto— y le encontraremos los lotes indicados. O agende 15 minutos con nuestro equipo de abastecimiento.\n\n— {sender_name}, Greensheet",
+        "body": "Hola, {contact_first_name}:\n\nNotamos que el {origin} {varietal} no llegó a su menú esta vez. Si sus planes para {harvest_window} aún están abiertos, respóndanos con lo que busca —proceso, rango de puntaje, presupuesto— y le encontraremos los lotes indicados. O agende 15 minutos con nuestro equipo de abastecimiento.\n\n— {sender_name}, Auctum Ledger",
         "cta": "Agendar una llamada"
       }
     },
@@ -342,15 +345,15 @@
       "unsubscribe": "Cancelar suscripción",
       "managePreferences": "Administrar preferencias de correo",
       "viewInBrowser": "Ver en el navegador",
-      "sentBecause": "Recibió este correo porque {roaster_name} está registrado en Greensheet.",
-      "postalAddress": "Greensheet, 548 Market St, San Francisco, CA 94104, USA"
+      "sentBecause": "Recibió este correo porque {roaster_name} está registrado en Auctum Ledger.",
+      "postalAddress": "Auctum Ledger, 548 Market St, San Francisco, CA 94104, USA"
     },
     "sms": {
-      "cof002": {
-        "body": "Greensheet: muestras de {origin} {varietal} (SCA {sca_cup_score}) en 48 h. Pida su kit: {sample_kit_url} Responda ALTO para cancelar."
+      "alt002": {
+        "body": "Auctum Ledger: muestras de {origin} {varietal} (SCA {sca_cup_score}) en 48 h. Pida su kit: {sample_kit_url} Responda ALTO para cancelar."
       },
-      "cof004": {
-        "body": "Greensheet: solo quedan {available_lbs} lb de {origin} {varietal}. Reserve: {lot_url} Responda ALTO para cancelar."
+      "alt004": {
+        "body": "Auctum Ledger: solo quedan {available_lbs} lb de {origin} {varietal}. Reserve: {lot_url} Responda ALTO para cancelar."
       }
     },
     "create": "Crear campaña",
@@ -415,7 +418,7 @@
     "create": "Crear webhook"
   },
   "agent": {
-    "widgetTitle": "ODASI Coffee Agent",
+    "widgetTitle": "Auctum Coffee Agent",
     "placeholder": "Ask the agent...",
     "openChat": "Open coffee agent chat",
     "closeChat": "Close coffee agent chat",
@@ -431,6 +434,127 @@
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
+    }
+  },
+  "referrals": {
+    "overline": "REFERIDOS",
+    "title": "Referidos",
+    "subtitle": "Administra tu programa de referidos. Rastrea invitaciones, recompensas y comparte tu código único.",
+    "deliveryCardTitle": "Envía un Kit, Consigue Crédito",
+    "deliveryCardBody": "¿Conoces a un torreador que aún compra por PDFs? Envíale un kit real — incluye hojas de puntuación. Consigue $150 en crédito de tostado cuando su primer pedido se entregue.",
+    "yourLink": "Tu enlace de referido",
+    "copyLink": "Copiar enlace de referido",
+    "yourCode": "Código de referido",
+    "openLink": "Abrir enlace",
+    "shareTitle": "Enlace de referido de Auctum Ledger",
+    "shareText": "Echa un vistazo a esta recomendación de kit de muestras de Auctum Ledger",
+    "copyError": "No se pudo copiar el enlace",
+    "rewardReferrer": "Tú recibes",
+    "roastCredit": "crédito de tostado",
+    "rewardReferee": "Ellos reciben",
+    "offFirstOrder": "de descuento en primer pedido",
+    "freeKit": "kit de muestras gratis",
+    "simulateQualify": "[simular calificar]",
+    "qualifyNote": "La calificación de referidos se basa en la entrega del primer pedido del referee.",
+    "codeSection": "Tu Código de Referido",
+    "viewAllCodes": "Ver todos los códigos",
+    "noCode": "Cargando…",
+    "referralsList": "Tus Referidos",
+    "empty": "Aún no hay referidos. Comparte tu código para comenzar.",
+    "ledgerTitle": "Libro Mayor de Recompensas de Auctum Ledger",
+    "ledgerEmpty": "Aún no hay entradas de recompensas.",
+    "allCodesTitle": "Todos los Códigos de Referido",
+    "codeStatus": "Estado",
+    "anonymous": "Anónimo",
+    "detailTitle": "Detalle de Referido",
+    "orderConfirmationTitle": "Envía un Kit — Consigue Crédito de Tostado",
+    "detail": {
+      "refCode": "Código de referido",
+      "status": "Estado",
+      "channel": "Canal",
+      "referredAt": "Referido en",
+      "funnel": "Progreso del embudo",
+      "reward": "Recompensa contabilizada"
+    },
+    "stats": {
+      "invitesSent": "Invitaciones enviadas",
+      "qualified": "Calificados",
+      "kFactor": "K-factor",
+      "earned": "Créditos ganados"
+    },
+    "status": {
+      "invited": "Invitado",
+      "clicked": "Clicado",
+      "signed_up": "Registrado",
+      "kit_requested": "Kit solicitado",
+      "kit_delivered": "Kit entregado",
+      "feedback_submitted": "Comentarios enviados",
+      "first_order_delivered": "Primer pedido entregado",
+      "qualified": "Calificado",
+      "clawed_back": "Reembolsado"
+    },
+    "statusShort": {
+      "invited": "Invitado",
+      "clicked": "Clicado",
+      "signed_up": "Registrado",
+      "kit_requested": "Kit solicitado",
+      "kit_delivered": "Kit entregado",
+      "feedback_submitted": "Comentarios",
+      "first_order_delivered": "1er pedido",
+      "qualified": "Calificado",
+      "clawed_back": "Reembolsado"
+    },
+    "tier": {
+      "copper": {
+        "label": "Catador",
+        "description": "0–2 referidos calificados"
+      },
+      "greenBuyer": {
+        "label": "Comprador Verde",
+        "description": "3–5 referidos calificados"
+      },
+      "ledgerCircle": {
+        "label": "Círculo Ledger",
+        "description": "6+ referidos calificados"
+      }
+    },
+    "channel": {
+      "invite_link": "Enlace de invitación",
+      "qr_sticker": "Pegatina QR",
+      "email_share": "Email",
+      "instagram_dm": "DM de Instagram",
+      "event_badge": "Insignia de evento",
+      "code_entry": "Entrada de código"
+    },
+    "reviewQueue": {
+      "title": "Cola de Revisión",
+      "noPending": "No hay referidos pendientes",
+      "pendingReferral": "Referido pendiente",
+      "reviewRequired": "Se requiere revisión",
+      "reviewReason": "Razón de la revisión",
+      "decision": {
+        "qualify": "Calificar",
+        "decline": "Rechazar",
+        "review": "Revisar"
+      },
+      "reasons": {
+        "selfReferral": "Auto-referido",
+        "identityGraphMatch": "Coincidencia de identidad detectada",
+        "floorNotMet": "No se cumplió el mínimo del primer pedido",
+        "velocityExceeded": "Límite de velocidad excedido",
+        "ringDetected": "Anillo de referidos mutuo detectado",
+        "missingBusinessRegistration": "Falta registro comercial o ID fiscal del referee",
+        "notFound": "No se encontró el referidor o el referido"
+      }
+    },
+    "rewardType": {
+      "referrerCredit": "Crédito para quien refiere",
+      "refereeDiscount": "Descuento para el referido"
+    },
+    "rewardStatus": {
+      "pending": "Pendiente",
+      "posted": "Contabilizado",
+      "clawed_back": "Reembolsado"
     }
   }
 }

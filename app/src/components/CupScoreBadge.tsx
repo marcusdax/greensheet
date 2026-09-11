@@ -18,7 +18,7 @@ export const CupScoreBadge: React.FC<CupScoreBadgeProps> = ({ score, size = 'sm'
   } else if (score >= 80) {
     badgeClasses = 'bg-leaf text-white';
   } else {
-    badgeClasses = 'bg-neutral-700 text-white';
+    badgeClasses = 'bg-slate text-white';
   }
 
   const sizeClasses = size === 'lg' ? 'px-3 py-1 text-lg font-bold' : 'px-2 py-0.5 text-sm font-bold';

@@ -1,4 +1,4 @@
-# Greensheet Frontend Expansion Design
+# Auctum Ledger Frontend Expansion Design
 
 **Date:** 2026-07-27  
 **Scope:** Expand the existing `app/` demo frontend into a runnable, interactive surface that exposes every documented public REST capability from the engineering and marketing specs.  
@@ -8,10 +8,10 @@
 
 ## 1. Goal
 
-Turn the current demo frontend into a comprehensive single-page application that demonstrates the full Greensheet platform surface:
+Turn the current demo frontend into a comprehensive single-page application that demonstrates the full Auctum Ledger platform surface:
 
 - CRM (roasters, contacts, interventions, churn risk, LTV)
-- Campaigns (COF-001…005 nurture engine, A/B analytics, enable/disable/retire)
+- Campaigns (ALT-001…005 nurture engine, A/B analytics, enable/disable/retire)
 - Automation Rules (cross-campaign rule registry and editor)
 - Catalog (coffee lots, inventory reservations)
 - Sample Kits (request, track, feedback)
@@ -28,7 +28,7 @@ The backend runtime (Kafka, Temporal, Stripe, Postgres, MSK) is **out of scope**
 ### 2.1 Stack (existing)
 
 - Vite + React 19 + TypeScript 5
-- Tailwind CSS 3 with the existing Greensheet design tokens
+- Tailwind CSS 3 with the existing Auctum Ledger design tokens
 - Zustand 5 for state management
 - React Router 6 for routing
 - i18next with the existing locale files
@@ -108,7 +108,7 @@ The client enforces:
 
 - Cursor pagination (`limit`, `cursor`, `page` envelope).
 - `Idempotency-Key` generation and replay for mutating endpoints.
-- RFC 9457 problem codes (`GS-GEN-1000`, `GS-CRM-1001`, `GS-CAT-1001`, etc.).
+- RFC 9457 problem codes (`AL-GEN-1000`, `AL-CRM-1001`, `AL-CAT-1001`, etc.).
 - Service-account and OAuth scopes are mocked; all requests succeed authorization.
 
 ### 2.5 In-Memory Database
@@ -117,8 +117,8 @@ The client enforces:
 
 - `Roaster` with `segment`, `status`, `churnRiskScore`, `ltvCents`, `cacCents`, `paybackMonths`, `contacts`.
 - `Campaign` with `slug`, `status`, `version`, `ruleCodes`, `targetAudience`.
-- `AutomationRule` with `ruleCode` (`COF-001`…`COF-005`), `triggerEvent`, `conditionsJson`, `actions`.
-- `CoffeeLot` with `pricePerLbCents`, `costPerLbCents`, `availableQuantityLbs`, `esgScore`, `logisticsScore`, `certifications`, `sensoryProfile`, `flavorNotes`.
+- `AutomationRule` with `ruleCode` (`ALT-001`…`ALT-005`), `triggerEvent`, `conditionsJson`, `actions`.
+- `LedgerLot` with `pricePerLbCents`, `costPerLbCents`, `availableQuantityLbs`, `esgScore`, `logisticsScore`, `certifications`, `sensoryProfile`, `flavorNotes`.
 - `SampleKit` with `status`, `lots` snapshots, `trackingNumber`, `carrier`.
 - `Order` with `lineItems`, `finalTotalCents`, status lifecycle.
 - `WebhookSubscription` with `url`, `events`, `status`, `signingSecret` (shown once).
@@ -169,7 +169,7 @@ Routes remain under `/:locale/<section>` and use the existing locale detection a
 
 - **Campaign list:** status filter, create campaign, retire campaign.
 - **Campaign designer:** edit name/description, target audience segments, activate/pause.
-- **Rule stepper:** visual stepper for COF-001…005 with trigger event, condition JSON, actions.
+- **Rule stepper:** visual stepper for ALT-001…005 with trigger event, condition JSON, actions.
 - **A/B performance:** existing Bayesian A/B table and charts, but driven by mock campaign data.
 - **Enable/disable:** toggle campaign status and emit `campaigns.activated` / `campaigns.halted` in the mock event log.
 
@@ -182,7 +182,7 @@ Routes remain under `/:locale/<section>` and use the existing locale detection a
 ### 4.4 Catalog
 
 - **Lots table:** existing table, extended with Add/Edit lot, retire lot, price change with reason.
-- **Reserve inventory:** per-lot reservation form with `quantityLbs` and `orderId`, enforcing `availableQuantityLbs >= 0` and returning `GS-CAT-1001` on insufficient inventory.
+- **Reserve inventory:** per-lot reservation form with `quantityLbs` and `orderId`, enforcing `availableQuantityLbs >= 0` and returning `AL-CAT-1001` on insufficient inventory.
 - **Lot detail:** drawer with ESG, logistics, sensory profile, flavor notes, certification badges.
 
 ### 4.5 Sample Kits
@@ -222,7 +222,7 @@ Routes remain under `/:locale/<section>` and use the existing locale detection a
 
 - Use `react-hook-form` with `zod` resolvers.
 - Reusable primitives: `InputField`, `SelectField`, `TextAreaField`, `CheckboxField`, `CurrencyField`, `NumberField`, `JsonField` (for `conditionsJson`), `MultiSelect` (for `lotIds`, `events`).
-- Validation mirrors the OpenAPI constraints: `ruleCode` pattern `^COF-00[1-9]$`, `pricePerLbCents > 0`, `cupScore` 0–100, `churnRiskScore` 0–1, etc.
+- Validation mirrors the OpenAPI constraints: `ruleCode` pattern `^ALT-00[1-9]$`, `pricePerLbCents > 0`, `cupScore` 0–100, `churnRiskScore` 0–1, etc.
 - Inline field errors from `problem.errors[]` are mapped back to form fields.
 
 ---
@@ -230,8 +230,8 @@ Routes remain under `/:locale/<section>` and use the existing locale detection a
 ## 6. Error Handling & Idempotency
 
 - Mutating API calls generate a fresh `crypto.randomUUID()` `Idempotency-Key` and replay the stored response on duplicate key + same payload.
-- Different payload with same key returns `GS-GEN-1003`.
-- Missing key on required endpoints returns `GS-GEN-1004` (simulated in the client).
+- Different payload with same key returns `AL-GEN-1003`.
+- Missing key on required endpoints returns `AL-GEN-1004` (simulated in the client).
 - Global toast stack shows `problem.title` / `problem.detail` on failure and success messages on mutations.
 - Error boundary remains and clears persisted store on fatal errors.
 
@@ -241,7 +241,7 @@ Routes remain under `/:locale/<section>` and use the existing locale detection a
 
 - Domain slices hold `data`, `loading`, `error`, and `lastCursor`.
 - Pages call slice actions on mount; slices call the API client.
-- Optimistic update for inventory reservations: decrement available quantity immediately, roll back on `GS-CAT-1001`.
+- Optimistic update for inventory reservations: decrement available quantity immediately, roll back on `AL-CAT-1001`.
 - Existing sourcing/selection/ui slices remain unchanged except for extending `ui-slice` with a toast/drawer stack.
 
 ---

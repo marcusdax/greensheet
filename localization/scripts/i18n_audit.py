@@ -22,6 +22,10 @@ KEY_PATTERNS = [
 
 PLURAL_SUFFIXES = ("_zero", "_one", "_two", "_few", "_many", "_other")
 
+# i18next namespace separators: "namespace:key" -> "namespace.key"
+# Also, keys without a namespace prefix use the default namespace ("common").
+DEFAULT_NS = "common"
+
 
 def iter_source_files(root: Path, exts: Iterable[str]) -> Iterable[Path]:
     for path in root.rglob("*"):
@@ -33,6 +37,21 @@ def iter_source_files(root: Path, exts: Iterable[str]) -> Iterable[Path]:
             yield path
 
 
+def normalize_key(key: str) -> str:
+    """Normalize an i18next key for comparison against flattened locale JSON.
+
+    i18next supports a ``namespace:key`` syntax (e.g. ``referrals:overline``)
+    which maps to the nested JSON path ``namespace.key``.own (e.g.
+    ``referrals.overline``).  Keys without an explicit namespace use the
+    default namespace (``common``), so ``nav.referrals`` maps to
+    ``common.nav.referrals``.
+    """
+    if ":" in key:
+        ns, rest = key.split(":", 1)
+        return f"{ns}.{rest}"
+    return f"{DEFAULT_NS}.{key}"
+
+
 def extract_keys(paths: Iterable[Path]) -> Set[str]:
     keys: Set[str] = set()
     for path in paths:
@@ -42,7 +61,7 @@ def extract_keys(paths: Iterable[Path]) -> Set[str]:
             continue
         for pattern in KEY_PATTERNS:
             for match in pattern.finditer(text):
-                keys.add(match.group(1))
+                keys.add(normalize_key(match.group(1)))
     return keys
 
 

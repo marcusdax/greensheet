@@ -14,7 +14,7 @@ export const useAiStore = create<AiSlice>()(
         immer((set) => createAiSlice(set)),
       ),
       {
-        name: 'greensheet:ai',
+        name: 'auctum:ai',
         version: 1,
         storage: aiPersistStorage as unknown as PersistStorage<AiPersistedState>,
         partialize: (s) => ({

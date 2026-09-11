@@ -71,6 +71,6 @@ describe('samples slice', () => {
       },
     });
     expect(kit).toBeNull();
-    expect(useRootStore.getState().samples.error?.code).toBe('GS-GEN-1005');
+    expect(useRootStore.getState().samples.error?.code).toBe('AL-GEN-1005');
   });
 });

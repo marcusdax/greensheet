@@ -11,9 +11,9 @@ import type {
   CampaignVariant,
   ChurnRisk,
   Cohort,
-  CoffeeLot,
-  CoffeeLotCreate,
-  CoffeeLotPatch,
+  LedgerLot,
+  LedgerLotCreate,
+  LedgerLotPatch,
   Forecast,
   FunnelStage,
   HazardHeatmapRow,
@@ -47,7 +47,8 @@ import type {
   WtrPoint,
 } from '../types/api';
 import { db, seedDatabase } from './db';
-import { GS } from './problems';
+import { AL } from './problems';
+import { evaluateReferral } from '../lib/referral-fraud';
 import { MARKETING_TEMPLATES } from './marketing-data';
 
 let refCodeCounter = 0;
@@ -62,7 +63,7 @@ function generateRefCode(): string {
   const idx = nextRefCodeIndex();
   const word = adjectives[idx % adjectives.length];
   const suffix = String(100 + (idx % 900));
-  return `GS-${word}-${suffix}`;
+  return `AL-${word}-${suffix}`;
 }
 
 function id(): string {
@@ -113,13 +114,13 @@ function checkIdempotency<T>(
   input: unknown,
 ): ApiResult<T> | undefined {
   if (!key) {
-    return { problem: GS.GEN_1004() };
+    return { problem: AL.GEN_1004() };
   }
   const existing = db.idempotency.get(key);
   if (existing) {
     return JSON.stringify(input) === existing.bodyHash
       ? ({ data: deepClone(existing.response) as T } as ApiResult<T>)
-      : { problem: GS.GEN_1003() };
+      : { problem: AL.GEN_1003() };
   }
   return undefined;
 }
@@ -194,7 +195,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<Roaster>> => {
       const item = db.roasters.find((r) => r.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
     create: async (
@@ -211,7 +212,7 @@ export const api = {
           (r) => r.businessRegistration && r.businessRegistration === body.businessRegistration,
         )
       ) {
-        return { problem: GS.CRM_1001() };
+        return { problem: AL.CRM_1001() };
       }
 
       const roaster: Roaster = {
@@ -238,7 +239,7 @@ export const api = {
 
     patch: async (id: string, patch: Partial<Roaster>): Promise<ApiResult<Roaster>> => {
       const idx = db.roasters.findIndex((r) => r.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.roasters[idx] = { ...db.roasters[idx], ...patch, updatedAt: nowIso() };
       return { data: db.roasters[idx] };
     },
@@ -252,7 +253,7 @@ export const api = {
       if (conflict) return conflict;
 
       const roasterIdx = db.roasters.findIndex((r) => r.id === roasterId);
-      if (roasterIdx === -1) return { problem: GS.GEN_1005() };
+      if (roasterIdx === -1) return { problem: AL.GEN_1005() };
 
       const intervention: Intervention = { ...body.intervention, id: idempotencyKey() };
       db.roasters[roasterIdx] = {
@@ -279,7 +280,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<Campaign>> => {
       const item = db.campaigns.find((c) => c.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
     create: async (input: CampaignCreate, key?: string): Promise<ApiResult<Campaign>> => {
@@ -303,7 +304,7 @@ export const api = {
 
     patch: async (id: string, patch: CampaignPatch): Promise<ApiResult<Campaign>> => {
       const idx = db.campaigns.findIndex((c) => c.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       const next = { ...db.campaigns[idx], ...patch, updatedAt: nowIso() };
       if (patch.status && patch.status !== db.campaigns[idx].status) {
         next.version = db.campaigns[idx].version + 1;
@@ -314,14 +315,14 @@ export const api = {
 
     halt: async (id: string): Promise<ApiResult<Campaign>> => {
       const idx = db.campaigns.findIndex((c) => c.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.campaigns[idx] = { ...db.campaigns[idx], status: 'paused', updatedAt: nowIso() };
       return { data: db.campaigns[idx] };
     },
 
     performance: async (id: string): Promise<ApiResult<CampaignPerformance>> => {
       const campaign = db.campaigns.find((c) => c.id === id);
-      if (!campaign) return { problem: GS.GEN_1005() };
+      if (!campaign) return { problem: AL.GEN_1005() };
 
       const now = nowIso();
       const code = campaign.slug; // cof-001 .. cof-005
@@ -385,7 +386,7 @@ export const api = {
       };
 
       const preset = presets[code];
-      if (!preset) return { problem: GS.GEN_1005() };
+      if (!preset) return { problem: AL.GEN_1005() };
       return { data: preset };
     },
   },
@@ -411,7 +412,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<AutomationRule>> => {
       const item = db.rules.find((r) => r.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
     create: async (
@@ -422,14 +423,18 @@ export const api = {
       const conflict = checkIdempotency<AutomationRule>(key, body);
       if (conflict) return conflict;
 
+      if (!/^(ALT|COF)-00[1-9]$/.test(body.ruleCode)) {
+        return { problem: AL.GEN_1000() };
+      }
+
       const campaignId = body.campaignId === '' ? null : body.campaignId ?? null;
 
       if (campaignId) {
         const campaign = db.campaigns.find((c) => c.id === campaignId);
-        if (!campaign) return { problem: GS.GEN_1005() };
+        if (!campaign) return { problem: AL.GEN_1005() };
       }
       if (db.rules.some((r) => r.ruleCode === body.ruleCode)) {
-        return { problem: GS.CMP_1003() };
+        return { problem: AL.CMP_1003() };
       }
 
       const rule: AutomationRule = {
@@ -451,7 +456,7 @@ export const api = {
 
     patch: async (id: string, patch: AutomationRulePatch): Promise<ApiResult<AutomationRule>> => {
       const idx = db.rules.findIndex((r) => r.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       const existing = db.rules[idx];
 
       const hasPatchField =
@@ -465,7 +470,7 @@ export const api = {
 
       if ('ruleCode' in patch && patch.ruleCode !== existing.ruleCode) {
         if (db.rules.some((r) => r.ruleCode === patch.ruleCode && r.id !== id)) {
-          return { problem: GS.CMP_1003() };
+          return { problem: AL.CMP_1003() };
         }
       }
 
@@ -477,13 +482,13 @@ export const api = {
         let oldCampaign: Campaign | undefined;
         if (existing.campaignId) {
           oldCampaign = db.campaigns.find((c) => c.id === existing.campaignId);
-          if (!oldCampaign) return { problem: GS.GEN_1005() };
+          if (!oldCampaign) return { problem: AL.GEN_1005() };
         }
 
         let newCampaign: Campaign | undefined;
         if (patchCampaignId) {
           newCampaign = db.campaigns.find((c) => c.id === patchCampaignId);
-          if (!newCampaign) return { problem: GS.GEN_1005() };
+          if (!newCampaign) return { problem: AL.GEN_1005() };
         }
 
         if (oldCampaign) {
@@ -494,7 +499,7 @@ export const api = {
         }
       } else if ('ruleCode' in patch && patch.ruleCode !== existing.ruleCode && existing.campaignId) {
         const campaign = db.campaigns.find((c) => c.id === existing.campaignId);
-        if (!campaign) return { problem: GS.GEN_1005() };
+        if (!campaign) return { problem: AL.GEN_1005() };
         campaign.ruleCodes = campaign.ruleCodes.map((code) => (code === existing.ruleCode ? newRuleCode : code));
       }
 
@@ -511,7 +516,7 @@ export const api = {
 
     delete: async (id: string): Promise<ApiResult<void>> => {
       const idx = db.rules.findIndex((r) => r.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       const rule = db.rules[idx];
       if (rule.campaignId) {
         const campaign = db.campaigns.find((c) => c.id === rule.campaignId);
@@ -533,7 +538,7 @@ export const api = {
         minCupScore?: number;
         maxPricePerLbCents?: number;
       } = {},
-    ): Promise<ApiResult<PagedResponse<CoffeeLot>>> => {
+    ): Promise<ApiResult<PagedResponse<LedgerLot>>> => {
       let items = db.lots;
       if (params.origins?.length) {
         items = items.filter((l) => params.origins!.includes(l.origin));
@@ -547,14 +552,14 @@ export const api = {
       return { data: makePage(items, params.limit ?? 25, params.cursor) };
     },
 
-    get: async (id: string): Promise<ApiResult<CoffeeLot>> => {
+    get: async (id: string): Promise<ApiResult<LedgerLot>> => {
       const item = db.lots.find((l) => l.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
-    create: async (input: CoffeeLotCreate, key?: string): Promise<ApiResult<CoffeeLot>> => {
+    create: async (input: LedgerLotCreate, key?: string): Promise<ApiResult<LedgerLot>> => {
       const body = deepClone(input);
-      const conflict = checkIdempotency<CoffeeLot>(key, body);
+      const conflict = checkIdempotency<LedgerLot>(key, body);
       if (conflict) return conflict;
 
       const errors: { field: string; code: string; message: string }[] = [];
@@ -573,13 +578,13 @@ export const api = {
         });
       }
       if (errors.length) {
-        return { problem: GS.GEN_1000(errors) };
+        return { problem: AL.GEN_1000(errors) };
       }
 
-      const lot: CoffeeLot = {
+      const lot: LedgerLot = {
         ...body,
         varietal: body.varietal ?? null,
-        processingMethod: body.processingMethod ?? null,
+        processMethod: body.processMethod ?? null,
         elevation: body.elevation ?? null,
         esgScore: body.esgScore ?? null,
         logisticsScore: null,
@@ -598,15 +603,15 @@ export const api = {
       return { data: lot };
     },
 
-    patch: async (id: string, patch: CoffeeLotPatch): Promise<ApiResult<CoffeeLot>> => {
+    patch: async (id: string, patch: LedgerLotPatch): Promise<ApiResult<LedgerLot>> => {
       const idx = db.lots.findIndex((l) => l.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       if (
         patch.pricePerLbCents !== undefined &&
         (!Number.isInteger(patch.pricePerLbCents) || patch.pricePerLbCents <= 0)
       ) {
         return {
-          problem: GS.GEN_1000([
+          problem: AL.GEN_1000([
             { field: 'pricePerLbCents', code: 'invalid', message: 'pricePerLbCents must be a positive integer' },
           ]),
         };
@@ -626,18 +631,18 @@ export const api = {
 
       if (!Number.isInteger(input.quantityLbs) || input.quantityLbs <= 0) {
         return {
-          problem: GS.GEN_1000([
+          problem: AL.GEN_1000([
             { field: 'quantityLbs', code: 'invalid', message: 'quantityLbs must be a positive integer' },
           ]),
         };
       }
 
       const lot = db.lots.find((l) => l.id === lotId);
-      if (!lot) return { problem: GS.GEN_1005() };
-      if (lot.status === 'retired') return { problem: GS.CAT_1002() };
+      if (!lot) return { problem: AL.GEN_1005() };
+      if (lot.status === 'retired') return { problem: AL.CAT_1002() };
       if (lot.availableQuantityLbs < input.quantityLbs) {
         return {
-          problem: GS.CAT_1001(
+          problem: AL.CAT_1001(
             `Lot ${lotId} has ${lot.availableQuantityLbs} lbs available; ${input.quantityLbs} requested.`,
           ),
         };
@@ -679,7 +684,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<SampleKit>> => {
       const item = db.sampleKits.find((k) => k.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
     create: async (input: SampleKitCreate, key?: string): Promise<ApiResult<SampleKit>> => {
@@ -688,12 +693,12 @@ export const api = {
       if (conflict) return conflict;
 
       const roaster = db.roasters.find((r) => r.id === body.roasterId);
-      if (!roaster) return { problem: GS.GEN_1005() };
+      if (!roaster) return { problem: AL.GEN_1005() };
 
       const lots: SampleKitLot[] = [];
       for (const lotId of body.lotIds) {
         const lot = db.lots.find((l) => l.id === lotId);
-        if (!lot) return { problem: GS.GEN_1005() };
+        if (!lot) return { problem: AL.GEN_1005() };
         lots.push({
           lotId,
           origin: lot.origin,
@@ -729,7 +734,7 @@ export const api = {
       }
 
       const kit = db.sampleKits.find((k) => k.feedbackToken === input.feedbackToken);
-      if (!kit) return { problem: GS.GEN_1005() };
+      if (!kit) return { problem: AL.GEN_1005() };
       kit.status = 'feedback_received';
       kit.feedback = body;
       kit.feedbackSubmittedAt = nowIso();
@@ -759,7 +764,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<Order>> => {
       const item = db.orders.find((o) => o.id === id);
-      return item ? { data: item } : { problem: GS.GEN_1005() };
+      return item ? { data: item } : { problem: AL.GEN_1005() };
     },
 
     create: async (
@@ -773,7 +778,7 @@ export const api = {
       const lineItems = body.lineItems;
       if (!lineItems.length) {
         return {
-          problem: GS.GEN_1000([
+          problem: AL.GEN_1000([
             { field: 'lineItems', code: 'required', message: 'At least one line item is required' },
           ]),
         };
@@ -782,21 +787,21 @@ export const api = {
       for (const item of lineItems) {
         if (!Number.isInteger(item.quantityLbs) || item.quantityLbs <= 0) {
           return {
-            problem: GS.GEN_1000([
+            problem: AL.GEN_1000([
               { field: 'quantityLbs', code: 'invalid', message: 'quantityLbs must be a positive integer' },
             ]),
           };
         }
         if (!Number.isInteger(item.unitPriceCents) || item.unitPriceCents <= 0) {
           return {
-            problem: GS.GEN_1000([
+            problem: AL.GEN_1000([
               { field: 'unitPriceCents', code: 'invalid', message: 'unitPriceCents must be a positive integer' },
             ]),
           };
         }
         if (seenLotIds.has(item.lotId)) {
           return {
-            problem: GS.GEN_1000([
+            problem: AL.GEN_1000([
               { field: 'lineItems', code: 'duplicate_lot', message: `Duplicate lotId ${item.lotId} in order` },
             ]),
           };
@@ -804,11 +809,11 @@ export const api = {
         seenLotIds.add(item.lotId);
 
         const lot = db.lots.find((l) => l.id === item.lotId);
-        if (!lot) return { problem: GS.GEN_1005() };
-        if (lot.status === 'retired') return { problem: GS.CAT_1002() };
+        if (!lot) return { problem: AL.GEN_1005() };
+        if (lot.status === 'retired') return { problem: AL.CAT_1002() };
         if (lot.availableQuantityLbs < item.quantityLbs) {
           return {
-            problem: GS.CAT_1001(
+            problem: AL.CAT_1001(
               `Lot ${item.lotId} has ${lot.availableQuantityLbs} lbs available; ${item.quantityLbs} requested.`,
             ),
           };
@@ -842,35 +847,35 @@ export const api = {
 
     process: async (id: string): Promise<ApiResult<Order>> => {
       const idx = db.orders.findIndex((o) => o.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.orders[idx] = { ...db.orders[idx], status: 'processing', updatedAt: nowIso() };
       return { data: db.orders[idx] };
     },
 
     ship: async (id: string): Promise<ApiResult<Order>> => {
       const idx = db.orders.findIndex((o) => o.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.orders[idx] = { ...db.orders[idx], status: 'shipped', updatedAt: nowIso() };
       return { data: db.orders[idx] };
     },
 
     deliver: async (id: string): Promise<ApiResult<Order>> => {
       const idx = db.orders.findIndex((o) => o.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.orders[idx] = { ...db.orders[idx], status: 'delivered', updatedAt: nowIso() };
       return { data: db.orders[idx] };
     },
 
     cancel: async (id: string): Promise<ApiResult<Order>> => {
       const idx = db.orders.findIndex((o) => o.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.orders[idx] = { ...db.orders[idx], status: 'cancelled', updatedAt: nowIso() };
       return { data: db.orders[idx] };
     },
 
     return: async (id: string): Promise<ApiResult<Order>> => {
       const idx = db.orders.findIndex((o) => o.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.orders[idx] = { ...db.orders[idx], status: 'returned', updatedAt: nowIso() };
       return { data: db.orders[idx] };
     },
@@ -889,7 +894,7 @@ export const api = {
 
     get: async (id: string): Promise<ApiResult<WebhookSubscription>> => {
       const item = db.webhooks.find((w) => w.id === id);
-      return item ? { data: withoutSigningSecret(item) } : { problem: GS.GEN_1005() };
+      return item ? { data: withoutSigningSecret(item) } : { problem: AL.GEN_1005() };
     },
 
     create: async (
@@ -914,21 +919,21 @@ export const api = {
 
     patch: async (id: string, patch: WebhookSubscriptionPatch): Promise<ApiResult<WebhookSubscription>> => {
       const idx = db.webhooks.findIndex((w) => w.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.webhooks[idx] = { ...db.webhooks[idx], ...patch };
       return { data: withoutSigningSecret(db.webhooks[idx]) };
     },
 
     delete: async (id: string): Promise<ApiResult<void>> => {
       const idx = db.webhooks.findIndex((w) => w.id === id);
-      if (idx === -1) return { problem: GS.GEN_1005() };
+      if (idx === -1) return { problem: AL.GEN_1005() };
       db.webhooks.splice(idx, 1);
       return { data: undefined };
     },
 
     deliveries: async (id: string): Promise<ApiResult<WebhookDelivery[]>> => {
       const subscription = db.webhooks.find((w) => w.id === id);
-      if (!subscription) return { problem: GS.GEN_1005() };
+      if (!subscription) return { problem: AL.GEN_1005() };
       return {
         data: [
           {
@@ -1113,20 +1118,12 @@ export const api = {
       if (active) return { data: { code: active } };
 
       let codeText: string;
-      if (requestedCode && /^GS-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
+      if (requestedCode && /^AL-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
         const taken = db.referralCodes.some(
           (c) => c.code.toLowerCase() === requestedCode.toLowerCase(),
         );
         if (taken) {
-          return {
-            problem: {
-              type: 'about:blank',
-              title: 'Code already taken',
-              status: 409,
-              code: 'GS-REF-1001',
-              detail: `The referral code ${requestedCode} is already in use.`,
-            },
-          };
+          return { problem: AL.REF_1001(`The referral code ${requestedCode} is already in use.`) };
         }
         codeText = requestedCode;
       } else {
@@ -1175,6 +1172,7 @@ export const api = {
         first_order_delivered: 6,
         qualified: 7,
         clawed_back: 7,
+        declined: -1,
       };
 
       const clicks = referrals.filter((r) => statusIndex[r.status] >= 1).length;
@@ -1223,15 +1221,7 @@ export const api = {
         (c) => c.code.toLowerCase() === code.toLowerCase() && c.status === 'active',
       );
       if (!refCode) {
-        return {
-          problem: {
-            type: 'about:blank',
-            title: 'Referral code not found',
-            status: 404,
-            code: 'GS-REF-1002',
-            detail: `No active referral code found for ${code}.`,
-          },
-        };
+        return { problem: AL.REF_1002(`No active referral code found for ${code}.`) };
       }
 
       const existing = db.referrals.find(
@@ -1262,15 +1252,7 @@ export const api = {
     qualifyReferral: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
       const referral = db.referrals.find((r) => r.id === referralId);
       if (!referral) {
-        return {
-          problem: {
-            type: 'about:blank',
-            title: 'Referral not found',
-            status: 404,
-            code: 'GS-REF-1003',
-            detail: `No referral found with id ${referralId}.`,
-          },
-        };
+        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
       }
 
       if (referral.status === 'qualified') {
@@ -1278,9 +1260,42 @@ export const api = {
         return { data: { referral, entries: existingEntries } };
       }
 
+      const referrer = db.roasters.find((r) => r.id === referral.referrerId);
+      const referee = referral.refereeId
+        ? db.roasters.find((r) => r.id === referral.refereeId)
+        : undefined;
+      const refereeOrders = db.orders.filter((o) => o.accountId === referral.refereeId);
+      const allReferrals = db.referrals;
+
+      const decision = evaluateReferral({
+        referral,
+        referrer,
+        referee,
+        refereeOrders,
+        allReferrals,
+      });
+
+      if (decision.action === 'decline') {
+        return { problem: AL.REF_1005(decision.reason) };
+      }
+
+      if (decision.action === 'review') {
+        referral.reviewStatus = 'pending_review';
+        referral.updatedAt = nowIso();
+        return { problem: AL.REF_1006(decision.reason) };
+      }
+
+      if (decision.action === 'pause') {
+        referral.reviewStatus = 'pending_review';
+        referral.updatedAt = nowIso();
+        return { problem: AL.REF_1007(decision.reason) };
+      }
+
       const now = nowIso();
       referral.status = 'qualified';
       referral.qualifiedAt = now;
+      referral.reviewStatus = 'approved';
+      referral.updatedAt = now;
       referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
 
       const referrerCredit: RewardLedgerEntry = {
@@ -1314,27 +1329,11 @@ export const api = {
     clawBack: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
       const referral = db.referrals.find((r) => r.id === referralId);
       if (!referral) {
-        return {
-          problem: {
-            type: 'about:blank',
-            title: 'Referral not found',
-            status: 404,
-            code: 'GS-REF-1003',
-            detail: `No referral found with id ${referralId}.`,
-          },
-        };
+        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
       }
 
       if (referral.status !== 'qualified') {
-        return {
-          problem: {
-            type: 'about:blank',
-            title: 'Referral not qualified',
-            status: 400,
-            code: 'GS-REF-1004',
-            detail: 'Only qualified referrals can be clawed back.',
-          },
-        };
+        return { problem: AL.REF_1004() };
       }
 
       const now = nowIso();
@@ -1348,6 +1347,117 @@ export const api = {
       }
 
       return { data: { referral, entries: affected } };
+    },
+
+    listPendingReview: async (
+      accountId: string,
+    ): Promise<ApiResult<{ referrals: Referral[] }>> => {
+      const referrals = db.referrals
+        .filter((r) => r.referrerId === accountId && r.reviewStatus === 'pending_review')
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return { data: { referrals } };
+    },
+
+    approveReview: async (
+      referralId: string,
+    ): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
+      const referral = db.referrals.find((r) => r.id === referralId);
+      if (!referral) {
+        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
+      }
+      if (referral.reviewStatus !== 'pending_review') {
+        return { problem: AL.REF_1008(`Referral ${referralId} is not in the review queue.`) };
+      }
+
+      referral.reviewStatus = 'approved';
+      referral.updatedAt = nowIso();
+
+      const referrer = db.roasters.find((r) => r.id === referral.referrerId);
+      const referee = referral.refereeId
+        ? db.roasters.find((r) => r.id === referral.refereeId)
+        : undefined;
+      const refereeOrders = db.orders.filter((o) => o.accountId === referral.refereeId);
+      const allReferrals = db.referrals;
+
+      const decision = evaluateReferral({
+        referral,
+        referrer,
+        referee,
+        refereeOrders,
+        allReferrals,
+      });
+
+      if (decision.action === 'qualify') {
+        const now = nowIso();
+        referral.status = 'qualified';
+        referral.qualifiedAt = now;
+        referral.reviewStatus = 'approved';
+        referral.updatedAt = now;
+        referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
+
+        const referrerCredit: RewardLedgerEntry = {
+          id: id(),
+          accountId: referral.referrerId,
+          referralId: referral.id,
+          type: 'referrer_credit',
+          amountCents: 150_00,
+          status: 'posted',
+          description: `Referrer credit for ${referral.refCode} qualified referral`,
+          createdAt: now,
+          postedAt: now,
+        };
+
+        const refereeDiscount: RewardLedgerEntry = {
+          id: id(),
+          accountId: referral.refereeId ?? referral.referrerId,
+          referralId: referral.id,
+          type: 'referee_discount',
+          amountCents: 100_00,
+          status: 'posted',
+          description: `Referee discount for ${referral.refCode} qualified referral`,
+          createdAt: now,
+          postedAt: now,
+        };
+
+        db.rewardsLedger.push(referrerCredit, refereeDiscount);
+        return { data: { referral, entries: [referrerCredit, refereeDiscount] } };
+      }
+
+      // Re-route to review/decline after approval
+      if (decision.action === 'review') {
+        referral.reviewStatus = 'pending_review';
+        referral.updatedAt = nowIso();
+        return { problem: AL.REF_1006(decision.reason) };
+      }
+
+      if (decision.action === 'pause') {
+        referral.reviewStatus = 'pending_review';
+        referral.updatedAt = nowIso();
+        return { problem: AL.REF_1007(decision.reason) };
+      }
+
+      // Decline: leave the review queue in a terminal 'declined' state.
+      referral.reviewStatus = 'declined';
+      referral.status = 'declined';
+      referral.updatedAt = nowIso();
+      return { problem: AL.REF_1005(decision.reason) };
+    },
+
+    declineReview: async (
+      referralId: string,
+    ): Promise<ApiResult<{ referral: Referral }>> => {
+      const referral = db.referrals.find((r) => r.id === referralId);
+      if (!referral) {
+        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
+      }
+      if (referral.reviewStatus !== 'pending_review') {
+        return { problem: AL.REF_1008(`Referral ${referralId} is not in the review queue.`) };
+      }
+
+      referral.reviewStatus = 'declined';
+      referral.status = 'declined';
+      referral.updatedAt = nowIso();
+      return { data: { referral } };
     },
   },
 };

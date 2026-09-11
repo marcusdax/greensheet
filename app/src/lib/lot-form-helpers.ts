@@ -3,7 +3,7 @@ import type { ProcessingMethod } from '../types/api';
 export const lotToFormValues = (lot: {
   origin: string;
   varietal: string | null | undefined;
-  processingMethod: ProcessingMethod | string | null | undefined;
+  processMethod: ProcessingMethod | string | null | undefined;
   elevation: number | null | undefined;
   cupScore: number;
   pricePerLbCents: number;
@@ -15,7 +15,7 @@ export const lotToFormValues = (lot: {
 }): {
   origin: string;
   varietal: string | null;
-  processingMethod: ProcessingMethod | '';
+  processMethod: ProcessingMethod | '';
   elevation: number | null;
   cupScore: number;
   pricePerLb: number;
@@ -27,7 +27,7 @@ export const lotToFormValues = (lot: {
 } => ({
   origin: lot.origin,
   varietal: lot.varietal ?? null,
-  processingMethod: (lot.processingMethod as ProcessingMethod | '') ?? '',
+  processMethod: (lot.processMethod as ProcessingMethod | '') ?? '',
   elevation: lot.elevation ?? null,
   cupScore: lot.cupScore,
   pricePerLb: lot.pricePerLbCents / 100,

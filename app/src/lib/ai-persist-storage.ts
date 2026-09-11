@@ -1,9 +1,9 @@
 import type { PersistStorage, StorageValue } from 'zustand/middleware';
 import type { AiSlice } from '../stores/slices/ai-slice';
 
-export const AI_STORAGE_KEY = 'greensheet:ai';
+export const AI_STORAGE_KEY = 'auctum:ai';
 
-const SALT = 'odasi-ai-v1';
+const SALT = 'auctum-ai-v1';
 
 function stringToBytes(input: string): Uint8Array {
   return new TextEncoder().encode(input);

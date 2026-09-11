@@ -1,4 +1,4 @@
-# Greensheet Frontend Expansion: Lot Assets, Touch Templates, and Settings
+# Auctum Ledger Frontend Expansion: Lot Assets, Touch Templates, and Settings
 
 **Date:** 2026-07-29  
 **Scope:** Frontend demo application (`app/`)  
@@ -6,7 +6,7 @@
 
 ## 1. Goal
 
-Add three new capabilities to the existing Greensheet demo frontend:
+Add three new capabilities to the existing Auctum Ledger demo frontend:
 
 1. **Lot media gallery** on the Catalog page so a user can upload PDF / JPEG / PNG / WebP files when creating or editing a lot; these assets display as a thumbnail preview on the catalog row and a gallery in the lot detail drawer.
 2. **Templates page** for editing email and SMS touch templates that are consumed by automation-rule `SEND_TEMPLATE` actions. Each template supports A/B variants, merge-token insertion, and a live preview rendered from a fixed sample dataset.
@@ -20,7 +20,7 @@ The implementation must fit the existing architecture: TypeScript types, Zod sch
 |----------|-----------|
 | Display-only lot assets, no generated lot sheet | User confirmed they only want a gallery preview, not a generated PDF or printable lot sheet. This keeps the feature storage-bound and avoids PDF-generation libraries. |
 | Dedicated **Templates** sidebar page, nested between Campaigns and Automation Rules | The user wants a focused editor for touch templates. A separate page gives clear ownership; it still links to Automation Rules via a dropdown in the `RuleForm`. |
-| Full template editor with A/B variants and merge-token preview | Chosen to match the existing COF-001…005 campaign copy and to make template editing demonstrable for nurture sequences. |
+| Full template editor with A/B variants and merge-token preview | Chosen to match the existing ALT-001…005 campaign copy and to make template editing demonstrable for nurture sequences. |
 | Settings page footer item in sidebar | Conventional placement; does not pollute the main domain groups. |
 | Fixed sample dataset for template preview | User explicitly requested a fixed sample dataset rather than a live selected roaster/lot. Easier to seed and keep deterministic. |
 | Base64 `dataUrl` storage in the mock DB | Mirrors how the existing demo stores in-memory state without a real backend. Keeps file uploads self-contained in the browser. |
@@ -51,9 +51,9 @@ export interface LotAssetInput {
 }
 ```
 
-- `CoffeeLot` gains `assets: LotAsset[]`.
-- `CoffeeLotCreate` gains `assets?: LotAssetInput[]`.
-- `CoffeeLotPatch` gains `assets?: LotAssetInput[]` (used for gallery edits on an existing lot).
+- `LedgerLot` gains `assets: LotAsset[]`.
+- `LedgerLotCreate` gains `assets?: LotAssetInput[]`.
+- `LedgerLotPatch` gains `assets?: LotAssetInput[]` (used for gallery edits on an existing lot).
 
 ### 3.2 `TouchTemplate`
 
@@ -188,7 +188,7 @@ export interface UserProfile {
   - `GET /v1/templates/:id`.
   - `PATCH /v1/templates/:id`.
   - `DELETE /v1/templates/:id`.
-- Seed at least five templates (COF-001…005) so the page is not empty on first load.
+- Seed at least five templates (ALT-001…005) so the page is not empty on first load.
 - New Zustand slice: `templates-slice.ts`.
 
 ## 6. Settings / Account Page

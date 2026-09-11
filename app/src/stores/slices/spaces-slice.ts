@@ -1,4 +1,4 @@
-import type { FarmerSpace, RoasterSpace, CafeSpace, CooperativeSpace, AnySpace } from '../../types/lotspace';
+import type { FarmerSpace, RoasterSpace, CafeSpace, CooperativeSpace, AnySpace } from '../../types/ledger';
 import { farmerSpaces, roasterSpaces, cafeSpaces, cooperativeSpaces } from '../../data/spaces';
 
 export interface SpacesState {

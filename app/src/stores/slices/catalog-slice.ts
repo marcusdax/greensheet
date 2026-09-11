@@ -1,8 +1,8 @@
 import { api } from '../../api/client';
-import type { CoffeeLot, CoffeeLotCreate, CoffeeLotPatch, Reservation, Problem } from '../../types/api';
+import type { LedgerLot, LedgerLotCreate, LedgerLotPatch, Reservation, Problem } from '../../types/api';
 
 export interface CatalogState {
-  lots: CoffeeLot[];
+  lots: LedgerLot[];
   loading: boolean;
   error: Problem | null;
   cursor: string | null;
@@ -12,9 +12,9 @@ export interface CatalogState {
 
 export interface CatalogActions {
   loadLots: (params?: { cursor?: string; origins?: string[]; minCupScore?: number; maxPricePerLbCents?: number }) => Promise<void>;
-  createLot: (input: CoffeeLotCreate, idempotencyKey?: string) => Promise<CoffeeLot | null>;
-  updateLot: (id: string, patch: CoffeeLotPatch) => Promise<CoffeeLot | null>;
-  retireLot: (id: string) => Promise<CoffeeLot | null>;
+  createLot: (input: LedgerLotCreate, idempotencyKey?: string) => Promise<LedgerLot | null>;
+  updateLot: (id: string, patch: LedgerLotPatch) => Promise<LedgerLot | null>;
+  retireLot: (id: string) => Promise<LedgerLot | null>;
   reserveLot: (lotId: string, input: { quantityLbs: number; orderId: string }, idempotencyKey?: string) => Promise<Reservation | null>;
 }
 
@@ -38,34 +38,34 @@ export const createCatalogSlice = (set: any) => ({
       set((s: any) => { s.catalog.error = res.problem; s.catalog.loading = false; }, false, 'catalog/loadLots/error');
     } else {
       set((s: any) => {
-        s.catalog.lots = params.cursor ? [...s.catalog.lots, ...res.data.data.map((l: CoffeeLot) => ({ ...l }))] : res.data.data.map((l: CoffeeLot) => ({ ...l }));
+        s.catalog.lots = params.cursor ? [...s.catalog.lots, ...res.data.data.map((l: LedgerLot) => ({ ...l }))] : res.data.data.map((l: LedgerLot) => ({ ...l }));
         s.catalog.cursor = res.data.page.nextCursor;
         s.catalog.hasMore = res.data.page.hasMore;
         s.catalog.loading = false;
       }, false, 'catalog/loadLots/done');
     }
   },
-  createLot: async (input: CoffeeLotCreate, idempotencyKey?: string) => {
+  createLot: async (input: LedgerLotCreate, idempotencyKey?: string) => {
     const res = await api.catalog.create(input, idempotencyKey ?? crypto.randomUUID());
     if ('problem' in res) {
       set((s: any) => { s.catalog.error = res.problem; }, false, 'catalog/createLot/error');
       return null;
     }
     set((s: any) => {
-      const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === res.data.id);
+      const idx = s.catalog.lots.findIndex((l: LedgerLot) => l.id === res.data.id);
       if (idx >= 0) s.catalog.lots[idx] = { ...res.data };
       else s.catalog.lots.unshift({ ...res.data });
     }, false, 'catalog/createLot/done');
     return res.data;
   },
-  updateLot: async (id: string, patch: CoffeeLotPatch) => {
+  updateLot: async (id: string, patch: LedgerLotPatch) => {
     const res = await api.catalog.patch(id, patch);
     if ('problem' in res) {
       set((s: any) => { s.catalog.error = res.problem; }, false, 'catalog/updateLot/error');
       return null;
     }
     set((s: any) => {
-      const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === id);
+      const idx = s.catalog.lots.findIndex((l: LedgerLot) => l.id === id);
       if (idx >= 0) s.catalog.lots[idx] = res.data;
     }, false, 'catalog/updateLot/done');
     return res.data;
@@ -77,7 +77,7 @@ export const createCatalogSlice = (set: any) => ({
       return null;
     }
     set((s: any) => {
-      const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === id);
+      const idx = s.catalog.lots.findIndex((l: LedgerLot) => l.id === id);
       if (idx >= 0) s.catalog.lots[idx] = res.data;
     }, false, 'catalog/retireLot/done');
     return res.data;
@@ -91,7 +91,7 @@ export const createCatalogSlice = (set: any) => ({
     set((s: any) => {
       const existing = s.catalog.reservations.find((r: Reservation) => r.id === res.data.id);
       if (!existing) {
-        const idx = s.catalog.lots.findIndex((l: CoffeeLot) => l.id === lotId);
+        const idx = s.catalog.lots.findIndex((l: LedgerLot) => l.id === lotId);
         if (idx >= 0) s.catalog.lots[idx].availableQuantityLbs -= input.quantityLbs;
       }
       const idx = s.catalog.reservations.findIndex((r: Reservation) => r.id === res.data.id);

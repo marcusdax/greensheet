@@ -42,7 +42,7 @@ export const LotDetailDrawer: React.FC = () => {
             </h2>
             {lot.varietal && (
               <p className="text-sm text-muted font-sans mt-0.5">
-                {lot.varietal} • {t(`process.${lot.processingMethod}`, lot.processingMethod)}
+                {lot.varietal} • {t(`process.${lot.processMethod}`, lot.processMethod)}
               </p>
             )}
           </div>

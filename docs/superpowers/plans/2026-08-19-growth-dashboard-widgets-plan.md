@@ -185,11 +185,11 @@ campaignLift: async (): Promise<ApiResult<{ campaigns: CampaignLiftRow[] }>> => 
   return {
     data: {
       campaigns: [
-        { campaignId: 'cof-001', campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
-        { campaignId: 'cof-002', campaignName: 'COF-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
-        { campaignId: 'cof-003', campaignName: 'COF-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
-        { campaignId: 'cof-004', campaignName: 'COF-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
-        { campaignId: 'cof-005', campaignName: 'COF-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
+        { campaignId: 'alt-001', campaignName: 'ALT-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
+        { campaignId: 'alt-002', campaignName: 'ALT-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
+        { campaignId: 'alt-003', campaignName: 'ALT-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
+        { campaignId: 'alt-004', campaignName: 'ALT-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
+        { campaignId: 'alt-005', campaignName: 'ALT-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
       ],
     },
   };
@@ -375,11 +375,11 @@ export function deriveKFactor(metric: KFactorMetric | null): GrowthKFactorPoint 
 export function deriveCampaignLift(campaigns: CampaignLiftRow[]): GrowthCampaignLiftPoint[] {
   if (campaigns.length === 0) {
     return [
-      { campaignName: 'COF-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
-      { campaignName: 'COF-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
-      { campaignName: 'COF-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
-      { campaignName: 'COF-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
-      { campaignName: 'COF-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
+      { campaignName: 'ALT-001 Welcome', lift: 0.12, probability: 0.97, isSignificant: true },
+      { campaignName: 'ALT-002 Feedback', lift: 0.08, probability: 0.91, isSignificant: false },
+      { campaignName: 'ALT-003 First Order', lift: 0.18, probability: 0.99, isSignificant: true },
+      { campaignName: 'ALT-004 Reorder', lift: 0.05, probability: 0.88, isSignificant: false },
+      { campaignName: 'ALT-005 Win-back', lift: 0.22, probability: 0.96, isSignificant: true },
     ];
   }
   return campaigns;
