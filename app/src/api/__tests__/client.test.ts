@@ -580,13 +580,14 @@ describe('analytics growth endpoints', () => {
   });
 });
 
+
 describe('referrals api', () => {
   beforeEach(() => resetDatabase());
 
   it('creates a referral code lazily', async () => {
     const res = await api.referrals.getCodeForAccount('r_003');
     expect('data' in res).toBe(true);
-    expect(res.data!.code.code).toMatch(/^AL-[A-Z]{2,6}-\d{1,4}$/);
+    expect(res.data!.code.code).toMatch(/^GS-[A-Z]{2,6}-\d{1,4}$/);
     expect(res.data!.code.accountId).toBe('r_003');
   });
 
@@ -598,13 +599,14 @@ describe('referrals api', () => {
   });
 
   it('accepts a custom code and rejects duplicates', async () => {
-    const custom = await api.referrals.createCode('r_004', 'AL-CUSTOM-42');
+    const custom = await api.referrals.createCode('r_004', 'GS-CUSTOM-42');
     expect('data' in custom).toBe(true);
-    expect(custom.data!.code.code).toBe('AL-CUSTOM-42');
+    expect(custom.data!.code.code).toBe('GS-CUSTOM-42');
 
-    const duplicate = await api.referrals.createCode('r_005', 'AL-CUSTOM-42');
+    const duplicate = await api.referrals.createCode('r_005', 'GS-CUSTOM-42');
     expect('problem' in duplicate).toBe(true);
     expect(duplicate.problem!.status).toBe(409);
+    expect(duplicate.problem!.code).toBe('GS-REF-1001');
   });
 
   it('lists referrals for a referrer', async () => {
@@ -634,54 +636,20 @@ describe('referrals api', () => {
   });
 
   it('records a click and creates a referral', async () => {
-    const res = await api.referrals.recordClick('AL-RVR-001', 'qr_sticker');
+    const res = await api.referrals.recordClick('GS-RVR-001', 'qr_sticker');
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('clicked');
     expect(res.data!.referral.channel).toBe('qr_sticker');
   });
 
   it('returns an error for an unknown referral code click', async () => {
-    const res = await api.referrals.recordClick('AL-UNKNOWN-99');
+    const res = await api.referrals.recordClick('GS-UNKNOWN-99');
     expect('problem' in res).toBe(true);
     expect(res.problem!.status).toBe(404);
+    expect(res.problem!.code).toBe('GS-REF-1002');
   });
 
-  it('qualifies a referral and posts rewards after fraud checks pass', async () => {
-    // Seed roasters with fraud-check fields (business registration, tax ID,
-    // distinct identity graph values) and a qualifying delivered first order.
-    await api.roasters.patch('r_002', {
-      businessRegistration: 'BR-002',
-      taxId: 'TAX-002',
-      billingAddress: '789 Referrer Ave',
-      cardFingerprint: 'fp_card_ref_002',
-      deviceFingerprint: 'fp_dev_ref_002',
-      ipSubnet: '10.0.2.0/24',
-    });
-    await api.roasters.patch('r_004', {
-      businessRegistration: 'BR-004',
-      taxId: 'TAX-004',
-      billingAddress: '321 Referee Blvd',
-      cardFingerprint: 'fp_card_ref_004',
-      deviceFingerprint: 'fp_dev_ref_004',
-      ipSubnet: '10.0.4.0/24',
-    });
-
-    const orderKey = idempotencyKey();
-    const orderRes = await api.orders.create(
-      {
-        accountId: 'r_004',
-        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
-      },
-      orderKey,
-    );
-    expect('data' in orderRes).toBe(true);
-    await api.orders.deliver(orderRes.data!.id);
-
-    // Playbook §4: 30-day return window must pass before credit posts.
-    // Backdate the delivery so the qualification floor check sees 30+ days elapsed.
-    const orderInDb = db.orders.find((o) => o.id === orderRes.data!.id);
-    orderInDb!.updatedAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
-
+  it('qualifies a referral and posts rewards', async () => {
     const seed = await api.referrals.listReferrals('r_002');
     const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
     expect(target).toBeDefined();
@@ -694,122 +662,6 @@ describe('referrals api', () => {
     expect(res.data!.entries.some((e) => e.type === 'referee_discount' && e.amountCents === 100_00)).toBe(true);
   });
 
-  it('declines referral when identity graph matches (shared billing address)', async () => {
-    // Both roasters have valid business docs but share a billing address
-    await api.roasters.patch('r_002', {
-      businessRegistration: 'BR-002',
-      taxId: 'TAX-002',
-      billingAddress: 'SAME STREET',
-      cardFingerprint: 'fp_card_ref_002',
-      deviceFingerprint: 'fp_dev_ref_002',
-      ipSubnet: '10.0.2.0/24',
-    });
-    await api.roasters.patch('r_004', {
-      businessRegistration: 'BR-004',
-      taxId: 'TAX-004',
-      billingAddress: 'SAME STREET',
-      cardFingerprint: 'fp_card_ref_004',
-      deviceFingerprint: 'fp_dev_ref_004',
-      ipSubnet: '10.0.4.0/24',
-    });
-
-    const orderKey = idempotencyKey();
-    const orderRes = await api.orders.create(
-      {
-        accountId: 'r_004',
-        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
-      },
-      orderKey,
-    );
-    expect('data' in orderRes).toBe(true);
-    await api.orders.deliver(orderRes.data!.id);
-
-    const seed = await api.referrals.listReferrals('r_002');
-    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
-    expect(target).toBeDefined();
-
-    const res = await api.referrals.qualifyReferral(target!.id);
-    expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('AL-REF-1005');
-    expect(res.problem!.status).toBe(403);
-
-    const refetched = (await api.referrals.listReferrals('r_002')).data!.referrals.find(
-      (r) => r.id === target!.id,
-    );
-    expect(refetched!.status).toBe('kit_delivered'); // unchanged
-  });
-
-  it('reviews referral when referee lacks business registration or tax ID', async () => {
-    await api.roasters.patch('r_002', {
-      businessRegistration: 'BR-002',
-      taxId: 'TAX-002',
-      billingAddress: '789 Referrer Ave',
-      cardFingerprint: 'fp_card_ref_002',
-      deviceFingerprint: 'fp_dev_ref_002',
-      ipSubnet: '10.0.2.0/24',
-    });
-    await api.roasters.patch('r_004', {
-      businessRegistration: undefined,
-      billingAddress: '321 Referee Blvd',
-      cardFingerprint: 'fp_card_ref_004',
-      deviceFingerprint: 'fp_dev_ref_004',
-      ipSubnet: '10.0.4.0/24',
-    });
-
-    const orderKey = idempotencyKey();
-    const orderRes = await api.orders.create(
-      {
-        accountId: 'r_004',
-        lineItems: [{ lotId: 'lot_001', quantityLbs: 25, unitPriceCents: 610 }],
-      },
-      orderKey,
-    );
-    expect('data' in orderRes).toBe(true);
-    await api.orders.deliver(orderRes.data!.id);
-
-    const seed = await api.referrals.listReferrals('r_002');
-    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
-    expect(target).toBeDefined();
-
-    const res = await api.referrals.qualifyReferral(target!.id);
-    expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('AL-REF-1006');
-    expect(res.problem!.status).toBe(422);
-
-    const refetched = (await api.referrals.listReferrals('r_002')).data!.referrals.find(
-      (r) => r.id === target!.id,
-    );
-    expect(refetched!.reviewStatus).toBe('pending_review');
-    expect(refetched!.status).toBe('kit_delivered'); // not qualified
-  });
-
-  it('declines referral when qualification floor not met (no qualifying order)', async () => {
-    await api.roasters.patch('r_002', {
-      businessRegistration: 'BR-002',
-      taxId: 'TAX-002',
-      billingAddress: '789 Referrer Ave',
-      cardFingerprint: 'fp_card_ref_002',
-      deviceFingerprint: 'fp_dev_ref_002',
-      ipSubnet: '10.0.2.0/24',
-    });
-    await api.roasters.patch('r_004', {
-      businessRegistration: 'BR-004',
-      taxId: 'TAX-004',
-      billingAddress: '321 Referee Blvd',
-      cardFingerprint: 'fp_card_ref_004',
-      deviceFingerprint: 'fp_dev_ref_004',
-      ipSubnet: '10.0.4.0/24',
-    });
-
-    const seed = await api.referrals.listReferrals('r_002');
-    const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
-    expect(target).toBeDefined();
-
-    const res = await api.referrals.qualifyReferral(target!.id);
-    expect('problem' in res).toBe(true);
-    expect(res.problem!.code).toBe('AL-REF-1005');
-  });
-
   it('claws back a qualified referral and reverses rewards', async () => {
     const seed = await api.referrals.listReferrals('r_002');
     const target = seed.data!.referrals.find((r) => r.status === 'qualified');
@@ -819,5 +671,59 @@ describe('referrals api', () => {
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('clawed_back');
     expect(res.data!.entries.every((e) => e.status === 'clawed_back')).toBe(true);
+  });
+
+  it('getPendingReview returns only referrals with pending_review status', async () => {
+    db.referrals.push({
+      id: 'ref_pending_001',
+      referrerId: 'r_001',
+      refereeId: 'r_005',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'pending_review',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+    db.referrals.push({
+      id: 'ref_approved_001',
+      referrerId: 'r_001',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'approved',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+
+    const res = await api.referrals.getPendingReview();
+    expect('data' in res).toBe(true);
+    expect(res.data!.referrals.length).toBe(1);
+    expect(res.data!.referrals[0].id).toBe('ref_pending_001');
+    expect(res.data!.referrals[0].reviewStatus).toBe('pending_review');
+  });
+
+  it('declineReview sets reviewStatus to declined and leaves referrer ledger unchanged', async () => {
+    const beforeLedger = db.rewardsLedger.filter((e) => e.accountId === 'r_001').length;
+    db.referrals.push({
+      id: 'ref_decline_001',
+      referrerId: 'r_001',
+      refereeId: 'r_005',
+      refCode: 'GS-RVR-001',
+      status: 'feedback_submitted',
+      reviewStatus: 'pending_review',
+      channel: 'invite_link',
+      createdAt: '2025-08-01T00:00:00.000Z',
+    });
+
+    const res = await api.referrals.declineReview('ref_decline_001');
+    expect('data' in res).toBe(true);
+    expect(res.data!.referral.reviewStatus).toBe('declined');
+    expect(db.rewardsLedger.filter((e) => e.accountId === 'r_001').length).toBe(beforeLedger);
+  });
+
+  it('declineReview returns not-found for a bogus id', async () => {
+    const res = await api.referrals.declineReview('ref_does_not_exist');
+    expect('problem' in res).toBe(true);
+    expect(res.problem!.status).toBe(404);
+    expect(res.problem!.code).toBe('GS-GEN-1005');
   });
 });

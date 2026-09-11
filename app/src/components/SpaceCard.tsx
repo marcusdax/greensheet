@@ -89,7 +89,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
   const archetypeLabel = ARCHETYPE_LABELS[space.archetype] || space.archetype;
   const archetypeColor = ARCHETYPE_COLORS[space.archetype] || 'bg-recessed text-muted border-border';
 
-const isBraveFew = space.archetype === 'cafe' && Boolean((space as CafeSpace).isBraveFew);
+const isBraveFew = space.archetype === 'roaster' && 'isBraveFew' in space && Boolean(space.isBraveFew);
 
   const handleFollowClick = (e: React.MouseEvent) => {
     e.stopPropagation();

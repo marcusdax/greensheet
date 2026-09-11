@@ -8,6 +8,8 @@ export interface AuctumVerifiedOriginProps {
   tier: VerificationTier;
   size?: Size;
   showLabel?: boolean;
+  /** When set, renders a small curriculum-completion badge next to the tier seal. */
+  curriculumBadge?: VerificationTier;
 }
 
 /**
@@ -70,11 +72,18 @@ export const AuctumVerifiedOrigin: React.FC<AuctumVerifiedOriginProps> = ({
   tier,
   size = 'md',
   showLabel = true,
+  curriculumBadge,
 }) => {
   if (!verified) return null;
 
   const variant = tierVariant(tier);
   const sizeCfg = SIZE_CONFIG[size];
+
+  const badgeColorClasses: Record<VerificationTier, string> = {
+    audit_verified: 'bg-gold/10 text-gold border-gold/30',
+    agent_verified: 'bg-navy/10 text-navy border-navy/20',
+    self_declared: 'bg-leaf/10 text-leaf border-leaf/30',
+  };
 
   return (
     <span
@@ -85,6 +94,15 @@ export const AuctumVerifiedOrigin: React.FC<AuctumVerifiedOriginProps> = ({
         <span className={`${variant.font} ${sizeCfg.text}`}>{variant.label}</span>
       ) : (
         <span className={`rounded-full bg-current ${sizeCfg.dot}`} aria-label={variant.label} />
+      )}
+      {curriculumBadge && (
+        <span
+          className={`ml-1 inline-flex items-center justify-center rounded-full border text-[9px] font-bold leading-none ${badgeColorClasses[curriculumBadge]}`}
+          title={`Curriculum badge earned: ${curriculumBadge.replace('_', ' ')}`}
+          aria-label={`Curriculum badge: ${curriculumBadge.replace('_', ' ')}`}
+        >
+          ★
+        </span>
       )}
     </span>
   );

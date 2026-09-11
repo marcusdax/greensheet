@@ -277,8 +277,6 @@ export function seedDatabase() {
       interventions: [
         { id: 'i6', type: 'discount_offer', date: '2025-04-12', outcome: 'churned', notes: 'Attempted save offer. No response.' },
       ],
-      businessRegistration: 'BR-005',
-      taxId: 'TAX-005'
     },
   ];
 
@@ -466,24 +464,7 @@ export function seedDatabase() {
 
   seedReferrals(now);
 
-  db.orders = [
-    {
-      id: 'ord_referee_001',
-      accountId: 'r_003',
-      status: 'delivered',
-      lineItems: [
-        {
-          lotId: 'lot_001',
-          quantityLbs: 50,
-          unitPriceCents: 500,
-        },
-      ],
-      finalTotalCents: 250_00,
-      invoiceNumber: 'INV-R3-001',
-      createdAt: '2025-03-01T00:00:00.000Z',
-      updatedAt: '2025-03-01T00:00:00.000Z',
-    },
-  ];
+  db.orders = [];
   db.reservations = [];
   db.sampleKits = [];
   db.webhooks = [];
@@ -494,7 +475,7 @@ function seedReferrals(now: string) {
     {
       id: 'rc_001',
       accountId: 'r_001',
-      code: 'AL-RVR-001',
+      code: 'GS-RVR-001',
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -502,7 +483,7 @@ function seedReferrals(now: string) {
     {
       id: 'rc_002',
       accountId: 'r_002',
-      code: 'AL-RVR-002',
+      code: 'GS-RVR-002',
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -514,7 +495,7 @@ function seedReferrals(now: string) {
       id: 'ref_001',
       referrerId: 'r_001',
       refereeId: 'r_003',
-      refCode: 'AL-RVR-001',
+      refCode: 'GS-RVR-001',
       status: 'qualified',
       channel: 'invite_link',
       utmSource: 'referral',
@@ -532,7 +513,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_002',
       referrerId: 'r_001',
-      refCode: 'AL-RVR-001',
+      refCode: 'GS-RVR-001',
       status: 'clicked',
       channel: 'qr_sticker',
       utmSource: 'referral',
@@ -544,7 +525,7 @@ function seedReferrals(now: string) {
       id: 'ref_003',
       referrerId: 'r_001',
       refereeId: 'r_004',
-      refCode: 'AL-RVR-001',
+      refCode: 'GS-RVR-001',
       status: 'kit_delivered',
       channel: 'email_share',
       createdAt: '2025-06-12T00:00:00.000Z',
@@ -557,7 +538,7 @@ function seedReferrals(now: string) {
       id: 'ref_004',
       referrerId: 'r_001',
       refereeId: 'r_005',
-      refCode: 'AL-RVR-001',
+      refCode: 'GS-RVR-001',
       status: 'feedback_submitted',
       channel: 'instagram_dm',
       createdAt: '2025-06-15T00:00:00.000Z',
@@ -570,7 +551,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_005',
       referrerId: 'r_001',
-      refCode: 'AL-RVR-001',
+      refCode: 'GS-RVR-001',
       status: 'invited',
       channel: 'event_badge',
       createdAt: '2025-06-25T00:00:00.000Z',
@@ -579,7 +560,7 @@ function seedReferrals(now: string) {
       id: 'ref_006',
       referrerId: 'r_002',
       refereeId: 'r_003',
-      refCode: 'AL-RVR-002',
+      refCode: 'GS-RVR-002',
       status: 'qualified',
       channel: 'invite_link',
       createdAt: '2025-05-15T00:00:00.000Z',
@@ -594,7 +575,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_007',
       referrerId: 'r_002',
-      refCode: 'AL-RVR-002',
+      refCode: 'GS-RVR-002',
       status: 'signed_up',
       channel: 'qr_sticker',
       createdAt: '2025-06-18T00:00:00.000Z',
@@ -604,7 +585,7 @@ function seedReferrals(now: string) {
     {
       id: 'ref_008',
       referrerId: 'r_002',
-      refCode: 'AL-RVR-002',
+      refCode: 'GS-RVR-002',
       status: 'clawed_back',
       channel: 'invite_link',
       createdAt: '2025-04-01T00:00:00.000Z',
@@ -621,7 +602,7 @@ function seedReferrals(now: string) {
       id: 'ref_009',
       referrerId: 'r_002',
       refereeId: 'r_004',
-      refCode: 'AL-RVR-002',
+      refCode: 'GS-RVR-002',
       status: 'kit_delivered',
       channel: 'qr_sticker',
       createdAt: '2025-07-10T00:00:00.000Z',
@@ -640,7 +621,7 @@ function seedReferrals(now: string) {
       type: 'referrer_credit',
       amountCents: 150_00,
       status: 'posted',
-      description: 'Referrer credit for AL-RVR-001 qualified referral',
+      description: 'Referrer credit for GS-RVR-001 qualified referral',
       createdAt: '2025-06-20T00:00:00.000Z',
       postedAt: '2025-06-20T00:00:00.000Z',
     },
@@ -651,7 +632,7 @@ function seedReferrals(now: string) {
       type: 'referee_discount',
       amountCents: 100_00,
       status: 'posted',
-      description: 'Referee discount for AL-RVR-001 qualified referral',
+      description: 'Referee discount for GS-RVR-001 qualified referral',
       createdAt: '2025-06-20T00:00:00.000Z',
       postedAt: '2025-06-20T00:00:00.000Z',
     },
@@ -682,7 +663,7 @@ function seedReferrals(now: string) {
       type: 'referrer_credit',
       amountCents: 150_00,
       status: 'posted',
-      description: 'Referrer credit for AL-RVR-002 qualified referral',
+      description: 'Referrer credit for GS-RVR-002 qualified referral',
       createdAt: '2025-07-05T00:00:00.000Z',
       postedAt: '2025-07-05T00:00:00.000Z',
     },
@@ -693,7 +674,7 @@ function seedReferrals(now: string) {
       type: 'referee_discount',
       amountCents: 100_00,
       status: 'posted',
-      description: 'Referee discount for AL-RVR-002 qualified referral',
+      description: 'Referee discount for GS-RVR-002 qualified referral',
       createdAt: '2025-07-05T00:00:00.000Z',
       postedAt: '2025-07-05T00:00:00.000Z',
     },

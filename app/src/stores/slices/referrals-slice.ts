@@ -1,214 +1,307 @@
+import type { ApiResult } from '../../api/client';
+import type {
+  Problem,
+  Referral,
+  ReferralChannel,
+  ReferralCode,
+  ReferralStats,
+  RewardLedgerEntry,
+} from '../../types/api';
 import { api } from '../../api/client';
-import type { Referral, ReferralCode, ReferralStats, RewardLedgerEntry, Problem } from '../../types/api';
 
 export interface ReferralsState {
+  code: ReferralCode | null;
   referrals: Referral[];
-  codes: ReferralCode[];
-  stats: ReferralStats | null;
   ledger: RewardLedgerEntry[];
-  reviewQueue: any[];
+  stats: ReferralStats | null;
+  reviewQueue: Referral[];
   loading: boolean;
   error: Problem | null;
-  currentAccountId: string | null;
 }
-
-export interface ReferralsActions {
-  setCurrentAccount: (accountId: string | null) => void;
-  loadReferrals: () => Promise<void>;
-  loadReferralStats: () => Promise<void>;
-  loadLedger: () => Promise<void>;
-  ensureReferralCode: () => Promise<ReferralCode | null>;
-  qualifyReferral: (referralId: string) => Promise<RewardLedgerEntry[] | null>;
-  clawBack: (referralId: string) => Promise<RewardLedgerEntry[] | null>;
-  loadReviewQueue: () => Promise<void>;
-  approveReview: (reviewId: string) => Promise<Referral | null>;
-  declineReview: (reviewId: string) => Promise<Referral | null>;
-}
-
-export type ReferralsSlice = ReferralsState & ReferralsActions;
 
 export const initialReferralsState: ReferralsState = {
+  code: null,
   referrals: [],
-  codes: [],
-  stats: null,
   ledger: [],
+  stats: null,
   reviewQueue: [],
   loading: false,
   error: null,
-  currentAccountId: null,
 };
 
-export const createReferralsSlice = (set: any, get: any) => ({
-  ...initialReferralsState,
+export interface ReferralsSlice extends ReferralsState {
+  createCode: (accountId: string, requestedCode?: string) => Promise<ApiResult<{ code: ReferralCode }>>;
+  loadCode: (accountId: string) => Promise<void>;
+  loadReferrals: (accountId: string) => Promise<void>;
+  loadLedger: (accountId: string) => Promise<void>;
+  loadStats: (accountId: string) => Promise<void>;
+  loadReviewQueue: () => Promise<void>;
+  recordClick: (code: string, channel?: ReferralChannel) => Promise<void>;
+  qualify: (referralId: string) => Promise<void>;
+  clawBack: (referralId: string) => Promise<void>;
+  approveReview: (referralId: string) => Promise<void>;
+  declineReview: (referralId: string) => Promise<void>;
+}
 
-  setCurrentAccount: (accountId: string | null) => {
+export function createReferralsSlice(set: any): ReferralsSlice {
+  const start = (action: string) =>
     set(
-      (s: any) => { s.referrals.currentAccountId = accountId; },
+      (s: { referrals: ReferralsState }) => {
+        s.referrals.loading = true;
+        s.referrals.error = null;
+      },
       false,
-      'referrals/setCurrentAccount',
+      `referrals/${action}/start`,
     );
-  },
 
-  loadReferrals: async () => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/loadReferrals/start');
-    const res = await api.referrals.listReferrals(accountId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/loadReferrals/error');
-    } else {
-      set((s: any) => {
-        s.referrals.referrals = res.data.referrals.map((r: Referral) => ({ ...r }));
+  const done = (action: string) =>
+    set(
+      (s: { referrals: ReferralsState }) => {
         s.referrals.loading = false;
-      }, false, 'referrals/loadReferrals/done');
-    }
-  },
+      },
+      false,
+      `referrals/${action}/done`,
+    );
 
-  loadReferralStats: async () => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/loadReferralStats/start');
-    const res = await api.referrals.getStats(accountId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/loadReferralStats/error');
-    } else {
-      set((s: any) => {
-        s.referrals.stats = res.data.stats;
+  const error = (action: string, problem?: Problem) =>
+    set(
+      (s: { referrals: ReferralsState }) => {
         s.referrals.loading = false;
-      }, false, 'referrals/loadReferralStats/done');
-    }
-  },
+        s.referrals.error = problem ?? null;
+      },
+      false,
+      `referrals/${action}/error`,
+    );
 
-  loadLedger: async () => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/loadLedger/start');
-    const res = await api.referrals.listLedger(accountId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/loadLedger/error');
-    } else {
-      set((s: any) => {
-        s.referrals.ledger = res.data.entries.map((e: RewardLedgerEntry) => ({ ...e }));
-        s.referrals.loading = false;
-      }, false, 'referrals/loadLedger/done');
-    }
-  },
+  const mutateReferral = (referralId: string, patch: Partial<Referral>) =>
+    set(
+      (s: { referrals: ReferralsState }) => {
+        const idx = s.referrals.referrals.findIndex((r) => r.id === referralId);
+        if (idx >= 0) {
+          s.referrals.referrals[idx] = { ...s.referrals.referrals[idx], ...patch };
+        } else {
+          s.referrals.referrals.push({ ...patch, id: referralId } as Referral);
+        }
+      },
+      false,
+      'referrals/mutate',
+    );
 
-  ensureReferralCode: async () => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return null;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/ensureReferralCode/start');
-    const res = await api.referrals.getCodeForAccount(accountId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/ensureReferralCode/error');
-      return null;
-    }
-    set((s: any) => {
-      const idx = s.referrals.codes.findIndex((c: ReferralCode) => c.accountId === accountId);
-      if (idx >= 0) {
-        s.referrals.codes[idx] = res.data.code;
-      } else {
-        s.referrals.codes.push(res.data.code);
-      }
-      s.referrals.loading = false;
-    }, false, 'referrals/ensureReferralCode/done');
-    return res.data.code;
-  },
+  const mergeLedgerEntries = (entries: RewardLedgerEntry[]) =>
+    set(
+      (s: { referrals: ReferralsState }) => {
+        for (const entry of entries) {
+          const idx = s.referrals.ledger.findIndex((e) => e.id === entry.id);
+          if (idx >= 0) {
+            s.referrals.ledger[idx] = { ...s.referrals.ledger[idx], ...entry };
+          } else {
+            s.referrals.ledger.push({ ...entry });
+          }
+        }
+      },
+      false,
+      'referrals/mergeLedger',
+    );
 
-  qualifyReferral: async (referralId: string) => {
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/qualifyReferral/start');
+  const refreshStats = async (referrerId: string) => {
+    const statsRes = await api.referrals.getStats(referrerId);
+    if (!('problem' in statsRes)) {
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.stats = statsRes.data.stats;
+        },
+        false,
+        'referrals/refreshStats',
+      );
+    }
+  };
+
+  const qualifyById = async (
+    referralId: string,
+  ): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
     const res = await api.referrals.qualifyReferral(referralId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/qualifyReferral/error');
-      return null;
-    }
-    set((s: any) => {
-      const idx = s.referrals.referrals.findIndex((r: Referral) => r.id === referralId);
-      if (idx >= 0) {
-        s.referrals.referrals[idx] = res.data.referral;
-      }
-      s.referrals.ledger = [...s.referrals.ledger, ...res.data.entries.map((e: RewardLedgerEntry) => ({ ...e }))];
-      s.referrals.loading = false;
-    }, false, 'referrals/qualifyReferral/done');
-    return res.data.entries;
-  },
+    if ('problem' in res) return res;
+    mutateReferral(referralId, res.data.referral);
+    mergeLedgerEntries(res.data.entries);
+    await refreshStats(res.data.referral.referrerId);
+    return res;
+  };
 
-  clawBack: async (referralId: string) => {
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/clawBack/start');
-    const res = await api.referrals.clawBack(referralId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/clawBack/error');
-      return null;
-    }
-    set((s: any) => {
-      const idx = s.referrals.referrals.findIndex((r: Referral) => r.id === referralId);
-      if (idx >= 0) {
-        s.referrals.referrals[idx] = res.data.referral;
-      }
-      s.referrals.ledger = s.referrals.ledger.map((e: RewardLedgerEntry) => {
-        const updated = res.data.entries.find((r: RewardLedgerEntry) => r.id === e.id);
-        return updated ? { ...updated } : e;
-      });
-      s.referrals.loading = false;
-    }, false, 'referrals/clawBack/done');
-    return res.data.entries;
-  },
+  const slice: ReferralsSlice = {
+    ...initialReferralsState,
 
-  loadReviewQueue: async () => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/loadReviewQueue/start');
-    const res = await api.referrals.listPendingReview(accountId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/loadReviewQueue/error');
-    } else {
-      set((s: any) => {
-        s.referrals.reviewQueue = res.data.referrals;
-        s.referrals.loading = false;
-      }, false, 'referrals/loadReviewQueue/done');
-    }
-  },
+    async createCode(accountId, requestedCode): Promise<ApiResult<{ code: ReferralCode }>> {
+      start('createCode');
+      const res = await api.referrals.createCode(accountId, requestedCode);
+      if ('problem' in res) {
+        error('createCode', res.problem);
+        return res;
+      }
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.code = res.data.code;
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/createCode/done',
+      );
+      return res;
+    },
 
-  approveReview: async (reviewId: string): Promise<Referral | null> => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return null;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/approveReview/start');
-    const res = await api.referrals.approveReview(reviewId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/approveReview/error');
-      return null;
-    }
-    set((s: any) => {
-      const idx = s.referrals.referrals.findIndex((r: Referral) => r.id === reviewId);
-      if (idx >= 0) {
-        s.referrals.referrals[idx] = res.data.referral;
+    async loadCode(accountId) {
+      start('loadCode');
+      const res = await api.referrals.getCodeForAccount(accountId);
+      if ('problem' in res) {
+        error('loadCode', res.problem);
+        return;
       }
-      s.referrals.reviewQueue = s.referrals.reviewQueue.filter((r: any) => r.id !== reviewId);
-      if (res.data.entries?.length) {
-        s.referrals.ledger = [...s.referrals.ledger, ...res.data.entries.map((e: RewardLedgerEntry) => ({ ...e }))];
-      }
-      s.referrals.loading = false;
-    }, false, 'referrals/approveReview/done');
-    return res.data.referral;
-  },
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.code = res.data.code;
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/loadCode/done',
+      );
+    },
 
-  declineReview: async (reviewId: string): Promise<Referral | null> => {
-    const accountId = get().referrals.currentAccountId;
-    if (!accountId) return null;
-    set((s: any) => { s.referrals.loading = true; s.referrals.error = null; }, false, 'referrals/declineReview/start');
-    const res = await api.referrals.declineReview(reviewId);
-    if ('problem' in res) {
-      set((s: any) => { s.referrals.error = res.problem; s.referrals.loading = false; }, false, 'referrals/declineReview/error');
-      return null;
-    }
-    set((s: any) => {
-      const idx = s.referrals.referrals.findIndex((r: Referral) => r.id === reviewId);
-      if (idx >= 0) {
-        s.referrals.referrals[idx] = res.data.referral;
+    async loadReferrals(accountId) {
+      start('loadReferrals');
+      const res = await api.referrals.listReferrals(accountId);
+      if ('problem' in res) {
+        error('loadReferrals', res.problem);
+        return;
       }
-      s.referrals.reviewQueue = s.referrals.reviewQueue.filter((r: any) => r.id !== reviewId);
-      s.referrals.loading = false;
-    }, false, 'referrals/declineReview/done');
-    return res.data.referral;
-  },
-});
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.referrals = res.data.referrals.map((r) => ({ ...r }));
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/loadReferrals/done',
+      );
+    },
+
+    async loadLedger(accountId) {
+      start('loadLedger');
+      const res = await api.referrals.listLedger(accountId);
+      if ('problem' in res) {
+        error('loadLedger', res.problem);
+        return;
+      }
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.ledger = res.data.entries.map((e) => ({ ...e }));
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/loadLedger/done',
+      );
+    },
+
+    async loadStats(accountId) {
+      start('loadStats');
+      const res = await api.referrals.getStats(accountId);
+      if ('problem' in res) {
+        error('loadStats', res.problem);
+        return;
+      }
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.stats = res.data.stats;
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/loadStats/done',
+      );
+    },
+
+    async loadReviewQueue() {
+      start('loadReviewQueue');
+      const res = await api.referrals.getPendingReview();
+      if ('problem' in res) {
+        error('loadReviewQueue', res.problem);
+        return;
+      }
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.reviewQueue = res.data.referrals.map((r) => ({ ...r }));
+          s.referrals.loading = false;
+        },
+        false,
+        'referrals/loadReviewQueue/done',
+      );
+    },
+
+    async recordClick(code, channel = 'invite_link') {
+      start('recordClick');
+      const res = await api.referrals.recordClick(code, channel);
+      if ('problem' in res) {
+        error('recordClick', res.problem);
+        return;
+      }
+      mutateReferral(res.data.referral.id, res.data.referral);
+      done('recordClick');
+    },
+
+    async qualify(referralId) {
+      start('qualify');
+      const res = await qualifyById(referralId);
+      if ('problem' in res) {
+        error('qualify', res.problem);
+        return;
+      }
+      done('qualify');
+    },
+
+    async clawBack(referralId) {
+      start('clawBack');
+      const res = await api.referrals.clawBack(referralId);
+      if ('problem' in res) {
+        error('clawBack', res.problem);
+        return;
+      }
+      mutateReferral(referralId, res.data.referral);
+      mergeLedgerEntries(res.data.entries);
+      await refreshStats(res.data.referral.referrerId);
+      done('clawBack');
+    },
+
+    async approveReview(referralId) {
+      start('approveReview');
+      const res = await qualifyById(referralId);
+      if ('problem' in res) {
+        error('approveReview', res.problem);
+        return;
+      }
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.reviewQueue = s.referrals.reviewQueue.filter((r) => r.id !== referralId);
+        },
+        false,
+        'referrals/approveReview/removeFromQueue',
+      );
+      done('approveReview');
+    },
+
+    async declineReview(referralId) {
+      start('declineReview');
+      const res = await api.referrals.declineReview(referralId);
+      if ('problem' in res) {
+        error('declineReview', res.problem);
+        return;
+      }
+      mutateReferral(referralId, res.data.referral);
+      set(
+        (s: { referrals: ReferralsState }) => {
+          s.referrals.reviewQueue = s.referrals.reviewQueue.filter((r) => r.id !== referralId);
+        },
+        false,
+        'referrals/declineReview/removeFromQueue',
+      );
+      done('declineReview');
+    },
+  };
+
+  return slice;
+}

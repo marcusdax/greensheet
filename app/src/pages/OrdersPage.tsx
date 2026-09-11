@@ -41,7 +41,6 @@ export const OrdersPage: React.FC = () => {
   const { orders, loading, loadOrders, processOrder, shipOrder, deliverOrder, cancelOrder, returnOrder } = useOrders();
   const { lots, loadLots } = useCatalog();
   const { roasters, loadRoasters } = useCrm();
-  const { setCurrentAccount } = useReferrals();
   const { pushToast } = useUi();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -60,13 +59,6 @@ export const OrdersPage: React.FC = () => {
   }, [loadRoasters]);
 
   const selectedOrder = useMemo(() => orders.find((o) => o.id === selectedOrderId) ?? null, [orders, selectedOrderId]);
-
-  // Sync the referral store's current account so ensureReferralCode resolves the right code
-  useEffect(() => {
-    if (selectedOrder) {
-      setCurrentAccount(selectedOrder.accountId);
-    }
-  }, [selectedOrder, setCurrentAccount]);
 
   const accountOptions = useMemo(
     () => roasters.map((r) => ({ value: r.id, label: r.roasterName })),
@@ -317,18 +309,19 @@ interface ReferralConfirmationCardProps {
 
 const ReferralConfirmationCard: React.FC<ReferralConfirmationCardProps> = ({ accountId }) => {
   const { t } = useTranslation(['referrals', 'common']);
-  const { ensureReferralCode, setCurrentAccount } = useReferrals();
+  const { code, loadCode } = useReferrals();
   const { roasters } = useCrm();
   const [resolved, setResolved] = useState<string | null>(null);
 
   const roasterName = roasters.find((r) => r.id === accountId)?.roasterName ?? '';
 
   useEffect(() => {
-    setCurrentAccount(accountId);
-    void ensureReferralCode().then((code) => {
-      setResolved(code?.code ?? null);
-    });
-  }, [accountId, ensureReferralCode, setCurrentAccount]);
+    void loadCode(accountId);
+  }, [accountId, loadCode]);
+
+  useEffect(() => {
+    setResolved(code?.code ?? null);
+  }, [code]);
 
   if (!resolved) return null;
 

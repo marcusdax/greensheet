@@ -21,12 +21,12 @@ describe('ReferralsPage', () => {
   it('renders the referral code for the default account', async () => {
     render(<ReferralsPage />);
     await screen.findByText('Referrals');
-    // r_001 has the seeded code AL-RVR-001
+    // r_001 has the seeded code GS-RVR-001
     // Note: data-testid="referral-code" appears on both the page and the DeliveryCard
     const codeElements = await screen.findAllByTestId('referral-code');
     expect(codeElements.length).toBeGreaterThanOrEqual(1);
     await waitFor(() => {
-      expect(codeElements[0]).toHaveTextContent('AL-RVR-001');
+      expect(codeElements[0]).toHaveTextContent('GS-RVR-001');
     });
   });
 

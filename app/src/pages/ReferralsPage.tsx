@@ -85,12 +85,13 @@ function buildReferralUrl(code: string): string {
 
 export const ReferralsPage: React.FC = () => {
   const { t } = useTranslation(['referrals', 'common']);
-  const { referrals, codes, stats, ledger, loading, error, currentAccountId, setCurrentAccount, loadReferrals, loadReferralStats, loadLedger, ensureReferralCode } = useReferrals();
+  const { referrals, code, stats, ledger, loading, error, loadCode, loadReferrals, loadStats, loadLedger } = useReferrals();
   const { roasters, loadRoasters } = useCrm();
   const { pushToast } = useUi();
 
   const [selectedReferral, setSelectedReferral] = useState<Referral | null>(null);
   const [showCodeModal, setShowCodeModal] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
   // Default to first roaster account for demo
   useEffect(() => {
@@ -98,31 +99,26 @@ export const ReferralsPage: React.FC = () => {
   }, [loadRoasters]);
 
   useEffect(() => {
-    if (roasters.length > 0 && !currentAccountId) {
+    if (roasters.length > 0 && !selectedAccountId) {
       const activeRoaster = roasters.find((r) => r.status === 'active') ?? roasters[0];
-      setCurrentAccount(activeRoaster.id);
+      setSelectedAccountId(activeRoaster.id);
     }
-  }, [roasters, currentAccountId, setCurrentAccount]);
+  }, [roasters, selectedAccountId]);
 
   useEffect(() => {
-    if (!currentAccountId) return;
-    void loadReferrals();
-    void loadReferralStats();
-    void loadLedger();
-  }, [currentAccountId, loadReferrals, loadReferralStats, loadLedger]);
-
-  useEffect(() => {
-    if (currentAccountId && codes.length === 0) {
-      void ensureReferralCode();
-    }
-  }, [currentAccountId, codes, ensureReferralCode]);
+    if (!selectedAccountId) return;
+    void loadReferrals(selectedAccountId);
+    void loadStats(selectedAccountId);
+    void loadLedger(selectedAccountId);
+    void loadCode(selectedAccountId);
+  }, [selectedAccountId, loadReferrals, loadStats, loadLedger, loadCode]);
 
   const selectedRoasterName = useMemo(() => {
-    if (!currentAccountId) return '';
-    return roasters.find((r) => r.id === currentAccountId)?.roasterName ?? '';
-  }, [currentAccountId, roasters]);
+    if (!selectedAccountId) return '';
+    return roasters.find((r) => r.id === selectedAccountId)?.roasterName ?? '';
+  }, [selectedAccountId, roasters]);
 
-  const primaryCode = codes.find((c) => c.status === 'active')?.code ?? '';
+  const primaryCode = code?.status === 'active' ? code?.code : '';
 
   const columns = useMemo<ColumnDef<Referral>[]>(
     () => [
@@ -226,9 +222,11 @@ export const ReferralsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => {
-            void loadReferrals();
-            void loadReferralStats();
-            void loadLedger();
+            if (!selectedAccountId) return;
+            void loadReferrals(selectedAccountId);
+            void loadStats(selectedAccountId);
+            void loadLedger(selectedAccountId);
+            void loadCode(selectedAccountId);
           }}
           disabled={loading}
           className="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-800 disabled:opacity-50 text-white rounded-md text-sm font-semibold shadow-e1 transition-all focus-visible:ring-2 focus-visible:ring-teal"
@@ -248,9 +246,9 @@ export const ReferralsPage: React.FC = () => {
       )}
 
       {/* Delivery card (in-product referral prompt) */}
-      {primaryCode && currentAccountId && (
+      {primaryCode && selectedAccountId && (
         <ReferralDeliveryCard
-          accountId={currentAccountId}
+          accountId={selectedAccountId}
           roasterName={selectedRoasterName}
           referralCode={primaryCode}
           onQualifyReferral={(referralId) => {
@@ -382,7 +380,7 @@ export const ReferralsPage: React.FC = () => {
         size="md"
       >
         <div className="space-y-3">
-          {codes.map((code) => (
+          {code && (
             <div key={code.id} className="flex items-center justify-between p-3 bg-recessed/10 rounded-md border border-border">
               <div className="flex items-center gap-3">
                 <QrCode size={20} className="text-teal" />
@@ -395,7 +393,7 @@ export const ReferralsPage: React.FC = () => {
               </div>
               <CopyLinkButton code={code.code} url={buildReferralUrl(code.code)} />
             </div>
-          ))}
+          )}
         </div>
       </Modal>
     </div>

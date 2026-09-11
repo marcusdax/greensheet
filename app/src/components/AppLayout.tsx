@@ -12,7 +12,7 @@ import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
   Bell, Globe, Menu, X, ChevronDown,
   Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp,
-  Gift
+  Gift, BookOpen
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -89,6 +89,7 @@ export const AppLayout: React.FC = () => {
         { path: 'sample-kits', label: t('nav.sampleKits', 'Sample Kits'), icon: Package },
         { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
         { path: 'referrals', label: t('nav.referrals', 'Referrals'), icon: Gift },
+        { path: 'curriculum', label: t('nav.curriculum', 'Curriculum'), icon: BookOpen },
       ]
     },
     {

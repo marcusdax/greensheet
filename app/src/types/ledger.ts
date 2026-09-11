@@ -467,3 +467,52 @@ export interface SentinelFlag {
   resolvedAt: string | null;
   isResolved: boolean;
 }
+
+// ─── Curriculum Domain ──────────────────────────────────────────────────────────
+
+export type VerificationTieIn = VerificationTier;
+
+export type CurriculumTrack = 'quality' | 'compliance' | 'finance' | 'logistics';
+export type CurriculumLevel = 'beginner' | 'intermediate' | 'advanced';
+export type ModuleStatus = 'available' | 'locked' | 'in_progress' | 'completed';
+
+export interface CurriculumModule {
+  id: string;
+  title: string;
+  description: string;
+  level: CurriculumLevel;
+  prerequisites: string[];
+  regionCode: RegionCode;
+  track: CurriculumTrack;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CurriculumLesson {
+  id: string;
+  moduleId: string;
+  title: string;
+  content: string;
+  estimatedMinutes: number;
+  quizId?: string;
+  mediaAssets?: MediaAsset[];
+}
+
+export interface CurriculumMilestone {
+  id: string;
+  moduleId: string;
+  lessonCount: number;
+  verificationTier: VerificationTieIn;
+  badgeId?: string;
+  unlocks?: string[];
+}
+
+export interface UserCurriculumProgress {
+  userId: string;
+  moduleId: string;
+  status: ModuleStatus;
+  lessonsCompleted: string[];
+  lastUpdated: string;
+  trustScoreBoost?: number;
+}

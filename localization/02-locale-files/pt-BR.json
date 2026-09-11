@@ -364,12 +364,30 @@
     "overline": "GROWTH INTELLIGENCE",
     "title": "Growth Dashboard",
     "subtitle": "Weekly transacting roasters, kit funnel, CAC by channel, churn hazard, K-factor, and campaign lift.",
-    "wtr": { "title": "Weekly Transacting Roasters", "description": "Trailing 7-day active roasters with 4-week moving average" },
-    "kitFunnel": { "title": "Kit Funnel", "description": "Kit Sent → Delivered → Feedback → First Order" },
-    "cacByChannel": { "title": "CAC by Channel", "description": "Blended customer acquisition cost vs. $500 ceiling" },
-    "hazardHeatmap": { "title": "Churn Hazard Heatmap", "description": "Accounts by churn tier and segment" },
-    "kFactor": { "title": "K-Factor", "description": "Viral referral coefficient vs. 0.6 target" },
-    "campaignLift": { "title": "Campaign Lift", "description": "Bayesian posterior probability vs. control" }
+    "wtr": {
+      "title": "Weekly Transacting Roasters",
+      "description": "Trailing 7-day active roasters with 4-week moving average"
+    },
+    "kitFunnel": {
+      "title": "Kit Funnel",
+      "description": "Kit Sent → Delivered → Feedback → First Order"
+    },
+    "cacByChannel": {
+      "title": "CAC by Channel",
+      "description": "Blended customer acquisition cost vs. $500 ceiling"
+    },
+    "hazardHeatmap": {
+      "title": "Churn Hazard Heatmap",
+      "description": "Accounts by churn tier and segment"
+    },
+    "kFactor": {
+      "title": "K-Factor",
+      "description": "Viral referral coefficient vs. 0.6 target"
+    },
+    "campaignLift": {
+      "title": "Campaign Lift",
+      "description": "Bayesian posterior probability vs. control"
+    }
   },
   "errors": {
     "title": "Algo deu errado",
@@ -555,6 +573,66 @@
       "pending": "Pendente",
       "posted": "Contabilizado",
       "clawed_back": "Reembolsado"
+    }
+  },
+  "curriculum": {
+    "title": "Curriculum",
+    "overline": "CURRICULUM LEDGER",
+    "subtitle": "Master coffee quality, compliance, finance, and logistics through region-specific learning tracks.",
+    "tabs": {
+      "overview": "Visão geral",
+      "lessons": "Aulas",
+      "progress": "Progresso"
+    },
+    "noProgress": "No progress recorded yet for this module.",
+    "trackHeader": {
+      "author": "Autor",
+      "region": "Região",
+      "prerequisites": "Pré-requisitos",
+      "milestoneBadge": "Insígnia de marco",
+      "lessonCompletion": "Aulas concluídas",
+      "moduleStatus": "Status do módulo",
+      "trustScoreBoost": "Aumento de pontuação de confiança"
+    },
+    "tracks": {
+      "quality": "Quality",
+      "compliance": "Compliance",
+      "finance": "Finance",
+      "logistics": "Logistics"
+    },
+    "trackDesc": {
+      "quality": "Sensory calibration, cupping protocols, and Q-grader skills.",
+      "compliance": "EUDR traceability, customs clearance, and phytosanitary requirements.",
+      "finance": "Farm budgets, True Price Floor, and futures market literacy.",
+      "logistics": "Post-harvest handling, storage, and shipping logistics."
+    },
+    "moduleCount_one": "{{count}} module",
+    "moduleCount_other": "{{count}} modules",
+    "progress": {
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "locked": "Locked"
+    },
+    "viewTrack": "View Track",
+    "noTrack": "No track found",
+    "authoring": {
+      "title": "Curriculum Author",
+      "topicLabel": "Topic / Description",
+      "topicPlaceholder": "Describe the module you want to generate...",
+      "trackLabel": "Track",
+      "levelLabel": "Level",
+      "regionLabel": "Region",
+      "generateBtn": "Generate with AI",
+      "saveBtn": "Save Module",
+      "cancelBtn": "Cancel",
+      "outlineLabel": "Module Outline",
+      "contentLabel": "Lesson Content",
+      "quizLabel": "Quiz Questions",
+      "generated": "AI-Generated Content",
+      "editMode": "Editing",
+      "saveSuccess": "Module saved successfully",
+      "saveError": "Failed to save module"
     }
   }
 }

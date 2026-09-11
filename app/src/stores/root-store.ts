@@ -18,6 +18,7 @@ import { createSpacesSlice, type SpacesSlice, initialSpacesState } from './slice
 import { createFeedsSlice, type FeedsSlice, initialFeedsState } from './slices/feeds-slice';
 import { createReputationSlice, type ReputationSlice, initialReputationState } from './slices/reputation-slice';
 import { createReferralsSlice, type ReferralsSlice, initialReferralsState } from './slices/referrals-slice';
+import { createCurriculumSlice, type CurriculumSlice } from './slices/curriculum-slice';
 import { useAiStore } from './ai-store';
 
 export type RootStore = {
@@ -38,6 +39,7 @@ export type RootStore = {
   feeds: FeedsSlice;
   reputation: ReputationSlice;
   referrals: ReferralsSlice;
+  curriculum: CurriculumSlice;
 };
 
 export const useRootStore = create<RootStore>()(
@@ -61,7 +63,8 @@ export const useRootStore = create<RootStore>()(
           spaces: createSpacesSlice(set, get),
           feeds: createFeedsSlice(set, get),
           reputation: createReputationSlice(set, get),
-          referrals: createReferralsSlice(set, get),
+          referrals: createReferralsSlice(set),
+          curriculum: createCurriculumSlice(set, get),
         })),
       ),
       {
@@ -115,6 +118,7 @@ export const useSpaces = () => useRootStore((s) => s.spaces);
 export const useFeeds = () => useRootStore((s) => s.feeds);
 export const useReputation = () => useRootStore((s) => s.reputation);
 export const useReferrals = () => useRootStore((s) => s.referrals);
+export const useCurriculum = () => useRootStore((s) => s.curriculum);
 
 export function resetStore() {
   useAiStore.getState().resetAi();

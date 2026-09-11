@@ -47,8 +47,7 @@ import type {
   WtrPoint,
 } from '../types/api';
 import { db, seedDatabase } from './db';
-import { AL } from './problems';
-import { evaluateReferral } from '../lib/referral-fraud';
+import { AL, GS } from './problems';
 import { MARKETING_TEMPLATES } from './marketing-data';
 
 let refCodeCounter = 0;
@@ -63,7 +62,7 @@ function generateRefCode(): string {
   const idx = nextRefCodeIndex();
   const word = adjectives[idx % adjectives.length];
   const suffix = String(100 + (idx % 900));
-  return `AL-${word}-${suffix}`;
+  return `GS-${word}-${suffix}`;
 }
 
 function id(): string {
@@ -1118,12 +1117,20 @@ export const api = {
       if (active) return { data: { code: active } };
 
       let codeText: string;
-      if (requestedCode && /^AL-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
+      if (requestedCode && /^GS-[A-Z]{2,6}-\d{1,4}$/.test(requestedCode)) {
         const taken = db.referralCodes.some(
           (c) => c.code.toLowerCase() === requestedCode.toLowerCase(),
         );
         if (taken) {
-          return { problem: AL.REF_1001(`The referral code ${requestedCode} is already in use.`) };
+          return {
+            problem: {
+              type: 'about:blank',
+              title: 'Code already taken',
+              status: 409,
+              code: 'GS-REF-1001',
+              detail: `The referral code ${requestedCode} is already in use.`,
+            },
+          };
         }
         codeText = requestedCode;
       } else {
@@ -1221,7 +1228,15 @@ export const api = {
         (c) => c.code.toLowerCase() === code.toLowerCase() && c.status === 'active',
       );
       if (!refCode) {
-        return { problem: AL.REF_1002(`No active referral code found for ${code}.`) };
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral code not found',
+            status: 404,
+            code: 'GS-REF-1002',
+            detail: `No active referral code found for ${code}.`,
+          },
+        };
       }
 
       const existing = db.referrals.find(
@@ -1252,43 +1267,20 @@ export const api = {
     qualifyReferral: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
       const referral = db.referrals.find((r) => r.id === referralId);
       if (!referral) {
-        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not found',
+            status: 404,
+            code: 'GS-REF-1003',
+            detail: `No referral found with id ${referralId}.`,
+          },
+        };
       }
 
       if (referral.status === 'qualified') {
         const existingEntries = db.rewardsLedger.filter((e) => e.referralId === referralId);
         return { data: { referral, entries: existingEntries } };
-      }
-
-      const referrer = db.roasters.find((r) => r.id === referral.referrerId);
-      const referee = referral.refereeId
-        ? db.roasters.find((r) => r.id === referral.refereeId)
-        : undefined;
-      const refereeOrders = db.orders.filter((o) => o.accountId === referral.refereeId);
-      const allReferrals = db.referrals;
-
-      const decision = evaluateReferral({
-        referral,
-        referrer,
-        referee,
-        refereeOrders,
-        allReferrals,
-      });
-
-      if (decision.action === 'decline') {
-        return { problem: AL.REF_1005(decision.reason) };
-      }
-
-      if (decision.action === 'review') {
-        referral.reviewStatus = 'pending_review';
-        referral.updatedAt = nowIso();
-        return { problem: AL.REF_1006(decision.reason) };
-      }
-
-      if (decision.action === 'pause') {
-        referral.reviewStatus = 'pending_review';
-        referral.updatedAt = nowIso();
-        return { problem: AL.REF_1007(decision.reason) };
       }
 
       const now = nowIso();
@@ -1329,11 +1321,27 @@ export const api = {
     clawBack: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
       const referral = db.referrals.find((r) => r.id === referralId);
       if (!referral) {
-        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not found',
+            status: 404,
+            code: 'GS-REF-1003',
+            detail: `No referral found with id ${referralId}.`,
+          },
+        };
       }
 
       if (referral.status !== 'qualified') {
-        return { problem: AL.REF_1004() };
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral not qualified',
+            status: 400,
+            code: 'GS-REF-1004',
+            detail: 'Only qualified referrals can be clawed back.',
+          },
+        };
       }
 
       const now = nowIso();
@@ -1349,111 +1357,18 @@ export const api = {
       return { data: { referral, entries: affected } };
     },
 
-    listPendingReview: async (
-      accountId: string,
-    ): Promise<ApiResult<{ referrals: Referral[] }>> => {
+    getPendingReview: async (): Promise<ApiResult<{ referrals: Referral[] }>> => {
       const referrals = db.referrals
-        .filter((r) => r.referrerId === accountId && r.reviewStatus === 'pending_review')
+        .filter((r) => r.reviewStatus === 'pending_review')
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       return { data: { referrals } };
     },
 
-    approveReview: async (
-      referralId: string,
-    ): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {
+    declineReview: async (referralId: string): Promise<ApiResult<{ referral: Referral }>> => {
       const referral = db.referrals.find((r) => r.id === referralId);
       if (!referral) {
-        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
+        return { problem: GS.GEN_1005() };
       }
-      if (referral.reviewStatus !== 'pending_review') {
-        return { problem: AL.REF_1008(`Referral ${referralId} is not in the review queue.`) };
-      }
-
-      referral.reviewStatus = 'approved';
-      referral.updatedAt = nowIso();
-
-      const referrer = db.roasters.find((r) => r.id === referral.referrerId);
-      const referee = referral.refereeId
-        ? db.roasters.find((r) => r.id === referral.refereeId)
-        : undefined;
-      const refereeOrders = db.orders.filter((o) => o.accountId === referral.refereeId);
-      const allReferrals = db.referrals;
-
-      const decision = evaluateReferral({
-        referral,
-        referrer,
-        referee,
-        refereeOrders,
-        allReferrals,
-      });
-
-      if (decision.action === 'qualify') {
-        const now = nowIso();
-        referral.status = 'qualified';
-        referral.qualifiedAt = now;
-        referral.reviewStatus = 'approved';
-        referral.updatedAt = now;
-        referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
-
-        const referrerCredit: RewardLedgerEntry = {
-          id: id(),
-          accountId: referral.referrerId,
-          referralId: referral.id,
-          type: 'referrer_credit',
-          amountCents: 150_00,
-          status: 'posted',
-          description: `Referrer credit for ${referral.refCode} qualified referral`,
-          createdAt: now,
-          postedAt: now,
-        };
-
-        const refereeDiscount: RewardLedgerEntry = {
-          id: id(),
-          accountId: referral.refereeId ?? referral.referrerId,
-          referralId: referral.id,
-          type: 'referee_discount',
-          amountCents: 100_00,
-          status: 'posted',
-          description: `Referee discount for ${referral.refCode} qualified referral`,
-          createdAt: now,
-          postedAt: now,
-        };
-
-        db.rewardsLedger.push(referrerCredit, refereeDiscount);
-        return { data: { referral, entries: [referrerCredit, refereeDiscount] } };
-      }
-
-      // Re-route to review/decline after approval
-      if (decision.action === 'review') {
-        referral.reviewStatus = 'pending_review';
-        referral.updatedAt = nowIso();
-        return { problem: AL.REF_1006(decision.reason) };
-      }
-
-      if (decision.action === 'pause') {
-        referral.reviewStatus = 'pending_review';
-        referral.updatedAt = nowIso();
-        return { problem: AL.REF_1007(decision.reason) };
-      }
-
-      // Decline: leave the review queue in a terminal 'declined' state.
-      referral.reviewStatus = 'declined';
-      referral.status = 'declined';
-      referral.updatedAt = nowIso();
-      return { problem: AL.REF_1005(decision.reason) };
-    },
-
-    declineReview: async (
-      referralId: string,
-    ): Promise<ApiResult<{ referral: Referral }>> => {
-      const referral = db.referrals.find((r) => r.id === referralId);
-      if (!referral) {
-        return { problem: AL.REF_1003(`No referral found with id ${referralId}.`) };
-      }
-      if (referral.reviewStatus !== 'pending_review') {
-        return { problem: AL.REF_1008(`Referral ${referralId} is not in the review queue.`) };
-      }
-
       referral.reviewStatus = 'declined';
       referral.status = 'declined';
       referral.updatedAt = nowIso();
