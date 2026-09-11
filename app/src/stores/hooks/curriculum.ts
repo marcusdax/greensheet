@@ -12,3 +12,21 @@ export const useCurriculumActions = () => {
   const completeModule = useRootStore((s) => s.curriculum.completeModule);
   return { setCatalog, markLessonComplete, completeModule };
 };
+
+/**
+ * Returns the store-backed progress slice for a single module, plus derived
+ * loading flags. Components use this to drive completion UI without touching
+ * useModuleData.
+ */
+export const useModuleProgress = (moduleId: string) => {
+  const getModuleProgress = useRootStore((s) => s.curriculum.getModuleProgress);
+  const getCompletedLessonCount = useRootStore((s) => s.curriculum.getCompletedLessonCount);
+  const getModuleStatus = useRootStore((s) => s.curriculum.getModuleStatus);
+
+  const progress = getModuleProgress(moduleId);
+  const status = getModuleStatus(moduleId);
+  const completedCount = getCompletedLessonCount(moduleId);
+  const completedLessons = progress?.lessonsCompleted ?? [];
+
+  return { progress, status, completedLessons, completedCount };
+};

@@ -25,6 +25,9 @@ const curriculumKeys = [
   'progress',
   'viewTrack',
   'noTrack',
+  'noModule',
+  'lessonControls',
+  'ariaLabel',
   'authoring',
 ] as const;
 
@@ -42,6 +45,8 @@ const nestedCurriculumKeys = {
   tracks: ['quality', 'compliance', 'finance', 'logistics'],
   trackDesc: ['quality', 'compliance', 'finance', 'logistics'],
   progress: ['notStarted', 'inProgress', 'completed', 'locked'],
+  lessonControls: ['markComplete', 'review', 'completed', 'completedMessage', 'completeModule'],
+  ariaLabel: ['courseTabs', 'markLessonComplete', 'reviewModule', 'lessonComplete', 'completeModule'],
   authoring: [
     'title',
     'topicLabel',

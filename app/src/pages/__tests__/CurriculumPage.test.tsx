@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { CurriculumPage } from '../CurriculumPage';
+import { CurriculumModuleDetail } from '../../components/CurriculumModuleDetail';
 import { ToastContainer } from '../../components/ui/ToastContainer';
 import '../../i18n';
 import { resetStore } from '../../stores/root-store';
@@ -11,7 +12,7 @@ const renderPage = (initialRoute = '/en-US/curriculum') =>
     <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route path="/:locale/curriculum" element={<CurriculumPage />} />
-        <Route path="/curriculum/:track/:moduleId" element={<div data-testid="module-detail">Module: :track/:moduleId</div>} />
+        <Route path="/:locale/curriculum/:track/:moduleId" element={<CurriculumModuleDetail />} />
       </Routes>
       <ToastContainer />
     </MemoryRouter>,

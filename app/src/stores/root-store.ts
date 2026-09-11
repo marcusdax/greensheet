@@ -18,7 +18,7 @@ import { createSpacesSlice, type SpacesSlice, initialSpacesState } from './slice
 import { createFeedsSlice, type FeedsSlice, initialFeedsState } from './slices/feeds-slice';
 import { createReputationSlice, type ReputationSlice, initialReputationState } from './slices/reputation-slice';
 import { createReferralsSlice, type ReferralsSlice, initialReferralsState } from './slices/referrals-slice';
-import { createCurriculumSlice, type CurriculumSlice } from './slices/curriculum-slice';
+import { createCurriculumSlice, type CurriculumSlice, initialCurriculumState } from './slices/curriculum-slice';
 import { useAiStore } from './ai-store';
 
 export type RootStore = {
@@ -82,6 +82,10 @@ export const useRootStore = create<RootStore>()(
           ui: {
             theme: s.ui.theme,
           },
+          curriculum: {
+            userProgress: s.curriculum.userProgress,
+            catalog: s.curriculum.catalog,
+          },
         }),
         merge: (persistedState: any, currentState: RootStore) => ({
           ...currentState,
@@ -92,6 +96,10 @@ export const useRootStore = create<RootStore>()(
           ui: {
             ...currentState.ui,
             ...(persistedState?.ui || {}),
+          },
+          curriculum: {
+            ...currentState.curriculum,
+            ...(persistedState?.curriculum || {}),
           },
         }),
       },
@@ -136,5 +144,6 @@ export function resetStore() {
     feeds: { ...state.feeds, ...initialFeedsState },
     reputation: { ...state.reputation, ...initialReputationState },
     referrals: { ...state.referrals, ...initialReferralsState },
+    curriculum: { ...state.curriculum, ...initialCurriculumState },
   }));
 }

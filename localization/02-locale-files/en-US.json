@@ -612,6 +612,21 @@
     },
     "viewTrack": "View Track",
     "noTrack": "No track found",
+    "noModule": "Module not found.",
+    "lessonControls": {
+      "markComplete": "Mark Complete",
+      "review": "Review",
+      "completed": "Completed",
+      "completedMessage": "Module complete — ready for review.",
+      "completeModule": "Complete Module"
+    },
+    "ariaLabel": {
+      "courseTabs": "Course tabs",
+      "markLessonComplete": "Mark {{lesson}} as complete",
+      "reviewModule": "Review module",
+      "lessonComplete": "{{lesson}} completed",
+      "completeModule": "Complete module"
+    },
     "authoring": {
       "title": "Curriculum Author",
       "topicLabel": "Topic / Description",

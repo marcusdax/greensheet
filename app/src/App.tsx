@@ -14,6 +14,7 @@ import { OrdersPage } from './pages/OrdersPage';
 import { WebhooksPage } from './pages/WebhooksPage';
 import { ReferralsPage } from './pages/ReferralsPage';
 import { CurriculumPage } from './pages/CurriculumPage';
+import { CurriculumModuleDetail } from './components/CurriculumModuleDetail';
 
 // Import i18n to initialize it
 import './i18n';
@@ -107,6 +108,7 @@ function App() {
             <Route path="webhooks" element={<WebhooksPage />} />
             <Route path="referrals" element={<ReferralsPage />} />
             <Route path="curriculum" element={<CurriculumPage />} />
+            <Route path="curriculum/:track/:moduleId" element={<CurriculumModuleDetail />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />
           </Route>

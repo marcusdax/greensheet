@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useUi } from '../stores/root-store';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useUi, useCurriculum } from '../stores/root-store';
+import { SEED_CATALOG } from '../data/curriculum';
 import { BookOpen, ClipboardList, BarChart3, Shield, Wallet, Package, CheckCircle, Clock, Lock } from 'lucide-react';
-import type { CurriculumTrack, ModuleStatus, UserCurriculumProgress } from '../types/ledger';
-import type { CurriculumCatalog, CurriculumModuleData } from '../stores/slices/curriculum-slice';
+import type { CurriculumTrack, ModuleStatus } from '../types/ledger';
+import type { CurriculumModuleData } from '../stores/slices/curriculum-slice';
 
 interface TrackDefinition {
   key: CurriculumTrack;
@@ -62,82 +63,21 @@ const statusIcons: Record<ModuleStatus, React.ComponentType<{ size?: number; cla
   completed: CheckCircle,
 };
 
-function useSeededCatalog(): CurriculumCatalog | null {
-  // The curriculum slice exists in the root store conceptually; until the store is
-  // wired into root-store, we provide a seeded catalog so the page renders in all
-  // environments (including tests).
-  const [catalog, setCatalog] = useState<CurriculumCatalog | null>(null);
-
-  useEffect(() => {
-    const seeded: CurriculumCatalog = {
-      modules: {
-        mod_q_1: {
-          id: 'mod_q_1',
-          title: 'Quality Foundations',
-          description: 'SCA cupping protocol, sensory calibration, and defect recognition.',
-          level: 'beginner' as const,
-          prerequisites: [],
-          regionCode: 'VN-DKL',
-          track: 'quality' as CurriculumTrack,
-          lessons: ['q_lesson_1', 'q_lesson_2', 'q_lesson_3', 'q_lesson_4'],
-        },
-        mod_c_1: {
-          id: 'mod_c_1',
-          title: 'EUDR Compliance & Traceability',
-          description: 'Deforestation monitoring, geo-mapping, and EUDR due-diligence reporting.',
-          level: 'intermediate' as const,
-          prerequisites: ['mod_q_1'],
-          regionCode: 'VN-DKL',
-          track: 'compliance' as CurriculumTrack,
-          lessons: ['c_lesson_1', 'c_lesson_2', 'c_lesson_3'],
-        },
-        mod_f_1: {
-          id: 'mod_f_1',
-          title: 'Financial Literacy & True Price Floor',
-          description: 'Farm budgets, subsistence ledger, and futures market simulations.',
-          level: 'beginner' as const,
-          prerequisites: [],
-          regionCode: 'ET-ORO',
-          track: 'finance' as CurriculumTrack,
-          lessons: ['f_lesson_1', 'f_lesson_2'],
-        },
-        mod_l_1: {
-          id: 'mod_l_1',
-          title: 'Logistics & Post-Harvest Handling',
-          description: 'Drying mechanics, storage pest management, and shipping documentation.',
-          level: 'intermediate' as const,
-          prerequisites: ['mod_q_1'],
-          regionCode: 'CO-HUI',
-          track: 'logistics' as CurriculumTrack,
-          lessons: ['l_lesson_1', 'l_lesson_2', 'l_lesson_3', 'l_lesson_4', 'l_lesson_5'],
-        },
-      },
-    };
-    setCatalog(seeded);
-  }, []);
-
-  return catalog;
-}
-
 export const CurriculumPage: React.FC = () => {
   const { t } = useTranslation(['curriculum', 'common']);
   const navigate = useNavigate();
+  const { locale } = useParams<{ locale: string }>();
   const { pushToast } = useUi();
-  const catalog = useSeededCatalog();
+  const curriculum = useCurriculum();
 
-  const [userProgress, setUserProgress] = useState<Record<string, UserCurriculumProgress>>({});
-
+  // Seed the root store catalog on mount if it hasn't been set yet.
   useEffect(() => {
-    // Load persisted progress from localStorage
-    const stored = localStorage.getItem('auctum-curriculum-progress');
-    if (stored) {
-      try {
-        setUserProgress(JSON.parse(stored));
-      } catch {
-        // ignore parse errors
-      }
+    if (!curriculum.catalog) {
+      curriculum.setCatalog(SEED_CATALOG);
     }
-  }, []);
+  }, [curriculum]);
+
+  const catalog = curriculum.catalog;
 
   const modulesByTrack = useMemo<Record<CurriculumTrack, CurriculumModuleData[]>>(() => {
     const result: Record<CurriculumTrack, CurriculumModuleData[]> = {
@@ -154,24 +94,21 @@ export const CurriculumPage: React.FC = () => {
   }, [catalog]);
 
   const getModuleStatus = (moduleId: string): ModuleStatus => {
-    const key = `current:${moduleId}`;
-    const progress = userProgress[key];
-    if (!progress) return 'available';
-    return progress.status;
+    return curriculum.getModuleStatus(moduleId);
   };
 
   const getProgressPct = (module: CurriculumModuleData): number => {
-    const progress = userProgress[`current:${module.id}`];
-    if (!progress || progress.lessonsCompleted.length === 0) return 0;
-    return Math.round((progress.lessonsCompleted.length / module.lessons.length) * 100);
+    const completed = curriculum.getCompletedLessonCount(module.id);
+    if (!module.lessons.length) return 0;
+    return Math.round((completed / module.lessons.length) * 100);
   };
 
   const getStatusText = (status: ModuleStatus) => {
     const labels: Record<ModuleStatus, string> = {
-      available: 'Not started',
-      in_progress: 'In progress',
-      completed: 'Completed',
-      locked: 'Locked',
+      available: t('curriculum.progress.notStarted', 'Not started'),
+      in_progress: t('curriculum.progress.inProgress', 'In progress'),
+      completed: t('curriculum.progress.completed', 'Completed'),
+      locked: t('curriculum.progress.locked', 'Locked'),
     };
     return t(`curriculum.progress.${status}`, labels[status]);
   };
@@ -183,11 +120,11 @@ export const CurriculumPage: React.FC = () => {
       return;
     }
     const firstModule = trackModules[0];
-    void navigate(`/curriculum/${track}/${firstModule.id}`);
+    void navigate(`/${locale || 'en-US'}/curriculum/${track}/${firstModule.id}`);
   };
 
   const handleModuleClick = (track: CurriculumTrack, moduleId: string) => {
-    void navigate(`/curriculum/${track}/${moduleId}`);
+    void navigate(`/${locale || 'en-US'}/curriculum/${track}/${moduleId}`);
   };
 
   if (!catalog) {
@@ -271,7 +208,7 @@ export const CurriculumPage: React.FC = () => {
               </div>
 
               <a
-                href={`/curriculum/${track.key}`}
+                href={`/${locale || 'en-US'}/curriculum/${track.key}`}
                 onClick={(e) => {
                   e.preventDefault();
                   void handleTrackClick(track.key);
