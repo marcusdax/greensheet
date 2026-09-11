@@ -649,6 +649,18 @@ describe('referrals api', () => {
     const target = seed.data!.referrals.find((r) => r.status === 'kit_delivered');
     expect(target).toBeDefined();
 
+    // Fraud gate requires the referee to have a delivered order >= $150.
+    db.orders.push({
+      id: 'ord_qualify_r004',
+      accountId: target!.refereeId,
+      status: 'delivered',
+      lineItems: [{ lotId: 'lot_001', quantityLbs: 20, unitPriceCents: 1000 }],
+      finalTotalCents: 20_000,
+      invoiceNumber: null,
+      createdAt: '2025-07-25T00:00:00.000Z',
+      updatedAt: '2025-07-25T00:00:00.000Z',
+    });
+
     const res = await api.referrals.qualifyReferral(target!.id);
     expect('data' in res).toBe(true);
     expect(res.data!.referral.status).toBe('qualified');

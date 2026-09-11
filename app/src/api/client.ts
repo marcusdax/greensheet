@@ -49,6 +49,7 @@ import type {
 import { db, seedDatabase } from './db';
 import { GS } from './problems';
 import { MARKETING_TEMPLATES } from './marketing-data';
+import { evaluateReferral } from '../lib/referral-fraud';
 
 let refCodeCounter = 0;
 
@@ -1273,42 +1274,73 @@ export const api = {
         };
       }
 
-      if (referral.status === 'qualified') {
-        const existingEntries = db.rewardsLedger.filter((e) => e.referralId === referralId);
-        return { data: { referral, entries: existingEntries } };
+      const referrer = db.roasters.find((r) => r.id === referral.referrerId);
+      const referee = db.roasters.find((r) => r.id === referral.refereeId);
+
+      const refereeOrders = db.orders.filter((o) => o.accountId === referral.refereeId);
+      const inputs = {
+        referral,
+        referrer,
+        referee,
+        refereeOrders,
+        allReferrals: db.referrals,
+      };
+
+      const fraudResult = evaluateReferral(inputs);
+
+      if (fraudResult.action === 'qualify') {
+        const now = nowIso();
+        referral.status = 'qualified';
+        referral.qualifiedAt = now;
+        referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
+
+        const referrerCredit: RewardLedgerEntry = {
+          id: id(),
+          accountId: referral.referrerId,
+          referralId: referral.id,
+          type: 'referrer_credit',
+          amountCents: 150_00,
+          status: 'posted',
+          description: `Referrer credit for ${referral.refCode} qualified referral`,
+          createdAt: now,
+          postedAt: now,
+        };
+
+        const refereeDiscount: RewardLedgerEntry = {
+          id: id(),
+          accountId: referral.refereeId ?? referral.referrerId,
+          referralId: referral.id,
+          type: 'referee_discount',
+          amountCents: 100_00,
+          status: 'posted',
+          description: `Referee discount for ${referral.refCode} qualified referral`,
+          createdAt: now,
+          postedAt: now,
+        };
+
+        db.rewardsLedger.push(referrerCredit, refereeDiscount);
+        return { data: { referral, entries: [referrerCredit, refereeDiscount] } };
+      } else if (fraudResult.action === 'decline') {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral did not qualify',
+            status: 400,
+            code: 'GS-REF-1003',
+            detail: fraudResult.reason,
+          },
+        };
+      } else {
+        return {
+          problem: {
+            type: 'about:blank',
+            title: 'Referral requires manual review',
+            status: 422,
+            code: 'GS-REF-1003',
+            detail: fraudResult.reason,
+          },
+        };
       }
-
-      const now = nowIso();
-      referral.status = 'qualified';
-      referral.qualifiedAt = now;
-      referral.firstOrderDeliveredAt = referral.firstOrderDeliveredAt ?? now;
-
-      const referrerCredit: RewardLedgerEntry = {
-        id: id(),
-        accountId: referral.referrerId,
-        referralId: referral.id,
-        type: 'referrer_credit',
-        amountCents: 150_00,
-        status: 'posted',
-        description: `Referrer credit for ${referral.refCode} qualified referral`,
-        createdAt: now,
-        postedAt: now,
-      };
-
-      const refereeDiscount: RewardLedgerEntry = {
-        id: id(),
-        accountId: referral.refereeId ?? referral.referrerId,
-        referralId: referral.id,
-        type: 'referee_discount',
-        amountCents: 100_00,
-        status: 'posted',
-        description: `Referee discount for ${referral.refCode} qualified referral`,
-        createdAt: now,
-        postedAt: now,
-      };
-
-      db.rewardsLedger.push(referrerCredit, refereeDiscount);
-      return { data: { referral, entries: [referrerCredit, refereeDiscount] } };
     },
 
     clawBack: async (referralId: string): Promise<ApiResult<{ referral: Referral; entries: RewardLedgerEntry[] }>> => {

@@ -82,6 +82,14 @@ describe('referrals slice', () => {
     const beforeStats = useRootStore.getState().referrals.stats;
     expect(beforeStats).not.toBeNull();
 
+    // Add a qualifying delivered order for referee r_005 first ($150 minimum = 150_00 cents).
+    await useRootStore.getState().orders.createOrder({
+      accountId: 'r_005',
+      lineItems: [{ lotId: 'lot_001', quantityLbs: 250, unitPriceCents: 610 }],
+    });
+    const newOrder = useRootStore.getState().orders.orders[0];
+    await useRootStore.getState().orders.deliverOrder(newOrder.id);
+
     await useRootStore.getState().referrals.qualify('ref_004');
 
     const referral = useRootStore.getState().referrals.referrals.find((r) => r.id === 'ref_004');
@@ -130,6 +138,14 @@ describe('referrals slice', () => {
       kitDeliveredAt: '2025-08-06T00:00:00.000Z',
       feedbackSubmittedAt: '2025-08-08T00:00:00.000Z',
     });
+
+    // Add a qualifying delivered order for referee r_005 first ($150 minimum = 150_00 cents).
+    await useRootStore.getState().orders.createOrder({
+      accountId: 'r_005',
+      lineItems: [{ lotId: 'lot_001', quantityLbs: 250, unitPriceCents: 610 }],
+    });
+    const newOrder = useRootStore.getState().orders.orders[0];
+    await useRootStore.getState().orders.deliverOrder(newOrder.id);
 
     await useRootStore.getState().referrals.loadReviewQueue();
     expect(useRootStore.getState().referrals.reviewQueue.some((r) => r.id === 'ref_review_001')).toBe(true);

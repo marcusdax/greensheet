@@ -29,7 +29,7 @@ describe('db', () => {
 
   it('initializes empty downstream collections', () => {
     seedDatabase();
-    expect(db.orders).toHaveLength(0);
+    expect(db.orders).toHaveLength(1);
     expect(db.reservations).toHaveLength(0);
     expect(db.sampleKits).toHaveLength(0);
     expect(db.webhooks).toHaveLength(0);

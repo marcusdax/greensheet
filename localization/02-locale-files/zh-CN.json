@@ -353,12 +353,30 @@
     "overline": "GROWTH INTELLIGENCE",
     "title": "Growth Dashboard",
     "subtitle": "Weekly transacting roasters, kit funnel, CAC by channel, churn hazard, K-factor, and campaign lift.",
-    "wtr": { "title": "Weekly Transacting Roasters", "description": "Trailing 7-day active roasters with 4-week moving average" },
-    "kitFunnel": { "title": "Kit Funnel", "description": "Kit Sent → Delivered → Feedback → First Order" },
-    "cacByChannel": { "title": "CAC by Channel", "description": "Blended customer acquisition cost vs. $500 ceiling" },
-    "hazardHeatmap": { "title": "Churn Hazard Heatmap", "description": "Accounts by churn tier and segment" },
-    "kFactor": { "title": "K-Factor", "description": "Viral referral coefficient vs. 0.6 target" },
-    "campaignLift": { "title": "Campaign Lift", "description": "Bayesian posterior probability vs. control" }
+    "wtr": {
+      "title": "Weekly Transacting Roasters",
+      "description": "Trailing 7-day active roasters with 4-week moving average"
+    },
+    "kitFunnel": {
+      "title": "Kit Funnel",
+      "description": "Kit Sent → Delivered → Feedback → First Order"
+    },
+    "cacByChannel": {
+      "title": "CAC by Channel",
+      "description": "Blended customer acquisition cost vs. $500 ceiling"
+    },
+    "hazardHeatmap": {
+      "title": "Churn Hazard Heatmap",
+      "description": "Accounts by churn tier and segment"
+    },
+    "kFactor": {
+      "title": "K-Factor",
+      "description": "Viral referral coefficient vs. 0.6 target"
+    },
+    "campaignLift": {
+      "title": "Campaign Lift",
+      "description": "Bayesian posterior probability vs. control"
+    }
   },
   "errors": {
     "title": "出错了",
@@ -423,6 +441,188 @@
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
+    }
+  },
+  "referrals": {
+    "overline": "推荐",
+    "title": "推荐",
+    "subtitle": "管理您的推荐计划。跟踪邀请、奖励并分享您的唯一代码。",
+    "deliveryCardTitle": "发送样品，获得信用",
+    "deliveryCardBody": "知道还有烘焙商在看 PDF 吗？送他们一个真实的样品 — 包括评分表。当他们的第一笔订单送达时，您获得 150 美元的烘焙信用。",
+    "yourLink": "您的推荐链接",
+    "copyLink": "复制推荐链接",
+    "yourCode": "推荐代码",
+    "openLink": "打开链接",
+    "shareTitle": "来自 Auctum Ledger 的推荐链接",
+    "shareText": "看看这个来自 Auctum Ledger 的样品推荐",
+    "copyError": "复制链接失败",
+    "rewardReferrer": "您将获得",
+    "roastCredit": "烘焙信用",
+    "rewardReferee": "他们将获得",
+    "offFirstOrder": "抵扣首单",
+    "freeKit": "免费样品套装",
+    "simulateQualify": "[模拟实现资格]",
+    "qualifyNote": "推荐资格由 referee 第一笔订单送达驱动。",
+    "codeSection": "您的推荐代码",
+    "viewAllCodes": "查看所有代码",
+    "noCode": "加载中…",
+    "referralsList": "您的推荐",
+    "empty": "暂无推荐。分享您的代码以开始。",
+    "ledgerTitle": "Auctum Ledger 奖励总账",
+    "ledgerEmpty": "暂无奖励记录。",
+    "allCodesTitle": "所有推荐代码",
+    "codeStatus": "状态",
+    "anonymous": "匿名",
+    "detailTitle": "推荐详情",
+    "orderConfirmationTitle": "发送样品 — 获得烘焙信用",
+    "detail": {
+      "refCode": "推荐代码",
+      "status": "状态",
+      "channel": "渠道",
+      "referredAt": "推荐时间",
+      "funnel": "漏斗进度",
+      "reward": "奖励已记账"
+    },
+    "stats": {
+      "invitesSent": "已发送邀请",
+      "qualified": "已实现",
+      "kFactor": "K因子",
+      "earned": "已赚信用",
+      "title": "Program stats",
+      "invites": "Invites sent",
+      "clicks": "Clicks"
+    },
+    "status": {
+      "invited": "已邀请",
+      "clicked": "已点击",
+      "signed_up": "已注册",
+      "kit_requested": "样品已请求",
+      "kit_delivered": "样品已送达",
+      "feedback_submitted": "反馈已提交",
+      "first_order_delivered": "首单已送达",
+      "qualified": "已实现",
+      "clawed_back": "已追回"
+    },
+    "statusShort": {
+      "invited": "已邀请",
+      "clicked": "已点击",
+      "signed_up": "已注册",
+      "kit_requested": "样品请求",
+      "kit_delivered": "样品送达",
+      "feedback_submitted": "反馈",
+      "first_order_delivered": "首单",
+      "qualified": "已实现",
+      "clawed_back": "已追回"
+    },
+    "tier": {
+      "copper": {
+        "label": "品尝者",
+        "description": "0–2 个已实现推荐"
+      },
+      "greenBuyer": {
+        "label": "绿豆买家",
+        "description": "3–5 个已实现推荐"
+      },
+      "ledgerCircle": {
+        "label": "Ledger 圈",
+        "description": "6+ 个已实现推荐"
+      }
+    },
+    "channel": {
+      "invite_link": "邀请链接",
+      "qr_sticker": "QR 贴纸",
+      "email_share": "电子邮件",
+      "instagram_dm": "Instagram 私信",
+      "event_badge": "活动徽章",
+      "code_entry": "代码输入"
+    },
+    "reviewQueue": {
+      "title": "审核队列",
+      "noPending": "暂无待审核推荐",
+      "pendingReferral": "待审核推荐",
+      "reviewRequired": "需要审核",
+      "reviewReason": "审核原因",
+      "decision": {
+        "qualify": "批准",
+        "decline": "拒绝",
+        "review": "审核"
+      },
+      "reasons": {
+        "selfReferral": "自我推荐",
+        "identityGraphMatch": "身份图匹配已检测到",
+        "floorNotMet": "首笔付款订单未达标",
+        "velocityExceeded": "超出速度限制",
+        "ringDetected": "检测到互推环",
+        "missingBusinessRegistration": "推荐人缺少企业注册或税号",
+        "notFound": "推荐人或被推荐人未找到"
+      },
+      "referrer": "Referrer",
+      "referee": "Referee",
+      "reason": "Reason",
+      "approve": "Qualify",
+      "decline": "Decline"
+    },
+    "rewardType": {
+      "referrerCredit": "推荐人信用",
+      "refereeDiscount": "被推荐人折扣"
+    },
+    "rewardStatus": {
+      "pending": "待处理",
+      "posted": "已记账",
+      "clawed_back": "已追回"
+    },
+    "page": {
+      "title": "Referrals",
+      "subtitle": "Manage your referral program. Track invites, rewards, and share your unique code."
+    },
+    "nav": {
+      "referrals": "Referrals",
+      "reviewQueue": "Review Queue"
+    },
+    "code": {
+      "title": "Your Referral Code",
+      "copy": "Copy code",
+      "loading": "Loading…",
+      "customLabel": "Custom code label (optional)",
+      "createCustom": "Create Custom Code",
+      "error": "Failed to create code"
+    },
+    "invitesTable": {
+      "title": "Invites",
+      "referee": "Referee",
+      "channel": "Channel",
+      "status": "Status",
+      "date": "Date",
+      "pending": "Pending",
+      "actions": "Actions",
+      "qualify": "Qualify",
+      "clawBack": "Claw Back"
+    },
+    "ledgerTable": {
+      "title": "Reward Ledger",
+      "date": "Date",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "description": "Description"
+    },
+    "channels": {
+      "invite_link": "Invite link",
+      "qr_sticker": "QR sticker",
+      "email_share": "Email",
+      "instagram_dm": "Instagram DM",
+      "event_badge": "Event badge"
+    },
+    "share": {
+      "title": "Share Your Referral Link",
+      "copy": "Copy link"
+    },
+    "shared": {
+      "copied": "Copied"
+    },
+    "states": {
+      "loading": "Loading…",
+      "empty": "Nothing here yet"
     }
   }
 }

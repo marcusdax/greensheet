@@ -11,7 +11,7 @@ import { AgentChatWidget } from './agent/AgentChatWidget';
 import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
   Bell, Globe, Menu, X, ChevronDown,
-  Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp
+  Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp, Gift, Shield
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
@@ -95,6 +95,13 @@ export const AppLayout: React.FC = () => {
         { path: 'analytics', label: t('nav.analytics', 'Analytics'), icon: Star },
         { path: 'growth', label: t('nav.growth', 'Growth'), icon: TrendingUp },
         { path: 'webhooks', label: t('nav.webhooks', 'Webhooks'), icon: Webhook },
+      ]
+    },
+    {
+      title: 'GROWTH',
+      items: [
+        { path: 'referrals', label: t('nav.referrals', 'Referrals'), icon: Gift },
+        { path: 'review-queue', label: t('nav.reviewQueue', 'Review Queue'), icon: Shield },
       ]
     }
   ];

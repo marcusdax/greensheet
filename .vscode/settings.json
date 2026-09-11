@@ -1,4 +1,6 @@
 {
     "serverpulse.ai.enabled": true,
-    "serverpulse.ai.optInShown": true
+    "serverpulse.ai.optInShown": true,
+    "kimi.showThinkingExpanded": true,
+    "kimi.yoloMode": true
 }

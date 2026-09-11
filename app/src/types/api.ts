@@ -523,6 +523,7 @@ export interface Order {
   lineItems: OrderLineItem[];
   finalTotalCents: number;
   invoiceNumber?: string | null;
+  creditsAppliedCents?: number; // tracks referrer credits applied to this order (spend-through cap)
   createdAt: string;
   updatedAt: string;
 }

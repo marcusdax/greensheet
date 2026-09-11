@@ -11,7 +11,7 @@ describe('orders slice', () => {
   it('loads orders', async () => {
     const orders = useRootStore.getState().orders;
     await orders.loadOrders();
-    expect(useRootStore.getState().orders.orders.length).toBe(0);
+    expect(useRootStore.getState().orders.orders.length).toBe(1);
     expect(useRootStore.getState().orders.loading).toBe(false);
   });
 

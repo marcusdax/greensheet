@@ -25,9 +25,9 @@ export function useReferralTier(): ReferralTier | null {
     const count = stats.qualifiedReferrals;
     if (count >= 6) {
       return {
-        name: 'Compass Circle',
+        name: 'Ledger Circle',
         qualifiedCount: count,
-        perks: 'Early access to micro-lot drops, origin-trip raffle seat, priority support.',
+        perks: 'Annual origin-trip raffle seat, co-branded cupping event hosted by Greensheet in their city, permanent "Founding Seal" badge.',
       };
     }
     if (count >= 3) {

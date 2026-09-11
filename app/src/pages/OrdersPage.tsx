@@ -6,6 +6,7 @@ import { OrderForm } from '../components/forms/OrderForm';
 import { Modal } from '../components/ui/Modal';
 import { Drawer } from '../components/ui/Drawer';
 import { DataTable } from '../components/ui/DataTable';
+import { ReferralDeliveryCard } from '../components/referrals/ReferralDeliveryCard';
 import type { ColumnDef } from '../components/ui/DataTable';
 import type { Order, OrderStatus } from '../types/api';
 
@@ -290,6 +291,8 @@ export const OrdersPage: React.FC = () => {
                 </button>
               )}
             </div>
+
+            <ReferralDeliveryCard accountId={selectedOrder.accountId} />
           </div>
         )}
       </Drawer>

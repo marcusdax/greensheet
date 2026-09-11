@@ -11,6 +11,8 @@ import { GrowthPage } from './pages/GrowthPage';
 import { ReservationsPage } from './pages/ReservationsPage';
 import { SampleKitsPage } from './pages/SampleKitsPage';
 import { OrdersPage } from './pages/OrdersPage';
+import { ReferralsPage } from './pages/ReferralsPage';
+import { ReviewQueuePage } from './pages/ReviewQueuePage';
 import { WebhooksPage } from './pages/WebhooksPage';
 
 // Import i18n to initialize it
@@ -102,6 +104,8 @@ function App() {
             <Route path="growth" element={<GrowthPage />} />
             <Route path="sample-kits" element={<SampleKitsPage />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="referrals" element={<ReferralsPage />} />
+            <Route path="review-queue" element={<ReviewQueuePage />} />
             <Route path="webhooks" element={<WebhooksPage />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />

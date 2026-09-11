@@ -45,7 +45,7 @@ describe('referral selectors', () => {
       { qualified: 0, expected: 'Cupper' },
       { qualified: 2, expected: 'Cupper' },
       { qualified: 3, expected: 'Green Buyer' },
-      { qualified: 6, expected: 'Compass Circle' },
+      { qualified: 6, expected: 'Ledger Circle' },
     ])(
       'maps $qualified qualified referrals to the $expected tier',
       async ({ qualified, expected }) => {

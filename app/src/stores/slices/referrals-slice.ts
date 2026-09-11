@@ -274,6 +274,8 @@ export function createReferralsSlice(set: any): ReferralsSlice {
         error('approveReview', res.problem);
         return;
       }
+      // Update reviewStatus to approved
+      mutateReferral(referralId, { reviewStatus: 'approved' });
       set(
         (s: { referrals: ReferralsState }) => {
           s.referrals.reviewQueue = s.referrals.reviewQueue.filter((r) => r.id !== referralId);

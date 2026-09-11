@@ -361,12 +361,30 @@
     "overline": "GROWTH INTELLIGENCE",
     "title": "Growth Dashboard",
     "subtitle": "Weekly transacting roasters, kit funnel, CAC by channel, churn hazard, K-factor, and campaign lift.",
-    "wtr": { "title": "Weekly Transacting Roasters", "description": "Trailing 7-day active roasters with 4-week moving average" },
-    "kitFunnel": { "title": "Kit Funnel", "description": "Kit Sent → Delivered → Feedback → First Order" },
-    "cacByChannel": { "title": "CAC by Channel", "description": "Blended customer acquisition cost vs. $500 ceiling" },
-    "hazardHeatmap": { "title": "Churn Hazard Heatmap", "description": "Accounts by churn tier and segment" },
-    "kFactor": { "title": "K-Factor", "description": "Viral referral coefficient vs. 0.6 target" },
-    "campaignLift": { "title": "Campaign Lift", "description": "Bayesian posterior probability vs. control" }
+    "wtr": {
+      "title": "Weekly Transacting Roasters",
+      "description": "Trailing 7-day active roasters with 4-week moving average"
+    },
+    "kitFunnel": {
+      "title": "Kit Funnel",
+      "description": "Kit Sent → Delivered → Feedback → First Order"
+    },
+    "cacByChannel": {
+      "title": "CAC by Channel",
+      "description": "Blended customer acquisition cost vs. $500 ceiling"
+    },
+    "hazardHeatmap": {
+      "title": "Churn Hazard Heatmap",
+      "description": "Accounts by churn tier and segment"
+    },
+    "kFactor": {
+      "title": "K-Factor",
+      "description": "Viral referral coefficient vs. 0.6 target"
+    },
+    "campaignLift": {
+      "title": "Campaign Lift",
+      "description": "Bayesian posterior probability vs. control"
+    }
   },
   "errors": {
     "title": "Algo salió mal",
@@ -431,6 +449,188 @@
     "error": "Error: {{message}}",
     "status": {
       "streaming": "Thinking..."
+    }
+  },
+  "referrals": {
+    "overline": "REFERIDOS",
+    "title": "Referidos",
+    "subtitle": "Administra tu programa de referidos. Rastrea invitaciones, recompensas y comparte tu código único.",
+    "deliveryCardTitle": "Envía un Kit, Consigue Crédito",
+    "deliveryCardBody": "¿Conoces a un torreador que aún compra por PDFs? Envíale un kit real — incluye hojas de puntuación. Consigue $150 en crédito de tostado cuando su primer pedido se entregue.",
+    "yourLink": "Tu enlace de referido",
+    "copyLink": "Copiar enlace de referido",
+    "yourCode": "Código de referido",
+    "openLink": "Abrir enlace",
+    "shareTitle": "Enlace de referido de Auctum Ledger",
+    "shareText": "Echa un vistazo a esta recomendación de kit de muestras de Auctum Ledger",
+    "copyError": "No se pudo copiar el enlace",
+    "rewardReferrer": "Tú recibes",
+    "roastCredit": "crédito de tostado",
+    "rewardReferee": "Ellos reciben",
+    "offFirstOrder": "de descuento en primer pedido",
+    "freeKit": "kit de muestras gratis",
+    "simulateQualify": "[simular calificar]",
+    "qualifyNote": "La calificación de referidos se basa en la entrega del primer pedido del referee.",
+    "codeSection": "Tu Código de Referido",
+    "viewAllCodes": "Ver todos los códigos",
+    "noCode": "Cargando…",
+    "referralsList": "Tus Referidos",
+    "empty": "Aún no hay referidos. Comparte tu código para comenzar.",
+    "ledgerTitle": "Libro Mayor de Recompensas de Auctum Ledger",
+    "ledgerEmpty": "Aún no hay entradas de recompensas.",
+    "allCodesTitle": "Todos los Códigos de Referido",
+    "codeStatus": "Estado",
+    "anonymous": "Anónimo",
+    "detailTitle": "Detalle de Referido",
+    "orderConfirmationTitle": "Envía un Kit — Consigue Crédito de Tostado",
+    "detail": {
+      "refCode": "Código de referido",
+      "status": "Estado",
+      "channel": "Canal",
+      "referredAt": "Referido en",
+      "funnel": "Progreso del embudo",
+      "reward": "Recompensa contabilizada"
+    },
+    "stats": {
+      "invitesSent": "Invitaciones enviadas",
+      "qualified": "Calificados",
+      "kFactor": "K-factor",
+      "earned": "Créditos ganados",
+      "title": "Program stats",
+      "invites": "Invites sent",
+      "clicks": "Clicks"
+    },
+    "status": {
+      "invited": "Invitado",
+      "clicked": "Clicado",
+      "signed_up": "Registrado",
+      "kit_requested": "Kit solicitado",
+      "kit_delivered": "Kit entregado",
+      "feedback_submitted": "Comentarios enviados",
+      "first_order_delivered": "Primer pedido entregado",
+      "qualified": "Calificado",
+      "clawed_back": "Reembolsado"
+    },
+    "statusShort": {
+      "invited": "Invitado",
+      "clicked": "Clicado",
+      "signed_up": "Registrado",
+      "kit_requested": "Kit solicitado",
+      "kit_delivered": "Kit entregado",
+      "feedback_submitted": "Comentarios",
+      "first_order_delivered": "1er pedido",
+      "qualified": "Calificado",
+      "clawed_back": "Reembolsado"
+    },
+    "tier": {
+      "copper": {
+        "label": "Catador",
+        "description": "0–2 referidos calificados"
+      },
+      "greenBuyer": {
+        "label": "Comprador Verde",
+        "description": "3–5 referidos calificados"
+      },
+      "ledgerCircle": {
+        "label": "Círculo Ledger",
+        "description": "6+ referidos calificados"
+      }
+    },
+    "channel": {
+      "invite_link": "Enlace de invitación",
+      "qr_sticker": "Pegatina QR",
+      "email_share": "Email",
+      "instagram_dm": "DM de Instagram",
+      "event_badge": "Insignia de evento",
+      "code_entry": "Entrada de código"
+    },
+    "reviewQueue": {
+      "title": "Cola de Revisión",
+      "noPending": "No hay referidos pendientes",
+      "pendingReferral": "Referido pendiente",
+      "reviewRequired": "Se requiere revisión",
+      "reviewReason": "Razón de la revisión",
+      "decision": {
+        "qualify": "Calificar",
+        "decline": "Rechazar",
+        "review": "Revisar"
+      },
+      "reasons": {
+        "selfReferral": "Auto-referido",
+        "identityGraphMatch": "Coincidencia de identidad detectada",
+        "floorNotMet": "No se cumplió el mínimo del primer pedido",
+        "velocityExceeded": "Límite de velocidad excedido",
+        "ringDetected": "Anillo de referidos mutuo detectado",
+        "missingBusinessRegistration": "Falta registro comercial o ID fiscal del referee",
+        "notFound": "No se encontró el referidor o el referido"
+      },
+      "referrer": "Referrer",
+      "referee": "Referee",
+      "reason": "Reason",
+      "approve": "Qualify",
+      "decline": "Decline"
+    },
+    "rewardType": {
+      "referrerCredit": "Crédito para quien refiere",
+      "refereeDiscount": "Descuento para el referido"
+    },
+    "rewardStatus": {
+      "pending": "Pendiente",
+      "posted": "Contabilizado",
+      "clawed_back": "Reembolsado"
+    },
+    "page": {
+      "title": "Referrals",
+      "subtitle": "Manage your referral program. Track invites, rewards, and share your unique code."
+    },
+    "nav": {
+      "referrals": "Referrals",
+      "reviewQueue": "Review Queue"
+    },
+    "code": {
+      "title": "Your Referral Code",
+      "copy": "Copy code",
+      "loading": "Loading…",
+      "customLabel": "Custom code label (optional)",
+      "createCustom": "Create Custom Code",
+      "error": "Failed to create code"
+    },
+    "invitesTable": {
+      "title": "Invites",
+      "referee": "Referee",
+      "channel": "Channel",
+      "status": "Status",
+      "date": "Date",
+      "pending": "Pending",
+      "actions": "Actions",
+      "qualify": "Qualify",
+      "clawBack": "Claw Back"
+    },
+    "ledgerTable": {
+      "title": "Reward Ledger",
+      "date": "Date",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "description": "Description"
+    },
+    "channels": {
+      "invite_link": "Invite link",
+      "qr_sticker": "QR sticker",
+      "email_share": "Email",
+      "instagram_dm": "Instagram DM",
+      "event_badge": "Event badge"
+    },
+    "share": {
+      "title": "Share Your Referral Link",
+      "copy": "Copy link"
+    },
+    "shared": {
+      "copied": "Copied"
+    },
+    "states": {
+      "loading": "Loading…",
+      "empty": "Nothing here yet"
     }
   }
 }
