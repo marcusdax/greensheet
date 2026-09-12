@@ -1,6 +1,8 @@
 services:
   proxy:
     build:
+      context: .
+      dockerfile: Dockerfile.proxy
       target: dev
     volumes:
       - ./:/app
@@ -13,6 +15,8 @@ services:
 
   app:
     build:
+      context: .
+      dockerfile: Dockerfile.app
       target: dev
     volumes:
       - ./:/app
@@ -20,7 +24,7 @@ services:
       - ../localization/02-locale-files:/localization/02-locale-files
     environment:
       - VITE_AI_PROXY_URL=http://localhost:3001
-      # Polling is required for reliable file-watching on Windows/Docker Desktop bind mounts.
+      # Polling is required for reliable file watching on Windows/Docker Desktop bind mounts.
       - CHOKIDAR_USEPOLLING=true
     ports: !override
       - "5173:5173"

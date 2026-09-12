@@ -71,7 +71,7 @@ export const AppLayout: React.FC = () => {
       items: [
         { path: 'navigator', label: t('nav.navigator', 'Navigator'), icon: Scale },
         { path: 'catalog', label: t('nav.catalog', 'Catalog'), icon: Ship },
-        { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: Layers },
+        { path: 'sample-kits', label: t('nav.sampleKits', 'Sample Kits'), icon: Package },
       ]
     },
     {
@@ -85,7 +85,7 @@ export const AppLayout: React.FC = () => {
       title: 'RELATIONSHIPS',
       items: [
         { path: 'roasters', label: t('nav.roasters', 'Roasters'), icon: Sprout },
-        { path: 'sample-kits', label: t('nav.sampleKits', 'Sample Kits'), icon: Package },
+        { path: 'reservations', label: t('nav.reservations', 'Reservations'), icon: Layers },
         { path: 'orders', label: t('nav.orders', 'Orders'), icon: ShoppingCart },
       ]
     },
@@ -98,7 +98,7 @@ export const AppLayout: React.FC = () => {
       ]
     },
     {
-      title: 'GROWTH',
+      title: 'OPERATIONS',
       items: [
         { path: 'referrals', label: t('nav.referrals', 'Referrals'), icon: Gift },
         { path: 'review-queue', label: t('nav.reviewQueue', 'Review Queue'), icon: Shield },
@@ -131,10 +131,10 @@ export const AppLayout: React.FC = () => {
           <div className="h-16 px-6 border-b border-navy-800 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-2xl font-display font-medium text-parchment-50 leading-none">
-                Greensheet
+                Auctum Ledger
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#A9A08C] uppercase mt-1">
-                BY ODASI
+              <span className="text-[9px] font-mono tracking-widest text-parchment-50/60 uppercase mt-1">
+                BY AUCTUM
               </span>
             </div>
             <button 
@@ -150,7 +150,7 @@ export const AppLayout: React.FC = () => {
           <nav className="flex-1 overflow-y-auto p-4 space-y-6">
             {menuGroups.map((group) => (
               <div key={group.title} className="space-y-1">
-                <span className="block px-3 text-[10px] font-mono tracking-widest text-[#A9A08C] uppercase font-bold">
+                <span className="block px-3 text-[11px] font-mono tracking-widest uppercase font-bold text-parchment-50/70">
                   {group.title}
                 </span>
                 <div className="space-y-0.5">
@@ -161,11 +161,12 @@ export const AppLayout: React.FC = () => {
                         key={item.path}
                         to={`/${locale || 'en-US'}/${item.path}`}
                         onClick={() => setSidebarOpen(false)}
+                        aria-current={({ isActive }) => (isActive ? 'page' : undefined)}
                         className={({ isActive }) => 
                           `h-10 px-3 rounded-md flex items-center gap-3 font-medium text-sm transition-all focus-visible:ring-1 focus-visible:ring-teal relative ${
                             isActive 
                               ? 'bg-teal text-white shadow-sm font-semibold' 
-                              : 'text-parchment-50/70 hover:text-white hover:bg-white/5'
+                              : 'text-parchment-50/70 hover:text-white hover:bg-white/10'
                           }`
                         }
                       >
@@ -188,7 +189,7 @@ export const AppLayout: React.FC = () => {
 
           {/* Footer of Sidebar */}
           <div className="p-4 border-t border-navy-800 text-[10px] text-parchment-50/40 font-mono text-center">
-            ODASI Technologies • Navigate Your Reality
+            Auctum Ledger · by Auctum
           </div>
         </aside>
 
@@ -217,7 +218,7 @@ export const AppLayout: React.FC = () => {
               <div className="relative hidden md:block">
                 <input 
                   type="text" 
-                  placeholder={t('common:a11y.globalSearch', 'Search lots, roasters…')} 
+                  placeholder={t('common:a11y.globalSearch', 'Search lots, origins, roasters…')} 
                   className="w-48 xl:w-60 pl-8 pr-3 py-1.5 border border-border bg-recessed/20 text-xs rounded-md focus:w-64 focus:border-teal font-sans transition-all duration-base text-ink"
                 />
                 <Search size={12} className="absolute left-2.5 top-2.5 text-subtle" />

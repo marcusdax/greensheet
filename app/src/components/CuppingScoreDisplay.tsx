@@ -76,10 +76,10 @@ export const CuppingScoreDisplay: React.FC<CuppingScoreDisplayProps> = ({
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
-              <PolarGrid stroke="rgb(var(--gs-border))" />
+              <PolarGrid stroke="rgb(var(--al-border))" />
               <PolarAngleAxis
                 dataKey="attribute"
-                tick={{ fontSize: 9, fontFamily: 'IBM Plex Mono, monospace', fill: 'rgb(var(--gs-text-muted))' }}
+                tick={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fill: 'rgb(var(--al-text-muted))' }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Radar
