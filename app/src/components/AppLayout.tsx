@@ -12,7 +12,7 @@ import {
   Scale, Coins, Star, Sprout, Ship, Search, Sun, Moon,
   Bell, Globe, Menu, X, ChevronDown,
   Layers, Sparkles, Package, ShoppingCart, Webhook, TrendingUp,
-  Gift, BookOpen
+  Gift, BookOpen, Play
 } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {

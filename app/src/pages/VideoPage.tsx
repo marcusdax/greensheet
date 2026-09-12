@@ -163,12 +163,6 @@ export const VideoPage: React.FC = () => {
     setGenerating(false);
   };
 
-  const handleCopyUrl = () => {
-    if (generatedUrl) {
-      navigator.clipboard.writeText(generatedUrl).catch(() => {});
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* ── View Header ── */}
