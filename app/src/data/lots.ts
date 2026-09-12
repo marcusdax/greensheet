@@ -1,3 +1,5 @@
+import type { ProviderKey, ChatMessage } from "../stores/slices/ai-slice";
+
 export interface CoffeeLot {
   id: string;
   origin: string;
@@ -36,7 +38,7 @@ export const lots: CoffeeLot[] = [
     flavorNotes: ['jasmine', 'cane sugar', 'red currant', 'cocoa nib', 'lime'],
     sensoryProfile: { acidity: 8.5, body: 7.0, sweetness: 8.8 },
     estimatedArrival: '2025-07-12',
-    lastUpdatedAt: new Date(Date.now() - 5*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 5 * 864e5).toISOString()
   },
   {
     id: 'lot_002',
@@ -54,7 +56,7 @@ export const lots: CoffeeLot[] = [
     flavorNotes: ['blueberry', 'bergamot', 'cacao', 'lavender'],
     sensoryProfile: { acidity: 8.8, body: 7.5, sweetness: 8.4 },
     estimatedArrival: '2025-06-28',
-    lastUpdatedAt: new Date(Date.now() - 16*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 16 * 864e5).toISOString()
   },
   {
     id: 'lot_003',
@@ -72,7 +74,7 @@ export const lots: CoffeeLot[] = [
     flavorNotes: ['chocolate', 'orange zest', 'panela', 'almond', 'vanilla', 'black tea'],
     sensoryProfile: { acidity: 7.8, body: 8.0, sweetness: 8.6 },
     estimatedArrival: '2025-06-30',
-    lastUpdatedAt: new Date(Date.now() - 3*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 3 * 864e5).toISOString()
   },
   {
     id: 'lot_004',
@@ -89,7 +91,7 @@ export const lots: CoffeeLot[] = [
     flavorNotes: ['blackcurrant', 'grapefruit', 'brown sugar', 'tomato leaf'],
     sensoryProfile: { acidity: 9.2, body: 7.8, sweetness: 8.9 },
     estimatedArrival: '2025-08-03',
-    lastUpdatedAt: new Date(Date.now() - 2*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 2 * 864e5).toISOString()
   },
   {
     id: 'lot_005',
@@ -107,6 +109,12 @@ export const lots: CoffeeLot[] = [
     flavorNotes: ['rum raisin', 'pineapple', 'cinnamon'],
     sensoryProfile: { acidity: 8.2, body: 7.2, sweetness: 8.0 },
     estimatedArrival: '2025-07-20',
-    lastUpdatedAt: new Date(Date.now() - 30*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 30 * 864e5).toISOString()
   },
 ];
+export interface CompletionPayload {
+  provider: ProviderKey;
+  model: string;
+  apiKey: string;
+  messages: ChatMessage[];
+}

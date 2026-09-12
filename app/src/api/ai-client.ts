@@ -1,11 +1,4 @@
-import type { ProviderKey, ChatMessage } from '../stores/slices/ai-slice';
-
-export interface CompletionPayload {
-  provider: ProviderKey;
-  model: string;
-  apiKey: string;
-  messages: ChatMessage[];
-}
+import type { CompletionPayload } from '../data/lots';
 
 export async function* streamCompletion(payload: CompletionPayload): AsyncGenerator<
   { chunk?: string; done?: boolean; error?: string },
