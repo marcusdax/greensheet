@@ -171,6 +171,16 @@ describe('CoursePlayer', () => {
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_3'));
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_4'));
 
+    // With the new contract, markLessonComplete does NOT auto-complete the module.
+    // Switch to Progress tab to click Complete Module
+    fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+
+    // Click Complete Module to finish it
+    fireEvent.click(screen.getByTestId('complete-module'));
+
+    // Switch back to Lessons tab to see the Review button
+    fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
+
     expect(screen.getByTestId('review-module')).toBeInTheDocument();
     expect(screen.getByTestId('review-module')).toHaveTextContent('Review');
   });
@@ -184,14 +194,22 @@ describe('CoursePlayer', () => {
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_3'));
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_4'));
 
+    // Switch to Progress tab to click Complete Module
+    fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+
+    // Complete the module via the Complete Module button first
+    fireEvent.click(screen.getByTestId('complete-module'));
+
+    // Switch back to Lessons tab to click Review
+    fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
+
     fireEvent.click(screen.getByTestId('review-module'));
 
     const progress = useRootStore.getState().curriculum.getModuleProgress(MODULE_ID);
     expect(progress?.status).toBe('completed');
     expect(progress?.lessonsCompleted).toEqual(['q_lesson_1', 'q_lesson_2', 'q_lesson_3', 'q_lesson_4']);
-    // markLessonComplete grants +10 on module completion; completeModule (Review)
-    // grants an additional +50 trust-score boost.
-    expect(progress?.trustScoreBoost).toBe(60);
+    // completeModule grants +50; Review is idempotent and does not re-grant.
+    expect(progress?.trustScoreBoost).toBe(50);
   });
 
   it('renders a not-found message for an unknown module', () => {
@@ -203,17 +221,19 @@ describe('CoursePlayer', () => {
     render(<CoursePlayer moduleId={MODULE_ID} />);
     fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
 
-    // Complete all lessons to reach 'completed' status via markLessonComplete
+    // Complete all lessons to reach 'in_progress' status via markLessonComplete
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_1'));
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_2'));
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_3'));
     fireEvent.click(screen.getByTestId('mark-complete-q_lesson_4'));
 
-    // Since all 4 lessons are completed, status is already 'completed'
-    // so the Complete Module button is not shown (module already complete).
-    // Instead, let's test the button by resetting and completing via the progress tab.
+    // Since all 4 lessons are completed, status is 'in_progress'
+    // The Complete Module button should appear in the Progress tab
+    fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+
     const progress = useRootStore.getState().curriculum.getModuleProgress(MODULE_ID);
-    expect(progress?.status).toBe('completed');
+    expect(progress?.status).toBe('in_progress');
+    expect(screen.getByTestId('complete-module')).toBeInTheDocument();
   });
 
   describe('Complete Module button in progress tab', () => {
@@ -241,15 +261,14 @@ describe('CoursePlayer', () => {
       render(<CoursePlayer moduleId="mod_test" />);
       fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
 
-      // Complete both lessons — this sets status to 'completed' via markLessonComplete
+      // Complete both lessons — this sets status to 'in_progress' via markLessonComplete
       fireEvent.click(screen.getByTestId('mark-complete-q_lesson_1'));
       fireEvent.click(screen.getByTestId('mark-complete-q_lesson_2'));
 
-      // At this point the review button is shown, not the complete-module button
+      // After completing all lessons, status is 'in_progress' so Complete Module button should appear
       fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
 
-      // After completing all lessons, status is 'completed' so no Complete Module button
-      expect(screen.queryByTestId('complete-module')).not.toBeInTheDocument();
+      expect(screen.getByTestId('complete-module')).toBeInTheDocument();
     });
 
     it('clicking Complete Module from progress tab completes the module and grants +50 trust score', () => {
@@ -262,6 +281,21 @@ describe('CoursePlayer', () => {
       // Navigate to progress tab — only 1 of 2 lessons done, so no Complete Module button
       fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
       expect(screen.queryByTestId('complete-module')).not.toBeInTheDocument();
+
+      // Now complete the second lesson
+      fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
+      fireEvent.click(screen.getByTestId('mark-complete-q_lesson_2'));
+
+      // Navigate to progress tab — both lessons done, Complete Module button should appear
+      fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+      expect(screen.getByTestId('complete-module')).toBeInTheDocument();
+
+      // Click Complete Module
+      fireEvent.click(screen.getByTestId('complete-module'));
+
+      const progress = useRootStore.getState().curriculum.getModuleProgress('mod_test');
+      expect(progress?.status).toBe('completed');
+      expect(progress?.trustScoreBoost).toBe(50);
     });
   });
 
@@ -325,6 +359,16 @@ describe('CoursePlayer', () => {
       fireEvent.click(screen.getByTestId('mark-complete-lesson_2'));
       fireEvent.click(screen.getByTestId('mark-complete-lesson_3'));
 
+      // With the new contract, markLessonComplete does NOT auto-complete the module.
+      // Switch to Progress tab to click Complete Module
+      fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+
+      // Click Complete Module to finish it
+      fireEvent.click(screen.getByTestId('complete-module'));
+
+      // Switch back to Lessons tab to see the Review button
+      fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
+
       expect(screen.getByTestId('review-module')).toBeInTheDocument();
     });
 
@@ -335,6 +379,16 @@ describe('CoursePlayer', () => {
       fireEvent.click(screen.getByTestId('mark-complete-lesson_1'));
       fireEvent.click(screen.getByTestId('mark-complete-lesson_2'));
       fireEvent.click(screen.getByTestId('mark-complete-lesson_3'));
+
+      // With the new contract, markLessonComplete does NOT auto-complete the module.
+      // Switch to Progress tab to click Complete Module
+      fireEvent.click(screen.getByRole('tab', { name: /Progress/i }));
+
+      // Click Complete Module to finish it
+      fireEvent.click(screen.getByTestId('complete-module'));
+
+      // Switch back to Lessons tab to click Review
+      fireEvent.click(screen.getByRole('tab', { name: /Lessons/i }));
 
       fireEvent.click(screen.getByTestId('review-module'));
 

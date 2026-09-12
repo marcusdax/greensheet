@@ -80,22 +80,24 @@ describe('curriculum authoring flow', () => {
     markLessonComplete('mod_auth_1', 'auth_lesson_2');
     markLessonComplete('mod_auth_1', 'auth_lesson_3');
 
-    expect(getModuleStatus('mod_auth_1')).toBe('completed');
+    expect(getModuleStatus('mod_auth_1')).toBe('in_progress');
     const progress = getModuleProgress('mod_auth_1');
     expect(progress!.lessonsCompleted).toHaveLength(3);
-    expect(progress!.trustScoreBoost).toBe(10);
+    expect(progress!.trustScoreBoost).toBeUndefined();
   });
 
   it('completeModule marks all lessons as done and grants a larger trust score boost', () => {
     const { completeModule, getModuleStatus, getModuleProgress, getCompletedLessonCount } = store.getState().curriculum;
 
+    // mod_auth_2 has prerequisite mod_auth_1, so complete mod_auth_1 first
+    completeModule('mod_auth_1');
     completeModule('mod_auth_2');
 
     expect(getModuleStatus('mod_auth_2')).toBe('completed');
     const progress = getModuleProgress('mod_auth_2');
-    expect(progress!.lessonsCompleted).toEqual(['auth_lesson_4', 'auth_lesson_5', 'auth_lesson_6', 'auth_lesson_7']);
+    expect(progress!.lessonsCompleted).toEqual([]);
     expect(progress!.trustScoreBoost).toBe(50);
-    expect(getCompletedLessonCount('mod_auth_2')).toBe(4);
+    expect(getCompletedLessonCount('mod_auth_2')).toBe(0);
   });
 
   it('does not duplicate lessons when markLessonComplete is called twice for the same lesson', () => {

@@ -109,20 +109,24 @@ export const createCurriculumSlice = (set: any, get?: any) => ({
       (s: any) => {
         const userId = 'current';
         const progress = ensureProgress(s.curriculum, userId, moduleId);
+
+        // Unlock a locked module to in_progress when a lesson is marked.
         if (progress.status === 'locked') {
           progress.status = 'in_progress';
         }
+
         if (!progress.lessonsCompleted.includes(lessonId)) {
           progress.lessonsCompleted.push(lessonId);
         }
-        if (progress.status === 'available' || progress.status === 'in_progress') {
+
+        // Move available to in_progress
+        if (progress.status === 'available') {
           progress.status = 'in_progress';
         }
-        const moduleData = s.curriculum.catalog?.modules[moduleId];
-        if (moduleData && progress.lessonsCompleted.length >= moduleData.lessons.length) {
-          progress.status = 'completed';
-          progress.trustScoreBoost = (progress.trustScoreBoost ?? 0) + 10;
-        }
+
+        // Do NOT auto-complete module here.
+        // Do NOT grant +10 trust score here.
+
         progress.lastUpdated = nowISO();
         saveProgressToLocalStorage(get().curriculum.userProgress);
       },
@@ -135,16 +139,26 @@ export const createCurriculumSlice = (set: any, get?: any) => ({
     set(
       (s: any) => {
         const userId = 'current';
-        const progress = ensureProgress(s.curriculum, userId, moduleId);
-        progress.status = 'completed';
         const moduleData = s.curriculum.catalog?.modules[moduleId];
-        if (moduleData && progress.lessonsCompleted.length < moduleData.lessons.length) {
-          moduleData.lessons.forEach((lessonId: string) => {
-            if (!progress.lessonsCompleted.includes(lessonId)) {
-              progress.lessonsCompleted.push(lessonId);
-            }
-          });
-        }
+        // Reject unknown modules — do not create progress records for them.
+        if (!moduleData) return;
+
+        const progress = ensureProgress(s.curriculum, userId, moduleId);
+
+        // Reject locked modules — prerequisites must be completed first.
+        const isLocked = moduleData.prerequisites.some(
+          (prereq: string) => {
+            const prereqProgress = s.curriculum.getModuleProgress(prereq);
+            return !prereqProgress || prereqProgress.status !== 'completed';
+          },
+        );
+        if (isLocked) return;
+
+        // Idempotent: already completed modules do not receive additional points.
+        if (progress.status === 'completed') return;
+
+        progress.status = 'completed';
+        // Do NOT auto-fill missing lessons — completion is a manual action.
         progress.trustScoreBoost = (progress.trustScoreBoost ?? 0) + 50;
         progress.lastUpdated = nowISO();
         saveProgressToLocalStorage(get().curriculum.userProgress);
@@ -168,7 +182,19 @@ export const createCurriculumSlice = (set: any, get?: any) => ({
 
   getModuleStatus: (moduleId: string) => {
     const progress = get().curriculum.getModuleProgress(moduleId);
-    return progress?.status ?? 'available';
+    if (progress) {
+      return progress.status;
+    }
+    // Derive lock status from prerequisites when no progress record exists yet.
+    const moduleData = get().curriculum.catalog?.modules[moduleId];
+    if (moduleData?.prerequisites.length) {
+      const hasUnmetPrereq = moduleData.prerequisites.some(
+        (prereq: string) => !get().curriculum.getModuleProgress(prereq) ||
+          get().curriculum.getModuleProgress(prereq)!.status !== 'completed',
+      );
+      if (hasUnmetPrereq) return 'locked';
+    }
+    return 'available';
   },
 
   loadProgress: () => {

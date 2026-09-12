@@ -163,16 +163,15 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ moduleId, onTabChang
   };
 
   const handleReviewModule = () => {
-    // "Review" re-engages a completed module. The store does not expose a
-    // "re-open" action, so we ensure every lesson is marked complete via
-    // completeModule (idempotent for a fully completed module) and rely on
-    // the consumer to re-navigate into the lesson content.
+    // "Review" re-engages a completed module. completeModule is
+    // idempotent and does not re-grant trust-score points.
     completeModule(moduleId);
   };
 
   const handleCompleteModule = () => {
-    // Complete the whole module at once from the progress tab. This marks all
-    // lessons complete and sets the module status to 'completed'.
+    // Complete the whole module at once from the progress tab.
+    // completeModule does NOT auto-fill lessons — it marks the module
+    // completed and grants +50 trust score.
     completeModule(moduleId);
   };
 

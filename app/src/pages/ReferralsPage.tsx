@@ -251,7 +251,7 @@ export const ReferralsPage: React.FC = () => {
           accountId={selectedAccountId}
           roasterName={selectedRoasterName}
           referralCode={primaryCode}
-          onQualifyReferral={(referralId) => {
+          onQualifyReferral={(referralId: string) => {
             // This is a demo hook — in production, the qualify endpoint
             // is invoked server-side when the referee's first order is delivered.
             void referralId;

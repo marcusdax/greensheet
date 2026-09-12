@@ -74,7 +74,7 @@ export const CurriculumModuleDetail: React.FC = () => {
   }, [moduleData]);
 
   const progress = moduleId ? curriculum.getModuleProgress(moduleId) : undefined;
-  const status: ModuleStatus = progress?.status ?? 'available';
+  const status: ModuleStatus = moduleId ? curriculum.getModuleStatus(moduleId) : 'available';
   const StatusIcon = statusIcons[status];
 
   const completedLessonCount = moduleId ? curriculum.getCompletedLessonCount(moduleId) : 0;
@@ -86,7 +86,7 @@ export const CurriculumModuleDetail: React.FC = () => {
   };
 
   const handleMarkLesson = (lessonId: string) => {
-    if (!moduleData || status === 'locked') return;
+    if (!moduleData) return;
     curriculum.markLessonComplete(moduleData.id, lessonId);
   };
 
@@ -229,7 +229,7 @@ export const CurriculumModuleDetail: React.FC = () => {
       >
         <button
           onClick={handleCompleteModule}
-          disabled={status === 'locked'}
+          disabled={status === 'locked' || status === 'completed'}
           className={`px-4 py-2 rounded-md text-sm font-semibold font-sans transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
             status === 'completed'
               ? 'bg-recessed text-muted cursor-not-allowed'

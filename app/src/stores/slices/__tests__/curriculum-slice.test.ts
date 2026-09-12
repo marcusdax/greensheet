@@ -75,15 +75,15 @@ describe('curriculum slice', () => {
     expect(progress!.status).toBe('in_progress');
   });
 
-  it('markLessonComplete completes a module when all lessons are done', () => {
+  it('markLessonComplete does not auto-complete a module when all lessons are done', () => {
     const { markLessonComplete, getModuleStatus } = store.getState().curriculum;
     markLessonComplete('mod_1', 'lesson_1');
     markLessonComplete('mod_1', 'lesson_2');
     markLessonComplete('mod_1', 'lesson_3');
 
-    expect(getModuleStatus('mod_1')).toBe('completed');
+    expect(getModuleStatus('mod_1')).toBe('in_progress');
     const progress = store.getState().curriculum.getModuleProgress('mod_1');
-    expect(progress!.trustScoreBoost).toBe(10);
+    expect(progress!.trustScoreBoost).toBeUndefined();
   });
 
   it('markLessonComplete does not duplicate completed lessons', () => {
@@ -96,12 +96,14 @@ describe('curriculum slice', () => {
   });
 
   it('completeModule marks status completed and boosts trust score', () => {
-    const { completeModule, getModuleStatus } = store.getState().curriculum;
+    const { completeModule, getModuleStatus, markLessonComplete } = store.getState().curriculum;
+    // mod_2 has prerequisite mod_1, so complete mod_1 first
+    completeModule('mod_1');
     completeModule('mod_2');
 
     expect(getModuleStatus('mod_2')).toBe('completed');
     const progress = store.getState().curriculum.getModuleProgress('mod_2');
-    expect(progress!.lessonsCompleted).toEqual(['lesson_4', 'lesson_5']);
+    expect(progress!.lessonsCompleted).toEqual([]);
     expect(progress!.trustScoreBoost).toBe(50);
   });
 
@@ -137,11 +139,13 @@ describe('curriculum slice', () => {
   });
 
   it('completeModule preserves already-completed lessons and does not duplicate', () => {
+    // mod_2 has prerequisite mod_1, so complete mod_1 first
+    store.getState().curriculum.completeModule('mod_1');
     store.getState().curriculum.markLessonComplete('mod_2', 'lesson_4');
     store.getState().curriculum.completeModule('mod_2');
     const progress = store.getState().curriculum.getModuleProgress('mod_2');
     expect(progress!.status).toBe('completed');
-    expect(progress!.lessonsCompleted).toEqual(['lesson_4', 'lesson_5']);
+    expect(progress!.lessonsCompleted).toEqual(['lesson_4']);
     expect(progress!.trustScoreBoost).toBe(50);
   });
 
