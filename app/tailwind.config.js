@@ -24,10 +24,10 @@ export default {
         leaf:   { DEFAULT: '#3E6B50', 300: '#9FD3B4', 100: '#E5EFE7' },  // auctum sage
         parchment: { DEFAULT: '#F6F1E7', 50: '#FDFBF5', 200: '#EFE8DA', 300: '#E4DCC9' },
         neutral:   { DEFAULT: '#8A8272', 400: '#D8CFBB', 500: '#B9AE97', 600: '#8A8272', 700: '#5C5546' },
-        success: { DEFAULT: '#33684A', bg: '#E5EFE7' },
-        warning: { DEFAULT: '#8A5F14', bg: '#FBF0DA' },
-        danger:  { DEFAULT: '#9E3D31', bg: '#F9E6E2' },
-        info:    { DEFAULT: '#2C6E8C', bg: '#E4EEF3' },
+        success: { DEFAULT: 'rgb(var(--al-success) / <alpha-value>)', bg: 'rgb(var(--al-success-bg) / <alpha-value>)' },
+        warning: { DEFAULT: 'rgb(var(--al-warning) / <alpha-value>)', bg: 'rgb(var(--al-warning-bg) / <alpha-value>)' },
+        danger:  { DEFAULT: 'rgb(var(--al-danger) / <alpha-value>)', bg: 'rgb(var(--al-danger-bg) / <alpha-value>)' },
+        info:    { DEFAULT: 'rgb(var(--al-info) / <alpha-value>)', bg: 'rgb(var(--al-info-bg) / <alpha-value>)' },
         // neutral warm ramp (paper scale) — slate mirrors neutral per §9/§10
         slate: { DEFAULT: '#5C5546', 700: '#5C5546', 600: '#8A8272', 500: '#B9AE97', 400: '#D8CFBB', 300: '#E4DCC9', 200: '#EFE8DA', 100: '#F6F1E7' },
       },

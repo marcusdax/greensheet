@@ -69,7 +69,7 @@ export const AnalyticsPage: React.FC = () => {
     if (val === 100) return 'bg-leaf text-white';
     if (val >= 90) return 'bg-leaf/80 text-white';
     if (val >= 85) return 'bg-leaf/60 text-ink';
-    if (val >= 80) return 'bg-gold/40 text-gold-text';
+    if (val >= 80) return 'bg-gold/40 text-gold-600';
     return 'bg-warning-bg text-warning';
   };
 

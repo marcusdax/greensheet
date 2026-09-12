@@ -16,7 +16,8 @@
       "automationRules": "Reglas de automatización",
       "webhooks": "Webhooks",
       "growth": "Growth",
-      "referrals": "Referidos"
+      "referrals": "Referidos",
+      "videos": "Videos"
     },
     "actions": {
       "refresh": "Actualizar"

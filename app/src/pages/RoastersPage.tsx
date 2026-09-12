@@ -114,7 +114,7 @@ export const RoastersPage: React.FC = () => {
       color = 'bg-leaf/20 text-leaf border-leaf/10';
       label = t('roasters.risk.low', 'Low');
     } else if (score < 0.40) {
-      color = 'bg-gold-100 text-gold-text border-gold/10';
+      color = 'bg-gold-100 text-gold-600 border-gold/10';
       label = t('roasters.risk.moderate', 'Moderate');
     } else if (score < 0.60) {
       color = 'bg-warning-bg text-warning border-warning/10';

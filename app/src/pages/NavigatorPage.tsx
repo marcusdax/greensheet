@@ -354,7 +354,7 @@ export const NavigatorPage: React.FC = () => {
                           <h3 className="text-lg font-bold text-ink font-sans flex items-center gap-2">
                             {lot.origin}
                             {isNew && (
-                              <span className="px-1.5 py-0.5 bg-gold-100 border border-gold/30 text-gold-text text-[9px] font-bold rounded-sm uppercase tracking-wider font-sans">
+                              <span className="px-1.5 py-0.5 bg-gold-100 border border-gold/30 text-gold-600 text-[9px] font-bold rounded-sm uppercase tracking-wider font-sans">
                                 {t('common:labels.new', 'NEW')}
                               </span>
                             )}

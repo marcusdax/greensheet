@@ -16,7 +16,8 @@
       "automationRules": "自动化规则",
       "webhooks": "Webhooks",
       "growth": "Growth",
-      "referrals": "推荐"
+      "referrals": "推荐",
+      "videos": "视频"
     },
     "actions": {
       "refresh": "刷新"

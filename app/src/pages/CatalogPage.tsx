@@ -355,8 +355,8 @@ export const CatalogPage: React.FC = () => {
                     <tr
                       key={lot.id}
                       onClick={() => selectLot(lot.id)}
-                      className={`hover:bg-hover/20 cursor-pointer transition-colors group ${
-                        idx % 2 === 1 ? 'bg-recessed/10' : 'bg-surface'
+                      className={`hover:bg-hover cursor-pointer transition-colors group ${
+                        idx % 2 === 1 ? 'bg-recessed' : 'bg-surface'
                       } ${isSelected ? 'bg-teal/5' : ''}`}
                     >
                       {/* Lot Origin */}
@@ -369,7 +369,7 @@ export const CatalogPage: React.FC = () => {
 
                       {/* Process */}
                       <td className={`px-4 ${rowHeightClass}`}>
-                        <span className="inline-flex px-2 py-0.5 text-xs rounded-full bg-recessed text-ink capitalize font-sans">
+                        <span className="inline-flex px-2 py-0.5 text-xs rounded-sm bg-recessed text-ink capitalize font-sans">
                           {t(`process.${lot.processMethod}`, lot.processMethod ?? '—')}
                         </span>
                       </td>
@@ -411,9 +411,9 @@ export const CatalogPage: React.FC = () => {
                       {/* Certifications */}
                       <td className={`px-4 ${rowHeightClass} text-center`}>
                         <div className="flex items-center justify-center gap-1">
-                          {lot.certifications.organic && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-success-bg text-success text-[9px] font-bold rounded-sm border border-success/10" title="Organic Certified">ORG</span>}
-                          {lot.certifications.fairTrade && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-success-bg text-success text-[9px] font-bold rounded-sm border border-success/10" title="Fair Trade">FT</span>}
-                          {lot.certifications.rainforestAlliance && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-success-bg text-success text-[9px] font-bold rounded-sm border border-success/10" title="Rainforest Alliance">RA</span>}
+                          {lot.certifications.organic && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-leaf/10 text-leaf text-[9px] font-bold rounded-sm border border-leaf/30" title="Organic Certified">ORG</span>}
+                          {lot.certifications.fairTrade && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-leaf/10 text-leaf text-[9px] font-bold rounded-sm border border-leaf/30" title="Fair Trade">FT</span>}
+                          {lot.certifications.rainforestAlliance && <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-leaf/10 text-leaf text-[9px] font-bold rounded-sm border border-leaf/30" title="Rainforest Alliance">RA</span>}
                           {!lot.certifications.organic && !lot.certifications.fairTrade && !lot.certifications.rainforestAlliance && <span className="text-subtle text-xs">—</span>}
                         </div>
                       </td>
@@ -425,7 +425,7 @@ export const CatalogPage: React.FC = () => {
 
                       {/* Status */}
                       <td className={`px-4 ${rowHeightClass} text-center`}>
-                        <span className={`inline-flex px-2 py-0.5 text-[10px] rounded-full font-sans font-bold uppercase tracking-wider ${
+                        <span className={`inline-flex px-2 py-0.5 text-[10px] rounded-sm font-sans font-bold uppercase tracking-wider ${
                           lot.status === 'active' ? 'bg-success-bg text-success border border-success/10' : 'bg-recessed text-muted border border-border'
                         }`}>
                           {lot.status}

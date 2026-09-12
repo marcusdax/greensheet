@@ -20,6 +20,11 @@
   --al-warning: #8A5F14; --al-warning-bg: #FBF0DA;
   --al-danger: #9E3D31;  --al-danger-bg: #F9E6E2;
   --al-info: #2C6E8C;    --al-info-bg: #E4EEF3;
+  /* semantic status tokens (flip in dark mode) */
+  --al-status-success: #33684A;  --al-status-success-bg: #E5EFE7;
+  --al-status-warning: #8A5F14;  --al-status-warning-bg: #FBF0DA;
+  --al-status-danger: #9E3D31;   --al-status-danger-bg: #F9E6E2;
+  --al-status-info: #2C6E8C;     --al-status-info-bg: #E4EEF3;
   /* elevation (navy-tinted) */
   --al-e1: 0 1px 2px 0 rgb(22 50 62 / 0.07);
   --al-e2: 0 2px 4px -1px rgb(22 50 62 / 0.08), 0 4px 8px -2px rgb(22 50 62 / 0.06);

@@ -128,7 +128,7 @@ export const AppLayout: React.FC = () => {
               <span className="text-2xl font-display font-medium text-parchment-50 leading-none">
                 Auctum Ledger
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#A9A08C] uppercase mt-1">
+              <span className="text-[9px] font-mono tracking-widest text-parchment-200 uppercase mt-1">
                 BY Auctum
               </span>
             </div>
@@ -145,7 +145,7 @@ export const AppLayout: React.FC = () => {
           <nav className="flex-1 overflow-y-auto p-4 space-y-6">
             {menuGroups.map((group) => (
               <div key={group.title} className="space-y-1">
-                <span className="block px-3 text-[10px] font-mono tracking-widest text-[#A9A08C] uppercase font-bold">
+                <span className="block px-3 text-[10px] font-mono tracking-widest text-parchment-200 uppercase font-bold">
                   {group.title}
                 </span>
                 <div className="space-y-0.5">
@@ -179,6 +179,37 @@ export const AppLayout: React.FC = () => {
                 </div>
               </div>
             ))}
+            
+            {/* VIDEO Group - added for video content ecosystem */}
+            <div key="VIDEO" className="space-y-1">
+              <span className="block px-3 text-[10px] font-mono tracking-widest text-parchment-200 uppercase font-bold">
+                VIDEO
+              </span>
+              <div className="space-y-0.5">
+                <NavLink
+                  key="videos"
+                  to={`/${locale || 'en-US'}/videos`}
+                  onClick={() => setSidebarOpen(false)}
+                  className={({ isActive }) => 
+                    `h-10 px-3 rounded-md flex items-center gap-3 font-medium text-sm transition-all focus-visible:ring-1 focus-visible:ring-teal relative ${
+                      isActive 
+                        ? 'bg-teal text-white shadow-sm font-semibold' 
+                        : 'text-parchment-50/70 hover:text-white hover:bg-white/5'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-teal rounded-r-sm" />
+                      )}
+                      <Play size={18} className={isActive ? 'text-white' : 'text-parchment-50/50'} />
+                      <span>{t('nav.videos', 'Videos')}</span>
+                    </>
+                  )}
+                </NavLink>
+              </div>
+            </div>
           </nav>
 
           {/* Footer of Sidebar */}
