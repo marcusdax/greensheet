@@ -1,9 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { streamCompletion } from '../ai-client';
 
 describe('streamCompletion', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('yields chunks from an SSE stream', async () => {
@@ -17,10 +21,10 @@ describe('streamCompletion', () => {
       },
     });
 
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       body: stream,
-    });
+    }));
 
     const chunks: string[] = [];
     for await (const event of streamCompletion({
@@ -37,10 +41,10 @@ describe('streamCompletion', () => {
   });
 
   it('yields error when response is not ok', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       text: async () => 'Bad request',
-    });
+    }));
 
     const events = [];
     for await (const event of streamCompletion({
