@@ -15,7 +15,8 @@
       "sampleKits": "样品套装",
       "automationRules": "自动化规则",
       "webhooks": "Webhooks",
-      "growth": "Growth"
+      "growth": "Growth",
+      "videoContent": "视频内容"
     },
     "actions": {
       "refresh": "Refresh"

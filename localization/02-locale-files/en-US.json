@@ -15,7 +15,8 @@
       "sampleKits": "Sample Kits",
       "automationRules": "Automation Rules",
       "webhooks": "Webhooks",
-      "growth": "Growth"
+      "growth": "Growth",
+      "videoContent": "Video Content"
     },
     "actions": {
       "refresh": "Refresh"

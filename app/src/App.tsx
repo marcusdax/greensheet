@@ -13,7 +13,7 @@ import { SampleKitsPage } from './pages/SampleKitsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { ReferralsPage } from './pages/ReferralsPage';
 import { ReviewQueuePage } from './pages/ReviewQueuePage';
-import { WebhooksPage } from './pages/WebhooksPage';
+import { VideoContentPage } from './pages/VideoContentPage';
 
 // Import i18n to initialize it
 import './i18n';
@@ -106,7 +106,7 @@ function App() {
             <Route path="orders" element={<OrdersPage />} />
             <Route path="referrals" element={<ReferralsPage />} />
             <Route path="review-queue" element={<ReviewQueuePage />} />
-            <Route path="webhooks" element={<WebhooksPage />} />
+            <Route path="video-content" element={<VideoContentPage />} />
             {/* Fallback under locale */}
             <Route path="*" element={<Navigate to="navigator" replace />} />
           </Route>
