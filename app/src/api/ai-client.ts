@@ -4,6 +4,7 @@ export async function* streamCompletion(payload: CompletionPayload): AsyncGenera
   { chunk?: string; done?: boolean; error?: string },
   void,
   unknown
+  
 > {
   const proxyUrl = import.meta.env.VITE_AI_PROXY_URL ?? 'http://localhost:3001';
   const response = await fetch(`${proxyUrl}/api/v1/chat/completions`, {
