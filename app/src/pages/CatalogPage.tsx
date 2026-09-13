@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelection, useCatalog, useUi, useRootStore } from '../stores/root-store';
 import { CupScoreBadge } from '../components/CupScoreBadge';
+import { TrustScoreBadge } from '../components/TrustScoreBadge';
 import { LotForm, type LotFormOutput } from '../components/forms/LotForm';
 import { lotToFormValues } from '../lib/lot-form-helpers';
 import { Modal } from '../components/ui/Modal';
@@ -381,7 +382,12 @@ export const CatalogPage: React.FC = () => {
 
                       {/* Cup */}
                       <td className={`px-4 ${rowHeightClass} text-center`}>
-                        <CupScoreBadge score={lot.cupScore} />
+                        <div className="flex items-center justify-center gap-1.5">
+                          <CupScoreBadge score={lot.cupScore} />
+                          {lot.trustScore !== undefined && (
+                            <TrustScoreBadge score={lot.trustScore} size="sm" evidenceCount={lot.trustEvidenceCount} />
+                          )}
+                        </div>
                       </td>
 
                       {/* Price/lb */}

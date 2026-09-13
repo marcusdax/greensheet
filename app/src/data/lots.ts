@@ -17,6 +17,8 @@ export interface LedgerLot {
   sensoryProfile?: { acidity: number; body: number; sweetness: number };
   estimatedArrival?: string;
   lastUpdatedAt: string;
+  trustScore?: number;
+  trustEvidenceCount?: number;
 }
 
 export const lots: LedgerLot[] = [
@@ -36,7 +38,9 @@ export const lots: LedgerLot[] = [
     flavorNotes: ['jasmine', 'cane sugar', 'red currant', 'cocoa nib', 'lime'],
     sensoryProfile: { acidity: 8.5, body: 7.0, sweetness: 8.8 },
     estimatedArrival: '2025-07-12',
-    lastUpdatedAt: new Date(Date.now() - 5*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 5*864e5).toISOString(),
+    trustScore: 92,
+    trustEvidenceCount: 5
   },
   {
     id: 'lot_002',
@@ -54,7 +58,9 @@ export const lots: LedgerLot[] = [
     flavorNotes: ['blueberry', 'bergamot', 'cacao', 'lavender'],
     sensoryProfile: { acidity: 8.8, body: 7.5, sweetness: 8.4 },
     estimatedArrival: '2025-06-28',
-    lastUpdatedAt: new Date(Date.now() - 16*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 16*864e5).toISOString(),
+    trustScore: 78,
+    trustEvidenceCount: 3
   },
   {
     id: 'lot_003',
@@ -72,7 +78,9 @@ export const lots: LedgerLot[] = [
     flavorNotes: ['chocolate', 'orange zest', 'panela', 'almond', 'vanilla', 'black tea'],
     sensoryProfile: { acidity: 7.8, body: 8.0, sweetness: 8.6 },
     estimatedArrival: '2025-06-30',
-    lastUpdatedAt: new Date(Date.now() - 3*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 3*864e5).toISOString(),
+    trustScore: 65,
+    trustEvidenceCount: 2
   },
   {
     id: 'lot_004',
@@ -89,7 +97,9 @@ export const lots: LedgerLot[] = [
     flavorNotes: ['blackcurrant', 'grapefruit', 'brown sugar', 'tomato leaf'],
     sensoryProfile: { acidity: 9.2, body: 7.8, sweetness: 8.9 },
     estimatedArrival: '2025-08-03',
-    lastUpdatedAt: new Date(Date.now() - 2*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 2*864e5).toISOString(),
+    trustScore: 84,
+    trustEvidenceCount: 4
   },
   {
     id: 'lot_005',
@@ -107,6 +117,8 @@ export const lots: LedgerLot[] = [
     flavorNotes: ['rum raisin', 'pineapple', 'cinnamon'],
     sensoryProfile: { acidity: 8.2, body: 7.2, sweetness: 8.0 },
     estimatedArrival: '2025-07-20',
-    lastUpdatedAt: new Date(Date.now() - 30*864e5).toISOString()
+    lastUpdatedAt: new Date(Date.now() - 30*864e5).toISOString(),
+    trustScore: 48,
+    trustEvidenceCount: 1
   },
 ];

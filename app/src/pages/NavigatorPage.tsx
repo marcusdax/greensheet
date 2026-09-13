@@ -5,6 +5,7 @@ import { useRankedLots } from '../stores/selectors/sourcing-selectors';
 import { lots } from '../data/lots';
 import { GOAL_PROFILES, type GoalKey, type SortOrder } from '../types/domain';
 import { CupScoreBadge } from '../components/CupScoreBadge';
+import { TrustScoreBadge } from '../components/TrustScoreBadge';
 import { 
   Scale, Coins, Star, Sprout, Ship, Search, SlidersHorizontal, 
   ChevronDown, ChevronUp, AlertCircle, Calendar, ArrowUpDown
@@ -366,6 +367,13 @@ export const NavigatorPage: React.FC = () => {
                       </div>
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
                         <CupScoreBadge score={lot.cupScore} />
+                        {lot.trustScore !== undefined && (
+                          <TrustScoreBadge
+                            score={lot.trustScore}
+                            size="sm"
+                            evidenceCount={lot.trustEvidenceCount}
+                          />
+                        )}
                         {lot.metrics.isOverBudget && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-warning-bg border border-warning/20 text-warning text-[9px] font-bold rounded-sm uppercase tracking-wider font-sans">
                             <AlertCircle size={10} />

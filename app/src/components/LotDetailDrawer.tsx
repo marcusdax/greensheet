@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelection } from '../stores/root-store';
 import { lots } from '../data/lots';
 import { CupScoreBadge } from './CupScoreBadge';
+import { TrustScoreBadge } from './TrustScoreBadge';
 import { X } from 'lucide-react';
 import { fmtCurrency, fmtDate } from '../i18n/format';
 
@@ -48,6 +49,13 @@ export const LotDetailDrawer: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CupScoreBadge score={lot.cupScore} size="lg" />
+            {lot.trustScore !== undefined && (
+              <TrustScoreBadge
+                score={lot.trustScore}
+                size="md"
+                evidenceCount={lot.trustEvidenceCount}
+              />
+            )}
             <button 
               onClick={() => selectLot(null)}
               className="p-1 text-muted hover:text-ink hover:bg-recessed rounded-md transition-colors"
@@ -168,6 +176,56 @@ export const LotDetailDrawer: React.FC = () => {
                   {fmtCurrency(currentLocale).format(markup)} ({marginPct.toFixed(1)}%)
                 </span>
               </div>
+              {/* Trust Score Panel */}
+              {lot.trustScore !== undefined && (
+                <div className="p-3 bg-surface border-t border-border/50">
+                  <h4 className="overline text-xs text-muted mb-3">
+                    {t('lot.details.trust', 'TRUST SCORE')}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                    <div>
+                      <span className="block text-subtle mb-1">Document Verification</span>
+                      <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-gold transition-all duration-slower`}
+                          style={{ width: `${lot.trustScore * 0.35}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="block text-subtle mb-1">Transaction Integrity</span>
+                      <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-teal transition-all duration-slower`}
+                          style={{ width: `${lot.trustScore * 0.25}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="block text-subtle mb-1">Quality Consistency</span>
+                      <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-cherry-100 transition-all duration-slower`}
+                          style={{ width: `${lot.trustScore * 0.2}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="block text-subtle mb-1">Network Reputation</span>
+                      <div className="h-1.5 w-full bg-recessed rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-sage-600 transition-all duration-slower`}
+                          style={{ width: `${lot.trustScore * 0.08}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="font-mono font-bold text-2xl text-ink">{lot.trustScore}</span>
+                    <span className="text-subtle">{lot.trustEvidenceCount !== undefined ? `${lot.trustEvidenceCount} accepted documents` : ''}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

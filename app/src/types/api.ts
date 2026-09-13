@@ -314,6 +314,8 @@ export interface LedgerLot {
   estimatedArrival: string | null;
   status: LotStatus;
   metrics?: LedgerLotMetrics;
+  trustScore?: number;
+  trustEvidenceCount?: number;
   lastUpdatedAt: string;
 }
 
