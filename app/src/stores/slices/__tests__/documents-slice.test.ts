@@ -17,8 +17,8 @@ describe('documents-slice', () => {
       status: 'proposed',
     });
 
-    // Get the generated document ID
-    const docId = documents.documents[0].id;
+    // Get the generated document ID - re-read from store after mutation
+    const docId = useRootStore.getState().documents.documents[0].id;
 
     documents.acceptOcrDocument({
       documentId: docId,
@@ -29,9 +29,11 @@ describe('documents-slice', () => {
       confidenceScores: { cupScore: 0.95, moistureContent: 0.91 },
     });
 
-    expect(documents.documents[0].status).toBe('accepted');
-    expect(documents.documents[0].extractedFields?.cupScore).toBe(82.75);
-    expect(documents.documents[0].confidenceScores?.cupScore).toBe(0.95);
+    // Re-read from store after mutation
+    const state = useRootStore.getState();
+    expect(state.documents.documents[0].status).toBe('accepted');
+    expect(state.documents.documents[0].extractedFields?.cupScore).toBe(82.75);
+    expect(state.documents.documents[0].confidenceScores?.cupScore).toBe(0.95);
   });
 
   it('rejects a document', () => {
@@ -43,9 +45,10 @@ describe('documents-slice', () => {
       status: 'proposed',
     });
 
-    const docId = documents.documents[0].id;
+    const docId = useRootStore.getState().documents.documents[0].id;
     documents.rejectDocument(docId);
 
-    expect(documents.documents[0].status).toBe('rejected');
+    const state = useRootStore.getState();
+    expect(state.documents.documents[0].status).toBe('rejected');
   });
 });
